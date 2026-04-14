@@ -2,5 +2,5 @@ import { Environment } from './environment.interface';
 
 export const environment: Environment = {
   production: true,
-  apiUrl: '/api',
+  apiUrl: 'https://crusaders-bis-list-api.onrender.com/api',
 };
