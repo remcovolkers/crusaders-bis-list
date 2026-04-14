@@ -11,19 +11,19 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        sync: false   # Set manually in Render dashboard
+        sync: false # Set manually in Render dashboard
       - key: DATABASE_SSL
-        value: "true"
+        value: 'true'
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
         sync: false
       - key: GOOGLE_CALLBACK_URL
-        sync: false   # e.g. https://crusaders-bis-list-api.onrender.com/api/auth/google/callback
+        sync: false # e.g. https://crusaders-bis-list-api.onrender.com/api/auth/google/callback
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        sync: false   # e.g. https://crusaders-bis-list.vercel.app
+        sync: false # e.g. https://crusaders-bis-list.vercel.app
 
   # Angular Frontend (Static Site)
   - type: web
