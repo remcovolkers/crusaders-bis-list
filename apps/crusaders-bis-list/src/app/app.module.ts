@@ -1,4 +1,4 @@
-import { Module, OnApplicationBootstrap } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
@@ -11,7 +11,6 @@ import { BackendDomainModule } from '@crusaders-bis-list/backend-domain';
 import { BackendApplicationModule } from '@crusaders-bis-list/backend-application';
 import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrastructure';
 import { BackendAdaptersModule } from '@crusaders-bis-list/backend-adapters';
-import { SyncRaidCatalogFromBlizzardUseCase } from '@crusaders-bis-list/backend-application';
 import {
   UserOrmEntity,
   RaiderProfileOrmEntity,
@@ -60,15 +59,6 @@ import {
     BackendInfrastructureModule,
     BackendAdaptersModule,
   ],
-  providers: [
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
-  ],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
-export class AppModule implements OnApplicationBootstrap {
-  constructor(private readonly sync: SyncRaidCatalogFromBlizzardUseCase) {}
-
-  async onApplicationBootstrap(): Promise<void> {
-    await this.sync.execute();
-  }
-}
-
+export class AppModule {}

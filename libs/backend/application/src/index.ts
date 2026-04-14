@@ -4,5 +4,6 @@ export * from './lib/use-cases/assignment.use-case';
 export * from './lib/use-cases/raid-catalog.use-case';
 export * from './lib/use-cases/user.use-case';
 export * from './lib/use-cases/sync-raid-catalog.use-case';
+export * from './lib/use-cases/reset-catalog-and-sync.use-case';
 export * from './lib/use-cases/season-config.use-case';
 export * from './lib/use-cases/raider-reservations.use-case';

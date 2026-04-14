@@ -58,18 +58,58 @@ export class BlizzardApiService implements IBlizzardApiService {
     return this.token.access_token;
   }
 
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private async withRetry<T>(fn: () => Promise<T>, maxAttempts = 3): Promise<T> {
+    let lastError!: Error;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        return await fn();
+      } catch (err) {
+        lastError = err as Error;
+        const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+        const isRetryable = status === 429 || (status !== undefined && status >= 500);
+        if (!isRetryable || attempt === maxAttempts) throw err;
+
+        let delay: number;
+        if (status === 429) {
+          const retryAfter = axios.isAxiosError(err) ? Number(err.response?.headers['retry-after']) : NaN;
+          delay = Number.isFinite(retryAfter) ? retryAfter * 1000 : 10_000;
+        } else {
+          delay = 1_000 * 2 ** (attempt - 1); // 1 s, 2 s, …
+        }
+        this.logger.warn(`Attempt ${attempt}/${maxAttempts} failed (HTTP ${status}), retrying in ${delay}ms…`);
+        await this.sleep(delay);
+      }
+    }
+    throw lastError;
+  }
+
   private async get<T>(path: string, params: Record<string, string> = {}): Promise<T> {
-    const token = await this.getAccessToken();
-    const namespace = `static-${this.region}`;
-    const response = await this.client.get<T>(path, {
-      headers: { Authorization: `Bearer ${token}` },
-      params: { namespace, locale: 'en_US', ...params },
+    return this.withRetry(async () => {
+      const token = await this.getAccessToken();
+      const namespace = `static-${this.region}`;
+      const response = await this.client.get<T>(path, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { namespace, locale: 'en_US', ...params },
+      });
+      return response.data;
     });
-    return response.data;
   }
 
   async getJournalInstance(id: number): Promise<BlizzardJournalInstance> {
-    return this.get<BlizzardJournalInstance>(`/data/wow/journal-instance/${id}`);
+    try {
+      return await this.get<BlizzardJournalInstance>(`/data/wow/journal-instance/${id}`);
+    } catch (err) {
+      this.logger.warn(
+        `static namespace failed for instance ${id} (${(err as Error).message}), retrying with static-preview…`,
+      );
+      return this.get<BlizzardJournalInstance>(`/data/wow/journal-instance/${id}`, {
+        namespace: `static-preview-${this.region}`,
+      });
+    }
   }
 
   async getJournalEncounter(id: number): Promise<BlizzardJournalEncounter> {
@@ -82,9 +122,7 @@ export class BlizzardApiService implements IBlizzardApiService {
 
   async getItemMediaUrl(id: number): Promise<string | undefined> {
     try {
-      const media = await this.get<{ assets: { key: string; value: string }[] }>(
-        `/data/wow/media/item/${id}`,
-      );
+      const media = await this.get<{ assets: { key: string; value: string }[] }>(`/data/wow/media/item/${id}`);
       return media.assets.find((a) => a.key === 'icon')?.value;
     } catch {
       return undefined;

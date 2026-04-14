@@ -4,7 +4,12 @@ import { AssignLootUseCase, UpdateAssignmentStatusUseCase } from './use-cases/as
 import { GetBossLootViewUseCase, GetRaidCatalogUseCase } from './use-cases/raid-catalog.use-case';
 import { FindOrCreateUserUseCase, ManageUserRolesUseCase } from './use-cases/user.use-case';
 import { SyncRaidCatalogFromBlizzardUseCase } from './use-cases/sync-raid-catalog.use-case';
-import { GetSeasonConfigUseCase, UpdateSeasonConfigUseCase } from './use-cases/season-config.use-case';
+import { ResetCatalogAndSyncUseCase } from './use-cases/reset-catalog-and-sync.use-case';
+import {
+  GetSeasonConfigUseCase,
+  UpdateSeasonConfigUseCase,
+  UpdateItemSuperRareUseCase,
+} from './use-cases/season-config.use-case';
 import { GetAllRaiderReservationsUseCase } from './use-cases/raider-reservations.use-case';
 import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrastructure';
 
@@ -20,8 +25,45 @@ import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrast
     FindOrCreateUserUseCase,
     ManageUserRolesUseCase,
     SyncRaidCatalogFromBlizzardUseCase,
+    ResetCatalogAndSyncUseCase,
     GetSeasonConfigUseCase,
     UpdateSeasonConfigUseCase,
+    UpdateItemSuperRareUseCase,
+    GetAllRaiderReservationsUseCase,
+  ],
+  exports: [
+    BackendInfrastructureModule,
+    ReserveItemUseCase,
+    CancelReservationUseCase,
+    AssignLootUseCase,
+    UpdateAssignmentStatusUseCase,
+    GetBossLootViewUseCase,
+    GetRaidCatalogUseCase,
+    FindOrCreateUserUseCase,
+    ManageUserRolesUseCase,
+    SyncRaidCatalogFromBlizzardUseCase,
+    ResetCatalogAndSyncUseCase,
+    GetSeasonConfigUseCase,
+    UpdateSeasonConfigUseCase,
+    UpdateItemSuperRareUseCase,
+    GetAllRaiderReservationsUseCase,
+  ],
+})
+@Module({
+  imports: [BackendInfrastructureModule],
+  providers: [
+    ReserveItemUseCase,
+    CancelReservationUseCase,
+    AssignLootUseCase,
+    UpdateAssignmentStatusUseCase,
+    GetBossLootViewUseCase,
+    GetRaidCatalogUseCase,
+    FindOrCreateUserUseCase,
+    ManageUserRolesUseCase,
+    SyncRaidCatalogFromBlizzardUseCase,
+    GetSeasonConfigUseCase,
+    UpdateSeasonConfigUseCase,
+    UpdateItemSuperRareUseCase,
     GetAllRaiderReservationsUseCase,
   ],
   exports: [
@@ -37,6 +79,7 @@ import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrast
     SyncRaidCatalogFromBlizzardUseCase,
     GetSeasonConfigUseCase,
     UpdateSeasonConfigUseCase,
+    UpdateItemSuperRareUseCase,
     GetAllRaiderReservationsUseCase,
   ],
 })

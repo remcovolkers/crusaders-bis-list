@@ -6,19 +6,45 @@ import {
   IBlizzardApiService,
   BlizzardItem,
 } from '@crusaders-bis-list/backend-domain';
-import { ArmorType, ItemCategory, PrimaryStat, RESERVABLE_CATEGORIES } from '@crusaders-bis-list/shared-domain';
+import { ArmorType, ItemCategory, PrimaryStat } from '@crusaders-bis-list/shared-domain';
 
 interface RaidDefinition {
   instanceId: number;
   name: string;
   accentColor: string;
+  /** Used when the journal-instance endpoint is unavailable (e.g. not yet published by Blizzard). */
+  fallbackEncounterIds?: number[];
 }
 
 const TIER_35_RAIDS: RaidDefinition[] = [
-  { instanceId: 1307, name: 'The Voidspire', accentColor: '#8b5cf6' },
+  {
+    instanceId: 1307,
+    name: 'The Voidspire',
+    accentColor: '#8b5cf6',
+    // Instance endpoint returns 500 — encounter IDs resolved via journal-encounter search
+    // Order: Imperator, Vorasius, Salhadaar, Vaelgor & Ezzorak, Lightblinded Vanguard, Crown of the Cosmos
+    fallbackEncounterIds: [2733, 2734, 2736, 2735, 2737, 2738],
+  },
   { instanceId: 1314, name: 'The Dreamrift', accentColor: '#10b981' },
   { instanceId: 1308, name: "March on Quel'Danas", accentColor: '#f59e0b' },
 ];
+
+// Tier 35 token detection by partial name — maps to the tier slot the token converts into
+const TIER_TOKEN_SLOTS: { match: RegExp; slot: string }[] = [
+  { match: /riftbloom/i, slot: 'Tier: Chest' },
+  { match: /hungering nullcore/i, slot: 'Tier: Hands' },
+  { match: /unraveled nullcore/i, slot: 'Tier: Shoulders' },
+  { match: /fanatical nullcore/i, slot: 'Tier: Head' },
+  { match: /corrupted nullcore/i, slot: 'Tier: Legs' },
+  { match: /void curio/i, slot: 'Tier: All' },
+];
+
+function detectTierTokenSlot(name: string): string | null {
+  for (const t of TIER_TOKEN_SLOTS) {
+    if (t.match.test(name)) return t.slot;
+  }
+  return null;
+}
 
 function mapItemCategory(item: BlizzardItem): {
   category: ItemCategory;
@@ -30,6 +56,13 @@ function mapItemCategory(item: BlizzardItem): {
   const itemClassId = item.item_class?.id ?? -1;
   const itemSubclassId = item.item_subclass?.id ?? -1;
   const slot = item.inventory_type?.name ?? 'Unknown';
+  const itemName = item.name ?? '';
+
+  // Tier tokens — detected by name, category is OTHER, slot describes the tier piece
+  const tierSlot = detectTierTokenSlot(itemName);
+  if (tierSlot) {
+    return { category: ItemCategory.OTHER, armorType: ArmorType.NONE, primaryStat: undefined, slot: tierSlot };
+  }
 
   // Trinket
   if (invType === 'TRINKET') {
@@ -46,16 +79,15 @@ function mapItemCategory(item: BlizzardItem): {
     if (['HOLDABLE', 'SHIELD'].includes(invType)) {
       return { category: ItemCategory.OFFHAND, armorType: ArmorType.NONE, primaryStat: undefined, slot };
     }
-    // Determine primary stat from subclass
-    const agiWeaponSubclasses = new Set([0, 7]); // Axes (for hunters), bows, etc — heuristic
-    const intWeaponSubclasses = new Set([19]); // Wands
+    const agiWeaponSubclasses = new Set([0, 7]);
+    const intWeaponSubclasses = new Set([19]);
     let primaryStat: PrimaryStat | undefined;
     if (agiWeaponSubclasses.has(itemSubclassId)) primaryStat = PrimaryStat.AGILITY;
     else if (intWeaponSubclasses.has(itemSubclassId)) primaryStat = PrimaryStat.INTELLECT;
     return { category: ItemCategory.WEAPON, armorType: ArmorType.NONE, primaryStat, slot };
   }
 
-  // Armor
+  // Armor — all armor types use category OTHER (armor type still stored for display)
   if (itemClassId === 4) {
     let armorType = ArmorType.NONE;
     switch (itemSubclassId) {
@@ -72,25 +104,7 @@ function mapItemCategory(item: BlizzardItem): {
         armorType = ArmorType.PLATE;
         break;
     }
-    let category: ItemCategory;
-    switch (armorType) {
-      case ArmorType.CLOTH:
-        category = ItemCategory.CLOTH;
-        break;
-      case ArmorType.LEATHER:
-        category = ItemCategory.LEATHER;
-        break;
-      case ArmorType.MAIL:
-        category = ItemCategory.MAIL;
-        break;
-      case ArmorType.PLATE:
-        category = ItemCategory.PLATE;
-        break;
-      default:
-        category = ItemCategory.OTHER;
-        break;
-    }
-    return { category, armorType, primaryStat: undefined, slot };
+    return { category: ItemCategory.OTHER, armorType, primaryStat: undefined, slot };
   }
 
   return { category: ItemCategory.OTHER, armorType: ArmorType.NONE, primaryStat: undefined, slot };
@@ -122,29 +136,40 @@ export class SyncRaidCatalogFromBlizzardUseCase {
     });
 
     let totalItems = 0;
+    const warnings: string[] = [];
+    const errors: string[] = [];
 
     for (const raid of TIER_35_RAIDS) {
       this.logger.log(`Syncing instance: ${raid.name} (ID: ${raid.instanceId})`);
 
-      let instance;
+      let encounterIds: number[];
       try {
-        instance = await this.blizzard.getJournalInstance(raid.instanceId);
+        const instance = await this.blizzard.getJournalInstance(raid.instanceId);
+        encounterIds = (instance.encounters ?? []).map((e) => e.id);
       } catch (err) {
-        this.logger.error(`Failed to fetch instance ${raid.instanceId}: ${(err as Error).message}`);
-        continue;
+        if (raid.fallbackEncounterIds?.length) {
+          const msg = `Instance ${raid.instanceId} (${raid.name}) unavailable — used hardcoded encounter IDs`;
+          warnings.push(msg);
+          this.logger.warn(`${msg}: ${(err as Error).message}`);
+          encounterIds = raid.fallbackEncounterIds;
+        } else {
+          const msg = `Failed to fetch instance ${raid.instanceId} (${raid.name}): ${(err as Error).message}`;
+          errors.push(msg);
+          this.logger.error(msg);
+          continue;
+        }
       }
 
-      const encounterRefs = instance.encounters ?? [];
-
-      for (let i = 0; i < encounterRefs.length; i++) {
-        const encRef = encounterRefs[i];
-        const encounterId = encRef.id;
+      for (let i = 0; i < encounterIds.length; i++) {
+        const encounterId = encounterIds[i];
 
         let encounter;
         try {
           encounter = await this.blizzard.getJournalEncounter(encounterId);
         } catch (err) {
-          this.logger.error(`Failed to fetch encounter ${encounterId}: ${(err as Error).message}`);
+          const msg = `Failed to fetch encounter ${encounterId}: ${(err as Error).message}`;
+          errors.push(msg);
+          this.logger.error(msg);
           continue;
         }
 
@@ -167,14 +192,24 @@ export class SyncRaidCatalogFromBlizzardUseCase {
           try {
             blizzardItem = await this.blizzard.getItem(itemId);
           } catch {
+            const msg = `Failed to fetch item ${itemId} — skipped`;
+            warnings.push(msg);
             this.logger.warn(`Skipping item ${itemId} — could not fetch from Blizzard.`);
             continue;
           }
 
           const { category, armorType, primaryStat, slot } = mapItemCategory(blizzardItem);
-          const iconUrl = await this.blizzard.getItemMediaUrl(itemId);
           // TODO: detect superrares from Blizzard API (e.g. blizzardItem.quality.type === 'LEGENDARY')
           const isSuperRare = false;
+
+          // Skip items with no itemLevel or ilvl ≤ 1 (patterns, quest items, etc.)
+          const ilvl = blizzardItem.level ?? 0;
+          if (ilvl <= 1) {
+            this.logger.debug(`Skipping item ${blizzardItem.name} (ilvl ${ilvl})`);
+            continue;
+          }
+
+          const iconUrl = await this.blizzard.getItemMediaUrl(itemId);
 
           await this.catalogRepo.upsertItem({
             wowItemId: blizzardItem.id,
@@ -186,7 +221,7 @@ export class SyncRaidCatalogFromBlizzardUseCase {
             primaryStat,
             bossId: boss.id,
             iconUrl,
-            isPrioritizable: RESERVABLE_CATEGORIES.has(category),
+            isPrioritizable: true,
             isSuperRare,
           });
           totalItems++;
@@ -195,5 +230,15 @@ export class SyncRaidCatalogFromBlizzardUseCase {
     }
 
     this.logger.log(`Blizzard sync complete — ${totalItems} items synced.`);
+
+    if (warnings.length) {
+      this.logger.warn(`Sync warnings (${warnings.length}):\n  ${warnings.join('\n  ')}`);
+    }
+    if (errors.length) {
+      this.logger.error(`Sync errors (${errors.length}):\n  ${errors.join('\n  ')}`);
+    }
+    if (!warnings.length && !errors.length) {
+      this.logger.log('Sync completed without any warnings or errors.');
+    }
   }
 }

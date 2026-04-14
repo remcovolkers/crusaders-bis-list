@@ -13,6 +13,11 @@ export interface IRaidCatalogRepository {
   upsertSeason(data: UpsertSeasonData): Promise<IRaidSeason>;
   upsertBoss(data: UpsertBossData): Promise<IBoss>;
   upsertItem(data: UpsertItemData): Promise<IItem>;
+  updateItemSuperRare(itemId: string, isSuperRare: boolean): Promise<IItem>;
+  /** Remove all items, bosses and seasons (in FK order). */
+  clearCatalog(): Promise<void>;
+  /** Remove only items — bosses and seasons are preserved. */
+  clearItems(): Promise<void>;
 }
 
 export const RAID_CATALOG_REPOSITORY = Symbol('IRaidCatalogRepository');

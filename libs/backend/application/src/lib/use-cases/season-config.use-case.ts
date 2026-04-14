@@ -5,7 +5,7 @@ import {
   RAID_CATALOG_REPOSITORY,
   IRaidCatalogRepository,
 } from '@crusaders-bis-list/backend-domain';
-import { ISeasonConfig, UpdateSeasonConfigDto } from '@crusaders-bis-list/shared-domain';
+import { IItem, ISeasonConfig, UpdateSeasonConfigDto } from '@crusaders-bis-list/shared-domain';
 
 @Injectable()
 export class GetSeasonConfigUseCase {
@@ -37,5 +37,19 @@ export class UpdateSeasonConfigUseCase {
   async execute(seasonId: string, dto: UpdateSeasonConfigDto): Promise<ISeasonConfig> {
     const config = await this.configRepo.findOrCreateDefault(seasonId);
     return this.configRepo.update(config.id, dto);
+  }
+}
+
+@Injectable()
+export class UpdateItemSuperRareUseCase {
+  constructor(
+    @Inject(RAID_CATALOG_REPOSITORY)
+    private readonly catalogRepo: IRaidCatalogRepository,
+  ) {}
+
+  async execute(itemId: string, isSuperRare: boolean): Promise<IItem> {
+    const item = await this.catalogRepo.findItemById(itemId);
+    if (!item) throw new NotFoundException(`Item ${itemId} not found.`);
+    return this.catalogRepo.updateItemSuperRare(itemId, isSuperRare);
   }
 }

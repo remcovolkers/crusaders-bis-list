@@ -70,6 +70,16 @@ export class LootDomainRules {
     }
 
     if (limit === 0) {
+      // A superrare bypasses a zero category limit — it uses the superrare slot instead
+      if (isSuperRare && limits.superrareLimit > 0) {
+        if (existingSuperRareReservations >= limits.superrareLimit) {
+          return {
+            allowed: false,
+            reason: `You can reserve at most ${limits.superrareLimit} superrare item(s) per season.`,
+          };
+        }
+        return { allowed: true };
+      }
       return { allowed: false, reason: 'This item type cannot be reserved this season.' };
     }
 

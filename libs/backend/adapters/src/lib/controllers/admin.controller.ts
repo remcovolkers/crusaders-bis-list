@@ -23,6 +23,9 @@ import {
   UpdateSeasonConfigUseCase,
   CancelReservationUseCase,
   GetAllRaiderReservationsUseCase,
+  SyncRaidCatalogFromBlizzardUseCase,
+  ResetCatalogAndSyncUseCase,
+  UpdateItemSuperRareUseCase,
 } from '@crusaders-bis-list/backend-application';
 import {
   RAIDER_REPOSITORY,
@@ -48,6 +51,9 @@ export class AdminController {
     private readonly updateSeasonConfig: UpdateSeasonConfigUseCase,
     private readonly cancelReservation: CancelReservationUseCase,
     private readonly getAllReservations: GetAllRaiderReservationsUseCase,
+    private readonly syncCatalog: SyncRaidCatalogFromBlizzardUseCase,
+    private readonly resetAndSync: ResetCatalogAndSyncUseCase,
+    private readonly updateItemSuperRare: UpdateItemSuperRareUseCase,
     @Inject(RAIDER_REPOSITORY) private readonly raiderRepo: IRaiderRepository,
     @Inject(USER_REPOSITORY) private readonly userRepo: IUserRepository,
   ) {}
@@ -118,5 +124,25 @@ export class AdminController {
   @Put('season-config/:seasonId')
   updateConfig(@Param('seasonId') seasonId: string, @Body() dto: UpdateSeasonConfigDto) {
     return this.updateSeasonConfig.execute(seasonId, dto);
+  }
+
+  @Post('sync')
+  @HttpCode(HttpStatus.OK)
+  async triggerSync() {
+    await this.syncCatalog.execute();
+    return { message: 'Catalogus gesynchroniseerd met Blizzard.' };
+  }
+
+  @Post('reset-and-sync')
+  @HttpCode(HttpStatus.OK)
+  async triggerResetAndSync() {
+    await this.resetAndSync.execute();
+    return { message: 'Catalogus gereset en opnieuw gesynchroniseerd met Blizzard.' };
+  }
+
+  @Put('items/:itemId/super-rare')
+  @HttpCode(HttpStatus.OK)
+  updateSuperRare(@Param('itemId') itemId: string, @Body() body: { isSuperRare: boolean }) {
+    return this.updateItemSuperRare.execute(itemId, body.isSuperRare);
   }
 }

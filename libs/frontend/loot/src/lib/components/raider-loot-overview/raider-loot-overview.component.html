@@ -81,13 +81,20 @@
         </div>
       </div>
 
-      <!-- Tab bar -->
+      <!-- Tab bar + search -->
       <div class="tab-bar">
         @for (tab of tabs; track tab.key) {
           <button class="tab-btn" [class.active]="activeTab() === tab.key" (click)="activeTab.set(tab.key)">
             {{ tab.label }}
           </button>
         }
+        <input
+          class="search-input"
+          type="search"
+          placeholder="Zoek items..."
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+        />
       </div>
 
       <!-- Boss sections -->
@@ -113,9 +120,6 @@
                       <div class="item-info">
                         <span class="item-name">{{ item.name }}</span>
                         <div class="item-meta">
-                          @if (item.itemLevel) {
-                            <span class="ilvl-badge">ilvl {{ item.itemLevel }}</span>
-                          }
                           <span class="cat-badge" [ngClass]="getCategoryClass(item.category)">
                             {{ getCategoryLabel(item.category) }}
                           </span>
@@ -129,12 +133,8 @@
                     @if (item.isPrioritizable) {
                       <div class="item-actions">
                         @if (!item.isReserved) {
-                          <button
-                            class="btn-primary"
-                            [disabled]="isAtLimit(item.category, item.isSuperRare)"
-                            (click)="reserve(item)"
-                          >
-                            {{ isAtLimit(item.category, item.isSuperRare) ? 'Limiet bereikt' : 'Reserveer' }}
+                          <button class="btn-primary" [disabled]="isAtLimit(item)" (click)="reserve(item)">
+                            {{ isAtLimit(item) ? 'Limiet bereikt' : 'Reserveer' }}
                           </button>
                         } @else {
                           <span class="reserved-badge">✓ Gereserveerd</span>

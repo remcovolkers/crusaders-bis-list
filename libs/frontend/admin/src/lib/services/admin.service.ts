@@ -7,6 +7,7 @@ import {
   AssignmentStatus,
   IUser,
   UserRole,
+  IItem,
   ISeasonConfig,
   UpdateSeasonConfigDto,
 } from '@crusaders-bis-list/shared-domain';
@@ -89,11 +90,23 @@ export class AdminService {
     return this.http.delete<void>(`${this.base}/admin/reservations/${reservationId}`);
   }
 
+  syncCatalog(): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.base}/admin/sync`, {});
+  }
+
+  resetAndSyncCatalog(): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.base}/admin/reset-and-sync`, {});
+  }
+
   getSeasonConfig(): Observable<ISeasonConfig> {
     return this.http.get<ISeasonConfig>(`${this.base}/admin/season-config`);
   }
 
   updateSeasonConfig(seasonId: string, dto: UpdateSeasonConfigDto): Observable<ISeasonConfig> {
     return this.http.put<ISeasonConfig>(`${this.base}/admin/season-config/${seasonId}`, dto);
+  }
+
+  updateItemSuperRare(itemId: string, isSuperRare: boolean): Observable<IItem> {
+    return this.http.put<IItem>(`${this.base}/admin/items/${itemId}/super-rare`, { isSuperRare });
   }
 }

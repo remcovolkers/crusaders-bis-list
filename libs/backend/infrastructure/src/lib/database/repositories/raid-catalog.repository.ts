@@ -145,14 +145,31 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
         itemLevel: data.itemLevel,
         primaryStat: data.primaryStat,
         bossId: data.bossId,
-        iconUrl: data.iconUrl,
+        // Only overwrite iconUrl if a new value was successfully fetched
+        ...(data.iconUrl ? { iconUrl: data.iconUrl } : {}),
         isPrioritizable: data.isPrioritizable,
-        isSuperRare: data.isSuperRare ?? false,
+        // Preserve admin-set isSuperRare — only update if not already true in DB
+        isSuperRare: item.isSuperRare || (data.isSuperRare ?? false),
       });
       return this.toIItem(await this.itemRepo.findOneOrFail({ where: { id: item.id } }), bossName);
     }
 
     item = this.itemRepo.create({ ...data });
     return this.toIItem(await this.itemRepo.save(item), bossName);
+  }
+
+  async updateItemSuperRare(itemId: string, isSuperRare: boolean): Promise<IItem> {
+    await this.itemRepo.update(itemId, { isSuperRare });
+    const item = await this.itemRepo.findOneOrFail({ where: { id: itemId } });
+    const bossName = (await this.bossRepo.findOne({ where: { id: item.bossId } }))?.name ?? '';
+    return this.toIItem(item, bossName);
+  }
+
+  async clearCatalog(): Promise<void> {
+    await this.itemRepo.query('TRUNCATE TABLE items, bosses, raid_seasons RESTART IDENTITY CASCADE');
+  }
+
+  async clearItems(): Promise<void> {
+    await this.itemRepo.query('TRUNCATE TABLE items RESTART IDENTITY CASCADE');
   }
 }
