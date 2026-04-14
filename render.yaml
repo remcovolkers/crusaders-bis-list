@@ -29,7 +29,6 @@ services:
   - type: web
     name: crusaders-bis-list-frontend
     env: static
-    region: frankfurt
     buildCommand: npm ci && npx nx build frontend --configuration=production
     staticPublishPath: dist/frontend/browser
     envVars:
