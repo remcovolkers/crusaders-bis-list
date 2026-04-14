@@ -1,0 +1,52 @@
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { USER_REPOSITORY, IUserRepository, User } from '@crusaders-bis-list/backend-domain';
+import { UserRole } from '@crusaders-bis-list/shared-domain';
+
+export interface GoogleProfile {
+  googleId: string;
+  email: string;
+  displayName: string;
+  avatarUrl?: string;
+}
+
+@Injectable()
+export class FindOrCreateUserUseCase {
+  constructor(
+    @Inject(USER_REPOSITORY)
+    private readonly userRepo: IUserRepository,
+  ) {}
+
+  async execute(profile: GoogleProfile): Promise<User> {
+    const existing = await this.userRepo.findByGoogleId(profile.googleId);
+    if (existing) return existing;
+
+    const newUser = new User();
+    newUser.googleId = profile.googleId;
+    newUser.email = profile.email;
+    newUser.displayName = profile.displayName;
+    newUser.avatarUrl = profile.avatarUrl;
+    newUser.roles = [UserRole.RAIDER];
+    newUser.createdAt = new Date();
+    newUser.updatedAt = new Date();
+
+    return this.userRepo.save(newUser);
+  }
+}
+
+@Injectable()
+export class ManageUserRolesUseCase {
+  constructor(
+    @Inject(USER_REPOSITORY)
+    private readonly userRepo: IUserRepository,
+  ) {}
+
+  async setRoles(targetUserId: string, roles: UserRole[]): Promise<User> {
+    const user = await this.userRepo.findById(targetUserId);
+    if (!user) throw new NotFoundException('User not found');
+    return this.userRepo.updateRoles(targetUserId, roles);
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return this.userRepo.findAll();
+  }
+}

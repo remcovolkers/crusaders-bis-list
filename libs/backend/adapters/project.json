@@ -1,0 +1,9 @@
+{
+  "name": "backend-adapters",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/backend/adapters/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project backend-adapters --web",
+  "targets": {}
+}

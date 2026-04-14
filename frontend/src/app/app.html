@@ -1,0 +1,15 @@
+<nav class="app-nav" *ngIf="isAuthenticated$ | async">
+  <div class="nav-brand">⚔️ Crusaders BIS List</div>
+  <div class="nav-links">
+    <a routerLink="/loot" routerLinkActive="active">Mijn Loot</a>
+    <a *ngIf="isAdmin$ | async" routerLink="/admin/boss-view" routerLinkActive="active">Admin</a>
+    <a *ngIf="isAdmin$ | async" routerLink="/admin/users" routerLinkActive="active">Gebruikers</a>
+  </div>
+  <div class="nav-user" *ngIf="currentUser$ | async as user">
+    <span class="user-name">{{ user.displayName }}</span>
+    <span class="user-role" *ngIf="isAdmin$ | async">Admin</span>
+    <button class="logout-btn" (click)="logout()">Uitloggen</button>
+  </div>
+</nav>
+
+<router-outlet></router-outlet>

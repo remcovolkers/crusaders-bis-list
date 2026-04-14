@@ -1,0 +1,45 @@
+services:
+  # NestJS Backend
+  - type: web
+    name: crusaders-bis-list-api
+    env: node
+    region: frankfurt
+    plan: starter
+    buildCommand: npm ci && npx nx build crusaders-bis-list --configuration=production
+    startCommand: node dist/apps/crusaders-bis-list/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false   # Set manually in Render dashboard
+      - key: DATABASE_SSL
+        value: "true"
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_CALLBACK_URL
+        sync: false   # e.g. https://crusaders-bis-list-api.onrender.com/api/auth/google/callback
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false   # e.g. https://crusaders-bis-list.vercel.app
+
+  # Angular Frontend (Static Site)
+  - type: web
+    name: crusaders-bis-list-frontend
+    env: static
+    region: frankfurt
+    buildCommand: npm ci && npx nx build frontend --configuration=production
+    staticPublishPath: dist/frontend/browser
+    envVars:
+      - key: NODE_ENV
+        value: production
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
