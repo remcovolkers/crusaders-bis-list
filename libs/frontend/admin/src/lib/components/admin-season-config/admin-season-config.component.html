@@ -1,0 +1,100 @@
+<div class="config-page">
+  <div class="config-header">
+    <h2>Seizoen configuratie</h2>
+    <p class="config-subtitle">Reserveringslimieten aanpassen voor het actieve seizoen</p>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner">Laden...</div>
+  }
+  @if (error()) {
+    <div class="error-banner">{{ error() }}</div>
+  }
+  @if (success()) {
+    <div class="success-banner">{{ success() }}</div>
+  }
+
+  @if (config() && !loading()) {
+    <div class="config-card card">
+      <div class="config-row">
+        <div class="config-field">
+          <label class="form-label" for="trinket-limit">Trinket limiet</label>
+          <input
+            id="trinket-limit"
+            class="form-input config-input"
+            type="number"
+            [ngModel]="trinketLimit()"
+            (ngModelChange)="trinketLimit.set($event)"
+            min="0"
+            max="10"
+          />
+          <span class="config-hint">Max. trinkets per raider per seizoen</span>
+        </div>
+        <div class="config-field">
+          <label class="form-label" for="weapon-limit">Wapen limiet</label>
+          <input
+            id="weapon-limit"
+            class="form-input config-input"
+            type="number"
+            [ngModel]="weaponLimit()"
+            (ngModelChange)="weaponLimit.set($event)"
+            min="0"
+            max="10"
+          />
+          <span class="config-hint">Max. wapens (incl. offhands) per raider per seizoen</span>
+        </div>
+      </div>
+
+      <div class="config-row">
+        <div class="config-field">
+          <label class="form-label" for="jewelry-limit">Jewelry limiet</label>
+          <input
+            id="jewelry-limit"
+            class="form-input config-input"
+            type="number"
+            [ngModel]="jewelryLimit()"
+            (ngModelChange)="jewelryLimit.set($event)"
+            min="0"
+            max="10"
+          />
+          <span class="config-hint">Max. sieraden (ringen/ketting) per raider per seizoen. 0 = uitgeschakeld</span>
+        </div>
+        <div class="config-field">
+          <label class="form-label" for="other-limit">Overige items limiet</label>
+          <input
+            id="other-limit"
+            class="form-input config-input"
+            type="number"
+            [ngModel]="otherLimit()"
+            (ngModelChange)="otherLimit.set($event)"
+            min="0"
+            max="10"
+          />
+          <span class="config-hint">Max. overige items per raider per seizoen. 0 = uitgeschakeld</span>
+        </div>
+      </div>
+
+      <div class="config-row">
+        <div class="config-field">
+          <label class="form-label" for="superrare-limit">Superrare limiet</label>
+          <input
+            id="superrare-limit"
+            class="form-input config-input"
+            type="number"
+            [ngModel]="superrareLimit()"
+            (ngModelChange)="superrareLimit.set($event)"
+            min="0"
+            max="10"
+          />
+          <span class="config-hint">Max. superrare items per raider per seizoen. 0 = uitgeschakeld</span>
+        </div>
+      </div>
+
+      <div class="config-actions">
+        <button class="btn-primary" [disabled]="saving()" (click)="save()">
+          {{ saving() ? 'Opslaan...' : 'Opslaan' }}
+        </button>
+      </div>
+    </div>
+  }
+</div>

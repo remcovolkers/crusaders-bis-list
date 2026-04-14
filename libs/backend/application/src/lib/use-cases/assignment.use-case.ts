@@ -3,7 +3,6 @@ import {
   ASSIGNMENT_REPOSITORY,
   IAssignmentRepository,
   LootDomainRules,
-  CreateAssignmentData,
 } from '@crusaders-bis-list/backend-domain';
 import { RAIDER_REPOSITORY, IRaiderRepository } from '@crusaders-bis-list/backend-domain';
 import { RAID_CATALOG_REPOSITORY, IRaidCatalogRepository } from '@crusaders-bis-list/backend-domain';

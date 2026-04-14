@@ -1,8 +1,8 @@
-import { Inject, Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_URL } from '@crusaders-bis-list/frontend-auth';
-import { IBoss, IItem, IRaidSeason, IReservation } from '@crusaders-bis-list/shared-domain';
+import { IBoss, IItem, IRaidSeason, IReservation, ISeasonConfig, IRaiderProfile } from '@crusaders-bis-list/shared-domain';
 
 export interface CatalogResponse {
   season: IRaidSeason;
@@ -11,10 +11,8 @@ export interface CatalogResponse {
 
 @Injectable({ providedIn: 'root' })
 export class LootService {
-  constructor(
-    private http: HttpClient,
-    @Inject(API_URL) private base: string,
-  ) {}
+  private readonly http = inject(HttpClient);
+  private readonly base = inject(API_URL);
 
   getCatalog(): Observable<CatalogResponse> {
     return this.http.get<CatalogResponse>(`${this.base}/raider/catalog`);
@@ -22,6 +20,22 @@ export class LootService {
 
   getMyReservations(seasonId: string): Observable<IReservation[]> {
     return this.http.get<IReservation[]>(`${this.base}/raider/reservations?seasonId=${seasonId}`);
+  }
+
+  getMyProfile(): Observable<IRaiderProfile | null> {
+    return this.http.get<IRaiderProfile | null>(`${this.base}/raider/my-profile`);
+  }
+
+  saveProfile(dto: { characterName: string; wowClass: string; spec: string }): Observable<IRaiderProfile> {
+    return this.http.post<IRaiderProfile>(`${this.base}/raider/profile`, dto);
+  }
+
+  updateProfile(dto: { characterName: string; wowClass: string; spec: string }): Observable<IRaiderProfile> {
+    return this.http.put<IRaiderProfile>(`${this.base}/raider/profile`, dto);
+  }
+
+  getSeasonConfig(): Observable<ISeasonConfig> {
+    return this.http.get<ISeasonConfig>(`${this.base}/raider/season-config`);
   }
 
   reserve(itemId: string, raidSeasonId: string): Observable<{ message: string }> {

@@ -1,53 +1,54 @@
-import {
-  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Unique,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Unique } from 'typeorm';
 import { AssignmentStatus } from '@crusaders-bis-list/shared-domain';
 
 @Entity('reservations')
 @Unique(['raiderId', 'itemId', 'raidSeasonId'])
 export class ReservationOrmEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ name: 'raider_id' })
-  raiderId: string;
+  raiderId!: string;
 
   @Column({ name: 'item_id' })
-  itemId: string;
+  itemId!: string;
 
   @Column({ name: 'item_category' })
-  itemCategory: string;
+  itemCategory!: string;
+
+  @Column({ name: 'is_super_rare', default: false })
+  isSuperRare!: boolean;
 
   @Column({ name: 'raid_season_id' })
-  raidSeasonId: string;
+  raidSeasonId!: string;
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  createdAt!: Date;
 }
 
 @Entity('assignments')
 export class AssignmentOrmEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ name: 'raider_id' })
-  raiderId: string;
+  raiderId!: string;
 
   @Column({ name: 'item_id' })
-  itemId: string;
+  itemId!: string;
 
   @Column({ name: 'boss_id' })
-  bossId: string;
+  bossId!: string;
 
   @Column({ name: 'raid_season_id' })
-  raidSeasonId: string;
+  raidSeasonId!: string;
 
   @Column({ type: 'varchar' })
-  status: AssignmentStatus;
+  status!: AssignmentStatus;
 
   @Column({ name: 'assigned_by_user_id' })
-  assignedByUserId: string;
+  assignedByUserId!: string;
 
   @CreateDateColumn({ name: 'assigned_at' })
-  assignedAt: Date;
+  assignedAt!: Date;
 }

@@ -1,61 +1,79 @@
 import {
-  Controller, Get, Post, Delete, Param, Body, Req, UseGuards, HttpCode, HttpStatus,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  Req,
+  Query,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { JwtPayload } from '../auth/jwt.strategy';
 import { JwtAuthGuard } from '../guards/auth.guard';
 import {
   ReserveItemUseCase,
-  CancelReservationUseCase,
   GetRaidCatalogUseCase,
+  GetSeasonConfigUseCase,
 } from '@crusaders-bis-list/backend-application';
-import { RAIDER_REPOSITORY, IRaiderRepository } from '@crusaders-bis-list/backend-domain';
+import {
+  RAIDER_REPOSITORY,
+  IRaiderRepository,
+  RESERVATION_REPOSITORY,
+  IReservationRepository,
+} from '@crusaders-bis-list/backend-domain';
 import { Inject } from '@nestjs/common';
-import { IsString, IsUUID } from 'class-validator';
-
-export class ReserveItemDto {
-  @IsUUID()
-  itemId: string;
-
-  @IsUUID()
-  raidSeasonId: string;
-}
-
-export class CreateRaiderProfileDto {
-  @IsString()
-  characterName: string;
-
-  @IsString()
-  wowClass: string;
-
-  @IsString()
-  spec: string;
-}
+import { ReserveItemDto, CreateRaiderProfileDto, UpdateRaiderProfileDto } from './dto/raider.dto';
+import { WowClass, WowSpec } from '@crusaders-bis-list/shared-domain';
 
 @Controller('raider')
 @UseGuards(JwtAuthGuard)
 export class RaiderController {
   constructor(
     private readonly reserveItem: ReserveItemUseCase,
-    private readonly cancelReservation: CancelReservationUseCase,
     private readonly getRaidCatalog: GetRaidCatalogUseCase,
+    private readonly getSeasonConfig: GetSeasonConfigUseCase,
     @Inject(RAIDER_REPOSITORY) private readonly raiderRepo: IRaiderRepository,
+    @Inject(RESERVATION_REPOSITORY) private readonly reservationRepo: IReservationRepository,
   ) {}
 
   @Get('my-profile')
   async getMyProfile(@Req() req: Request) {
-    const userId = (req.user as any).sub;
+    const userId = (req.user as JwtPayload).sub;
     return this.raiderRepo.findByUserId(userId);
   }
 
   @Post('profile')
   async createProfile(@Req() req: Request, @Body() dto: CreateRaiderProfileDto) {
-    const userId = (req.user as any).sub;
+    const userId = (req.user as JwtPayload).sub;
     return this.raiderRepo.save({
       userId,
       characterName: dto.characterName,
-      wowClass: dto.wowClass as any,
-      spec: dto.spec as any,
+      wowClass: dto.wowClass as WowClass,
+      spec: dto.spec as WowSpec,
     });
+  }
+
+  @Put('profile')
+  async updateProfile(@Req() req: Request, @Body() dto: UpdateRaiderProfileDto) {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider) throw new NotFoundException('Raider profile not found.');
+    return this.raiderRepo.update(raider.id, {
+      characterName: dto.characterName,
+      wowClass: dto.wowClass as WowClass,
+      spec: dto.spec as WowSpec,
+    });
+  }
+
+  @Get('season-config')
+  async getActiveSeasonConfig() {
+    return this.getSeasonConfig.execute();
   }
 
   @Get('catalog')
@@ -63,21 +81,21 @@ export class RaiderController {
     return this.getRaidCatalog.getActiveSeasonWithBossesAndItems();
   }
 
+  @Get('reservations')
+  async getReservations(@Req() req: Request, @Query('seasonId') seasonId: string) {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider) return [];
+    return this.reservationRepo.findByRaider(raider.id, seasonId);
+  }
+
   @Post('reservations')
   @HttpCode(HttpStatus.CREATED)
   async reserve(@Req() req: Request, @Body() dto: ReserveItemDto) {
-    const userId = (req.user as any).sub;
+    const userId = (req.user as JwtPayload).sub;
     const raider = await this.raiderRepo.findByUserId(userId);
-    if (!raider) throw new Error('Raider profile not found. Please create your profile first.');
+    if (!raider) throw new NotFoundException('Raider profile not found. Please create your profile first.');
     await this.reserveItem.execute(raider.id, dto.itemId, dto.raidSeasonId);
     return { message: 'Reserved successfully' };
-  }
-
-  @Delete('reservations/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteReservation(@Req() req: Request, @Param('id') reservationId: string) {
-    const userId = (req.user as any).sub;
-    const raider = await this.raiderRepo.findByUserId(userId);
-    await this.cancelReservation.execute(reservationId, raider?.id ?? '');
   }
 }

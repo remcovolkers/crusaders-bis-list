@@ -26,6 +26,7 @@ export class ReservationRepository implements IReservationRepository {
     r.raiderId = e.raiderId;
     r.itemId = e.itemId;
     r.itemCategory = e.itemCategory as ItemCategory;
+    r.isSuperRare = e.isSuperRare;
     r.raidSeasonId = e.raidSeasonId;
     r.createdAt = e.createdAt;
     return r;
@@ -49,18 +50,24 @@ export class ReservationRepository implements IReservationRepository {
     return all.map((e) => this.toModel(e));
   }
 
+  async findSuperRareByRaider(raiderId: string, raidSeasonId: string): Promise<Reservation[]> {
+    const all = await this.repo.find({ where: { raiderId, raidSeasonId, isSuperRare: true } });
+    return all.map((e) => this.toModel(e));
+  }
+
   async findByItem(itemId: string, raidSeasonId: string): Promise<Reservation[]> {
     const all = await this.repo.find({ where: { itemId, raidSeasonId } });
     return all.map((e) => this.toModel(e));
   }
 
-  async findExisting(
-    raiderId: string,
-    itemId: string,
-    raidSeasonId: string,
-  ): Promise<Reservation | null> {
+  async findExisting(raiderId: string, itemId: string, raidSeasonId: string): Promise<Reservation | null> {
     const e = await this.repo.findOne({ where: { raiderId, itemId, raidSeasonId } });
     return e ? this.toModel(e) : null;
+  }
+
+  async findAllBySeason(raidSeasonId: string): Promise<Reservation[]> {
+    const all = await this.repo.find({ where: { raidSeasonId }, order: { createdAt: 'ASC' } });
+    return all.map((e) => this.toModel(e));
   }
 
   async save(reservation: CreateReservationData): Promise<Reservation> {
@@ -109,6 +116,11 @@ export class AssignmentRepository implements IAssignmentRepository {
     return all.map((e) => this.toModel(e));
   }
 
+  async findAllBySeason(raidSeasonId: string): Promise<Assignment[]> {
+    const all = await this.repo.find({ where: { raidSeasonId } });
+    return all.map((e) => this.toModel(e));
+  }
+
   async save(assignment: CreateAssignmentData): Promise<Assignment> {
     const orm = this.repo.create(assignment);
     const saved = await this.repo.save(orm);
@@ -117,7 +129,7 @@ export class AssignmentRepository implements IAssignmentRepository {
 
   async updateStatus(id: string, status: AssignmentStatus): Promise<Assignment> {
     await this.repo.update(id, { status });
-    const updated = await this.repo.findOne({ where: { id } });
-    return this.toModel(updated!);
+    const updated = await this.repo.findOneOrFail({ where: { id } });
+    return this.toModel(updated);
   }
 }

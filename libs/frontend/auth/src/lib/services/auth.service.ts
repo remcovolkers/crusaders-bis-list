@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_URL } from '../tokens/api-url.token';
@@ -7,11 +7,8 @@ import { AuthUser } from '../state/auth.state';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly storageKey = 'auth_token';
-
-  constructor(
-    private http: HttpClient,
-    @Inject(API_URL) private apiUrl: string,
-  ) {}
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = inject(API_URL);
 
   redirectToGoogleLogin(): void {
     window.location.href = `${this.apiUrl}/auth/google`;

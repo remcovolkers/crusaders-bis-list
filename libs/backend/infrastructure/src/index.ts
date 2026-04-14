@@ -3,5 +3,5 @@ export * from './lib/database/entities/user.orm-entity';
 export * from './lib/database/entities/raider-profile.orm-entity';
 export * from './lib/database/entities/catalog.orm-entity';
 export * from './lib/database/entities/loot.orm-entity';
-export * from './lib/database/seed/raid-catalog.seed';
-
+export * from './lib/database/entities/season-config.orm-entity';
+export * from './lib/blizzard/blizzard-api.service';

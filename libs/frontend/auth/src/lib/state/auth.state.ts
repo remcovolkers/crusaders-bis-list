@@ -1,4 +1,4 @@
-import { IUser, UserRole } from '@crusaders-bis-list/shared-domain';
+import { UserRole } from '@crusaders-bis-list/shared-domain';
 
 export interface AuthUser {
   id: string;

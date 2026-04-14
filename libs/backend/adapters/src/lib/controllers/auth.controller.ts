@@ -1,5 +1,5 @@
 import {
-  Controller, Get, Post, Req, Res, UseGuards, Body, Param, Delete, HttpCode, HttpStatus,
+  Controller, Get, Post, Req, Res, UseGuards, Body, Param, HttpCode, HttpStatus,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
@@ -14,7 +14,7 @@ import { IsArray, IsEnum } from 'class-validator';
 export class UpdateRolesDto {
   @IsArray()
   @IsEnum(UserRole, { each: true })
-  roles: UserRole[];
+  roles!: UserRole[];
 }
 
 @Controller('auth')

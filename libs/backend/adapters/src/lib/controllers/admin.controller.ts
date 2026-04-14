@@ -1,5 +1,16 @@
 import {
-  Controller, Get, Post, Param, Body, UseGuards, HttpCode, HttpStatus,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Param,
+  Post,
+  Put,
+  Body,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard, RolesGuard } from '../guards/auth.guard';
 import { Roles } from '../guards/roles.decorator';
@@ -8,34 +19,21 @@ import {
   UpdateAssignmentStatusUseCase,
   GetBossLootViewUseCase,
   GetRaidCatalogUseCase,
+  GetSeasonConfigUseCase,
+  UpdateSeasonConfigUseCase,
+  CancelReservationUseCase,
+  GetAllRaiderReservationsUseCase,
 } from '@crusaders-bis-list/backend-application';
-import { RAIDER_REPOSITORY, IRaiderRepository } from '@crusaders-bis-list/backend-domain';
-import { Inject, Req } from '@nestjs/common';
+import {
+  RAIDER_REPOSITORY,
+  IRaiderRepository,
+  USER_REPOSITORY,
+  IUserRepository,
+} from '@crusaders-bis-list/backend-domain';
 import { Request } from 'express';
-import { AssignmentStatus, UserRole } from '@crusaders-bis-list/shared-domain';
-import { IsEnum, IsUUID } from 'class-validator';
-
-export class AssignLootDto {
-  @IsUUID()
-  raiderId: string;
-
-  @IsUUID()
-  itemId: string;
-
-  @IsUUID()
-  bossId: string;
-
-  @IsUUID()
-  raidSeasonId: string;
-
-  @IsEnum(AssignmentStatus)
-  status: AssignmentStatus;
-}
-
-export class UpdateAssignmentStatusDto {
-  @IsEnum(AssignmentStatus)
-  status: AssignmentStatus;
-}
+import { UserRole } from '@crusaders-bis-list/shared-domain';
+import { AssignLootDto, UpdateAssignmentStatusDto, UpdateSeasonConfigDto } from './dto/admin.dto';
+import { JwtPayload } from '../auth/jwt.strategy';
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -46,12 +44,28 @@ export class AdminController {
     private readonly updateStatus: UpdateAssignmentStatusUseCase,
     private readonly getBossView: GetBossLootViewUseCase,
     private readonly getCatalog: GetRaidCatalogUseCase,
+    private readonly getSeasonConfig: GetSeasonConfigUseCase,
+    private readonly updateSeasonConfig: UpdateSeasonConfigUseCase,
+    private readonly cancelReservation: CancelReservationUseCase,
+    private readonly getAllReservations: GetAllRaiderReservationsUseCase,
     @Inject(RAIDER_REPOSITORY) private readonly raiderRepo: IRaiderRepository,
+    @Inject(USER_REPOSITORY) private readonly userRepo: IUserRepository,
   ) {}
 
   @Get('raiders')
   getAllRaiders() {
     return this.raiderRepo.findAll();
+  }
+
+  @Get('users')
+  getAllUsers() {
+    return this.userRepo.findAll();
+  }
+
+  @Post('users/:userId/roles')
+  @HttpCode(HttpStatus.OK)
+  async updateUserRoles(@Param('userId') userId: string, @Body() dto: { roles: UserRole[] }) {
+    return this.userRepo.updateRoles(userId, dto.roles);
   }
 
   @Get('catalog')
@@ -67,7 +81,7 @@ export class AdminController {
   @Post('assignments')
   @HttpCode(HttpStatus.CREATED)
   async assignLootToRaider(@Req() req: Request, @Body() dto: AssignLootDto) {
-    const adminId = (req.user as any).sub;
+    const adminId = (req.user as JwtPayload).sub;
     await this.assignLoot.execute({
       raiderId: dto.raiderId,
       itemId: dto.itemId,
@@ -81,10 +95,28 @@ export class AdminController {
 
   @Post('assignments/:id/status')
   @HttpCode(HttpStatus.OK)
-  updateAssignmentStatus(
-    @Param('id') assignmentId: string,
-    @Body() dto: UpdateAssignmentStatusDto,
-  ) {
+  updateAssignmentStatus(@Param('id') assignmentId: string, @Body() dto: UpdateAssignmentStatusDto) {
     return this.updateStatus.execute(assignmentId, dto.status);
+  }
+
+  @Get('reservations')
+  getAllRaiderReservations() {
+    return this.getAllReservations.execute();
+  }
+
+  @Delete('reservations/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async adminCancelReservation(@Param('id') reservationId: string) {
+    await this.cancelReservation.execute(reservationId);
+  }
+
+  @Get('season-config')
+  getConfig() {
+    return this.getSeasonConfig.execute();
+  }
+
+  @Put('season-config/:seasonId')
+  updateConfig(@Param('seasonId') seasonId: string, @Body() dto: UpdateSeasonConfigDto) {
+    return this.updateSeasonConfig.execute(seasonId, dto);
   }
 }

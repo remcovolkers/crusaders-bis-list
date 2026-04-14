@@ -57,7 +57,7 @@ export class RaiderRepository implements IRaiderRepository {
 
   async update(id: string, dto: UpdateRaiderProfileDto): Promise<RaiderProfile> {
     await this.repo.update(id, dto);
-    const updated = await this.repo.findOne({ where: { id } });
-    return this.toModel(updated!);
+    const updated = await this.repo.findOneOrFail({ where: { id } });
+    return this.toModel(updated);
   }
 }

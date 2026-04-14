@@ -8,30 +8,30 @@ import { UserOrmEntity } from './user.orm-entity';
 @Entity('raider_profiles')
 export class RaiderProfileOrmEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ name: 'user_id' })
-  userId: string;
+  userId!: string;
 
   @ManyToOne(() => UserOrmEntity)
   @JoinColumn({ name: 'user_id' })
-  user: UserOrmEntity;
+  user!: UserOrmEntity;
 
   @Column({ name: 'character_name' })
-  characterName: string;
+  characterName!: string;
 
   @Column({ name: 'wow_class', type: 'varchar' })
-  wowClass: WowClass;
+  wowClass!: WowClass;
 
   @Column({ type: 'varchar' })
-  spec: WowSpec;
+  spec!: WowSpec;
 
   @Column({ type: 'varchar', default: RaiderStatus.ACTIVE })
-  status: RaiderStatus;
+  status!: RaiderStatus;
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  updatedAt!: Date;
 }

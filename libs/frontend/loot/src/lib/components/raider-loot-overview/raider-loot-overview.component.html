@@ -1,0 +1,207 @@
+﻿@if (loading()) {
+  <div class="loading-spinner">Catalogus laden...</div>
+}
+
+@if (error()) {
+  <div class="error-banner">{{ error() }}</div>
+}
+
+@if (catalog() && !loading()) {
+  <div class="loot-layout">
+    <!-- ── Left sidebar: boss list ── -->
+    <aside class="boss-sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">{{ catalog()!.season.name }}</span>
+      </div>
+
+      @for (group of groupBossesByRaid(); track group.raidName) {
+        <div class="raid-group">
+          <div class="raid-group-header" [style.border-left-color]="group.color">
+            <span class="raid-name">{{ group.raidName }}</span>
+          </div>
+          @for (boss of group.bosses; track boss.id) {
+            <a
+              class="boss-row"
+              tabindex="0"
+              (click)="scrollToBoss(boss.id)"
+              (keydown.enter)="scrollToBoss(boss.id)"
+              [style.--boss-color]="getBossColor(boss)"
+            >
+              <span class="boss-dot"></span>
+              <span class="boss-row-name">{{ boss.name }}</span>
+            </a>
+          }
+        </div>
+      }
+    </aside>
+
+    <!-- ── Main content ── -->
+    <div class="loot-main">
+      <!-- Top bar: profile + reservation counters + filter tabs -->
+      <div class="loot-topbar">
+        <div class="profile-area">
+          @if (profile()) {
+            <button
+              class="profile-badge"
+              [style.border-color]="classColor()"
+              [style.color]="classColor()"
+              (click)="openProfileEditor()"
+            >
+              <span class="profile-char">{{ profile()!.characterName }}</span>
+              <span class="profile-sep">·</span>
+              <span class="profile-spec">{{ profile()!.spec }}</span>
+            </button>
+          } @else {
+            <button class="btn-ghost" (click)="openProfileEditor()">+ Stel je class/spec in</button>
+          }
+        </div>
+
+        <div class="reservation-counters">
+          <span class="res-counter" [class.at-limit]="reservedTrinkets() >= trinketLimit()">
+            Trinkets {{ reservedTrinkets() }}/{{ trinketLimit() }}
+          </span>
+          <span class="res-counter" [class.at-limit]="reservedWeapons() >= weaponLimit()">
+            Wapens {{ reservedWeapons() }}/{{ weaponLimit() }}
+          </span>
+          @if (jewelryLimit() > 0) {
+            <span class="res-counter" [class.at-limit]="reservedJewelry() >= jewelryLimit()">
+              Jewelry {{ reservedJewelry() }}/{{ jewelryLimit() }}
+            </span>
+          }
+          @if (otherLimit() > 0) {
+            <span class="res-counter" [class.at-limit]="reservedOther() >= otherLimit()">
+              Overig {{ reservedOther() }}/{{ otherLimit() }}
+            </span>
+          }
+          @if (superrareLimit() > 0) {
+            <span class="res-counter" [class.at-limit]="reservedSuperrare() >= superrareLimit()">
+              Superrare {{ reservedSuperrare() }}/{{ superrareLimit() }}
+            </span>
+          }
+        </div>
+      </div>
+
+      <!-- Tab bar -->
+      <div class="tab-bar">
+        @for (tab of tabs; track tab.key) {
+          <button class="tab-btn" [class.active]="activeTab() === tab.key" (click)="activeTab.set(tab.key)">
+            {{ tab.label }}
+          </button>
+        }
+      </div>
+
+      <!-- Boss sections -->
+      <div class="boss-sections">
+        @for (boss of catalog()!.bosses; track boss.id) {
+          @if (hasBossItems(boss.items)) {
+            <section class="boss-section" [id]="'boss-' + boss.id">
+              <div class="boss-section-header" [style.--boss-color]="getBossColor(boss)">
+                <span class="boss-accent-bar"></span>
+                <span class="boss-section-name">{{ boss.name }}</span>
+                <span class="boss-raid-tag">{{ boss.raidName }}</span>
+              </div>
+
+              <div class="items-grid">
+                @for (item of getFilteredItems(boss.items); track item.id) {
+                  <div class="item-card" [class.reserved]="item.isReserved">
+                    <div class="item-top">
+                      @if (item.iconUrl) {
+                        <img class="item-icon" [src]="item.iconUrl" [alt]="item.name" />
+                      } @else {
+                        <div class="item-icon-placeholder"></div>
+                      }
+                      <div class="item-info">
+                        <span class="item-name">{{ item.name }}</span>
+                        <div class="item-meta">
+                          @if (item.itemLevel) {
+                            <span class="ilvl-badge">ilvl {{ item.itemLevel }}</span>
+                          }
+                          <span class="cat-badge" [ngClass]="getCategoryClass(item.category)">
+                            {{ getCategoryLabel(item.category) }}
+                          </span>
+                          @if (item.slot) {
+                            <span class="slot-text">{{ item.slot }}</span>
+                          }
+                        </div>
+                      </div>
+                    </div>
+
+                    @if (item.isPrioritizable) {
+                      <div class="item-actions">
+                        @if (!item.isReserved) {
+                          <button
+                            class="btn-primary"
+                            [disabled]="isAtLimit(item.category, item.isSuperRare)"
+                            (click)="reserve(item)"
+                          >
+                            {{ isAtLimit(item.category, item.isSuperRare) ? 'Limiet bereikt' : 'Reserveer' }}
+                          </button>
+                        } @else {
+                          <span class="reserved-badge">✓ Gereserveerd</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </section>
+          }
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Profile editor overlay -->
+@if (showProfileEditor()) {
+  <div
+    class="modal-backdrop"
+    role="button"
+    tabindex="0"
+    aria-label="Sluit venster"
+    (click)="showProfileEditor.set(false)"
+    (keydown.enter)="showProfileEditor.set(false)"
+    (keydown.escape)="showProfileEditor.set(false)"
+  >
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <h3>Jouw character</h3>
+        <button class="modal-close" (click)="showProfileEditor.set(false)">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label" for="profile-name">Naam</label>
+        <input
+          id="profile-name"
+          class="form-input"
+          [ngModel]="editCharName()"
+          (ngModelChange)="editCharName.set($event)"
+          placeholder="Karakternaam"
+        />
+
+        <label class="form-label" for="class-spec-selector" style="margin-top: 16px">Class &amp; Spec</label>
+        <lib-class-spec-selector
+          id="class-spec-selector"
+          [selectedClass]="editClass()"
+          [selectedSpec]="editSpec()"
+          (selectionChange)="onClassSpecChange($event)"
+        />
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" (click)="showProfileEditor.set(false)">Annuleer</button>
+        <button
+          class="btn-primary"
+          [disabled]="!editClass() || !editSpec() || !editCharName().trim()"
+          (click)="saveProfile()"
+        >
+          Opslaan
+        </button>
+      </div>
+    </div>
+  </div>
+}

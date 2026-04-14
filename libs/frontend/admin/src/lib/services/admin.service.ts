@@ -1,8 +1,15 @@
-import { Inject, Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_URL } from '@crusaders-bis-list/frontend-auth';
-import { IBossLootView, AssignmentStatus, IUser, UserRole } from '@crusaders-bis-list/shared-domain';
+import {
+  IBossLootView,
+  AssignmentStatus,
+  IUser,
+  UserRole,
+  ISeasonConfig,
+  UpdateSeasonConfigDto,
+} from '@crusaders-bis-list/shared-domain';
 import { CatalogResponse } from '@crusaders-bis-list/frontend-loot';
 
 export interface AssignLootPayload {
@@ -22,12 +29,29 @@ export interface RaiderUser {
   status: string;
 }
 
+export interface RaiderReservationEntry {
+  id: string;
+  itemId: string;
+  itemName: string;
+  itemCategory: string;
+  isSuperRare: boolean;
+  createdAt: string;
+  assignment: { id: string; status: AssignmentStatus; assignedAt: string } | null;
+}
+
+export interface RaiderReservationSummary {
+  raiderId: string;
+  userId: string;
+  characterName: string;
+  wowClass: string;
+  spec: string;
+  reservations: RaiderReservationEntry[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
-  constructor(
-    private http: HttpClient,
-    @Inject(API_URL) private base: string,
-  ) {}
+  private readonly http = inject(HttpClient);
+  private readonly base = inject(API_URL);
 
   getCatalog(): Observable<CatalogResponse> {
     return this.http.get<CatalogResponse>(`${this.base}/admin/catalog`);
@@ -41,13 +65,8 @@ export class AdminService {
     return this.http.post<{ message: string }>(`${this.base}/admin/assignments`, payload);
   }
 
-  updateAssignmentStatus(
-    assignmentId: string,
-    status: AssignmentStatus,
-  ): Observable<void> {
-    return this.http.post<void>(`${this.base}/admin/assignments/${assignmentId}/status`, {
-      status,
-    });
+  updateAssignmentStatus(assignmentId: string, status: AssignmentStatus): Observable<void> {
+    return this.http.post<void>(`${this.base}/admin/assignments/${assignmentId}/status`, { status });
   }
 
   getAllRaiders(): Observable<RaiderUser[]> {
@@ -60,5 +79,21 @@ export class AdminService {
 
   updateUserRoles(userId: string, roles: UserRole[]): Observable<void> {
     return this.http.post<void>(`${this.base}/admin/users/${userId}/roles`, { roles });
+  }
+
+  getAllReservations(): Observable<RaiderReservationSummary[]> {
+    return this.http.get<RaiderReservationSummary[]>(`${this.base}/admin/reservations`);
+  }
+
+  cancelReservation(reservationId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/admin/reservations/${reservationId}`);
+  }
+
+  getSeasonConfig(): Observable<ISeasonConfig> {
+    return this.http.get<ISeasonConfig>(`${this.base}/admin/season-config`);
+  }
+
+  updateSeasonConfig(seasonId: string, dto: UpdateSeasonConfigDto): Observable<ISeasonConfig> {
+    return this.http.put<ISeasonConfig>(`${this.base}/admin/season-config/${seasonId}`, dto);
   }
 }

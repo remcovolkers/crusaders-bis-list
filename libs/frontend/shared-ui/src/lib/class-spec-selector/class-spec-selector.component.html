@@ -1,0 +1,25 @@
+<div class="selector">
+  <div class="classes-grid">
+    @for (cls of classes; track cls.value) {
+      <button
+        class="class-btn"
+        [class.active]="currentClass() === cls.value"
+        [style.--cls-color]="cls.color"
+        (click)="selectClass(cls.value)"
+        [title]="cls.label"
+      >
+        <span class="class-name">{{ cls.label }}</span>
+      </button>
+    }
+  </div>
+
+  @if (currentClass() && specs().length > 0) {
+    <div class="specs-row">
+      @for (spec of specs(); track spec.value) {
+        <button class="spec-btn" [class.active]="currentSpec() === spec.value" (click)="selectSpec(spec.value)">
+          {{ spec.label }}
+        </button>
+      }
+    </div>
+  }
+</div>

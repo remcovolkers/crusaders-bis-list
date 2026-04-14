@@ -1,48 +1,35 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, inject } from '@angular/core';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { AsyncPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { selectIsAuthenticated, selectCurrentUser, selectIsAdmin, checkAuthToken, loginWithGoogle, logout } from '@crusaders-bis-list/frontend-auth';
-import { AuthUser, AuthService } from '@crusaders-bis-list/frontend-auth';
+import {
+  selectIsAuthenticated,
+  selectCurrentUser,
+  selectIsAdmin,
+  logout,
+  AuthUser,
+  AuthService,
+} from '@crusaders-bis-list/frontend-auth';
 
 @Component({
   selector: 'app-root',
-  standalone: false,
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, AsyncPipe],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App implements OnInit {
-  isAuthenticated$: Observable<boolean>;
-  currentUser$: Observable<AuthUser | null>;
-  isAdmin$: Observable<boolean>;
+export class App {
+  private readonly store = inject(Store);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  constructor(
-    private store: Store,
-    private authService: AuthService,
-  ) {
-    this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
-    this.currentUser$ = this.store.select(selectCurrentUser);
-    this.isAdmin$ = this.store.select(selectIsAdmin);
-  }
-
-  ngOnInit(): void {
-    // Restore session from localStorage on app start
-    const token = this.authService.getToken();
-    if (token) {
-      const user = this.authService.decodeToken(token);
-      if (user) {
-        this.store.dispatch(checkAuthToken());
-        this.store.dispatch({
-          type: '[Auth] Login Success',
-          user,
-          token,
-        } as any);
-      }
-    }
-  }
+  readonly isAuthenticated$: Observable<boolean> = this.store.select(selectIsAuthenticated);
+  readonly currentUser$: Observable<AuthUser | null> = this.store.select(selectCurrentUser);
+  readonly isAdmin$: Observable<boolean> = this.store.select(selectIsAdmin);
 
   logout(): void {
     this.authService.clearToken();
     this.store.dispatch(logout());
+    this.router.navigate(['/auth']);
   }
 }
-

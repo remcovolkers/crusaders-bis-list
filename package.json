@@ -2,7 +2,14 @@
   "name": "@crusaders-bis-list/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "lint": "nx run-many --target=lint --all",
+    "lint:fix": "nx run-many --target=lint --all -- --fix",
+    "lint:backend": "nx run-many --target=lint --projects=backend-domain,backend-application,backend-adapters,backend-infrastructure,crusaders-bis-list",
+    "lint:backend:fix": "nx run-many --target=lint --projects=backend-domain,backend-application,backend-adapters,backend-infrastructure,crusaders-bis-list -- --fix",
+    "lint:frontend": "nx run-many --target=lint --projects=frontend,frontend-admin,frontend-auth,frontend-loot,frontend-shared-ui,shared-domain",
+    "lint:frontend:fix": "nx run-many --target=lint --projects=frontend,frontend-admin,frontend-auth,frontend-loot,frontend-shared-ui,shared-domain -- --fix"
+  },
   "private": true,
   "dependencies": {
     "@angular/common": "~21.2.0",
@@ -35,7 +42,8 @@
     "pg": "^8.20.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
-    "typeorm": "^0.3.28"
+    "typeorm": "^0.3.28",
+    "zone.js": "^0.16.1"
   },
   "devDependencies": {
     "@analogjs/vite-plugin-angular": "~2.1.2",
@@ -91,7 +99,7 @@
     "ts-jest": "^29.4.0",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
-    "typescript": "~5.9.2",
+    "typescript": "^6.0.2",
     "typescript-eslint": "^8.40.0",
     "vite": "^8.0.0",
     "vitest": "^4.0.8",

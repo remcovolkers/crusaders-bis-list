@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { AdminBossViewComponent } from './components/admin-boss-view.component';
-import { AdminUserManagementComponent } from './components/admin-user-management.component';
+import { AdminBossViewComponent } from './components/admin-boss-view/admin-boss-view.component';
+import { AdminUserManagementComponent } from './components/admin-user-management/admin-user-management.component';
+import { AdminSeasonConfigComponent } from './components/admin-season-config/admin-season-config.component';
+import { AdminReservationManagementComponent } from './components/admin-reservation-management/admin-reservation-management.component';
 import { AdminGuard } from '@crusaders-bis-list/frontend-auth';
 
 @NgModule({
   imports: [
-    CommonModule,
     RouterModule.forChild([
       {
         path: '',
@@ -16,12 +16,11 @@ import { AdminGuard } from '@crusaders-bis-list/frontend-auth';
           { path: '', redirectTo: 'boss-view', pathMatch: 'full' },
           { path: 'boss-view', component: AdminBossViewComponent },
           { path: 'users', component: AdminUserManagementComponent },
+          { path: 'reservations', component: AdminReservationManagementComponent },
+          { path: 'season-config', component: AdminSeasonConfigComponent },
         ],
       },
     ]),
   ],
-  declarations: [AdminBossViewComponent, AdminUserManagementComponent],
-  exports: [AdminBossViewComponent, AdminUserManagementComponent],
 })
 export class FrontendAdminModule {}
-

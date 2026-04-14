@@ -6,26 +6,26 @@ import { UserRole } from '@crusaders-bis-list/shared-domain';
 @Entity('users')
 export class UserOrmEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ unique: true })
-  email: string;
+  email!: string;
 
   @Column({ name: 'google_id', unique: true })
-  googleId: string;
+  googleId!: string;
 
   @Column({ name: 'display_name' })
-  displayName: string;
+  displayName!: string;
 
   @Column({ name: 'avatar_url', nullable: true })
   avatarUrl?: string;
 
   @Column({ type: 'simple-array', default: UserRole.RAIDER })
-  roles: UserRole[];
+  roles!: UserRole[];
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  updatedAt!: Date;
 }

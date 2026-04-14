@@ -1,0 +1,105 @@
+﻿<div class="user-mgmt">
+  <div class="page-header">
+    <h2>Gebruikersbeheer</h2>
+    <p class="page-subtitle">Klik op een gebruiker om zijn reserveringen te bekijken en te beheren.</p>
+  </div>
+
+  @if (message()) {
+    <div class="message">{{ message() }}</div>
+  }
+
+  @if (users().length) {
+    <div class="user-list">
+      @for (user of users(); track user.id) {
+        <!-- User row -->
+        <div class="user-row" [class.expanded]="expandedUserId() === user.id">
+          <button class="user-row-btn" (click)="toggleUser(user.id)" (keydown.enter)="toggleUser(user.id)">
+            <span class="chevron" [class.open]="expandedUserId() === user.id">▶</span>
+            <span class="user-name">{{ user.displayName }}</span>
+            <span class="user-email">{{ user.email }}</span>
+            <div class="user-badges">
+              @if (user.roles.includes(adminRole)) {
+                <span class="badge-admin">Admin</span>
+              }
+              @if (reservationsFor(user.id); as summary) {
+                <span class="badge-res">{{ summary.reservations.length }} res.</span>
+              }
+            </div>
+            <div
+              class="user-role-actions"
+              role="group"
+              tabindex="-1"
+              (click)="$event.stopPropagation()"
+              (keydown)="$event.stopPropagation()"
+            >
+              @if (!user.roles.includes(adminRole)) {
+                <button class="btn-ghost-sm" (click)="makeAdmin(user)">Maak Admin</button>
+              } @else {
+                <button class="btn-ghost-sm danger" (click)="removeAdmin(user)">Verwijder Admin</button>
+              }
+            </div>
+          </button>
+
+          <!-- Reservations panel -->
+          @if (expandedUserId() === user.id) {
+            @if (reservationsFor(user.id); as summary) {
+              <div class="res-panel">
+                <div class="res-panel-header">
+                  <span class="char-name">{{ summary.characterName }}</span>
+                  <span class="char-meta">{{ summary.wowClass }} – {{ summary.spec }}</span>
+                </div>
+
+                @if (summary.reservations.length === 0) {
+                  <div class="no-res">Geen reserveringen.</div>
+                }
+
+                @for (entry of summary.reservations; track entry.id) {
+                  <div class="res-row">
+                    <div class="res-item">
+                      <span class="item-name">{{ entry.itemName }}</span>
+                      <div class="item-badges">
+                        <span class="cat-badge" [ngClass]="'cat-' + entry.itemCategory">{{ entry.itemCategory }}</span>
+                        @if (entry.isSuperRare) {
+                          <span class="superrare-badge">⭐ Superrare</span>
+                        }
+                      </div>
+                    </div>
+
+                    <div class="res-assignment">
+                      @if (entry.assignment) {
+                        <span class="tier-badge" [ngClass]="tierClass(entry.assignment.status)">
+                          {{ tierLabel(entry.assignment.status) }}
+                        </span>
+                        @if (isAcquired(entry)) {
+                          <span class="warning-text">⚠ Item al ontvangen</span>
+                        }
+                      } @else {
+                        <span class="no-assignment">Nog niet toegewezen</span>
+                      }
+                    </div>
+
+                    <div class="res-actions">
+                      @if (confirmingId() === entry.id) {
+                        <span class="confirm-text">Zeker weten?</span>
+                        <button class="btn-danger-sm" (click)="confirmCancel(entry.id)">Ja, intrekken</button>
+                        <button class="btn-ghost-sm" (click)="abortCancel()">Nee</button>
+                      } @else {
+                        <button class="btn-ghost-sm" [class.warn]="isAcquired(entry)" (click)="requestCancel(entry.id)">
+                          Intrekken
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="res-panel">
+                <div class="no-res">Geen raider-profiel of reserveringen gevonden.</div>
+              </div>
+            }
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

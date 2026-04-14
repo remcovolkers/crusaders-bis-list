@@ -5,10 +5,10 @@ import {
   IReservationRepository,
   IAssignmentRepository,
   LootDomainRules,
-  CreateReservationData,
+  SEASON_CONFIG_REPOSITORY,
+  ISeasonConfigRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { RAID_CATALOG_REPOSITORY, IRaidCatalogRepository } from '@crusaders-bis-list/backend-domain';
-import { ItemCategory, AssignmentStatus } from '@crusaders-bis-list/shared-domain';
 
 @Injectable()
 export class ReserveItemUseCase {
@@ -19,6 +19,8 @@ export class ReserveItemUseCase {
     private readonly assignmentRepo: IAssignmentRepository,
     @Inject(RAID_CATALOG_REPOSITORY)
     private readonly catalogRepo: IRaidCatalogRepository,
+    @Inject(SEASON_CONFIG_REPOSITORY)
+    private readonly configRepo: ISeasonConfigRepository,
   ) {}
 
   async execute(raiderId: string, itemId: string, raidSeasonId: string): Promise<void> {
@@ -31,7 +33,6 @@ export class ReserveItemUseCase {
     const existing = await this.reservationRepo.findExisting(raiderId, itemId, raidSeasonId);
     if (existing) throw new ConflictException('You already reserved this item for this season.');
 
-    // Check: no current assignment (acquired or declined)
     const existingAssignment = await this.assignmentRepo.findByRaiderAndItem(raiderId, itemId);
     if (existingAssignment && !LootDomainRules.isEligibleForAssignment(existingAssignment)) {
       throw new BadRequestException('You already received or declined this item.');
@@ -42,7 +43,27 @@ export class ReserveItemUseCase {
       raidSeasonId,
       item.category,
     );
-    const check = LootDomainRules.canReserve(item.category, reservationsInCategory.length);
+
+    const config = await this.configRepo.findOrCreateDefault(raidSeasonId);
+    const limits = {
+      trinketLimit: config.trinketLimit,
+      weaponLimit: config.weaponLimit,
+      jewelryLimit: config.jewelryLimit,
+      otherLimit: config.otherLimit,
+      superrareLimit: config.superrareLimit,
+    };
+
+    const superRareReservations = item.isSuperRare
+      ? await this.reservationRepo.findSuperRareByRaider(raiderId, raidSeasonId)
+      : [];
+
+    const check = LootDomainRules.canReserve(
+      item.category,
+      reservationsInCategory.length,
+      limits,
+      item.isSuperRare ?? false,
+      superRareReservations.length,
+    );
     if (!check.allowed) throw new BadRequestException(check.reason);
 
     await this.reservationRepo.save({
@@ -50,6 +71,7 @@ export class ReserveItemUseCase {
       itemId,
       itemCategory: item.category,
       raidSeasonId,
+      isSuperRare: item.isSuperRare ?? false,
     });
   }
 }
@@ -61,10 +83,7 @@ export class CancelReservationUseCase {
     private readonly reservationRepo: IReservationRepository,
   ) {}
 
-  async execute(reservationId: string, requestingRaiderId: string): Promise<void> {
-    const reservations = await this.reservationRepo.findByRaider(requestingRaiderId, '');
-    // Fetch all and filter — or we'll do a direct lookup by id
-    // For simplicity we trust the controller passes the correct raiderId
+  async execute(reservationId: string): Promise<void> {
     await this.reservationRepo.delete(reservationId);
   }
 }

@@ -1,0 +1,273 @@
+.reservations-page {
+  padding: 24px;
+  max-width: 900px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+
+  h2 {
+    font-size: 20px;
+    margin: 0;
+  }
+}
+
+.count-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.page-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.raider-card {
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.raider-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.raider-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.raider-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.res-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.res-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.res-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-color);
+
+  &:last-child {
+    border-bottom: none;
+  }
+  &:hover {
+    background: var(--bg-elevated);
+  }
+  &.has-assignment {
+    background: rgba(59, 130, 246, 0.04);
+  }
+}
+
+.res-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.item-name {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-badges {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.cat-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+.cat-trinket {
+  background: rgba(167, 139, 250, 0.12);
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.25);
+}
+.cat-weapon {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+.cat-offhand {
+  background: rgba(239, 68, 68, 0.08);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.cat-cloth {
+  background: rgba(63, 199, 235, 0.1);
+  color: #67e8f9;
+  border: 1px solid rgba(63, 199, 235, 0.2);
+}
+.cat-leather {
+  background: rgba(255, 124, 10, 0.1);
+  color: #fb923c;
+  border: 1px solid rgba(255, 124, 10, 0.2);
+}
+.cat-mail {
+  background: rgba(170, 211, 114, 0.1);
+  color: #86efac;
+  border: 1px solid rgba(170, 211, 114, 0.2);
+}
+.cat-plate {
+  background: rgba(198, 155, 58, 0.1);
+  color: #fbbf24;
+  border: 1px solid rgba(198, 155, 58, 0.2);
+}
+.cat-jewelry {
+  background: rgba(244, 140, 186, 0.1);
+  color: #f9a8d4;
+  border: 1px solid rgba(244, 140, 186, 0.2);
+}
+.cat-other {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.superrare-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.res-assignment {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 130px;
+  text-align: right;
+}
+
+.tier-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.tier-champion {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+.tier-hero {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+.tier-myth {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.tier-no-need {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.warning-text {
+  font-size: 10px;
+  color: #f59e0b;
+}
+
+.no-assignment {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.res-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 120px;
+  justify-content: flex-end;
+}
+
+.confirm-text {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.btn-danger-sm {
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  cursor: pointer;
+  &:hover {
+    background: rgba(239, 68, 68, 0.25);
+  }
+}
+
+.btn-ghost-sm {
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  &:hover {
+    border-color: var(--border-bright);
+    color: var(--text-primary);
+  }
+
+  &.warn {
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #f59e0b;
+    &:hover {
+      background: rgba(245, 158, 11, 0.1);
+    }
+  }
+}
+
+.empty-state {
+  padding: 48px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}

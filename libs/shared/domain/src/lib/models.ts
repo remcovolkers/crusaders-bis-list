@@ -1,4 +1,13 @@
-import { AssignmentStatus, ItemCategory, UserRole, WowClass, WowSpec, RaiderStatus } from './enums';
+import {
+  AssignmentStatus,
+  ArmorType,
+  ItemCategory,
+  PrimaryStat,
+  UserRole,
+  WowClass,
+  WowSpec,
+  RaiderStatus,
+} from './enums';
 
 export interface IUser {
   id: string;
@@ -35,6 +44,10 @@ export interface IBoss {
   id: string;
   name: string;
   raidSeasonId: string;
+  raidId?: number;
+  raidName?: string;
+  raidAccentColor?: string;
+  wowEncounterId?: number;
   order: number;
 }
 
@@ -43,10 +56,15 @@ export interface IItem {
   name: string;
   wowItemId?: number;
   category: ItemCategory;
+  armorType: ArmorType;
+  slot: string;
+  itemLevel?: number;
+  primaryStat?: PrimaryStat;
   bossId: string;
   bossName: string;
   iconUrl?: string;
   isPrioritizable: boolean;
+  isSuperRare?: boolean;
 }
 
 export interface IReservation {
@@ -81,6 +99,8 @@ export interface IEligibleRaider {
   spec: WowSpec;
   hasReservation: boolean;
   reservationCreatedAt?: Date;
+  reservationId?: string;
+  assignment?: { id: string; status: AssignmentStatus; assignedAt: Date } | null;
 }
 
 export interface IBossLootView {
@@ -113,5 +133,29 @@ export interface BossLootQueryParams {
 export const RESERVATION_LIMITS: Record<ItemCategory, number> = {
   [ItemCategory.TRINKET]: 2,
   [ItemCategory.WEAPON]: 2,
-  [ItemCategory.OTHER]: 0,
+  [ItemCategory.OFFHAND]: 2,
+  [ItemCategory.CLOTH]: 0,
+  [ItemCategory.LEATHER]: 0,
+  [ItemCategory.MAIL]: 0,
+  [ItemCategory.PLATE]: 0,
+  [ItemCategory.JEWELRY]: 1,
+  [ItemCategory.OTHER]: 1,
 };
+
+export interface ISeasonConfig {
+  id: string;
+  raidSeasonId: string;
+  trinketLimit: number;
+  weaponLimit: number;
+  jewelryLimit: number;
+  otherLimit: number;
+  superrareLimit: number;
+}
+
+export interface UpdateSeasonConfigDto {
+  trinketLimit: number;
+  weaponLimit: number;
+  jewelryLimit: number;
+  otherLimit: number;
+  superrareLimit: number;
+}

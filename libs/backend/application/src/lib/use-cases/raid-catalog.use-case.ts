@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { LOOT_QUERY_REPOSITORY, ILootQueryRepository } from '@crusaders-bis-list/backend-domain';
 import { RAID_CATALOG_REPOSITORY, IRaidCatalogRepository } from '@crusaders-bis-list/backend-domain';
-import { IBossLootView, IEligibleRaider, IBoss, IItem, IRaidSeason } from '@crusaders-bis-list/shared-domain';
+import { IBossLootView, IBoss, IItem, IRaidSeason } from '@crusaders-bis-list/shared-domain';
 
 @Injectable()
 export class GetBossLootViewUseCase {

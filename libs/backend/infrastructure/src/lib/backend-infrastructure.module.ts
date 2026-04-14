@@ -5,15 +5,15 @@ import { UserOrmEntity } from './database/entities/user.orm-entity';
 import { RaiderProfileOrmEntity } from './database/entities/raider-profile.orm-entity';
 import { RaidSeasonOrmEntity, BossOrmEntity, ItemOrmEntity } from './database/entities/catalog.orm-entity';
 import { ReservationOrmEntity, AssignmentOrmEntity } from './database/entities/loot.orm-entity';
+import { SeasonConfigOrmEntity } from './database/entities/season-config.orm-entity';
 
 import { UserRepository } from './database/repositories/user.repository';
 import { RaiderRepository } from './database/repositories/raider.repository';
 import { ReservationRepository, AssignmentRepository } from './database/repositories/loot.repository';
 import { LootQueryRepository } from './database/repositories/loot-query.repository';
 import { RaidCatalogRepository } from './database/repositories/raid-catalog.repository';
-
-import { GoogleStrategy } from './auth/google.strategy';
-import { JwtStrategy } from './auth/jwt.strategy';
+import { SeasonConfigRepository } from './database/repositories/season-config.repository';
+import { BlizzardApiService } from './blizzard/blizzard-api.service';
 
 import {
   USER_REPOSITORY,
@@ -22,6 +22,8 @@ import {
   ASSIGNMENT_REPOSITORY,
   LOOT_QUERY_REPOSITORY,
   RAID_CATALOG_REPOSITORY,
+  SEASON_CONFIG_REPOSITORY,
+  BLIZZARD_API_SERVICE,
 } from '@crusaders-bis-list/backend-domain';
 
 const ORM_ENTITIES = [
@@ -32,6 +34,7 @@ const ORM_ENTITIES = [
   ItemOrmEntity,
   ReservationOrmEntity,
   AssignmentOrmEntity,
+  SeasonConfigOrmEntity,
 ];
 
 @Module({
@@ -43,8 +46,8 @@ const ORM_ENTITIES = [
     { provide: ASSIGNMENT_REPOSITORY, useClass: AssignmentRepository },
     { provide: LOOT_QUERY_REPOSITORY, useClass: LootQueryRepository },
     { provide: RAID_CATALOG_REPOSITORY, useClass: RaidCatalogRepository },
-    GoogleStrategy,
-    JwtStrategy,
+    { provide: SEASON_CONFIG_REPOSITORY, useClass: SeasonConfigRepository },
+    { provide: BLIZZARD_API_SERVICE, useClass: BlizzardApiService },
   ],
   exports: [
     USER_REPOSITORY,
@@ -53,8 +56,8 @@ const ORM_ENTITIES = [
     ASSIGNMENT_REPOSITORY,
     LOOT_QUERY_REPOSITORY,
     RAID_CATALOG_REPOSITORY,
-    GoogleStrategy,
-    JwtStrategy,
+    SEASON_CONFIG_REPOSITORY,
+    BLIZZARD_API_SERVICE,
   ],
 })
 export class BackendInfrastructureModule {}

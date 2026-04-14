@@ -59,7 +59,7 @@ export class UserRepository implements IUserRepository {
 
   async updateRoles(userId: string, roles: UserRole[]): Promise<User> {
     await this.repo.update(userId, { roles });
-    const updated = await this.repo.findOne({ where: { id: userId } });
-    return this.toModel(updated!);
+    const updated = await this.repo.findOneOrFail({ where: { id: userId } });
+    return this.toModel(updated);
   }
 }

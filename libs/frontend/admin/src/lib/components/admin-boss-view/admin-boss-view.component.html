@@ -1,0 +1,109 @@
+﻿@if (error()) {
+  <div class="error-banner">{{ error() }}</div>
+}
+@if (successMessage()) {
+  <div class="success-banner">{{ successMessage() }}</div>
+}
+
+@if (catalog()) {
+  <div class="admin-layout">
+    <!-- Sidebar: boss list -->
+    <aside class="boss-sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-label">{{ catalog()!.season.name }}</span>
+      </div>
+      @for (boss of catalog()!.bosses; track boss.id) {
+        <button
+          class="boss-row"
+          [class.active]="selectedBoss()?.id === boss.id"
+          [style.--boss-color]="getBossColor(boss)"
+          (click)="selectBoss(boss)"
+        >
+          <span class="boss-dot"></span>
+          <span class="boss-row-name">{{ boss.name }}</span>
+        </button>
+      }
+    </aside>
+
+    <!-- Main content -->
+    <div class="admin-main">
+      @if (!selectedBoss()) {
+        <div class="empty-state">
+          <p>Selecteer een boss in de zijbalk</p>
+        </div>
+      }
+
+      @if (loadingBoss()) {
+        <div class="loading-spinner">Laden...</div>
+      }
+
+      @if (bossLootView() && !loadingBoss()) {
+        <div class="loot-view">
+          <div class="loot-view-header">
+            <h2>{{ bossLootView()!.boss.name }}</h2>
+            @if (bossLootView()!.boss.raidName) {
+              <span class="badge badge-muted">{{ bossLootView()!.boss.raidName }}</span>
+            }
+          </div>
+
+          <div class="item-panels">
+            @for (drop of bossLootView()!.drops; track drop.item.id) {
+              <div class="item-panel">
+                <div class="item-panel-header">
+                  <div class="item-panel-info">
+                    @if (drop.item.iconUrl) {
+                      <img class="item-icon-sm" [src]="drop.item.iconUrl" [alt]="drop.item.name" />
+                    }
+                    <div>
+                      <span class="item-panel-name">{{ drop.item.name }}</span>
+                      <div class="item-panel-meta">
+                        <span class="cat-badge" [ngClass]="'cat-' + drop.item.category">
+                          {{ drop.item.category }}
+                        </span>
+                        @if (drop.item.itemLevel) {
+                          <span class="ilvl-badge">ilvl {{ drop.item.itemLevel }}</span>
+                        }
+                        @if (drop.item.slot) {
+                          <span class="slot-text-sm">{{ drop.item.slot }}</span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                @if (drop.eligibleRaiders.length === 0) {
+                  <div class="no-eligible">Geen eligible raiders</div>
+                } @else {
+                  <div class="raiders-list">
+                    @for (raider of drop.eligibleRaiders; track raider.raiderId) {
+                      <div class="raider-row">
+                        <div class="raider-info">
+                          <span class="raider-name">{{ raider.characterName }}</span>
+                          <span class="raider-class">{{ raider.wowClass }} – {{ raider.spec }}</span>
+                          @if (raider.hasReservation) {
+                            <span class="badge badge-gold" style="font-size: 10px">★ Res</span>
+                          }
+                        </div>
+                        <div class="assign-actions">
+                          @for (status of assignmentStatuses; track status.key) {
+                            <button
+                              class="assign-btn"
+                              [class]="'tier-' + status.key"
+                              (click)="assign(raider.raiderId, drop.item.id, status.value)"
+                            >
+                              {{ status.label }}
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}

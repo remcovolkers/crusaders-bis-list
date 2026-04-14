@@ -1,0 +1,39 @@
+.config-page {
+  max-width: 600px;
+  padding: 32px 24px;
+}
+
+.config-header {
+  margin-bottom: 24px;
+  h2 { font-size: 20px; margin-bottom: 4px; }
+}
+
+.config-subtitle {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.config-card { margin-top: 16px; }
+
+.config-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+
+  @media (max-width: 500px) { flex-direction: column; }
+}
+
+.config-field { flex: 1; }
+
+.config-input {
+  max-width: 120px;
+}
+
+.config-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.config-actions { display: flex; justify-content: flex-start; }

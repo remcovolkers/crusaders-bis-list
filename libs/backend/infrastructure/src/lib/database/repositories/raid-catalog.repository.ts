@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IRaidCatalogRepository } from '@crusaders-bis-list/backend-domain';
-import { IBoss, IItem, IRaidSeason, ItemCategory } from '@crusaders-bis-list/shared-domain';
+import {
+  IRaidCatalogRepository,
+  UpsertSeasonData,
+  UpsertBossData,
+  UpsertItemData,
+} from '@crusaders-bis-list/backend-domain';
+import { ArmorType, IBoss, IItem, IRaidSeason, ItemCategory, PrimaryStat } from '@crusaders-bis-list/shared-domain';
 import { RaidSeasonOrmEntity, BossOrmEntity, ItemOrmEntity } from '../entities/catalog.orm-entity';
 
 @Injectable()
@@ -15,6 +20,37 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
     @InjectRepository(ItemOrmEntity)
     private readonly itemRepo: Repository<ItemOrmEntity>,
   ) {}
+
+  private toIItem(i: ItemOrmEntity, bossName: string): IItem {
+    return {
+      id: i.id,
+      name: i.name,
+      wowItemId: i.wowItemId,
+      category: i.category as ItemCategory,
+      armorType: (i.armorType as ArmorType) ?? ArmorType.NONE,
+      slot: i.slot ?? 'Unknown',
+      itemLevel: i.itemLevel,
+      primaryStat: i.primaryStat as PrimaryStat | undefined,
+      bossId: i.bossId,
+      bossName,
+      iconUrl: i.iconUrl,
+      isPrioritizable: i.isPrioritizable,
+      isSuperRare: i.isSuperRare,
+    };
+  }
+
+  private toIBoss(b: BossOrmEntity): IBoss {
+    return {
+      id: b.id,
+      name: b.name,
+      raidSeasonId: b.raidSeasonId,
+      raidId: b.raidId,
+      raidName: b.raidName,
+      raidAccentColor: b.raidAccentColor,
+      wowEncounterId: b.wowEncounterId,
+      order: b.order,
+    };
+  }
 
   async findAllSeasons(): Promise<IRaidSeason[]> {
     return this.seasonRepo.find({ order: { startDate: 'DESC' } });
@@ -29,24 +65,26 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
   }
 
   async findBossesBySeason(seasonId: string): Promise<IBoss[]> {
-    return this.bossRepo.find({ where: { raidSeasonId: seasonId }, order: { order: 'ASC' } });
+    const bosses = await this.bossRepo.find({ where: { raidSeasonId: seasonId }, order: { order: 'ASC' } });
+    return bosses.map((b) => this.toIBoss(b));
   }
 
   async findBossById(id: string): Promise<IBoss | null> {
-    return this.bossRepo.findOne({ where: { id } });
+    const b = await this.bossRepo.findOne({ where: { id } });
+    return b ? this.toIBoss(b) : null;
   }
 
   async findItemsByBoss(bossId: string): Promise<IItem[]> {
     const items = await this.itemRepo.find({ where: { bossId } });
     const boss = await this.bossRepo.findOne({ where: { id: bossId } });
-    return items.map((i) => ({ ...i, category: i.category as ItemCategory, bossName: boss?.name ?? '' }));
+    return items.map((i) => this.toIItem(i, boss?.name ?? ''));
   }
 
   async findItemById(id: string): Promise<IItem | null> {
     const item = await this.itemRepo.findOne({ where: { id } });
     if (!item) return null;
     const boss = await this.bossRepo.findOne({ where: { id: item.bossId } });
-    return { ...item, category: item.category as ItemCategory, bossName: boss?.name ?? '' };
+    return this.toIItem(item, boss?.name ?? '');
   }
 
   async findAllItemsBySeason(seasonId: string): Promise<IItem[]> {
@@ -60,10 +98,61 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
       .where('item.boss_id IN (:...bossIds)', { bossIds })
       .getMany();
 
-    return items.map((i) => ({
-      ...i,
-      category: i.category as ItemCategory,
-      bossName: bossMap.get(i.bossId) ?? '',
-    }));
+    return items.map((i) => this.toIItem(i, bossMap.get(i.bossId) ?? ''));
+  }
+
+  async upsertSeason(data: UpsertSeasonData): Promise<IRaidSeason> {
+    let season = await this.seasonRepo.findOne({ where: { slug: data.slug } });
+    if (season) {
+      await this.seasonRepo.update(season.id, { name: data.name, isActive: data.isActive });
+      return this.seasonRepo.findOneOrFail({ where: { id: season.id } });
+    }
+    season = this.seasonRepo.create({
+      name: data.name,
+      slug: data.slug,
+      isActive: data.isActive,
+      startDate: new Date(),
+    });
+    return this.seasonRepo.save(season);
+  }
+
+  async upsertBoss(data: UpsertBossData): Promise<IBoss> {
+    let boss = await this.bossRepo.findOne({ where: { wowEncounterId: data.wowEncounterId } });
+    if (boss) {
+      await this.bossRepo.update(boss.id, {
+        name: data.name,
+        raidId: data.raidId,
+        raidName: data.raidName,
+        raidAccentColor: data.raidAccentColor,
+        order: data.order,
+      });
+      return this.toIBoss(await this.bossRepo.findOneOrFail({ where: { id: boss.id } }));
+    }
+    boss = this.bossRepo.create({ ...data });
+    return this.toIBoss(await this.bossRepo.save(boss));
+  }
+
+  async upsertItem(data: UpsertItemData): Promise<IItem> {
+    let item = await this.itemRepo.findOne({ where: { wowItemId: data.wowItemId } });
+    const bossName = (await this.bossRepo.findOne({ where: { id: data.bossId } }))?.name ?? '';
+
+    if (item) {
+      await this.itemRepo.update(item.id, {
+        name: data.name,
+        category: data.category,
+        armorType: data.armorType,
+        slot: data.slot,
+        itemLevel: data.itemLevel,
+        primaryStat: data.primaryStat,
+        bossId: data.bossId,
+        iconUrl: data.iconUrl,
+        isPrioritizable: data.isPrioritizable,
+        isSuperRare: data.isSuperRare ?? false,
+      });
+      return this.toIItem(await this.itemRepo.findOneOrFail({ where: { id: item.id } }), bossName);
+    }
+
+    item = this.itemRepo.create({ ...data });
+    return this.toIItem(await this.itemRepo.save(item), bossName);
   }
 }

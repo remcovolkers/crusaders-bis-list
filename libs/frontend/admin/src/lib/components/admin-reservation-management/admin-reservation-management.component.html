@@ -1,0 +1,81 @@
+<div class="reservations-page">
+  <div class="page-header">
+    <h2>Reserveringsbeheer</h2>
+    @if (!loading()) {
+      <span class="count-badge">{{ totalReservations() }} reserveringen</span>
+    }
+  </div>
+  <p class="page-subtitle">Bekijk alle reserveringen per raider. Alleen admins kunnen reserveringen intrekken.</p>
+
+  @if (loading()) {
+    <div class="loading-spinner">Laden...</div>
+  }
+  @if (error()) {
+    <div class="error-banner">{{ error() }}</div>
+  }
+  @if (success()) {
+    <div class="success-banner">{{ success() }}</div>
+  }
+
+  @if (!loading()) {
+    @if (raiders().length === 0) {
+      <div class="empty-state">Geen reserveringen gevonden.</div>
+    }
+
+    @for (raider of raiders(); track raider.raiderId) {
+      @if (raider.reservations.length > 0) {
+        <div class="raider-card card">
+          <div class="raider-header">
+            <span class="raider-name">{{ raider.characterName }}</span>
+            <span class="raider-meta">{{ raider.wowClass }} – {{ raider.spec }}</span>
+            <span class="res-count">{{ raider.reservations.length }} res.</span>
+          </div>
+
+          <div class="res-table">
+            @for (entry of raider.reservations; track entry.id) {
+              <div class="res-row" [class.has-assignment]="!!entry.assignment">
+                <!-- Item info -->
+                <div class="res-item">
+                  <span class="item-name">{{ entry.itemName }}</span>
+                  <div class="item-badges">
+                    <span class="cat-badge" [ngClass]="'cat-' + entry.itemCategory">{{ entry.itemCategory }}</span>
+                    @if (entry.isSuperRare) {
+                      <span class="superrare-badge">⭐ Superrare</span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Assignment status -->
+                <div class="res-assignment">
+                  @if (entry.assignment) {
+                    <span class="tier-badge" [ngClass]="tierClass(entry.assignment.status)">
+                      {{ tierLabel(entry.assignment.status) }}
+                    </span>
+                    @if (isAcquired(entry)) {
+                      <span class="warning-text">⚠ Item al ontvangen</span>
+                    }
+                  } @else {
+                    <span class="no-assignment">Nog niet toegewezen</span>
+                  }
+                </div>
+
+                <!-- Cancel action -->
+                <div class="res-actions">
+                  @if (confirmingId() === entry.id) {
+                    <span class="confirm-text">Zeker weten?</span>
+                    <button class="btn-danger-sm" (click)="confirmCancel(entry.id)">Ja, intrekken</button>
+                    <button class="btn-ghost-sm" (click)="abortCancel()">Annuleer</button>
+                  } @else {
+                    <button class="btn-ghost-sm" [class.warn]="isAcquired(entry)" (click)="requestCancel(entry.id)">
+                      Intrekken
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
+  }
+</div>

@@ -1,0 +1,79 @@
+.selector {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.classes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 6px;
+}
+
+.class-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  transition: all .15s;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--cls-color, var(--border-bright));
+    color: var(--cls-color, var(--text-primary));
+    background: var(--bg-hover);
+  }
+
+  &.active {
+    border-color: var(--cls-color, var(--accent-gold));
+    color: var(--cls-color, var(--text-primary));
+    background: color-mix(in srgb, var(--cls-color, var(--accent-gold)) 12%, var(--bg-elevated));
+    font-weight: 600;
+  }
+
+  .class-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.specs-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.spec-btn {
+  padding: 5px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  transition: all .15s;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--border-bright);
+    color: var(--text-primary);
+  }
+
+  &.active {
+    border-color: var(--accent-gold);
+    background: rgba(201,168,76,.1);
+    color: var(--accent-gold);
+    font-weight: 600;
+  }
+}
