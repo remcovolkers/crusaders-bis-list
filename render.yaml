@@ -5,7 +5,7 @@ services:
     env: node
     region: frankfurt
     plan: starter
-    buildCommand: npm ci && npx nx build crusaders-bis-list --configuration=production
+    buildCommand: npm ci --legacy-peer-deps && npx nx build crusaders-bis-list --configuration=production
     startCommand: node dist/apps/crusaders-bis-list/main.js
     envVars:
       - key: NODE_ENV
@@ -29,7 +29,7 @@ services:
   - type: web
     name: crusaders-bis-list-frontend
     env: static
-    buildCommand: npm ci && npx nx build frontend --configuration=production
+    buildCommand: npm ci --legacy-peer-deps && npx nx build frontend --configuration=production
     staticPublishPath: dist/frontend/browser
     envVars:
       - key: NODE_ENV
