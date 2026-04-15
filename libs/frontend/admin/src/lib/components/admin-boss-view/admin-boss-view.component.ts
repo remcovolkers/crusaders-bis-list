@@ -25,6 +25,8 @@ export class AdminBossViewComponent implements OnInit {
     { key: 'no-need', label: 'Niet nodig', value: AssignmentStatus.NIET_MEER_NODIG },
   ];
 
+  readonly confirmingDeleteResId = signal<string | null>(null);
+
   private readonly adminService = inject(AdminService);
 
   ngOnInit(): void {
@@ -83,5 +85,29 @@ export class AdminBossViewComponent implements OnInit {
         this.error.set((e as { error?: { message?: string } })?.error?.message ?? 'Toewijzing mislukt.');
       },
     });
+  }
+
+  requestDeleteReservation(reservationId: string): void {
+    this.confirmingDeleteResId.set(reservationId);
+  }
+
+  confirmDeleteReservation(reservationId: string): void {
+    this.confirmingDeleteResId.set(null);
+    this.error.set('');
+    this.adminService.cancelReservation(reservationId).subscribe({
+      next: () => {
+        const boss = this.selectedBoss();
+        if (boss) this.selectBoss(boss as IBoss & { items?: IItem[] });
+        this.successMessage.set('Reservering verwijderd.');
+        setTimeout(() => this.successMessage.set(''), 3000);
+      },
+      error: () => {
+        this.error.set('Reservering verwijderen mislukt.');
+      },
+    });
+  }
+
+  abortDeleteReservation(): void {
+    this.confirmingDeleteResId.set(null);
   }
 }

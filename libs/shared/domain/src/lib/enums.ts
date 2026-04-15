@@ -341,12 +341,127 @@ export const WEAPON_TYPE_CLASSES: Partial<Record<WeaponType, ReadonlySet<WowClas
 };
 
 /**
+ * Weapon types allowed per spec.
+ * When a spec is listed here, only the listed weapon types are shown in the loot UI.
+ * This enforces spec-level restrictions (e.g. Rogue Assassination only sees Daggers).
+ */
+export const SPEC_WEAPON_TYPES: Partial<Record<WowSpec, ReadonlySet<WeaponType>>> = {
+  // ── Death Knight ──────────────────────────────────────────────────────
+  [WowSpec.BLOOD]: new Set([WeaponType.AXE_2H, WeaponType.MACE_2H, WeaponType.SWORD_2H, WeaponType.POLEARM]),
+  [WowSpec.FROST_DK]: new Set([
+    WeaponType.AXE_1H,
+    WeaponType.AXE_2H,
+    WeaponType.MACE_1H,
+    WeaponType.MACE_2H,
+    WeaponType.SWORD_1H,
+    WeaponType.SWORD_2H,
+    WeaponType.POLEARM,
+  ]),
+  [WowSpec.UNHOLY]: new Set([WeaponType.AXE_2H, WeaponType.MACE_2H, WeaponType.SWORD_2H, WeaponType.POLEARM]),
+  // ── Demon Hunter ─────────────────────────────────────────────────────
+  [WowSpec.HAVOC]: new Set([WeaponType.WARGLAIVE, WeaponType.SWORD_1H, WeaponType.AXE_1H, WeaponType.FIST]),
+  [WowSpec.VENGEANCE]: new Set([WeaponType.WARGLAIVE, WeaponType.SWORD_1H, WeaponType.AXE_1H, WeaponType.FIST]),
+  [WowSpec.DEVOURER]: new Set([WeaponType.WARGLAIVE, WeaponType.SWORD_1H, WeaponType.FIST]),
+  // ── Druid ─────────────────────────────────────────────────────────────
+  [WowSpec.BALANCE]: new Set([WeaponType.STAFF, WeaponType.DAGGER, WeaponType.MACE_1H]),
+  [WowSpec.FERAL]: new Set([WeaponType.POLEARM, WeaponType.STAFF]),
+  [WowSpec.GUARDIAN]: new Set([WeaponType.POLEARM, WeaponType.STAFF]),
+  [WowSpec.RESTORATION_DRUID]: new Set([WeaponType.STAFF, WeaponType.DAGGER, WeaponType.MACE_1H]),
+  // ── Evoker ────────────────────────────────────────────────────────────
+  [WowSpec.DEVASTATION]: new Set([
+    WeaponType.STAFF,
+    WeaponType.DAGGER,
+    WeaponType.SWORD_1H,
+    WeaponType.MACE_1H,
+    WeaponType.AXE_1H,
+  ]),
+  [WowSpec.PRESERVATION]: new Set([
+    WeaponType.STAFF,
+    WeaponType.DAGGER,
+    WeaponType.SWORD_1H,
+    WeaponType.MACE_1H,
+    WeaponType.AXE_1H,
+  ]),
+  [WowSpec.AUGMENTATION]: new Set([
+    WeaponType.STAFF,
+    WeaponType.DAGGER,
+    WeaponType.SWORD_1H,
+    WeaponType.MACE_1H,
+    WeaponType.AXE_1H,
+  ]),
+  // ── Hunter ────────────────────────────────────────────────────────────
+  [WowSpec.BEAST_MASTERY]: new Set([WeaponType.BOW, WeaponType.CROSSBOW, WeaponType.GUN]),
+  [WowSpec.MARKSMANSHIP]: new Set([WeaponType.BOW, WeaponType.CROSSBOW, WeaponType.GUN]),
+  [WowSpec.SURVIVAL]: new Set([WeaponType.POLEARM, WeaponType.STAFF, WeaponType.SWORD_2H, WeaponType.AXE_2H]),
+  // ── Mage ──────────────────────────────────────────────────────────────
+  [WowSpec.ARCANE]: new Set([WeaponType.STAFF, WeaponType.DAGGER, WeaponType.SWORD_1H, WeaponType.WAND]),
+  [WowSpec.FIRE]: new Set([WeaponType.STAFF, WeaponType.DAGGER, WeaponType.SWORD_1H, WeaponType.WAND]),
+  [WowSpec.FROST_MAGE]: new Set([WeaponType.STAFF, WeaponType.DAGGER, WeaponType.SWORD_1H, WeaponType.WAND]),
+  // ── Monk ──────────────────────────────────────────────────────────────
+  [WowSpec.BREWMASTER]: new Set([
+    WeaponType.STAFF,
+    WeaponType.POLEARM,
+    WeaponType.SWORD_1H,
+    WeaponType.MACE_1H,
+    WeaponType.AXE_1H,
+    WeaponType.FIST,
+  ]),
+  [WowSpec.MISTWEAVER]: new Set([WeaponType.STAFF, WeaponType.SWORD_1H, WeaponType.MACE_1H]),
+  [WowSpec.WINDWALKER]: new Set([WeaponType.SWORD_1H, WeaponType.MACE_1H, WeaponType.AXE_1H, WeaponType.FIST]),
+  // ── Paladin ───────────────────────────────────────────────────────────
+  [WowSpec.HOLY_PALADIN]: new Set([
+    WeaponType.SWORD_1H,
+    WeaponType.MACE_1H,
+    WeaponType.SWORD_2H,
+    WeaponType.MACE_2H,
+    WeaponType.POLEARM,
+  ]),
+  [WowSpec.PROTECTION_PALADIN]: new Set([WeaponType.SWORD_1H, WeaponType.MACE_1H, WeaponType.AXE_1H]),
+  [WowSpec.RETRIBUTION]: new Set([WeaponType.SWORD_2H, WeaponType.AXE_2H, WeaponType.MACE_2H, WeaponType.POLEARM]),
+  // ── Priest ────────────────────────────────────────────────────────────
+  [WowSpec.DISCIPLINE]: new Set([WeaponType.STAFF, WeaponType.DAGGER, WeaponType.MACE_1H, WeaponType.WAND]),
+  [WowSpec.HOLY_PRIEST]: new Set([WeaponType.STAFF, WeaponType.DAGGER, WeaponType.MACE_1H, WeaponType.WAND]),
+  [WowSpec.SHADOW]: new Set([WeaponType.STAFF, WeaponType.DAGGER, WeaponType.MACE_1H, WeaponType.WAND]),
+  // ── Rogue ─────────────────────────────────────────────────────────────
+  [WowSpec.ASSASSINATION]: new Set([WeaponType.DAGGER]),
+  [WowSpec.OUTLAW]: new Set([
+    WeaponType.SWORD_1H,
+    WeaponType.AXE_1H,
+    WeaponType.MACE_1H,
+    WeaponType.FIST,
+    WeaponType.DAGGER,
+  ]),
+  [WowSpec.SUBTLETY]: new Set([WeaponType.DAGGER]),
+  // ── Shaman ────────────────────────────────────────────────────────────
+  [WowSpec.ELEMENTAL]: new Set([WeaponType.STAFF, WeaponType.MACE_1H, WeaponType.DAGGER, WeaponType.FIST]),
+  [WowSpec.ENHANCEMENT]: new Set([WeaponType.MACE_1H, WeaponType.AXE_1H, WeaponType.FIST]),
+  [WowSpec.RESTORATION_SHAMAN]: new Set([WeaponType.STAFF, WeaponType.MACE_1H, WeaponType.DAGGER, WeaponType.FIST]),
+  // ── Warlock ───────────────────────────────────────────────────────────
+  [WowSpec.AFFLICTION]: new Set([WeaponType.STAFF, WeaponType.DAGGER, WeaponType.SWORD_1H, WeaponType.WAND]),
+  [WowSpec.DEMONOLOGY]: new Set([WeaponType.STAFF, WeaponType.DAGGER, WeaponType.SWORD_1H, WeaponType.WAND]),
+  [WowSpec.DESTRUCTION]: new Set([WeaponType.STAFF, WeaponType.DAGGER, WeaponType.SWORD_1H, WeaponType.WAND]),
+  // ── Warrior ───────────────────────────────────────────────────────────
+  [WowSpec.ARMS]: new Set([WeaponType.SWORD_2H, WeaponType.AXE_2H, WeaponType.MACE_2H, WeaponType.POLEARM]),
+  [WowSpec.FURY]: new Set([
+    WeaponType.SWORD_1H,
+    WeaponType.SWORD_2H,
+    WeaponType.AXE_1H,
+    WeaponType.AXE_2H,
+    WeaponType.MACE_1H,
+    WeaponType.MACE_2H,
+    WeaponType.POLEARM,
+    WeaponType.FIST,
+  ]),
+  [WowSpec.PROTECTION_WARRIOR]: new Set([WeaponType.SWORD_1H, WeaponType.AXE_1H, WeaponType.MACE_1H]),
+};
+
+/**
  * Returns true if a class+spec combination may reserve this item.
  *
  * Armor: compared against armorType (all armor is stored as category OTHER with
  * an armorType sub-field). ArmorType.NONE means a tier token → visible to all.
- * Weapons: checked against WEAPON_TYPE_CLASSES first (class restriction), then
- * primary stat (spec restriction). Items without stat info are shown to all.
+ * Weapons: checked against SPEC_WEAPON_TYPES first (spec-level restriction),
+ * falling back to WEAPON_TYPE_CLASSES (class-level), then primary stat.
  * Everything else (trinkets, jewelry, …) is always allowed.
  */
 export function canClassReserveItem(
@@ -370,8 +485,15 @@ export function canClassReserveItem(
   // ── Weapons ─────────────────────────────────────────────────────────────
   if (item.category === ItemCategory.WEAPON) {
     if (item.weaponType) {
-      const eligible = WEAPON_TYPE_CLASSES[item.weaponType];
-      if (eligible && !eligible.has(wowClass)) return false;
+      const specAllowed = SPEC_WEAPON_TYPES[spec];
+      if (specAllowed) {
+        // Spec-level restriction takes full priority
+        if (!specAllowed.has(item.weaponType)) return false;
+      } else {
+        // Fall back to class-level restriction for specs not in SPEC_WEAPON_TYPES
+        const eligible = WEAPON_TYPE_CLASSES[item.weaponType];
+        if (eligible && !eligible.has(wowClass)) return false;
+      }
     }
     if (item.primaryStat) {
       return SPEC_PRIMARY_STAT[spec] === item.primaryStat;

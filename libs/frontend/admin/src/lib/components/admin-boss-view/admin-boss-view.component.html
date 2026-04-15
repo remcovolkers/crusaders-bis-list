@@ -85,6 +85,25 @@
                           }
                         </div>
                         <div class="assign-actions">
+                          @if (raider.hasReservation && raider.reservationId) {
+                            @if (confirmingDeleteResId() === raider.reservationId) {
+                              <span class="confirm-text">Zeker weten?</span>
+                              <button
+                                class="assign-btn tier-danger"
+                                (click)="confirmDeleteReservation(raider.reservationId)"
+                              >
+                                Ja
+                              </button>
+                              <button class="assign-btn tier-ghost" (click)="abortDeleteReservation()">Nee</button>
+                            } @else {
+                              <button
+                                class="assign-btn tier-danger-outline"
+                                (click)="requestDeleteReservation(raider.reservationId)"
+                              >
+                                ✕ Reservering verwijderen
+                              </button>
+                            }
+                          }
                           @for (status of assignmentStatuses; track status.key) {
                             <button
                               class="assign-btn"

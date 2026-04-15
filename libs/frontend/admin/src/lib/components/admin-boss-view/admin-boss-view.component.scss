@@ -23,7 +23,7 @@
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: .6px;
+  letter-spacing: 0.6px;
   color: var(--text-muted);
 }
 
@@ -39,12 +39,17 @@
   border: none;
   text-align: left;
   cursor: pointer;
-  transition: background .12s, color .12s;
+  transition:
+    background 0.12s,
+    color 0.12s;
 
-  &:hover, &.active {
+  &:hover,
+  &.active {
     background: var(--bg-elevated);
     color: var(--text-primary);
-    .boss-dot { background: var(--boss-color, var(--accent-gold)); }
+    .boss-dot {
+      background: var(--boss-color, var(--accent-gold));
+    }
   }
 }
 
@@ -54,10 +59,12 @@
   border-radius: 50%;
   background: var(--border-bright);
   flex-shrink: 0;
-  transition: background .12s;
+  transition: background 0.12s;
 }
 
-.boss-row-name { font-size: 12px; }
+.boss-row-name {
+  font-size: 12px;
+}
 
 /* ── Main ── */
 .admin-main {
@@ -82,7 +89,9 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 20px;
-  h2 { font-size: 18px; }
+  h2 {
+    font-size: 18px;
+  }
 }
 
 .item-panels {
@@ -138,27 +147,66 @@
   border-radius: 999px;
 }
 
-.cat-trinket  { background: rgba(167,139,250,.12); color: #a78bfa; border: 1px solid rgba(167,139,250,.25); }
-.cat-weapon   { background: rgba(239,68,68,.12);   color: #f87171; border: 1px solid rgba(239,68,68,.25); }
-.cat-offhand  { background: rgba(239,68,68,.08);   color: #fca5a5; border: 1px solid rgba(239,68,68,.2); }
-.cat-cloth    { background: rgba(63,199,235,.1);   color: #67e8f9; border: 1px solid rgba(63,199,235,.2); }
-.cat-leather  { background: rgba(255,124,10,.1);   color: #fb923c; border: 1px solid rgba(255,124,10,.2); }
-.cat-mail     { background: rgba(170,211,114,.1);  color: #86efac; border: 1px solid rgba(170,211,114,.2); }
-.cat-plate    { background: rgba(198,155,58,.1);   color: #fbbf24; border: 1px solid rgba(198,155,58,.2); }
-.cat-jewelry  { background: rgba(244,140,186,.1);  color: #f9a8d4; border: 1px solid rgba(244,140,186,.2); }
-.cat-other    { background: var(--bg-elevated);    color: var(--text-muted); border: 1px solid var(--border-color); }
+.cat-trinket {
+  background: rgba(167, 139, 250, 0.12);
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.25);
+}
+.cat-weapon {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+.cat-offhand {
+  background: rgba(239, 68, 68, 0.08);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.cat-cloth {
+  background: rgba(63, 199, 235, 0.1);
+  color: #67e8f9;
+  border: 1px solid rgba(63, 199, 235, 0.2);
+}
+.cat-leather {
+  background: rgba(255, 124, 10, 0.1);
+  color: #fb923c;
+  border: 1px solid rgba(255, 124, 10, 0.2);
+}
+.cat-mail {
+  background: rgba(170, 211, 114, 0.1);
+  color: #86efac;
+  border: 1px solid rgba(170, 211, 114, 0.2);
+}
+.cat-plate {
+  background: rgba(198, 155, 58, 0.1);
+  color: #fbbf24;
+  border: 1px solid rgba(198, 155, 58, 0.2);
+}
+.cat-jewelry {
+  background: rgba(244, 140, 186, 0.1);
+  color: #f9a8d4;
+  border: 1px solid rgba(244, 140, 186, 0.2);
+}
+.cat-other {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
 
 .ilvl-badge {
   font-size: 10px;
   font-weight: 600;
   padding: 1px 6px;
   border-radius: 999px;
-  background: rgba(59,130,246,.12);
+  background: rgba(59, 130, 246, 0.12);
   color: #60a5fa;
-  border: 1px solid rgba(59,130,246,.25);
+  border: 1px solid rgba(59, 130, 246, 0.25);
 }
 
-.slot-text-sm { font-size: 10px; color: var(--text-muted); }
+.slot-text-sm {
+  font-size: 10px;
+  color: var(--text-muted);
+}
 
 .no-eligible {
   padding: 16px;
@@ -167,7 +215,10 @@
   font-style: italic;
 }
 
-.raiders-list { display: flex; flex-direction: column; }
+.raiders-list {
+  display: flex;
+  flex-direction: column;
+}
 
 .raider-row {
   display: flex;
@@ -177,8 +228,12 @@
   gap: 12px;
   border-bottom: 1px solid var(--border-color);
 
-  &:last-child { border-bottom: none; }
-  &:hover { background: var(--bg-elevated); }
+  &:last-child {
+    border-bottom: none;
+  }
+  &:hover {
+    background: var(--bg-elevated);
+  }
 }
 
 .raider-info {
@@ -189,7 +244,10 @@
   min-width: 0;
 }
 
-.raider-name { font-size: 13px; font-weight: 600; }
+.raider-name {
+  font-size: 13px;
+  font-weight: 600;
+}
 
 .raider-class {
   font-size: 11px;
@@ -209,17 +267,58 @@
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
-  transition: all .12s;
+  transition: all 0.12s;
   background: var(--bg-elevated);
   color: var(--text-secondary);
-  &:hover { border-color: var(--border-bright); color: var(--text-primary); }
+  &:hover {
+    border-color: var(--border-bright);
+    color: var(--text-primary);
+  }
 }
 
-.tier-champion { background: rgba(59,130,246,.15); color: #60a5fa; border-color: rgba(59,130,246,.3); }
-.tier-hero     { background: rgba(139,92,246,.15); color: #a78bfa; border-color: rgba(139,92,246,.3); }
-.tier-myth     { background: rgba(239,68,68,.15);  color: #f87171; border-color: rgba(239,68,68,.3); }
-.tier-no-need  { background: var(--bg-elevated);   color: var(--text-muted); }
+.tier-champion {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+.tier-hero {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+  border-color: rgba(139, 92, 246, 0.3);
+}
+.tier-myth {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+.tier-no-need {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+}
 
+.tier-danger {
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.5);
+}
+.tier-danger-outline {
+  background: transparent;
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+  &:hover {
+    background: rgba(239, 68, 68, 0.1);
+  }
+}
+.tier-ghost {
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+}
+
+.confirm-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
 
 .page-header h1 {
   color: #f0c040;
