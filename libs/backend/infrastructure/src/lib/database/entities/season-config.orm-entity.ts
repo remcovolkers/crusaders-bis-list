@@ -18,7 +18,7 @@ export class SeasonConfigOrmEntity {
   jewelryLimit!: number;
 
   @Column({ name: 'other_limit', type: 'int', default: 1 })
-  otherLimit!: number;
+  armorLimit!: number;
 
   @Column({ name: 'superrare_limit', type: 'int', default: 0 })
   superrareLimit!: number;

@@ -7,6 +7,7 @@ import {
   WowClass,
   WowSpec,
   RaiderStatus,
+  WeaponType,
 } from './enums';
 
 export interface IUser {
@@ -24,11 +25,20 @@ export interface IRaiderProfile {
   id: string;
   userId: string;
   characterName: string;
+  realm?: string;
   wowClass: WowClass;
   spec: WowSpec;
   status: RaiderStatus;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IReceivedItem {
+  id: string;
+  raiderId: string;
+  itemId: string;
+  tier: AssignmentStatus;
+  createdAt: Date;
 }
 
 export interface IRaidSeason {
@@ -60,6 +70,7 @@ export interface IItem {
   slot: string;
   itemLevel?: number;
   primaryStat?: PrimaryStat;
+  weaponType?: WeaponType;
   bossId: string;
   bossName: string;
   iconUrl?: string;
@@ -148,7 +159,7 @@ export interface ISeasonConfig {
   trinketLimit: number;
   weaponLimit: number;
   jewelryLimit: number;
-  otherLimit: number;
+  armorLimit: number;
   superrareLimit: number;
 }
 
@@ -156,6 +167,6 @@ export interface UpdateSeasonConfigDto {
   trinketLimit: number;
   weaponLimit: number;
   jewelryLimit: number;
-  otherLimit: number;
+  armorLimit: number;
   superrareLimit: number;
 }

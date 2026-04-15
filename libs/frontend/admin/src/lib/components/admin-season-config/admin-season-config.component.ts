@@ -15,7 +15,7 @@ export class AdminSeasonConfigComponent implements OnInit {
   readonly trinketLimit = signal(2);
   readonly weaponLimit = signal(2);
   readonly jewelryLimit = signal(1);
-  readonly otherLimit = signal(1);
+  readonly armorLimit = signal(1);
   readonly superrareLimit = signal(0);
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -45,7 +45,7 @@ export class AdminSeasonConfigComponent implements OnInit {
         this.trinketLimit.set(c.trinketLimit);
         this.weaponLimit.set(c.weaponLimit);
         this.jewelryLimit.set(c.jewelryLimit);
-        this.otherLimit.set(c.otherLimit);
+        this.armorLimit.set(c.armorLimit);
         this.superrareLimit.set(c.superrareLimit);
         this.loading.set(false);
       },
@@ -73,7 +73,7 @@ export class AdminSeasonConfigComponent implements OnInit {
         trinketLimit: this.trinketLimit(),
         weaponLimit: this.weaponLimit(),
         jewelryLimit: this.jewelryLimit(),
-        otherLimit: this.otherLimit(),
+        armorLimit: this.armorLimit(),
         superrareLimit: this.superrareLimit(),
       })
       .subscribe({

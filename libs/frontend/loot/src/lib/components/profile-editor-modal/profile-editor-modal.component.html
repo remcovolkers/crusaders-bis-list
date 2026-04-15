@@ -1,0 +1,55 @@
+<div
+  class="modal-backdrop"
+  role="button"
+  tabindex="0"
+  aria-label="Sluit venster"
+  (click)="cancelled.emit()"
+  (keydown.enter)="cancelled.emit()"
+  (keydown.escape)="cancelled.emit()"
+>
+  <div
+    class="modal"
+    role="dialog"
+    aria-modal="true"
+    (click)="$event.stopPropagation()"
+    (keydown)="$event.stopPropagation()"
+  >
+    <div class="modal-header">
+      <h3>Jouw character</h3>
+      <button class="modal-close" (click)="cancelled.emit()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <label class="form-label" for="profile-name">Naam</label>
+      <input
+        id="profile-name"
+        class="form-input"
+        [ngModel]="editCharName()"
+        (ngModelChange)="editCharName.set($event)"
+        placeholder="Karakternaam"
+      />
+
+      <label class="form-label" for="profile-realm" style="margin-top: 12px">Realm</label>
+      <input
+        id="profile-realm"
+        class="form-input"
+        [ngModel]="editRealm()"
+        (ngModelChange)="editRealm.set($event)"
+        placeholder="bijv. Silvermoon"
+      />
+
+      <label class="form-label" for="class-spec-selector" style="margin-top: 16px">Class &amp; Spec</label>
+      <lib-class-spec-selector
+        id="class-spec-selector"
+        [selectedClass]="editClass()"
+        [selectedSpec]="editSpec()"
+        (selectionChange)="onClassSpecChange($event)"
+      />
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="cancelled.emit()">Annuleer</button>
+      <button class="btn-primary" [disabled]="!canSave" (click)="save()">Opslaan</button>
+    </div>
+  </div>
+</div>

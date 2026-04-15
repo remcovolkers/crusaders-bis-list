@@ -47,6 +47,24 @@
                 <div class="res-panel-header">
                   <span class="char-name">{{ summary.characterName }}</span>
                   <span class="char-meta">{{ summary.wowClass }} – {{ summary.spec }}</span>
+                  <div
+                    class="res-panel-actions"
+                    role="group"
+                    (click)="$event.stopPropagation()"
+                    (keydown)="$event.stopPropagation()"
+                  >
+                    @if (confirmingResetRaiderId() === summary.raiderId) {
+                      <span class="confirm-text">Profiel verwijderen?</span>
+                      <button class="btn-danger-sm" (click)="confirmReset(summary.raiderId, summary.userId)">
+                        Ja, reset
+                      </button>
+                      <button class="btn-ghost-sm" (click)="abortReset()">Nee</button>
+                    } @else {
+                      <button class="btn-ghost-sm danger" (click)="requestReset(summary.raiderId)">
+                        Reset profiel
+                      </button>
+                    }
+                  </div>
                 </div>
 
                 @if (summary.reservations.length === 0) {

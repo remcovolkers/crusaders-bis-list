@@ -37,7 +37,7 @@ export interface ReservationLimits {
   trinketLimit: number;
   weaponLimit: number;
   jewelryLimit: number;
-  otherLimit: number;
+  armorLimit: number;
   superrareLimit: number;
 }
 
@@ -50,7 +50,7 @@ export class LootDomainRules {
   static canReserve(
     category: ItemCategory,
     existingReservationsInCategory: number,
-    limits: ReservationLimits = { trinketLimit: 2, weaponLimit: 2, jewelryLimit: 1, otherLimit: 1, superrareLimit: 0 },
+    limits: ReservationLimits = { trinketLimit: 2, weaponLimit: 2, jewelryLimit: 1, armorLimit: 1, superrareLimit: 0 },
     isSuperRare = false,
     existingSuperRareReservations = 0,
   ): { allowed: boolean; reason?: string } {
@@ -65,8 +65,14 @@ export class LootDomainRules {
       limit = limits.weaponLimit;
     } else if (category === ItemCategory.JEWELRY) {
       limit = limits.jewelryLimit;
-    } else if (category === ItemCategory.OTHER) {
-      limit = limits.otherLimit;
+    } else if (
+      category === ItemCategory.OTHER ||
+      category === ItemCategory.CLOTH ||
+      category === ItemCategory.LEATHER ||
+      category === ItemCategory.MAIL ||
+      category === ItemCategory.PLATE
+    ) {
+      limit = limits.armorLimit;
     }
 
     if (limit === 0) {

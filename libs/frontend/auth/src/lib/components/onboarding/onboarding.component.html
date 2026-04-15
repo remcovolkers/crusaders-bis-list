@@ -1,0 +1,80 @@
+<div class="onboarding-wrapper">
+  <div class="onboarding-card">
+    <div class="onboarding-header">
+      <h1 class="onboarding-title">
+        {{ editMode() ? 'Profiel bewerken' : 'Welkom bij Crusaders BiS List' }}
+      </h1>
+      <p class="onboarding-subtitle">
+        {{ editMode() ? 'Pas je karakter of spec aan' : 'Stel je karakter in om te beginnen' }}
+      </p>
+    </div>
+
+    <div class="step-indicator">
+      <span class="step-dot" [class.active]="step() >= 1" [class.done]="step() > 1">1</span>
+      <span class="step-line"></span>
+      <span class="step-dot" [class.active]="step() >= 2">2</span>
+    </div>
+
+    @if (step() === 1) {
+      <div class="step-content">
+        <h2 class="step-title">Je karakter</h2>
+
+        <div class="form-group">
+          <label class="form-label" for="char-name">In-game naam</label>
+          <input
+            id="char-name"
+            class="form-input"
+            type="text"
+            placeholder="bijv. Arthas"
+            [ngModel]="characterName()"
+            (ngModelChange)="characterName.set($event)"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="realm">Realm</label>
+          <input
+            id="realm"
+            class="form-input"
+            type="text"
+            placeholder="bijv. Silvermoon"
+            [ngModel]="realm()"
+            (ngModelChange)="realm.set($event)"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="step-actions">
+          @if (editMode()) {
+            <button class="btn-ghost" (click)="cancel()">Annuleer</button>
+          }
+          <button class="btn-primary" [disabled]="!canProceedStep1" (click)="goToStep2()">Volgende →</button>
+        </div>
+      </div>
+    }
+
+    @if (step() === 2) {
+      <div class="step-content">
+        <h2 class="step-title">Je class & spec</h2>
+
+        <lib-class-spec-selector
+          [selectedClass]="selectedClass()"
+          [selectedSpec]="selectedSpec()"
+          (selectionChange)="onClassSpecChange($event)"
+        />
+
+        @if (error()) {
+          <p class="error-msg">{{ error() }}</p>
+        }
+
+        <div class="step-actions">
+          <button class="btn-ghost" (click)="step.set(1)">← Terug</button>
+          <button class="btn-primary" [disabled]="!canSubmit || saving()" (click)="save()">
+            {{ saving() ? 'Opslaan...' : editMode() ? 'Opslaan' : 'Aan de slag!' }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

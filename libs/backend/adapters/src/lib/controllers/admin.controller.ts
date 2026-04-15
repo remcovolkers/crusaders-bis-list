@@ -74,6 +74,12 @@ export class AdminController {
     return this.userRepo.updateRoles(userId, dto.roles);
   }
 
+  @Delete('raiders/:raiderId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteRaiderProfile(@Param('raiderId') raiderId: string) {
+    await this.raiderRepo.delete(raiderId);
+  }
+
   @Get('catalog')
   getCatalogView() {
     return this.getCatalog.getActiveSeasonWithBossesAndItems();

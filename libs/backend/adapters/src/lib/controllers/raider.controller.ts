@@ -26,9 +26,11 @@ import {
   IRaiderRepository,
   RESERVATION_REPOSITORY,
   IReservationRepository,
+  RECEIVED_ITEM_REPOSITORY,
+  IReceivedItemRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { Inject } from '@nestjs/common';
-import { ReserveItemDto, CreateRaiderProfileDto, UpdateRaiderProfileDto } from './dto/raider.dto';
+import { ReserveItemDto, CreateRaiderProfileDto, UpdateRaiderProfileDto, MarkReceivedDto } from './dto/raider.dto';
 import { WowClass, WowSpec } from '@crusaders-bis-list/shared-domain';
 
 @Controller('raider')
@@ -40,6 +42,7 @@ export class RaiderController {
     private readonly getSeasonConfig: GetSeasonConfigUseCase,
     @Inject(RAIDER_REPOSITORY) private readonly raiderRepo: IRaiderRepository,
     @Inject(RESERVATION_REPOSITORY) private readonly reservationRepo: IReservationRepository,
+    @Inject(RECEIVED_ITEM_REPOSITORY) private readonly receivedItemRepo: IReceivedItemRepository,
   ) {}
 
   @Get('my-profile')
@@ -54,6 +57,7 @@ export class RaiderController {
     return this.raiderRepo.save({
       userId,
       characterName: dto.characterName,
+      realm: dto.realm,
       wowClass: dto.wowClass as WowClass,
       spec: dto.spec as WowSpec,
     });
@@ -66,6 +70,7 @@ export class RaiderController {
     if (!raider) throw new NotFoundException('Raider profile not found.');
     return this.raiderRepo.update(raider.id, {
       characterName: dto.characterName,
+      realm: dto.realm,
       wowClass: dto.wowClass as WowClass,
       spec: dto.spec as WowSpec,
     });
@@ -97,5 +102,40 @@ export class RaiderController {
     if (!raider) throw new NotFoundException('Raider profile not found. Please create your profile first.');
     await this.reserveItem.execute(raider.id, dto.itemId, dto.raidSeasonId);
     return { message: 'Reserved successfully' };
+  }
+
+  @Delete('reservations/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async cancelReservation(@Req() req: Request, @Param('id') id: string) {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider) throw new NotFoundException('Raider profile not found.');
+    await this.reservationRepo.delete(id);
+  }
+
+  @Get('received-items')
+  async getReceivedItems(@Req() req: Request) {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider) return [];
+    return this.receivedItemRepo.findByRaider(raider.id);
+  }
+
+  @Post('received-items')
+  @HttpCode(HttpStatus.CREATED)
+  async markItemReceived(@Req() req: Request, @Body() dto: MarkReceivedDto) {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider) throw new NotFoundException('Raider profile not found.');
+    return this.receivedItemRepo.save({ raiderId: raider.id, itemId: dto.itemId, tier: dto.tier });
+  }
+
+  @Delete('received-items/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeReceivedItem(@Req() req: Request, @Param('id') receivedId: string) {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider) throw new NotFoundException('Raider profile not found.');
+    await this.receivedItemRepo.delete(receivedId);
   }
 }

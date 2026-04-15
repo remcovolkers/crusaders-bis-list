@@ -1,101 +1,255 @@
-# CrusadersBisList
+# Crusaders BiS List
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A loot-reservation and assignment tracker for a World of Warcraft guild. Raiders claim items from the current raid tier; officers assign loot and track who received what.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+Built on an **Nx monorepo** with a NestJS backend, Angular 21 frontend, PostgreSQL (Supabase) and Google OAuth.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/nest?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+See [HOSTING.md](HOSTING.md) for deployment and environment-variable instructions.
 
-## Run tasks
+---
 
-To run the dev server for your app, use:
+## Table of Contents
 
-```sh
+1. [Project structure](#project-structure)
+2. [Getting started](#getting-started)
+3. [Architecture — hexagonal layers](#architecture--hexagonal-layers)
+4. [Key conventions](#key-conventions)
+5. [How to add a new raid season](#how-to-add-a-new-raid-season)
+6. [Admin panel](#admin-panel)
+7. [Database notes](#database-notes)
+8. [Do's and don'ts](#dos-and-donts)
+
+---
+
+## Project structure
+
+```
+apps/
+  crusaders-bis-list/         NestJS application (entry point, AppModule)
+
+libs/
+  shared/
+    domain/                   Shared types and pure functions used by BOTH frontend and backend
+      src/lib/enums.ts        ItemCategory, WowClass, WowSpec, WeaponType, canClassReserveItem, …
+      src/lib/models.ts       IItem, IRaiderProfile, ISeasonConfig, …
+
+  backend/
+    domain/                   Domain entities, port interfaces (repositories), DTOs
+    application/              Use cases + season configuration
+      src/lib/use-cases/      One file per use case (sync, reserve, assign, …)
+      src/lib/seasons/        ← Season-specific data (see "add a new season" below)
+        season-definition.types.ts   Generic SeasonDefinition interface
+        midnight-t35.season.ts       Tier 35 raids + tier token patterns
+        active-season.ts             Single export: ACTIVE_SEASON (change this for T36)
+    infrastructure/           TypeORM entities, repositories, Blizzard API client
+    adapters/                 NestJS controllers + request/response DTOs
+
+  frontend/
+    auth/                     AuthGuard, ProfileGuard, OnboardingComponent, auth state (NgRx)
+    loot/                     Raider loot overview — catalog, reservations, received items
+      src/lib/domain/         loot-ui.types.ts (frontend-only view models)
+      src/lib/services/       raider-loot-state.service.ts (application-layer facade)
+      src/lib/components/     raider-loot-overview, reserve-modal
+    admin/                    Admin panel — user management, loot assignment, season config
+    shared-ui/                Shared Angular components (ClassSpecSelector, …)
+
+frontend/                     Angular app shell (routing, app component)
+```
+
+---
+
+## Getting started
+
+```bash
+# Install dependencies
+npm install
+
+# Start the backend (NestJS, hot-reload)
 npx nx serve crusaders-bis-list
+
+# Start the frontend (Angular dev server)
+npx nx serve frontend
+
+# Run all linters
+npx nx run-many --target=lint --all
+
+# Build everything
+npx nx run-many --target=build --all
 ```
 
-To create a production bundle:
+Copy `.env.example` → `.env` and fill in the values before starting the backend.
+All required variables are documented in [HOSTING.md](HOSTING.md).
 
-```sh
-npx nx build crusaders-bis-list
+---
+
+## Architecture — hexagonal layers
+
+Dependency flow (inner layers never import outer ones):
+
+```
+shared/domain
+    ↓
+backend/domain          (entities, port interfaces)
+    ↓
+backend/infrastructure  (TypeORM, Blizzard API impl.)
+    ↓
+backend/adapters        (NestJS controllers)
+    ↓
+apps/crusaders-bis-list (AppModule glues everything)
 ```
 
-To see all available targets to run for a project, run:
+The frontend has its own layering inside `libs/frontend/loot/`:
 
-```sh
-npx nx show project crusaders-bis-list
+```
+shared-domain types
+    ↓
+loot-ui.types.ts        (frontend view models — never imported by backend)
+    ↓
+raider-loot-state.service.ts  (application facade, provided at component level)
+    ↓
+raider-loot-overview.component (thin orchestrator — no business logic)
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+### Guiding principles
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **Domain logic lives in `shared/domain` or `backend/domain`**, never in controllers or components.
+- **Controllers receive a request, delegate to a use case, return a response** — no business logic.
+- **Angular components are thin shells** — they inject the state service and wire events to methods.
+- **`canClassReserveItem`** is the single source of truth for item eligibility. It lives in `shared/domain/enums.ts` so both backend reservation validation and frontend filtering use the exact same rules.
 
-## Add new projects
+---
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+## Key conventions
 
-Use the plugin's generator to create new projects.
+### Enum values with spaces
 
-To generate a new application, use:
+`WowClass.DEATH_KNIGHT = 'Death Knight'` and `WowClass.DEMON_HUNTER = 'Demon Hunter'` contain spaces.
+This matches the display format expected everywhere. Existing DB rows that still use the old `'DeathKnight'` / `'DemonHunter'` values need a one-time migration:
 
-```sh
-npx nx g @nx/nest:app demo
+```sql
+UPDATE raider_profiles SET wow_class = 'Death Knight' WHERE wow_class = 'DeathKnight';
+UPDATE raider_profiles SET wow_class = 'Demon Hunter' WHERE wow_class = 'DemonHunter';
 ```
 
-To generate a new library, use:
+### Armor storage model
 
-```sh
-npx nx g @nx/node:lib mylib
+All armor items from Blizzard are stored as `category = 'other'` with a separate `armor_type` column (`cloth` / `leather` / `mail` / `plate`).
+`canClassReserveItem` compares `CLASS_ARMOR_TYPE[wowClass]` against `item.armorType`, **not** `item.category`.
+
+### Cloaks (back slot)
+
+Cloaks arrive from Blizzard as `inventory_type = 'BACK'` and are stored as `category = 'jewelry'` (non-class-restricted). They are shown to all classes.
+
+### `isPrioritizable`
+
+Only items with `isPrioritizable = true` show up in the loot list. Non-gear drops (patterns, quest items) have `itemLevel ≤ 1` and are filtered out during sync.
+
+### Database schema
+
+TypeORM `synchronize: true` is **only enabled in development**. In production, all schema changes require a manual SQL migration. The DB column for armor limit is `other_limit` (legacy name) — the TypeScript property is `armorLimit`.
+
+### Angular signals
+
+All Angular state uses `signal()` / `computed()` — no `BehaviorSubject`, no `async` pipe on state. Component inputs and outputs use `input()` / `output()` — not `@Input()` / `@Output()`.
+
+---
+
+## How to add a new raid season
+
+A new WoW raid tier requires changes in exactly **one folder**: `libs/backend/application/src/lib/seasons/`.
+
+### Step 1 — Create a season file
+
+Copy `midnight-t35.season.ts` and rename it, e.g. `midnight-t36.season.ts`.
+
+```ts
+export const MIDNIGHT_T36_SEASON: SeasonDefinition = {
+  slug: 'midnight-s2-t36', // must be unique in the DB
+  name: 'Midnight — Season 2 (Tier 36)',
+
+  raids: [
+    { instanceId: 9999, name: 'New Raid Name', accentColor: '#ff0000' },
+    // add fallbackEncounterIds if the instance endpoint is not yet live
+  ],
+
+  tierTokenPatterns: [
+    { match: /new token name/i, slot: 'Tier: Chest' },
+    // one entry per unique tier token that drops in this season
+  ],
+};
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+**Where do I find the instance and encounter IDs?**
+Use the [Blizzard developer portal](https://develop.battle.net/documentation/world-of-warcraft/game-data-apis) or browse `https://eu.api.blizzard.com/data/wow/journal-instance/{id}?namespace=static-eu&locale=en_US`.
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+**Where do I find the token names?**
+Log into the PTR/beta, open the journal, or search Wowhead for the tier set tokens for the new raid.
 
-## Set up CI!
+### Step 2 — Point `active-season.ts` at the new season
 
-### Step 1
+```ts
+// libs/backend/application/src/lib/seasons/active-season.ts
+import { MIDNIGHT_T36_SEASON } from './midnight-t36.season';
 
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
+export const ACTIVE_SEASON: SeasonDefinition = MIDNIGHT_T36_SEASON;
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+### Step 3 — Trigger a Blizzard sync
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+After deploying, go to the **Admin panel → Sync** and press "Reset & sync catalogus". This will:
 
-### Step 2
+1. Create or update the season row in the DB (using the `slug` as the unique key).
+2. Fetch all encounters and items from the Blizzard API.
+3. Set the new season as `isActive = true`.
 
-Use the following command to configure a CI workflow for your workspace:
+The old season's data is preserved in the database; only `isActive` changes on reset.
 
-```sh
-npx nx g ci-workflow
-```
+---
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Admin panel
 
-## Install Nx Console
+Accessible at `/admin` (requires an account with the `admin` role).
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+| Section          | What it does                                                                        |
+| ---------------- | ----------------------------------------------------------------------------------- |
+| Gebruikersbeheer | View all raiders, their reservations, remove/grant admin role, reset raider profile |
+| Loot toewijzing  | Per-boss loot view; assign items to raiders with Champion/Heroic/Mythic tier        |
+| Season config    | Set per-category reservation limits (trinkets, weapons, jewelry, armor, superrare)  |
+| Sync             | Trigger a fresh Blizzard API sync or a full reset-and-sync                          |
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+**Reset raider profile** removes the raider-profile row. The user account remains.
+On next login the user will be redirected to `/onboarding` to set up a new profile.
 
-## Useful links
+---
 
-Learn more:
+## Database notes
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/nest?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **`synchronize: true`** — only active when `NODE_ENV !== 'production'`. Never enable in prod.
+- **No migration framework** — schema changes in production are applied as raw SQL via the Supabase dashboard.
+- **Upsert behaviour** — `upsertItem` uses `wowItemId` as the unique key. Re-running a sync never duplicates items.
+- **`isSuperRare`** — admin-only flag; the sync deliberately never overwrites a `true` value back to `false`.
+- **`other_limit` column** — maps to `armorLimit` in TypeScript. The DB column name is a legacy artefact; do not rename it without a migration.
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
+---
+
+## Do's and don'ts
+
+### Do
+
+- Put **pure domain logic** (item eligibility, class rules) in `libs/shared/domain/enums.ts` — both front and back will benefit.
+- Keep **use cases thin**: one public `execute()` method, delegate persistence to repositories.
+- Use the **`ProfileGuard`** on every route that requires an active raider profile.
+- Add a `fallbackEncounterIds` array to a raid definition when its Blizzard instance endpoint is not yet live.
+- Write the **DB column name** explicitly with `@Column({ name: 'snake_case' })` whenever the TS property name differs.
+
+### Don't
+
+- Don't add business logic to NestJS controllers — they should only parse the request and call a use case.
+- Don't import `frontend-loot` or other frontend libs from the backend (or vice versa). `shared/domain` is the only shared boundary.
+- Don't use `@Input()` / `@Output()` decorators — use `input()` / `output()` signals.
+- Don't store session-tier raid data (raid names, instance IDs, token patterns) anywhere other than the `seasons/` folder.
+- Don't enable `synchronize: true` in a production environment — it will auto-drop columns.
+- Don't put T36 (or later) data in `midnight-t35.season.ts` — create a new season file.
 - [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
 - [Our Youtube channel](https://www.youtube.com/@nxdevtools)
 - [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)

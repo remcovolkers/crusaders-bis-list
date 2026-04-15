@@ -20,6 +20,7 @@ import {
   ReservationOrmEntity,
   AssignmentOrmEntity,
   SeasonConfigOrmEntity,
+  RaiderReceivedItemOrmEntity,
 } from '@crusaders-bis-list/backend-infrastructure';
 
 @Module({
@@ -39,6 +40,7 @@ import {
           ReservationOrmEntity,
           AssignmentOrmEntity,
           SeasonConfigOrmEntity,
+          RaiderReceivedItemOrmEntity,
         ],
         synchronize: config.get('NODE_ENV') !== 'production',
         ssl: config.get('DATABASE_SSL') === 'true' ? { rejectUnauthorized: false } : false,

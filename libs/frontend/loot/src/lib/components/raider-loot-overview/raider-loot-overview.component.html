@@ -1,20 +1,20 @@
-﻿@if (loading()) {
+﻿@if (state.loading()) {
   <div class="loading-spinner">Catalogus laden...</div>
 }
 
-@if (error()) {
-  <div class="error-banner">{{ error() }}</div>
+@if (state.error()) {
+  <div class="error-banner">{{ state.error() }}</div>
 }
 
-@if (catalog() && !loading()) {
+@if (state.catalog() && !state.loading()) {
   <div class="loot-layout">
-    <!-- ── Left sidebar: boss list ── -->
+    <!-- Left sidebar: boss list -->
     <aside class="boss-sidebar">
       <div class="sidebar-header">
-        <span class="sidebar-title">{{ catalog()!.season.name }}</span>
+        <span class="sidebar-title">{{ state.catalog()!.season.name }}</span>
       </div>
 
-      @for (group of groupBossesByRaid(); track group.raidName) {
+      @for (group of state.raidGroups(); track group.raidName) {
         <div class="raid-group">
           <div class="raid-group-header" [style.border-left-color]="group.color">
             <span class="raid-name">{{ group.raidName }}</span>
@@ -35,47 +35,40 @@
       }
     </aside>
 
-    <!-- ── Main content ── -->
+    <!-- Main content -->
     <div class="loot-main">
-      <!-- Top bar: profile + reservation counters + filter tabs -->
+      <!-- Top bar: profile + reservation counters -->
       <div class="loot-topbar">
         <div class="profile-area">
-          @if (profile()) {
-            <button
-              class="profile-badge"
-              [style.border-color]="classColor()"
-              [style.color]="classColor()"
-              (click)="openProfileEditor()"
-            >
-              <span class="profile-char">{{ profile()!.characterName }}</span>
+          @if (state.profile()) {
+            <div class="profile-badge" [style.border-color]="state.classColor()" [style.color]="state.classColor()">
+              <span class="profile-char">{{ state.profile()!.characterName }}</span>
               <span class="profile-sep">·</span>
-              <span class="profile-spec">{{ profile()!.spec }}</span>
-            </button>
-          } @else {
-            <button class="btn-ghost" (click)="openProfileEditor()">+ Stel je class/spec in</button>
+              <span class="profile-spec">{{ state.profile()!.spec }}</span>
+            </div>
           }
         </div>
 
         <div class="reservation-counters">
-          <span class="res-counter" [class.at-limit]="reservedTrinkets() >= trinketLimit()">
-            Trinkets {{ reservedTrinkets() }}/{{ trinketLimit() }}
+          <span class="res-counter" [class.at-limit]="state.reservedTrinkets() >= state.trinketLimit()">
+            Trinkets {{ state.reservedTrinkets() }}/{{ state.trinketLimit() }}
           </span>
-          <span class="res-counter" [class.at-limit]="reservedWeapons() >= weaponLimit()">
-            Wapens {{ reservedWeapons() }}/{{ weaponLimit() }}
+          <span class="res-counter" [class.at-limit]="state.reservedWeapons() >= state.weaponLimit()">
+            Wapens {{ state.reservedWeapons() }}/{{ state.weaponLimit() }}
           </span>
-          @if (jewelryLimit() > 0) {
-            <span class="res-counter" [class.at-limit]="reservedJewelry() >= jewelryLimit()">
-              Jewelry {{ reservedJewelry() }}/{{ jewelryLimit() }}
+          @if (state.jewelryLimit() > 0) {
+            <span class="res-counter" [class.at-limit]="state.reservedJewelry() >= state.jewelryLimit()">
+              Jewelry {{ state.reservedJewelry() }}/{{ state.jewelryLimit() }}
             </span>
           }
-          @if (otherLimit() > 0) {
-            <span class="res-counter" [class.at-limit]="reservedOther() >= otherLimit()">
-              Overig {{ reservedOther() }}/{{ otherLimit() }}
+          @if (state.armorLimit() > 0) {
+            <span class="res-counter" [class.at-limit]="state.reservedArmor() >= state.armorLimit()">
+              Armor {{ state.reservedArmor() }}/{{ state.armorLimit() }}
             </span>
           }
-          @if (superrareLimit() > 0) {
-            <span class="res-counter" [class.at-limit]="reservedSuperrare() >= superrareLimit()">
-              Superrare {{ reservedSuperrare() }}/{{ superrareLimit() }}
+          @if (state.superrareLimit() > 0) {
+            <span class="res-counter" [class.at-limit]="state.reservedSuperrare() >= state.superrareLimit()">
+              Superrare {{ state.reservedSuperrare() }}/{{ state.superrareLimit() }}
             </span>
           }
         </div>
@@ -83,8 +76,8 @@
 
       <!-- Tab bar + search -->
       <div class="tab-bar">
-        @for (tab of tabs; track tab.key) {
-          <button class="tab-btn" [class.active]="activeTab() === tab.key" (click)="activeTab.set(tab.key)">
+        @for (tab of state.visibleTabs(); track tab.key) {
+          <button class="tab-btn" [class.active]="state.activeTab() === tab.key" (click)="state.setActiveTab(tab.key)">
             {{ tab.label }}
           </button>
         }
@@ -92,15 +85,15 @@
           class="search-input"
           type="search"
           placeholder="Zoek items..."
-          [ngModel]="searchQuery()"
-          (ngModelChange)="searchQuery.set($event)"
+          [ngModel]="state.searchQuery()"
+          (ngModelChange)="state.searchQuery.set($event)"
         />
       </div>
 
       <!-- Boss sections -->
       <div class="boss-sections">
-        @for (boss of catalog()!.bosses; track boss.id) {
-          @if (hasBossItems(boss.items)) {
+        @for (boss of state.catalog()!.bosses; track boss.id) {
+          @if (state.hasBossItems(boss.items)) {
             <section class="boss-section" [id]="'boss-' + boss.id">
               <div class="boss-section-header" [style.--boss-color]="getBossColor(boss)">
                 <span class="boss-accent-bar"></span>
@@ -109,7 +102,7 @@
               </div>
 
               <div class="items-grid">
-                @for (item of getFilteredItems(boss.items); track item.id) {
+                @for (item of state.getFilteredItems(boss.items); track item.id) {
                   <div class="item-card" [class.reserved]="item.isReserved">
                     <div class="item-top">
                       @if (item.iconUrl) {
@@ -120,11 +113,14 @@
                       <div class="item-info">
                         <span class="item-name">{{ item.name }}</span>
                         <div class="item-meta">
-                          <span class="cat-badge" [ngClass]="getCategoryClass(item.category)">
-                            {{ getCategoryLabel(item.category) }}
+                          <span class="cat-badge" [ngClass]="'cat-' + item.category">
+                            {{ categoryLabels[item.category] }}
                           </span>
                           @if (item.slot) {
                             <span class="slot-text">{{ item.slot }}</span>
+                          }
+                          @if (state.getReceivedItem(item.id); as received) {
+                            <span class="received-badge">{{ tierLabels[received.tier] }} ontvangen</span>
                           }
                         </div>
                       </div>
@@ -133,11 +129,15 @@
                     @if (item.isPrioritizable) {
                       <div class="item-actions">
                         @if (!item.isReserved) {
-                          <button class="btn-primary" [disabled]="isAtLimit(item)" (click)="reserve(item)">
-                            {{ isAtLimit(item) ? 'Limiet bereikt' : 'Reserveer' }}
+                          <button
+                            class="btn-primary"
+                            [disabled]="state.isAtLimit(item)"
+                            (click)="openReserveModal(item)"
+                          >
+                            {{ state.isAtLimit(item) ? 'Limiet bereikt' : 'Reserveer' }}
                           </button>
                         } @else {
-                          <span class="reserved-badge">✓ Gereserveerd</span>
+                          <span class="reserved-badge">&#10003; Gereserveerd</span>
                         }
                       </div>
                     }
@@ -152,56 +152,12 @@
   </div>
 }
 
-<!-- Profile editor overlay -->
-@if (showProfileEditor()) {
-  <div
-    class="modal-backdrop"
-    role="button"
-    tabindex="0"
-    aria-label="Sluit venster"
-    (click)="showProfileEditor.set(false)"
-    (keydown.enter)="showProfileEditor.set(false)"
-    (keydown.escape)="showProfileEditor.set(false)"
-  >
-    <div
-      class="modal"
-      role="dialog"
-      aria-modal="true"
-      (click)="$event.stopPropagation()"
-      (keydown)="$event.stopPropagation()"
-    >
-      <div class="modal-header">
-        <h3>Jouw character</h3>
-        <button class="modal-close" (click)="showProfileEditor.set(false)">✕</button>
-      </div>
-      <div class="modal-body">
-        <label class="form-label" for="profile-name">Naam</label>
-        <input
-          id="profile-name"
-          class="form-input"
-          [ngModel]="editCharName()"
-          (ngModelChange)="editCharName.set($event)"
-          placeholder="Karakternaam"
-        />
-
-        <label class="form-label" for="class-spec-selector" style="margin-top: 16px">Class &amp; Spec</label>
-        <lib-class-spec-selector
-          id="class-spec-selector"
-          [selectedClass]="editClass()"
-          [selectedSpec]="editSpec()"
-          (selectionChange)="onClassSpecChange($event)"
-        />
-      </div>
-      <div class="modal-footer">
-        <button class="btn-ghost" (click)="showProfileEditor.set(false)">Annuleer</button>
-        <button
-          class="btn-primary"
-          [disabled]="!editClass() || !editSpec() || !editCharName().trim()"
-          (click)="saveProfile()"
-        >
-          Opslaan
-        </button>
-      </div>
-    </div>
-  </div>
+<!-- Reserve confirmation modal -->
+@if (showReserveModal() && pendingReserveItem(); as item) {
+  <lib-reserve-modal
+    [item]="item"
+    [receivedItem]="state.getReceivedItem(item.id)"
+    (confirmed)="onReserveConfirmed($event)"
+    (cancelled)="onReserveCancelled()"
+  />
 }

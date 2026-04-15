@@ -1,6 +1,11 @@
 import {
-  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn,
-  ManyToOne, JoinColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { WowClass, WowSpec, RaiderStatus } from '@crusaders-bis-list/shared-domain';
 import { UserOrmEntity } from './user.orm-entity';
@@ -19,6 +24,9 @@ export class RaiderProfileOrmEntity {
 
   @Column({ name: 'character_name' })
   characterName!: string;
+
+  @Column({ nullable: true, default: '' })
+  realm!: string;
 
   @Column({ name: 'wow_class', type: 'varchar' })
   wowClass!: WowClass;

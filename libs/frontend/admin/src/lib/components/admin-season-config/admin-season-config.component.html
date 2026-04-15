@@ -90,17 +90,17 @@
               <span class="config-hint">Max. sieraden (ringen/ketting) per raider per seizoen. 0 = uitgeschakeld</span>
             </div>
             <div class="config-field">
-              <label class="form-label" for="other-limit">Overige items limiet</label>
+              <label class="form-label" for="other-limit">Armor items limiet</label>
               <input
                 id="other-limit"
                 class="form-input config-input"
                 type="number"
-                [ngModel]="otherLimit()"
-                (ngModelChange)="otherLimit.set($event)"
+                [ngModel]="armorLimit()"
+                (ngModelChange)="armorLimit.set($event)"
                 min="0"
                 max="10"
               />
-              <span class="config-hint">Max. overige items per raider per seizoen. 0 = uitgeschakeld</span>
+              <span class="config-hint">Max. armor items per raider per seizoen. 0 = uitgeschakeld</span>
             </div>
           </div>
 

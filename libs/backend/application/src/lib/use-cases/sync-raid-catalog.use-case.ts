@@ -6,51 +6,32 @@ import {
   IBlizzardApiService,
   BlizzardItem,
 } from '@crusaders-bis-list/backend-domain';
-import { ArmorType, ItemCategory, PrimaryStat } from '@crusaders-bis-list/shared-domain';
+import { ArmorType, ItemCategory, PrimaryStat, WeaponType } from '@crusaders-bis-list/shared-domain';
+import { ACTIVE_SEASON } from '../seasons/active-season';
+import { TierArmorTypePrefix, TierTokenPattern } from '../seasons/season-definition.types';
 
-interface RaidDefinition {
-  instanceId: number;
-  name: string;
-  accentColor: string;
-  /** Used when the journal-instance endpoint is unavailable (e.g. not yet published by Blizzard). */
-  fallbackEncounterIds?: number[];
+function detectTierToken(
+  name: string,
+  patterns: TierTokenPattern[],
+  armorPrefixes?: TierArmorTypePrefix[],
+): { slot: string; armorType: ArmorType } | null {
+  const pattern = patterns.find((t) => t.match.test(name));
+  if (!pattern) return null;
+  const armorType = armorPrefixes?.find((p) => p.match.test(name))?.armorType ?? ArmorType.NONE;
+  return { slot: pattern.slot, armorType };
 }
 
-const TIER_35_RAIDS: RaidDefinition[] = [
-  {
-    instanceId: 1307,
-    name: 'The Voidspire',
-    accentColor: '#8b5cf6',
-    // Instance endpoint returns 500 — encounter IDs resolved via journal-encounter search
-    // Order: Imperator, Vorasius, Salhadaar, Vaelgor & Ezzorak, Lightblinded Vanguard, Crown of the Cosmos
-    fallbackEncounterIds: [2733, 2734, 2736, 2735, 2737, 2738],
-  },
-  { instanceId: 1314, name: 'The Dreamrift', accentColor: '#10b981' },
-  { instanceId: 1308, name: "March on Quel'Danas", accentColor: '#f59e0b' },
-];
-
-// Tier 35 token detection by partial name — maps to the tier slot the token converts into
-const TIER_TOKEN_SLOTS: { match: RegExp; slot: string }[] = [
-  { match: /riftbloom/i, slot: 'Tier: Chest' },
-  { match: /hungering nullcore/i, slot: 'Tier: Hands' },
-  { match: /unraveled nullcore/i, slot: 'Tier: Shoulders' },
-  { match: /fanatical nullcore/i, slot: 'Tier: Head' },
-  { match: /corrupted nullcore/i, slot: 'Tier: Legs' },
-  { match: /void curio/i, slot: 'Tier: All' },
-];
-
-function detectTierTokenSlot(name: string): string | null {
-  for (const t of TIER_TOKEN_SLOTS) {
-    if (t.match.test(name)) return t.slot;
-  }
-  return null;
-}
-
-function mapItemCategory(item: BlizzardItem): {
+function mapItemCategory(
+  item: BlizzardItem,
+  tierTokenPatterns: TierTokenPattern[],
+  tierArmorTypePrefixes?: TierArmorTypePrefix[],
+): {
   category: ItemCategory;
   armorType: ArmorType;
   primaryStat: PrimaryStat | undefined;
+  weaponType: WeaponType | undefined;
   slot: string;
+  isPrioritizable: boolean;
 } {
   const invType = item.inventory_type?.type ?? '';
   const itemClassId = item.item_class?.id ?? -1;
@@ -58,37 +39,108 @@ function mapItemCategory(item: BlizzardItem): {
   const slot = item.inventory_type?.name ?? 'Unknown';
   const itemName = item.name ?? '';
 
-  // Tier tokens — detected by name, category is OTHER, slot describes the tier piece
-  const tierSlot = detectTierTokenSlot(itemName);
-  if (tierSlot) {
-    return { category: ItemCategory.OTHER, armorType: ArmorType.NONE, primaryStat: undefined, slot: tierSlot };
+  // Tier tokens — detected by name using season-specific patterns
+  const tierToken = detectTierToken(itemName, tierTokenPatterns, tierArmorTypePrefixes);
+  if (tierToken) {
+    return {
+      category: ItemCategory.OTHER,
+      armorType: tierToken.armorType,
+      primaryStat: undefined,
+      weaponType: undefined,
+      slot: tierToken.slot,
+      isPrioritizable: true,
+    };
   }
 
   // Trinket
   if (invType === 'TRINKET') {
-    return { category: ItemCategory.TRINKET, armorType: ArmorType.NONE, primaryStat: undefined, slot };
+    return {
+      category: ItemCategory.TRINKET,
+      armorType: ArmorType.NONE,
+      primaryStat: undefined,
+      weaponType: undefined,
+      slot,
+      isPrioritizable: true,
+    };
   }
 
   // Jewelry (neck, finger, back — non-class-restricted)
   if (['NECK', 'FINGER', 'BACK'].includes(invType)) {
-    return { category: ItemCategory.JEWELRY, armorType: ArmorType.NONE, primaryStat: undefined, slot };
+    return {
+      category: ItemCategory.JEWELRY,
+      armorType: ArmorType.NONE,
+      primaryStat: undefined,
+      weaponType: undefined,
+      slot,
+      isPrioritizable: true,
+    };
   }
 
-  // Weapons
+  // Weapons (Blizzard item class 2)
   if (itemClassId === 2) {
     if (['HOLDABLE', 'SHIELD'].includes(invType)) {
-      return { category: ItemCategory.OFFHAND, armorType: ArmorType.NONE, primaryStat: undefined, slot };
+      const weaponType = invType === 'SHIELD' ? WeaponType.SHIELD : WeaponType.OTHER;
+      return {
+        category: ItemCategory.OFFHAND,
+        armorType: ArmorType.NONE,
+        primaryStat: undefined,
+        weaponType,
+        slot,
+        isPrioritizable: true,
+      };
     }
-    const agiWeaponSubclasses = new Set([0, 7]);
-    const intWeaponSubclasses = new Set([19]);
+
+    // Map Blizzard weapon subclass ID → WeaponType
+    const SUBCLASS_MAP: Record<number, WeaponType> = {
+      0: WeaponType.AXE_1H,
+      1: WeaponType.AXE_2H,
+      2: WeaponType.BOW,
+      3: WeaponType.GUN,
+      4: WeaponType.MACE_1H,
+      5: WeaponType.MACE_2H,
+      6: WeaponType.POLEARM,
+      7: WeaponType.SWORD_1H,
+      8: WeaponType.SWORD_2H,
+      9: WeaponType.WARGLAIVE,
+      10: WeaponType.STAFF,
+      13: WeaponType.FIST,
+      15: WeaponType.DAGGER,
+      18: WeaponType.CROSSBOW,
+      19: WeaponType.WAND,
+    };
+    const weaponType = SUBCLASS_MAP[itemSubclassId] ?? WeaponType.OTHER;
+
+    // Primary stat: derive from weapon type for class-specific weapons;
+    // for generic weapons fall back to subclass heuristic.
     let primaryStat: PrimaryStat | undefined;
-    if (agiWeaponSubclasses.has(itemSubclassId)) primaryStat = PrimaryStat.AGILITY;
-    else if (intWeaponSubclasses.has(itemSubclassId)) primaryStat = PrimaryStat.INTELLECT;
-    return { category: ItemCategory.WEAPON, armorType: ArmorType.NONE, primaryStat, slot };
+    const agiTypes = new Set([WeaponType.BOW, WeaponType.GUN, WeaponType.CROSSBOW, WeaponType.WARGLAIVE]);
+    const intTypes = new Set([WeaponType.WAND, WeaponType.STAFF]);
+    if (agiTypes.has(weaponType)) primaryStat = PrimaryStat.AGILITY;
+    else if (intTypes.has(weaponType)) primaryStat = PrimaryStat.INTELLECT;
+
+    return {
+      category: ItemCategory.WEAPON,
+      armorType: ArmorType.NONE,
+      primaryStat,
+      weaponType,
+      slot,
+      isPrioritizable: true,
+    };
   }
 
-  // Armor — all armor types use category OTHER (armor type still stored for display)
+  // Armor (Blizzard item class 4)
   if (itemClassId === 4) {
+    // Blizzard stores shields as armor class (id=4), subclass 6. Route to OFFHAND.
+    if (invType === 'SHIELD') {
+      return {
+        category: ItemCategory.OFFHAND,
+        armorType: ArmorType.NONE,
+        primaryStat: undefined,
+        weaponType: WeaponType.SHIELD,
+        slot,
+        isPrioritizable: true,
+      };
+    }
     let armorType = ArmorType.NONE;
     switch (itemSubclassId) {
       case 1:
@@ -104,10 +156,25 @@ function mapItemCategory(item: BlizzardItem): {
         armorType = ArmorType.PLATE;
         break;
     }
-    return { category: ItemCategory.OTHER, armorType, primaryStat: undefined, slot };
+    return {
+      category: ItemCategory.OTHER,
+      armorType,
+      primaryStat: undefined,
+      weaponType: undefined,
+      slot,
+      isPrioritizable: true,
+    };
   }
 
-  return { category: ItemCategory.OTHER, armorType: ArmorType.NONE, primaryStat: undefined, slot };
+  // Non-gear (mounts, cosmetics, quest items, etc.) — not reservable
+  return {
+    category: ItemCategory.OTHER,
+    armorType: ArmorType.NONE,
+    primaryStat: undefined,
+    weaponType: undefined,
+    slot,
+    isPrioritizable: false,
+  };
 }
 
 @Injectable()
@@ -127,11 +194,11 @@ export class SyncRaidCatalogFromBlizzardUseCase {
       return;
     }
 
-    this.logger.log('Starting Blizzard raid catalog sync for Tier 35...');
+    this.logger.log(`Starting Blizzard raid catalog sync for ${ACTIVE_SEASON.name}...`);
 
     const season = await this.catalogRepo.upsertSeason({
-      name: 'Midnight — Season 1 (Tier 35)',
-      slug: 'midnight-s1-t35',
+      name: ACTIVE_SEASON.name,
+      slug: ACTIVE_SEASON.slug,
       isActive: true,
     });
 
@@ -139,7 +206,7 @@ export class SyncRaidCatalogFromBlizzardUseCase {
     const warnings: string[] = [];
     const errors: string[] = [];
 
-    for (const raid of TIER_35_RAIDS) {
+    for (const raid of ACTIVE_SEASON.raids) {
       this.logger.log(`Syncing instance: ${raid.name} (ID: ${raid.instanceId})`);
 
       let encounterIds: number[];
@@ -198,14 +265,18 @@ export class SyncRaidCatalogFromBlizzardUseCase {
             continue;
           }
 
-          const { category, armorType, primaryStat, slot } = mapItemCategory(blizzardItem);
+          const { category, armorType, primaryStat, weaponType, slot, isPrioritizable } = mapItemCategory(
+            blizzardItem,
+            ACTIVE_SEASON.tierTokenPatterns,
+            ACTIVE_SEASON.tierArmorTypePrefixes,
+          );
           // TODO: detect superrares from Blizzard API (e.g. blizzardItem.quality.type === 'LEGENDARY')
           const isSuperRare = false;
 
           // Skip items with no itemLevel or ilvl ≤ 1 (patterns, quest items, etc.)
           const ilvl = blizzardItem.level ?? 0;
-          if (ilvl <= 1) {
-            this.logger.debug(`Skipping item ${blizzardItem.name} (ilvl ${ilvl})`);
+          if (ilvl <= 1 || !isPrioritizable) {
+            this.logger.debug(`Skipping item ${blizzardItem.name} (ilvl ${ilvl}, isPrioritizable ${isPrioritizable})`);
             continue;
           }
 
@@ -219,9 +290,10 @@ export class SyncRaidCatalogFromBlizzardUseCase {
             slot,
             itemLevel: blizzardItem.level,
             primaryStat,
+            weaponType,
             bossId: boss.id,
             iconUrl,
-            isPrioritizable: true,
+            isPrioritizable,
             isSuperRare,
           });
           totalItems++;

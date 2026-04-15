@@ -46,9 +46,9 @@ export enum WowClass {
   MAGE = 'Mage',
   WARLOCK = 'Warlock',
   DRUID = 'Druid',
-  DEATH_KNIGHT = 'DeathKnight',
+  DEATH_KNIGHT = 'Death Knight',
   MONK = 'Monk',
-  DEMON_HUNTER = 'DemonHunter',
+  DEMON_HUNTER = 'Demon Hunter',
   EVOKER = 'Evoker',
 }
 
@@ -179,7 +179,7 @@ export const SPEC_PRIMARY_STAT: Record<WowSpec, PrimaryStat> = {
   // Demon Hunter
   [WowSpec.HAVOC]: PrimaryStat.AGILITY,
   [WowSpec.VENGEANCE]: PrimaryStat.AGILITY,
-  [WowSpec.DEVOURER]: PrimaryStat.AGILITY,
+  [WowSpec.DEVOURER]: PrimaryStat.INTELLECT,
   // Evoker
   [WowSpec.DEVASTATION]: PrimaryStat.INTELLECT,
   [WowSpec.PRESERVATION]: PrimaryStat.INTELLECT,
@@ -224,4 +224,180 @@ export const RESERVABLE_CATEGORIES = new Set<ItemCategory>([
   ItemCategory.OFFHAND,
   ItemCategory.JEWELRY,
   ItemCategory.OTHER,
+  ItemCategory.CLOTH,
+  ItemCategory.LEATHER,
+  ItemCategory.MAIL,
+  ItemCategory.PLATE,
 ]);
+
+/** All armor sub-categories (cloth/leather/mail/plate + legacy OTHER). */
+export const ARMOR_ITEM_CATEGORIES: ReadonlySet<ItemCategory> = new Set([
+  ItemCategory.CLOTH,
+  ItemCategory.LEATHER,
+  ItemCategory.MAIL,
+  ItemCategory.PLATE,
+  ItemCategory.OTHER,
+]);
+
+/** Human-readable labels for every ItemCategory (authoritative, used front + back). */
+export const ITEM_CATEGORY_LABELS: Record<ItemCategory, string> = {
+  [ItemCategory.TRINKET]: 'Trinket',
+  [ItemCategory.WEAPON]: 'Weapon',
+  [ItemCategory.OFFHAND]: 'Off-hand',
+  [ItemCategory.CLOTH]: 'Cloth',
+  [ItemCategory.LEATHER]: 'Leather',
+  [ItemCategory.MAIL]: 'Mail',
+  [ItemCategory.PLATE]: 'Plate',
+  [ItemCategory.JEWELRY]: 'Jewelry',
+  [ItemCategory.OTHER]: 'Armor',
+};
+
+/** Display labels for loot-assignment tiers. */
+export const TIER_LABELS: Record<AssignmentStatus, string> = {
+  [AssignmentStatus.CHAMPION_TIER]: 'Champion',
+  [AssignmentStatus.HERO_TIER]: 'Heroic',
+  [AssignmentStatus.MYTH_TIER]: 'Mythic',
+  [AssignmentStatus.NIET_MEER_NODIG]: 'Niet meer nodig',
+};
+
+/**
+ * Specs that may equip an item in the off-hand slot (includes shields).
+ * All other specs dual-wield or use two-handed weapons and cannot use an off-hand.
+ */
+export const SPECS_WITH_OFFHAND: ReadonlySet<WowSpec> = new Set([
+  // Druid
+  WowSpec.BALANCE,
+  WowSpec.RESTORATION_DRUID,
+  // Evoker
+  WowSpec.DEVASTATION,
+  WowSpec.PRESERVATION,
+  WowSpec.AUGMENTATION,
+  // Mage
+  WowSpec.ARCANE,
+  WowSpec.FIRE,
+  WowSpec.FROST_MAGE,
+  // Monk
+  WowSpec.MISTWEAVER,
+  // Paladin (shield)
+  WowSpec.HOLY_PALADIN,
+  WowSpec.PROTECTION_PALADIN,
+  // Priest
+  WowSpec.DISCIPLINE,
+  WowSpec.HOLY_PRIEST,
+  WowSpec.SHADOW,
+  // Shaman
+  WowSpec.ELEMENTAL,
+  WowSpec.RESTORATION_SHAMAN,
+  // Warrior (shield)
+  WowSpec.PROTECTION_WARRIOR,
+  // Warlock
+  WowSpec.AFFLICTION,
+  WowSpec.DEMONOLOGY,
+  WowSpec.DESTRUCTION,
+]);
+
+/**
+ * Subset of SPECS_WITH_OFFHAND that may specifically equip a shield.
+ * Enhancement Shaman and other specs that dual-wield are intentionally excluded.
+ */
+export const SPECS_WITH_SHIELD: ReadonlySet<WowSpec> = new Set([
+  WowSpec.HOLY_PALADIN,
+  WowSpec.PROTECTION_PALADIN,
+  WowSpec.ELEMENTAL,
+  WowSpec.RESTORATION_SHAMAN,
+  WowSpec.PROTECTION_WARRIOR,
+]);
+
+export enum WeaponType {
+  AXE_1H = 'axe_1h',
+  AXE_2H = 'axe_2h',
+  BOW = 'bow',
+  CROSSBOW = 'crossbow',
+  DAGGER = 'dagger',
+  FIST = 'fist',
+  GUN = 'gun',
+  MACE_1H = 'mace_1h',
+  MACE_2H = 'mace_2h',
+  POLEARM = 'polearm',
+  STAFF = 'staff',
+  SWORD_1H = 'sword_1h',
+  SWORD_2H = 'sword_2h',
+  WAND = 'wand',
+  WARGLAIVE = 'warglaive',
+  SHIELD = 'shield',
+  OTHER = 'other_weapon',
+}
+
+/**
+ * Classes that may equip a given weapon type.
+ * Types not listed here are usable by all classes with the correct primary stat.
+ */
+export const WEAPON_TYPE_CLASSES: Partial<Record<WeaponType, ReadonlySet<WowClass>>> = {
+  [WeaponType.BOW]: new Set([WowClass.HUNTER]),
+  [WeaponType.GUN]: new Set([WowClass.HUNTER]),
+  [WeaponType.CROSSBOW]: new Set([WowClass.HUNTER]),
+  [WeaponType.WAND]: new Set([WowClass.PRIEST, WowClass.MAGE, WowClass.WARLOCK]),
+  [WeaponType.WARGLAIVE]: new Set([WowClass.DEMON_HUNTER]),
+};
+
+/**
+ * Returns true if a class+spec combination may reserve this item.
+ *
+ * Armor: compared against armorType (all armor is stored as category OTHER with
+ * an armorType sub-field). ArmorType.NONE means a tier token → visible to all.
+ * Weapons: checked against WEAPON_TYPE_CLASSES first (class restriction), then
+ * primary stat (spec restriction). Items without stat info are shown to all.
+ * Everything else (trinkets, jewelry, …) is always allowed.
+ */
+export function canClassReserveItem(
+  wowClass: WowClass,
+  spec: WowSpec,
+  item: {
+    category: ItemCategory;
+    armorType?: ArmorType;
+    slot?: string;
+    primaryStat?: PrimaryStat;
+    weaponType?: WeaponType;
+  },
+): boolean {
+  // ── Armor ──────────────────────────────────────────────────────────────
+  if (item.category === ItemCategory.OTHER) {
+    const at = item.armorType;
+    if (!at || at === ArmorType.NONE) return true; // tier token: everyone
+    return (CLASS_ARMOR_TYPE[wowClass] as string) === (at as string);
+  }
+
+  // ── Weapons ─────────────────────────────────────────────────────────────
+  if (item.category === ItemCategory.WEAPON) {
+    if (item.weaponType) {
+      const eligible = WEAPON_TYPE_CLASSES[item.weaponType];
+      if (eligible && !eligible.has(wowClass)) return false;
+    }
+    if (item.primaryStat) {
+      return SPEC_PRIMARY_STAT[spec] === item.primaryStat;
+    }
+    return true;
+  }
+
+  // ── Off-hands (including shields) ────────────────────────────────────────
+  if (item.category === ItemCategory.OFFHAND) {
+    // Most specs dual-wield or use 2H and cannot equip an off-hand at all
+    if (!SPECS_WITH_OFFHAND.has(spec)) return false;
+    // Shields are further restricted to tank/healer specs
+    if (item.weaponType === WeaponType.SHIELD && !SPECS_WITH_SHIELD.has(spec)) return false;
+    if (item.primaryStat) {
+      return SPEC_PRIMARY_STAT[spec] === item.primaryStat;
+    }
+    return true;
+  }
+
+  // ── Everything else (trinkets, jewelry, …) ────────────────────────────
+  return true;
+}
+
+/** Tiers a raider can mark an item as "already received". */
+export const RECEIVABLE_TIERS: ReadonlyArray<AssignmentStatus> = [
+  AssignmentStatus.CHAMPION_TIER,
+  AssignmentStatus.HERO_TIER,
+  AssignmentStatus.MYTH_TIER,
+];

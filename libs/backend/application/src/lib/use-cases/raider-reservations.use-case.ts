@@ -65,7 +65,7 @@ export class GetAllRaiderReservationsUseCase {
     // Collect unique itemIds so we can fetch names
     const itemIds = [...new Set(allReservations.map((r) => r.itemId))];
     const items = await Promise.all(itemIds.map((id) => this.catalogRepo.findItemById(id)));
-    const itemMap = new Map(items.filter(Boolean).map((i) => [i!.id, i!]));
+    const itemMap = new Map(items.filter((i): i is NonNullable<typeof i> => i != null).map((i) => [i.id, i]));
 
     // Group reservations by raiderId
     const byRaider = new Map<string, typeof allReservations>();

@@ -7,7 +7,7 @@ import {
   UpsertBossData,
   UpsertItemData,
 } from '@crusaders-bis-list/backend-domain';
-import { ArmorType, IBoss, IItem, IRaidSeason, ItemCategory, PrimaryStat } from '@crusaders-bis-list/shared-domain';
+import { ArmorType, IBoss, IItem, IRaidSeason, ItemCategory, PrimaryStat, WeaponType } from '@crusaders-bis-list/shared-domain';
 import { RaidSeasonOrmEntity, BossOrmEntity, ItemOrmEntity } from '../entities/catalog.orm-entity';
 
 @Injectable()
@@ -31,6 +31,7 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
       slot: i.slot ?? 'Unknown',
       itemLevel: i.itemLevel,
       primaryStat: i.primaryStat as PrimaryStat | undefined,
+      weaponType: i.weaponType as WeaponType | undefined,
       bossId: i.bossId,
       bossName,
       iconUrl: i.iconUrl,
@@ -144,6 +145,7 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
         slot: data.slot,
         itemLevel: data.itemLevel,
         primaryStat: data.primaryStat,
+        weaponType: data.weaponType,
         bossId: data.bossId,
         // Only overwrite iconUrl if a new value was successfully fetched
         ...(data.iconUrl ? { iconUrl: data.iconUrl } : {}),

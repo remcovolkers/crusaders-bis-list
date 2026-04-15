@@ -75,6 +75,9 @@ export class ItemOrmEntity {
   @Column({ name: 'primary_stat', type: 'varchar', nullable: true })
   primaryStat?: string;
 
+  @Column({ name: 'weapon_type', type: 'varchar', nullable: true })
+  weaponType?: string;
+
   @Column({ name: 'boss_id' })
   bossId!: string;
 

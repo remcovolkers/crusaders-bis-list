@@ -1,0 +1,130 @@
+.onboarding-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-base);
+  padding: 24px;
+}
+
+.onboarding-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 520px;
+}
+
+.onboarding-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.onboarding-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  margin: 0 0 8px;
+}
+
+.onboarding-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Step indicator */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 32px;
+}
+
+.step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 2px solid var(--border-color);
+  transition: all 0.2s;
+
+  &.active {
+    background: var(--accent-gold);
+    color: #000;
+    border-color: var(--accent-gold);
+  }
+
+  &.done {
+    background: var(--color-success, #22c55e);
+    color: #000;
+    border-color: var(--color-success, #22c55e);
+  }
+}
+
+.step-line {
+  flex: 1;
+  max-width: 80px;
+  height: 2px;
+  background: var(--border-color);
+}
+
+/* Step content */
+.step-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 20px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+
+  &:focus {
+    outline: none;
+    border-color: var(--accent-gold);
+  }
+}
+
+.step-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.error-msg {
+  color: var(--color-danger, #f87171);
+  font-size: 13px;
+  margin: 12px 0 0;
+}

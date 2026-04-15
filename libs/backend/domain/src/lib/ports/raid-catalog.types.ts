@@ -1,4 +1,4 @@
-import { ArmorType, ItemCategory, PrimaryStat } from '@crusaders-bis-list/shared-domain';
+import { ArmorType, ItemCategory, PrimaryStat, WeaponType } from '@crusaders-bis-list/shared-domain';
 
 export interface UpsertSeasonData {
   name: string;
@@ -24,6 +24,7 @@ export interface UpsertItemData {
   slot: string;
   itemLevel?: number;
   primaryStat?: PrimaryStat;
+  weaponType?: WeaponType;
   bossId: string;
   iconUrl?: string;
   isPrioritizable: boolean;

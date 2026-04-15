@@ -4,6 +4,7 @@ export class RaiderProfile {
   id!: string;
   userId!: string;
   characterName!: string;
+  realm?: string;
   wowClass!: WowClass;
   spec!: WowSpec;
   status!: RaiderStatus;

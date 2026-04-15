@@ -1,0 +1,37 @@
+<div
+  class="modal-backdrop"
+  role="button"
+  tabindex="0"
+  aria-label="Sluit venster"
+  (click)="cancelled.emit()"
+  (keydown.escape)="cancelled.emit()"
+>
+  <div
+    class="modal"
+    role="dialog"
+    aria-modal="true"
+    (click)="$event.stopPropagation()"
+    (keydown)="$event.stopPropagation()"
+  >
+    <div class="modal-header">
+      <h3>{{ item().name }}</h3>
+      <button class="modal-close" (click)="cancelled.emit()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <p class="reserve-question">Heb je dit item al ontvangen?</p>
+      <div class="tier-options">
+        @for (tier of receivableTiers; track tier) {
+          <button class="tier-btn" [class.selected]="receivedItem()?.tier === tier" (click)="confirmed.emit(tier)">
+            {{ tierLabels[tier] }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="cancelled.emit()">Annuleer</button>
+      <button class="btn-primary" (click)="confirmed.emit(null)">Nee, reserveer alleen</button>
+    </div>
+  </div>
+</div>

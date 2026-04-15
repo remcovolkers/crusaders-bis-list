@@ -4,12 +4,14 @@ import { RaiderStatus, WowClass, WowSpec } from '@crusaders-bis-list/shared-doma
 export interface CreateRaiderProfileDto {
   userId: string;
   characterName: string;
+  realm?: string;
   wowClass: WowClass;
   spec: WowSpec;
 }
 
 export interface UpdateRaiderProfileDto {
   characterName?: string;
+  realm?: string;
   wowClass?: WowClass;
   spec?: WowSpec;
   status?: RaiderStatus;
@@ -21,6 +23,7 @@ export interface IRaiderRepository {
   findByUserId(userId: string): Promise<RaiderProfile | null>;
   save(dto: CreateRaiderProfileDto): Promise<RaiderProfile>;
   update(id: string, dto: UpdateRaiderProfileDto): Promise<RaiderProfile>;
+  delete(id: string): Promise<void>;
 }
 
 export const RAIDER_REPOSITORY = Symbol('IRaiderRepository');

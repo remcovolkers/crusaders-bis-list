@@ -8,5 +8,4 @@ export * from './lib/services/auth.service';
 export * from './lib/guards/auth.guard';
 export * from './lib/tokens/api-url.token';
 export * from './lib/interceptors/auth.interceptor';
-
-
+export * from './lib/components/onboarding/onboarding.component';

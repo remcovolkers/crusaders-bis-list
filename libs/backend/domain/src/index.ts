@@ -8,7 +8,7 @@ export * from './lib/ports/reservation.repository';
 export * from './lib/ports/assignment.repository';
 export * from './lib/ports/loot-query.repository';
 export * from './lib/ports/raid-catalog.types';
+export * from './lib/ports/received-item.repository';
 export * from './lib/ports/raid-catalog.repository';
 export * from './lib/ports/season-config.repository';
 export * from './lib/ports/blizzard-api.port';
-

@@ -14,6 +14,7 @@ export class AdminUserManagementComponent implements OnInit {
   readonly reservationsByUserId = signal<Map<string, RaiderReservationSummary>>(new Map());
   readonly expandedUserId = signal<string | null>(null);
   readonly confirmingId = signal<string | null>(null);
+  readonly confirmingResetRaiderId = signal<string | null>(null);
   readonly message = signal('');
   readonly adminRole = UserRole.ADMIN;
   readonly AssignmentStatus = AssignmentStatus;
@@ -99,6 +100,35 @@ export class AdminUserManagementComponent implements OnInit {
 
   abortCancel(): void {
     this.confirmingId.set(null);
+  }
+
+  requestReset(raiderId: string): void {
+    this.confirmingResetRaiderId.set(raiderId);
+  }
+
+  confirmReset(raiderId: string, userId: string): void {
+    this.adminService.resetRaiderProfile(raiderId).subscribe({
+      next: () => {
+        this.confirmingResetRaiderId.set(null);
+        this.message.set('Raider-profiel gereset.');
+        setTimeout(() => this.message.set(''), 3000);
+        // Remove from local reservation map so the panel reflects the reset
+        this.reservationsByUserId.update((map) => {
+          const updated = new Map(map);
+          updated.delete(userId);
+          return updated;
+        });
+      },
+      error: () => {
+        this.confirmingResetRaiderId.set(null);
+        this.message.set('Reset mislukt.');
+        setTimeout(() => this.message.set(''), 3000);
+      },
+    });
+  }
+
+  abortReset(): void {
+    this.confirmingResetRaiderId.set(null);
   }
 
   makeAdmin(user: IUser): void {

@@ -36,7 +36,10 @@ export class ClassSpecSelectorComponent implements OnInit {
 
   readonly currentClass = signal<WowClass | null>(null);
   readonly currentSpec = signal<WowSpec | null>(null);
-  readonly specs = computed<SpecOption[]>(() => (this.currentClass() ? this.getSpecsFor(this.currentClass()!) : []));
+  readonly specs = computed<SpecOption[]>(() => {
+    const cls = this.currentClass();
+    return cls ? this.getSpecsFor(cls) : [];
+  });
 
   ngOnInit(): void {
     this.currentClass.set(this.selectedClass());

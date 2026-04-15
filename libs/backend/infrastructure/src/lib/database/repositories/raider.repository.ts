@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IRaiderRepository, RaiderProfile, CreateRaiderProfileDto, UpdateRaiderProfileDto } from '@crusaders-bis-list/backend-domain';
+import {
+  IRaiderRepository,
+  RaiderProfile,
+  CreateRaiderProfileDto,
+  UpdateRaiderProfileDto,
+} from '@crusaders-bis-list/backend-domain';
 import { RaiderProfileOrmEntity } from '../entities/raider-profile.orm-entity';
 import { RaiderStatus } from '@crusaders-bis-list/shared-domain';
 
@@ -17,6 +22,7 @@ export class RaiderRepository implements IRaiderRepository {
     r.id = e.id;
     r.userId = e.userId;
     r.characterName = e.characterName;
+    r.realm = e.realm ?? '';
     r.wowClass = e.wowClass;
     r.spec = e.spec;
     r.status = e.status;
@@ -26,9 +32,7 @@ export class RaiderRepository implements IRaiderRepository {
   }
 
   async findAll(activeOnly = false): Promise<RaiderProfile[]> {
-    const where = activeOnly
-      ? [{ status: RaiderStatus.ACTIVE }, { status: RaiderStatus.TRIAL }]
-      : undefined;
+    const where = activeOnly ? [{ status: RaiderStatus.ACTIVE }, { status: RaiderStatus.TRIAL }] : undefined;
     const all = await this.repo.find({ where });
     return all.map((e) => this.toModel(e));
   }
@@ -47,6 +51,7 @@ export class RaiderRepository implements IRaiderRepository {
     const orm = this.repo.create({
       userId: dto.userId,
       characterName: dto.characterName,
+      realm: dto.realm ?? '',
       wowClass: dto.wowClass,
       spec: dto.spec,
       status: RaiderStatus.ACTIVE,
@@ -59,5 +64,9 @@ export class RaiderRepository implements IRaiderRepository {
     await this.repo.update(id, dto);
     const updated = await this.repo.findOneOrFail({ where: { id } });
     return this.toModel(updated);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.repo.delete(id);
   }
 }

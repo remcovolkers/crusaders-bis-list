@@ -38,7 +38,7 @@ export class UpdateSeasonConfigDto {
 
   @IsInt()
   @Min(0)
-  otherLimit!: number;
+  armorLimit!: number;
 
   @IsInt()
   @Min(0)

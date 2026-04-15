@@ -462,6 +462,63 @@
   border-top: 1px solid var(--border-color);
 }
 
+/* ── Received badge ── */
+.received-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* ── Reserve modal specifics ── */
+.modal-reserve {
+  width: min(420px, 95vw);
+}
+
+.reserve-question {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 16px;
+}
+
+.tier-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tier-btn {
+  flex: 1;
+  min-width: 90px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--bg-elevated);
+  border: 2px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+  }
+
+  &.selected {
+    background: rgba(240, 192, 64, 0.15);
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+  }
+}
+
 .page-header h1 {
   color: #f0c040;
   font-size: 2rem;

@@ -36,7 +36,7 @@ export class ReserveItemUseCase {
       trinketLimit: config.trinketLimit,
       weaponLimit: config.weaponLimit,
       jewelryLimit: config.jewelryLimit,
-      otherLimit: config.otherLimit,
+      armorLimit: config.armorLimit,
       superrareLimit: config.superrareLimit,
     };
 

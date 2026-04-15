@@ -19,7 +19,7 @@ export class SeasonConfigRepository implements ISeasonConfigRepository {
       trinketLimit: e.trinketLimit,
       weaponLimit: e.weaponLimit,
       jewelryLimit: e.jewelryLimit,
-      otherLimit: e.otherLimit,
+      armorLimit: e.armorLimit,
       superrareLimit: e.superrareLimit,
     };
   }
@@ -37,7 +37,7 @@ export class SeasonConfigRepository implements ISeasonConfigRepository {
         trinketLimit: 2,
         weaponLimit: 2,
         jewelryLimit: 1,
-        otherLimit: 1,
+        armorLimit: 1,
         superrareLimit: 0,
       });
       e = await this.repo.save(e);

@@ -90,6 +90,10 @@ export class AdminService {
     return this.http.delete<void>(`${this.base}/admin/reservations/${reservationId}`);
   }
 
+  resetRaiderProfile(raiderId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/admin/raiders/${raiderId}`);
+  }
+
   syncCatalog(): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.base}/admin/sync`, {});
   }
