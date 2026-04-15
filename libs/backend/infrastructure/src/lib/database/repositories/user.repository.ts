@@ -62,4 +62,8 @@ export class UserRepository implements IUserRepository {
     const updated = await this.repo.findOneOrFail({ where: { id: userId } });
     return this.toModel(updated);
   }
+
+  async delete(id: string): Promise<void> {
+    await this.repo.delete(id);
+  }
 }

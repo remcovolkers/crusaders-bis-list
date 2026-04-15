@@ -94,6 +94,10 @@ export class AdminService {
     return this.http.delete<void>(`${this.base}/admin/raiders/${raiderId}`);
   }
 
+  deleteUser(userId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/admin/users/${userId}`);
+  }
+
   syncCatalog(): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.base}/admin/sync`, {});
   }

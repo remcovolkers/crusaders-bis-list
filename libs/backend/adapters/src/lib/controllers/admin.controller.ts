@@ -1,6 +1,7 @@
 import {
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -72,6 +73,17 @@ export class AdminController {
   @HttpCode(HttpStatus.OK)
   async updateUserRoles(@Param('userId') userId: string, @Body() dto: { roles: UserRole[] }) {
     return this.userRepo.updateRoles(userId, dto.roles);
+  }
+
+  @Delete('users/:userId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteUser(@Param('userId') userId: string, @Req() req: Request) {
+    const requesterId = (req.user as JwtPayload).sub;
+    if (requesterId === userId) throw new ForbiddenException('Cannot delete your own account.');
+    // Delete raider profile first to satisfy the FK constraint, then the user account.
+    const profile = await this.raiderRepo.findByUserId(userId);
+    if (profile) await this.raiderRepo.delete(profile.id);
+    await this.userRepo.delete(userId);
   }
 
   @Delete('raiders/:raiderId')

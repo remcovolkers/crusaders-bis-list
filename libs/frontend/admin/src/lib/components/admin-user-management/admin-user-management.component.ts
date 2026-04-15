@@ -15,6 +15,7 @@ export class AdminUserManagementComponent implements OnInit {
   readonly expandedUserId = signal<string | null>(null);
   readonly confirmingId = signal<string | null>(null);
   readonly confirmingResetRaiderId = signal<string | null>(null);
+  readonly confirmingDeleteUserId = signal<string | null>(null);
   readonly message = signal('');
   readonly adminRole = UserRole.ADMIN;
   readonly AssignmentStatus = AssignmentStatus;
@@ -129,6 +130,36 @@ export class AdminUserManagementComponent implements OnInit {
 
   abortReset(): void {
     this.confirmingResetRaiderId.set(null);
+  }
+
+  requestDeleteUser(userId: string): void {
+    this.confirmingDeleteUserId.set(userId);
+  }
+
+  confirmDeleteUser(userId: string): void {
+    this.adminService.deleteUser(userId).subscribe({
+      next: () => {
+        this.confirmingDeleteUserId.set(null);
+        this.users.update((list) => list.filter((u) => u.id !== userId));
+        this.reservationsByUserId.update((map) => {
+          const updated = new Map(map);
+          updated.delete(userId);
+          return updated;
+        });
+        this.expandedUserId.set(null);
+        this.message.set('Account verwijderd.');
+        setTimeout(() => this.message.set(''), 3000);
+      },
+      error: () => {
+        this.confirmingDeleteUserId.set(null);
+        this.message.set('Verwijderen mislukt.');
+        setTimeout(() => this.message.set(''), 3000);
+      },
+    });
+  }
+
+  abortDeleteUser(): void {
+    this.confirmingDeleteUserId.set(null);
   }
 
   makeAdmin(user: IUser): void {

@@ -7,6 +7,7 @@ export interface IUserRepository {
   findAll(): Promise<User[]>;
   save(user: User): Promise<User>;
   updateRoles(userId: string, roles: import('@crusaders-bis-list/shared-domain').UserRole[]): Promise<User>;
+  delete(id: string): Promise<void>;
 }
 
 export const USER_REPOSITORY = Symbol('IUserRepository');

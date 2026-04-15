@@ -37,6 +37,13 @@
               } @else {
                 <button class="btn-ghost-sm danger" (click)="removeAdmin(user)">Verwijder Admin</button>
               }
+              @if (confirmingDeleteUserId() === user.id) {
+                <span class="confirm-text">Account verwijderen?</span>
+                <button class="btn-danger-sm" (click)="confirmDeleteUser(user.id)">Ja, verwijder</button>
+                <button class="btn-ghost-sm" (click)="abortDeleteUser()">Nee</button>
+              } @else {
+                <button class="btn-ghost-sm danger" (click)="requestDeleteUser(user.id)">Verwijder account</button>
+              }
             </div>
           </button>
 

@@ -1,7 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { USER_REPOSITORY, IUserRepository, User } from '@crusaders-bis-list/backend-domain';
-import { RAIDER_REPOSITORY, IRaiderRepository } from '@crusaders-bis-list/backend-domain';
-import { UserRole, WowClass, WowSpec } from '@crusaders-bis-list/shared-domain';
+import { UserRole } from '@crusaders-bis-list/shared-domain';
 import { ConfigService } from '@nestjs/config';
 
 export interface GoogleProfile {
@@ -16,8 +15,6 @@ export class FindOrCreateUserUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepo: IUserRepository,
-    @Inject(RAIDER_REPOSITORY)
-    private readonly raiderRepo: IRaiderRepository,
     private readonly config: ConfigService,
   ) {}
 
@@ -43,15 +40,6 @@ export class FindOrCreateUserUseCase {
     newUser.updatedAt = new Date();
 
     const savedUser = await this.userRepo.save(newUser);
-
-    // Auto-create raider profile with display name as placeholder
-    await this.raiderRepo.save({
-      userId: savedUser.id,
-      characterName: profile.displayName,
-      wowClass: WowClass.WARRIOR,
-      spec: WowSpec.ARMS,
-    });
-
     return savedUser;
   }
 }

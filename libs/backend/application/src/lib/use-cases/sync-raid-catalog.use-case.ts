@@ -275,8 +275,28 @@ export class SyncRaidCatalogFromBlizzardUseCase {
 
           // Skip items with no itemLevel or ilvl ≤ 1 (patterns, quest items, etc.)
           const ilvl = blizzardItem.level ?? 0;
-          if (ilvl <= 1 || !isPrioritizable) {
-            this.logger.debug(`Skipping item ${blizzardItem.name} (ilvl ${ilvl}, isPrioritizable ${isPrioritizable})`);
+          if (ilvl <= 1) {
+            this.logger.debug(`Skipping item ${blizzardItem.name} (ilvl ${ilvl})`);
+            continue;
+          }
+
+          // Non-gear items (mounts, cosmetics, …): upsert with isPrioritizable=false so any
+          // existing DB record gets corrected, but skip the icon fetch to save API calls.
+          if (!isPrioritizable) {
+            this.logger.debug(`Marking item ${blizzardItem.name} as non-prioritizable`);
+            await this.catalogRepo.upsertItem({
+              wowItemId: blizzardItem.id,
+              name: blizzardItem.name ?? itemRef.item.name,
+              category,
+              armorType,
+              slot,
+              itemLevel: blizzardItem.level,
+              primaryStat,
+              weaponType,
+              bossId: boss.id,
+              isPrioritizable: false,
+              isSuperRare: false,
+            });
             continue;
           }
 
