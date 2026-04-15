@@ -513,8 +513,9 @@ export function canClassReserveItem(
     return true;
   }
 
-  // ── Everything else (trinkets, jewelry, …) ────────────────────────────
-  return true;
+  // ── Everything else (trinkets, jewelry, …) ────────────────────────────  if (item.primaryStat) {
+    return SPEC_PRIMARY_STAT[spec] === item.primaryStat;
+  }  return true;
 }
 
 /** Tiers a raider can mark an item as "already received". */

@@ -34,10 +34,12 @@ export interface RaiderReservationEntry {
   id: string;
   itemId: string;
   itemName: string;
+  iconUrl?: string;
   itemCategory: string;
   isSuperRare: boolean;
   createdAt: string;
   assignment: { id: string; status: AssignmentStatus; assignedAt: string } | null;
+  receivedTier?: AssignmentStatus | null;
 }
 
 export interface RaiderReservationSummary {

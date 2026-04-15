@@ -7,21 +7,28 @@
 
 @if (catalog()) {
   <div class="admin-layout">
-    <!-- Sidebar: boss list -->
+    <!-- Sidebar: boss list grouped by raid -->
     <aside class="boss-sidebar">
       <div class="sidebar-header">
         <span class="sidebar-label">{{ catalog()!.season.name }}</span>
       </div>
-      @for (boss of catalog()!.bosses; track boss.id) {
-        <button
-          class="boss-row"
-          [class.active]="selectedBoss()?.id === boss.id"
-          [style.--boss-color]="getBossColor(boss)"
-          (click)="selectBoss(boss)"
-        >
-          <span class="boss-dot"></span>
-          <span class="boss-row-name">{{ boss.name }}</span>
-        </button>
+      @for (group of raidGroups(); track group.raidName) {
+        <div class="raid-group">
+          <div class="raid-group-header" [style.border-left-color]="group.color">
+            <span class="raid-name">{{ group.raidName }}</span>
+          </div>
+          @for (boss of group.bosses; track boss.id) {
+            <button
+              class="boss-row"
+              [class.active]="selectedBoss()?.id === boss.id"
+              [style.--boss-color]="getBossColor(boss)"
+              (click)="selectBoss(boss)"
+            >
+              <span class="boss-dot"></span>
+              <span class="boss-row-name">{{ boss.name }}</span>
+            </button>
+          }
+        </div>
       }
     </aside>
 
@@ -47,6 +54,14 @@
           </div>
 
           <div class="item-panels">
+            @if (bossLootView()!.drops.length === 0) {
+              <div class="no-reservations-state">
+                <span class="no-reservations-icon">📋</span>
+                <p>
+                  Geen lootreservaties voor <strong>{{ bossLootView()!.boss.name }}</strong>
+                </p>
+              </div>
+            }
             @for (drop of bossLootView()!.drops; track drop.item.id) {
               <div class="item-panel">
                 <div class="item-panel-header">

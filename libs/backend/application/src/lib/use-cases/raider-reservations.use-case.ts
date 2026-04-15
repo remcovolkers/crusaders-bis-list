@@ -10,6 +10,8 @@ import {
   IAssignmentRepository,
   SEASON_CONFIG_REPOSITORY,
   ISeasonConfigRepository,
+  RECEIVED_ITEM_REPOSITORY,
+  IReceivedItemRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { AssignmentStatus } from '@crusaders-bis-list/shared-domain';
 
@@ -17,10 +19,12 @@ export interface RaiderReservationEntry {
   id: string;
   itemId: string;
   itemName: string;
+  iconUrl?: string;
   itemCategory: string;
   isSuperRare: boolean;
   createdAt: Date;
   assignment: { id: string; status: AssignmentStatus; assignedAt: Date } | null;
+  receivedTier?: AssignmentStatus | null;
 }
 
 export interface RaiderReservationSummary {
@@ -40,6 +44,7 @@ export class GetAllRaiderReservationsUseCase {
     @Inject(ASSIGNMENT_REPOSITORY) private readonly assignmentRepo: IAssignmentRepository,
     @Inject(RAID_CATALOG_REPOSITORY) private readonly catalogRepo: IRaidCatalogRepository,
     @Inject(SEASON_CONFIG_REPOSITORY) private readonly configRepo: ISeasonConfigRepository,
+    @Inject(RECEIVED_ITEM_REPOSITORY) private readonly receivedItemRepo: IReceivedItemRepository,
   ) {}
 
   async execute(): Promise<RaiderReservationSummary[]> {
@@ -77,6 +82,14 @@ export class GetAllRaiderReservationsUseCase {
 
     const raiderMap = new Map(allRaiders.map((r) => [r.id, r]));
 
+    // Fetch received items for all raiders
+    const raiderIds = [...byRaider.keys()];
+    const allReceived = (await Promise.all(raiderIds.map((id) => this.receivedItemRepo.findByRaider(id)))).flat();
+    const receivedMap = new Map<string, AssignmentStatus>();
+    for (const r of allReceived) {
+      receivedMap.set(`${r.raiderId}:${r.itemId}`, r.tier);
+    }
+
     const result: RaiderReservationSummary[] = [];
     for (const [raiderId, reservations] of byRaider) {
       const raider = raiderMap.get(raiderId);
@@ -90,10 +103,12 @@ export class GetAllRaiderReservationsUseCase {
           id: res.id,
           itemId: res.itemId,
           itemName: itemMap.get(res.itemId)?.name ?? res.itemId,
+          iconUrl: itemMap.get(res.itemId)?.iconUrl,
           itemCategory: res.itemCategory,
           isSuperRare: res.isSuperRare,
           createdAt: res.createdAt,
           assignment: assignMap.get(`${raiderId}:${res.itemId}`) ?? null,
+          receivedTier: receivedMap.get(`${raiderId}:${res.itemId}`) ?? null,
         })),
       });
     }

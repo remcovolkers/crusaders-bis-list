@@ -1,6 +1,11 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
-import { AdminService, RaiderReservationEntry, RaiderReservationSummary } from '../../services/admin.service';
+import {
+  AdminService,
+  RaiderReservationEntry,
+  RaiderReservationSummary,
+  RaiderUser,
+} from '../../services/admin.service';
 import { IUser, UserRole, AssignmentStatus } from '@crusaders-bis-list/shared-domain';
 
 @Component({
@@ -12,7 +17,9 @@ import { IUser, UserRole, AssignmentStatus } from '@crusaders-bis-list/shared-do
 export class AdminUserManagementComponent implements OnInit {
   readonly users = signal<IUser[]>([]);
   readonly reservationsByUserId = signal<Map<string, RaiderReservationSummary>>(new Map());
+  readonly profileByUserId = signal<Map<string, RaiderUser>>(new Map());
   readonly expandedUserId = signal<string | null>(null);
+  readonly selectedUser = computed(() => this.users().find((u) => u.id === this.expandedUserId()) ?? null);
   readonly confirmingId = signal<string | null>(null);
   readonly confirmingResetRaiderId = signal<string | null>(null);
   readonly confirmingDeleteUserId = signal<string | null>(null);
@@ -29,15 +36,33 @@ export class AdminUserManagementComponent implements OnInit {
       for (const s of summaries) map.set(s.userId, s);
       this.reservationsByUserId.set(map);
     });
+    this.adminService.getAllRaiders().subscribe((profiles) => {
+      const map = new Map<string, RaiderUser>();
+      for (const p of profiles) map.set(p.userId, p);
+      this.profileByUserId.set(map);
+    });
   }
 
   toggleUser(userId: string): void {
     this.expandedUserId.set(this.expandedUserId() === userId ? null : userId);
     this.confirmingId.set(null);
+    this.confirmingResetRaiderId.set(null);
+    this.confirmingDeleteUserId.set(null);
+  }
+
+  closePanel(): void {
+    this.expandedUserId.set(null);
+    this.confirmingId.set(null);
+    this.confirmingResetRaiderId.set(null);
+    this.confirmingDeleteUserId.set(null);
   }
 
   reservationsFor(userId: string): RaiderReservationSummary | undefined {
     return this.reservationsByUserId().get(userId);
+  }
+
+  profileFor(userId: string): RaiderUser | undefined {
+    return this.profileByUserId().get(userId);
   }
 
   isAcquired(entry: RaiderReservationEntry): boolean {
@@ -113,8 +138,12 @@ export class AdminUserManagementComponent implements OnInit {
         this.confirmingResetRaiderId.set(null);
         this.message.set('Raider-profiel gereset.');
         setTimeout(() => this.message.set(''), 3000);
-        // Remove from local reservation map so the panel reflects the reset
         this.reservationsByUserId.update((map) => {
+          const updated = new Map(map);
+          updated.delete(userId);
+          return updated;
+        });
+        this.profileByUserId.update((map) => {
           const updated = new Map(map);
           updated.delete(userId);
           return updated;

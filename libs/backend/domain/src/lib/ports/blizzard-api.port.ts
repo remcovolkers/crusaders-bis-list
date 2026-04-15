@@ -19,6 +19,7 @@ export interface BlizzardItem {
   inventory_type: { type: string; name: string };
   level: number;
   media?: { key: { href: string } };
+  preview_item?: { stats?: Array<{ type: { type: string }; value: number }> };
 }
 
 /** Port — implemented by BlizzardApiService in backend-infrastructure. */

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AdminService } from '../../services/admin.service';
 import { IBossLootView, IBoss, IItem, AssignmentStatus } from '@crusaders-bis-list/shared-domain';
@@ -26,6 +26,18 @@ export class AdminBossViewComponent implements OnInit {
   ];
 
   readonly confirmingDeleteResId = signal<string | null>(null);
+
+  readonly raidGroups = computed(() => {
+    const catalog = this.catalog();
+    if (!catalog) return [];
+    const groups = new Map<string, { color: string; bosses: IBoss[] }>();
+    for (const boss of catalog.bosses) {
+      const key = boss.raidName ?? 'Onbekende raid';
+      if (!groups.has(key)) groups.set(key, { color: boss.raidAccentColor ?? '#94a3b8', bosses: [] });
+      groups.get(key)?.bosses.push(boss);
+    }
+    return Array.from(groups.entries()).map(([raidName, v]) => ({ raidName, ...v }));
+  });
 
   private readonly adminService = inject(AdminService);
 

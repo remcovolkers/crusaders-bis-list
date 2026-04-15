@@ -21,6 +21,18 @@ function detectTierToken(
   return { slot: pattern.slot, armorType };
 }
 
+/**
+ * Extracts the primary stat from Blizzard's preview_item.stats array.
+ * Returns undefined for items with no primary stat (proc-only trinkets, universal items, armor).
+ */
+function extractPrimaryStatFromBlizzard(item: BlizzardItem): PrimaryStat | undefined {
+  const stats = item.preview_item?.stats ?? [];
+  if (stats.some((s) => s.type.type === 'INTELLECT')) return PrimaryStat.INTELLECT;
+  if (stats.some((s) => s.type.type === 'STRENGTH')) return PrimaryStat.STRENGTH;
+  if (stats.some((s) => s.type.type === 'AGILITY')) return PrimaryStat.AGILITY;
+  return undefined;
+}
+
 function mapItemCategory(
   item: BlizzardItem,
   tierTokenPatterns: TierTokenPattern[],
@@ -57,7 +69,7 @@ function mapItemCategory(
     return {
       category: ItemCategory.TRINKET,
       armorType: ArmorType.NONE,
-      primaryStat: undefined,
+      primaryStat: extractPrimaryStatFromBlizzard(item),
       weaponType: undefined,
       slot,
       isPrioritizable: true,
@@ -69,7 +81,7 @@ function mapItemCategory(
     return {
       category: ItemCategory.JEWELRY,
       armorType: ArmorType.NONE,
-      primaryStat: undefined,
+      primaryStat: extractPrimaryStatFromBlizzard(item),
       weaponType: undefined,
       slot,
       isPrioritizable: true,
@@ -83,7 +95,7 @@ function mapItemCategory(
       return {
         category: ItemCategory.OFFHAND,
         armorType: ArmorType.NONE,
-        primaryStat: undefined,
+        primaryStat: extractPrimaryStatFromBlizzard(item),
         weaponType,
         slot,
         isPrioritizable: true,
@@ -110,18 +122,10 @@ function mapItemCategory(
     };
     const weaponType = SUBCLASS_MAP[itemSubclassId] ?? WeaponType.OTHER;
 
-    // Primary stat: derive from weapon type for class-specific weapons;
-    // for generic weapons fall back to subclass heuristic.
-    let primaryStat: PrimaryStat | undefined;
-    const agiTypes = new Set([WeaponType.BOW, WeaponType.GUN, WeaponType.CROSSBOW, WeaponType.WARGLAIVE]);
-    const intTypes = new Set([WeaponType.WAND, WeaponType.STAFF]);
-    if (agiTypes.has(weaponType)) primaryStat = PrimaryStat.AGILITY;
-    else if (intTypes.has(weaponType)) primaryStat = PrimaryStat.INTELLECT;
-
     return {
       category: ItemCategory.WEAPON,
       armorType: ArmorType.NONE,
-      primaryStat,
+      primaryStat: extractPrimaryStatFromBlizzard(item),
       weaponType,
       slot,
       isPrioritizable: true,
@@ -135,7 +139,7 @@ function mapItemCategory(
       return {
         category: ItemCategory.OFFHAND,
         armorType: ArmorType.NONE,
-        primaryStat: undefined,
+        primaryStat: extractPrimaryStatFromBlizzard(item),
         weaponType: WeaponType.SHIELD,
         slot,
         isPrioritizable: true,
