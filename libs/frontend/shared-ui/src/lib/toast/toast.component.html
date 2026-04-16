@@ -1,0 +1,23 @@
+<div class="toast-container">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div
+      class="toast"
+      [ngClass]="['toast--' + toast.type, toast.dismissing ? 'toast--dismissing' : '']"
+      role="button"
+      tabindex="0"
+      (click)="toastService.dismiss(toast.id)"
+      (keydown.enter)="toastService.dismiss(toast.id)"
+      (keydown.space)="toastService.dismiss(toast.id)"
+    >
+      <span class="toast-icon">{{ iconFor(toast.type) }}</span>
+      <span class="toast-message">{{ toast.message }}</span>
+      <button
+        class="toast-close"
+        (click)="$event.stopPropagation(); toastService.dismiss(toast.id)"
+        aria-label="Sluiten"
+      >
+        ✕
+      </button>
+    </div>
+  }
+</div>

@@ -1,5 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { AdminService } from '@crusaders-bis-list/frontend-admin';
+import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
   selector: 'app-dev-panel',
@@ -11,24 +13,20 @@ export class DevPanelComponent {
   readonly resetting = signal(false);
   readonly wipingOrphaned = signal(false);
   readonly confirmWipeAll = signal(false);
-  readonly success = signal('');
-  readonly error = signal('');
 
+  private readonly toast = inject(ToastService);
   private readonly adminService = inject(AdminService);
 
   syncNow(): void {
     this.syncing.set(true);
-    this.success.set('');
-    this.error.set('');
     this.adminService.syncCatalog().subscribe({
       next: (res) => {
         this.syncing.set(false);
-        this.success.set(res.message);
-        setTimeout(() => this.success.set(''), 5000);
+        this.toast.show(res.message);
       },
       error: () => {
         this.syncing.set(false);
-        this.error.set('Synchronisatie mislukt.');
+        this.toast.show('Synchronisatie mislukt.', 'error');
       },
     });
   }
@@ -41,17 +39,14 @@ export class DevPanelComponent {
     )
       return;
     this.resetting.set(true);
-    this.success.set('');
-    this.error.set('');
     this.adminService.resetAndSyncCatalog().subscribe({
       next: (res) => {
         this.resetting.set(false);
-        this.success.set(res.message);
-        setTimeout(() => this.success.set(''), 5000);
+        this.toast.show(res.message);
       },
       error: () => {
         this.resetting.set(false);
-        this.error.set('Reset & sync mislukt.');
+        this.toast.show('Reset & sync mislukt.', 'error');
       },
     });
   }
@@ -59,7 +54,6 @@ export class DevPanelComponent {
   wipeAllOrphaned(): void {
     this.confirmWipeAll.set(false);
     this.wipingOrphaned.set(true);
-    this.error.set('');
     this.adminService.getAllReservations().subscribe({
       next: (raiders) => {
         const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -69,8 +63,7 @@ export class DevPanelComponent {
 
         if (ids.length === 0) {
           this.wipingOrphaned.set(false);
-          this.success.set('Geen wees-reservaties gevonden.');
-          setTimeout(() => this.success.set(''), 3000);
+          this.toast.show('Geen wees-reservaties gevonden.', 'info');
           return;
         }
 
@@ -82,15 +75,14 @@ export class DevPanelComponent {
               done++;
               if (done + failed === ids.length) {
                 this.wipingOrphaned.set(false);
-                this.success.set(`${done} wees-reservatie(s) verwijderd.`);
-                setTimeout(() => this.success.set(''), 4000);
+                this.toast.show(`${done} wees-reservatie(s) verwijderd.`);
               }
             },
             error: () => {
               failed++;
               if (done + failed === ids.length) {
                 this.wipingOrphaned.set(false);
-                this.error.set(`${failed} reservatie(s) konden niet worden verwijderd.`);
+                this.toast.show(`${failed} reservatie(s) konden niet worden verwijderd.`, 'error');
               }
             },
           });
@@ -98,7 +90,7 @@ export class DevPanelComponent {
       },
       error: () => {
         this.wipingOrphaned.set(false);
-        this.error.set('Kon reserveringen niet ophalen.');
+        this.toast.show('Kon reserveringen niet ophalen.', 'error');
       },
     });
   }

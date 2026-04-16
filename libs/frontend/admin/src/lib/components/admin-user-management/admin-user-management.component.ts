@@ -7,6 +7,7 @@ import {
   RaiderUser,
 } from '../../services/admin.service';
 import { IUser, UserRole, AssignmentStatus } from '@crusaders-bis-list/shared-domain';
+import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
   selector: 'lib-admin-user-management',
@@ -25,10 +26,10 @@ export class AdminUserManagementComponent implements OnInit {
   readonly confirmingId = signal<string | null>(null);
   readonly confirmingResetRaiderId = signal<string | null>(null);
   readonly confirmingDeleteUserId = signal<string | null>(null);
-  readonly message = signal('');
   readonly adminRole = UserRole.ADMIN;
   readonly AssignmentStatus = AssignmentStatus;
 
+  private readonly toast = inject(ToastService);
   private readonly adminService = inject(AdminService);
 
   ngOnInit(): void {
@@ -105,8 +106,7 @@ export class AdminUserManagementComponent implements OnInit {
   confirmCancel(reservationId: string): void {
     this.adminService.cancelReservation(reservationId).subscribe({
       next: () => {
-        this.message.set('Reservering ingetrokken.');
-        setTimeout(() => this.message.set(''), 3000);
+        this.toast.show('Reservering ingetrokken.');
         this.confirmingId.set(null);
         // Reload reservations
         this.adminService.getAllReservations().subscribe((summaries) => {
@@ -116,7 +116,7 @@ export class AdminUserManagementComponent implements OnInit {
         });
       },
       error: () => {
-        this.message.set('Intrekken mislukt.');
+        this.toast.show('Intrekken mislukt.', 'error');
         this.confirmingId.set(null);
       },
     });
@@ -134,8 +134,7 @@ export class AdminUserManagementComponent implements OnInit {
     this.adminService.resetRaiderProfile(raiderId).subscribe({
       next: () => {
         this.confirmingResetRaiderId.set(null);
-        this.message.set('Raider-profiel gereset.');
-        setTimeout(() => this.message.set(''), 3000);
+        this.toast.show('Raider-profiel gereset.');
         this.reservationsByUserId.update((map) => {
           const updated = new Map(map);
           updated.delete(userId);
@@ -149,8 +148,7 @@ export class AdminUserManagementComponent implements OnInit {
       },
       error: () => {
         this.confirmingResetRaiderId.set(null);
-        this.message.set('Reset mislukt.');
-        setTimeout(() => this.message.set(''), 3000);
+        this.toast.show('Reset mislukt.', 'error');
       },
     });
   }
@@ -174,13 +172,11 @@ export class AdminUserManagementComponent implements OnInit {
           return updated;
         });
         this.expandedUserId.set(null);
-        this.message.set('Account verwijderd.');
-        setTimeout(() => this.message.set(''), 3000);
+        this.toast.show('Account verwijderd.');
       },
       error: () => {
         this.confirmingDeleteUserId.set(null);
-        this.message.set('Verwijderen mislukt.');
-        setTimeout(() => this.message.set(''), 3000);
+        this.toast.show('Verwijderen mislukt.', 'error');
       },
     });
   }
@@ -194,8 +190,7 @@ export class AdminUserManagementComponent implements OnInit {
     this.adminService.updateUserRoles(user.id, roles).subscribe({
       next: () => {
         this.users.update((list) => list.map((u) => (u.id === user.id ? { ...u, roles } : u)));
-        this.message.set(`${user.displayName} is nu admin.`);
-        setTimeout(() => this.message.set(''), 3000);
+        this.toast.show(`${user.displayName} is nu admin.`);
       },
     });
   }
@@ -205,8 +200,7 @@ export class AdminUserManagementComponent implements OnInit {
     this.adminService.updateUserRoles(user.id, roles).subscribe({
       next: () => {
         this.users.update((list) => list.map((u) => (u.id === user.id ? { ...u, roles } : u)));
-        this.message.set(`${user.displayName} is geen admin meer.`);
-        setTimeout(() => this.message.set(''), 3000);
+        this.toast.show(`${user.displayName} is geen admin meer.`);
       },
     });
   }
@@ -215,8 +209,7 @@ export class AdminUserManagementComponent implements OnInit {
     this.adminService.updateUserMembership(user.id, true).subscribe({
       next: () => {
         this.users.update((list) => list.map((u) => (u.id === user.id ? { ...u, isCrusadersMember: true } : u)));
-        this.message.set(`${user.displayName} is nu Crusader.`);
-        setTimeout(() => this.message.set(''), 3000);
+        this.toast.show(`${user.displayName} is nu Crusader.`);
       },
     });
   }
@@ -225,8 +218,7 @@ export class AdminUserManagementComponent implements OnInit {
     this.adminService.updateUserMembership(user.id, false).subscribe({
       next: () => {
         this.users.update((list) => list.map((u) => (u.id === user.id ? { ...u, isCrusadersMember: false } : u)));
-        this.message.set(`${user.displayName} is geen Crusader meer.`);
-        setTimeout(() => this.message.set(''), 3000);
+        this.toast.show(`${user.displayName} is geen Crusader meer.`);
       },
     });
   }

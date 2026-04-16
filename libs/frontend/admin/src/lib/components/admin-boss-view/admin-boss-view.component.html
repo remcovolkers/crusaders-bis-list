@@ -1,11 +1,4 @@
-﻿@if (error()) {
-  <div class="error-banner">{{ error() }}</div>
-}
-@if (successMessage()) {
-  <div class="success-banner">{{ successMessage() }}</div>
-}
-
-@if (catalog()) {
+﻿@if (catalog()) {
   <div class="admin-layout">
     <!-- Sidebar: boss list grouped by raid, click scrolls to boss section -->
     <aside class="boss-sidebar">
@@ -88,7 +81,7 @@
                             <span class="cat-badge" [ngClass]="'cat-' + drop.item.category">
                               {{ categoryLabels[drop.item.category] }}
                             </span>
-                            @if (drop.item.primaryStats?.length) {
+                            @if (drop.item.primaryStats.length) {
                               <span
                                 class="stat-badge"
                                 >{{ drop.item.primaryStats.map(s => primaryStatLabels[s]).join('/') }}</span

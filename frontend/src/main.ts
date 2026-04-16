@@ -7,7 +7,14 @@ import { inject, provideAppInitializer, provideBrowserGlobalErrorListeners } fro
 import { Store } from '@ngrx/store';
 import { App } from './app/app';
 import { appRoutes } from './app/app.routes';
-import { API_URL, AuthInterceptor, authReducer, AuthService, loginSuccess } from '@crusaders-bis-list/frontend-auth';
+import {
+  API_URL,
+  AuthInterceptor,
+  authReducer,
+  AuthService,
+  AuthUser,
+  loginSuccess,
+} from '@crusaders-bis-list/frontend-auth';
 import { environment } from './environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -30,7 +37,7 @@ bootstrapApplication(App, {
         try {
           // Fetch fresh user data from server (includes latest isCrusadersMember)
           const user = await firstValueFrom(
-            http.get<any>(`${environment.apiUrl}/auth/me`, {
+            http.get<AuthUser>(`${environment.apiUrl}/auth/me`, {
               headers: { Authorization: `Bearer ${token}` },
             }),
           );

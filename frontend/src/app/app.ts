@@ -10,11 +10,12 @@ import {
   logout,
   AuthService,
 } from '@crusaders-bis-list/frontend-auth';
+import { ToastComponent } from '@crusaders-bis-list/frontend-shared-ui';
 import { FeedbackButtonComponent } from './feedback-button/feedback-button.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, FeedbackButtonComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, FeedbackButtonComponent, ToastComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

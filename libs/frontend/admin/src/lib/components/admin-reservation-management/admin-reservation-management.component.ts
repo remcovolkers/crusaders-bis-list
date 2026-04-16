@@ -2,6 +2,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AdminService, RaiderReservationEntry, RaiderReservationSummary } from '../../services/admin.service';
 import { AssignmentStatus } from '@crusaders-bis-list/shared-domain';
+import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
   selector: 'lib-admin-reservation-management',
@@ -12,10 +13,9 @@ import { AssignmentStatus } from '@crusaders-bis-list/shared-domain';
 export class AdminReservationManagementComponent implements OnInit {
   readonly raiders = signal<RaiderReservationSummary[]>([]);
   readonly loading = signal(true);
-  readonly error = signal('');
-  readonly success = signal('');
   readonly confirmingId = signal<string | null>(null);
 
+  private readonly toast = inject(ToastService);
   private readonly UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   readonly normalRaiders = computed(() => this.raiders().filter((r) => !this.UUID_RE.test(r.characterName)));
   readonly orphanedRaiders = computed(() => this.raiders().filter((r) => this.UUID_RE.test(r.characterName)));
@@ -36,7 +36,7 @@ export class AdminReservationManagementComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Kon reserveringen niet laden.');
+        this.toast.show('Kon reserveringen niet laden.', 'error');
         this.loading.set(false);
       },
     });
@@ -85,7 +85,6 @@ export class AdminReservationManagementComponent implements OnInit {
     if (ids.length === 0) return;
     this.confirmWipeAll.set(false);
     this.wipingOrphaned.set(true);
-    this.error.set('');
 
     let done = 0;
     let failed = 0;
@@ -95,8 +94,7 @@ export class AdminReservationManagementComponent implements OnInit {
           done++;
           if (done + failed === ids.length) {
             this.wipingOrphaned.set(false);
-            this.success.set(`${done} wees-reservatie(s) verwijderd.`);
-            setTimeout(() => this.success.set(''), 4000);
+            this.toast.show(`${done} wees-reservatie(s) verwijderd.`);
             this.load();
           }
         },
@@ -104,7 +102,7 @@ export class AdminReservationManagementComponent implements OnInit {
           failed++;
           if (done + failed === ids.length) {
             this.wipingOrphaned.set(false);
-            this.error.set(`${failed} reservatie(s) konden niet worden verwijderd.`);
+            this.toast.show(`${failed} reservatie(s) konden niet worden verwijderd.`, 'error');
             this.load();
           }
         },
@@ -117,16 +115,14 @@ export class AdminReservationManagementComponent implements OnInit {
   }
 
   confirmCancel(reservationId: string): void {
-    this.error.set('');
     this.adminService.cancelReservation(reservationId).subscribe({
       next: () => {
-        this.success.set('Reservering ingetrokken.');
-        setTimeout(() => this.success.set(''), 3000);
+        this.toast.show('Reservering ingetrokken.');
         this.confirmingId.set(null);
         this.load();
       },
       error: () => {
-        this.error.set('Intrekken mislukt.');
+        this.toast.show('Intrekken mislukt.', 'error');
         this.confirmingId.set(null);
       },
     });

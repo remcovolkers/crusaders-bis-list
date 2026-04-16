@@ -12,6 +12,7 @@ import {
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { selectCurrentUser } from '@crusaders-bis-list/frontend-auth';
+import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 import { RaiderLootStateService } from '../../services/raider-loot-state.service';
 import { ItemWithReservation } from '../../domain/loot-ui.types';
 import { ReserveModalComponent } from '../reserve-modal/reserve-modal.component';
@@ -26,6 +27,7 @@ import { ReserveModalComponent } from '../reserve-modal/reserve-modal.component'
 export class RaiderLootOverviewComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly currentUser = toSignal(this.store.select(selectCurrentUser));
+  private readonly toast = inject(ToastService);
   readonly isCrusadersMember = computed(() => this.currentUser()?.isCrusadersMember ?? false);
 
   readonly state = inject(RaiderLootStateService);
@@ -62,8 +64,7 @@ export class RaiderLootOverviewComponent implements OnInit {
       this.state.reserve(item.id).subscribe({
         error: (e: unknown) => {
           const msg = (e as { error?: { message?: string } }).error?.message ?? 'Reservering mislukt';
-          this.state.error.set(msg);
-          setTimeout(() => this.state.error.set(''), 4000);
+          this.toast.show(msg, 'error');
         },
       });
     };

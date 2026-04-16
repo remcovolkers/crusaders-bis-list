@@ -23,6 +23,7 @@ import {
   SESSION_ACTIVE_TAB_KEY,
 } from '../domain/loot-ui.types';
 import { CatalogResponse } from './loot.service';
+import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 /**
  * Application-layer facade for the raider loot overview page.
@@ -38,7 +39,6 @@ export class RaiderLootStateService {
   readonly profile = signal<IRaiderProfile | null>(null);
   readonly config = signal<ISeasonConfig | null>(null);
   readonly loading = signal(true);
-  readonly error = signal('');
   readonly activeTab = signal<CategoryTab>('all');
   readonly searchQuery = signal('');
 
@@ -47,6 +47,7 @@ export class RaiderLootStateService {
   private readonly _receivedItemsMap = signal(new Map<string, IReceivedItem>());
 
   private readonly lootService = inject(LootService);
+  private readonly toast = inject(ToastService);
 
   // ── Limits (from config) ──────────────────────────────────────────────────
   readonly trinketLimit = computed(() => this.config()?.trinketLimit ?? 2);
@@ -131,7 +132,7 @@ export class RaiderLootStateService {
         }
       },
       error: () => {
-        this.error.set('Kon catalogus niet laden.');
+        this.toast.show('Kon catalogus niet laden.', 'error');
         this.loading.set(false);
       },
     });

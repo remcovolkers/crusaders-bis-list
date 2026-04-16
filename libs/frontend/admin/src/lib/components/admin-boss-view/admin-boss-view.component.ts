@@ -15,6 +15,7 @@ import {
   ItemCategory,
 } from '@crusaders-bis-list/shared-domain';
 import { CatalogResponse } from '@crusaders-bis-list/frontend-loot';
+import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
   selector: 'lib-admin-boss-view',
@@ -26,8 +27,8 @@ export class AdminBossViewComponent implements OnInit {
   readonly catalog = signal<CatalogResponse | null>(null);
   readonly bossLootViews = signal<IBossLootView[]>([]);
   readonly loadingAll = signal(false);
-  readonly error = signal('');
-  readonly successMessage = signal('');
+
+  private readonly toast = inject(ToastService);
 
   readonly selectedDifficulty = signal<AssignmentStatus | null>(null);
 
@@ -68,14 +69,14 @@ export class AdminBossViewComponent implements OnInit {
               this.loadingAll.set(false);
             },
             error: () => {
-              this.error.set('Kon boss loot niet laden.');
+              this.toast.show('Kon boss loot niet laden.', 'error');
               this.loadingAll.set(false);
             },
           },
         );
       },
       error: () => {
-        this.error.set('Kon catalogus niet laden.');
+        this.toast.show('Kon catalogus niet laden.', 'error');
         this.loadingAll.set(false);
       },
     });
@@ -93,21 +94,18 @@ export class AdminBossViewComponent implements OnInit {
     const catalog = this.catalog();
     const difficulty = this.selectedDifficulty();
     if (!catalog || !difficulty) return;
-    this.error.set('');
-    this.successMessage.set('');
 
     const payload = { raiderId, itemId, bossId, raidSeasonId: catalog.season.id, status: difficulty };
 
     this.adminService.assignLoot(payload).subscribe({
       next: () => {
-        this.successMessage.set('Toewijzing opgeslagen!');
+        this.toast.show('Toewijzing opgeslagen!');
         this.adminService.getBossLootView(bossId, catalog.season.id).subscribe({
           next: (view) => this.bossLootViews.update((views) => views.map((v) => (v.boss.id === bossId ? view : v))),
         });
-        setTimeout(() => this.successMessage.set(''), 3000);
       },
       error: (e: unknown) => {
-        this.error.set((e as { error?: { message?: string } })?.error?.message ?? 'Toewijzing mislukt.');
+        this.toast.show((e as { error?: { message?: string } })?.error?.message ?? 'Toewijzing mislukt.', 'error');
       },
     });
   }

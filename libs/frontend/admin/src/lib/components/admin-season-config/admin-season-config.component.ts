@@ -4,6 +4,7 @@ import { AdminService } from '../../services/admin.service';
 import { IItem, ISeasonConfig } from '@crusaders-bis-list/shared-domain';
 import { CatalogResponse } from '@crusaders-bis-list/frontend-loot';
 import { AdminUserManagementComponent } from '../admin-user-management/admin-user-management.component';
+import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
   selector: 'lib-admin-season-config',
@@ -20,8 +21,6 @@ export class AdminSeasonConfigComponent implements OnInit {
   readonly superrareLimit = signal(0);
   readonly loading = signal(true);
   readonly saving = signal(false);
-  readonly error = signal('');
-  readonly success = signal('');
 
   readonly catalog = signal<CatalogResponse | null>(null);
   readonly selectedBossId = signal<string | null>(null);
@@ -34,6 +33,7 @@ export class AdminSeasonConfigComponent implements OnInit {
   });
   readonly superRareUpdating = signal<Set<string>>(new Set());
 
+  private readonly toast = inject(ToastService);
   private readonly adminService = inject(AdminService);
 
   ngOnInit(): void {
@@ -48,7 +48,7 @@ export class AdminSeasonConfigComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Kon configuratie niet laden.');
+        this.toast.show('Kon configuratie niet laden.', 'error');
         this.loading.set(false);
       },
     });
@@ -64,8 +64,6 @@ export class AdminSeasonConfigComponent implements OnInit {
     const config = this.config();
     if (!config) return;
     this.saving.set(true);
-    this.error.set('');
-    this.success.set('');
     this.adminService
       .updateSeasonConfig(config.raidSeasonId, {
         trinketLimit: this.trinketLimit(),
@@ -78,11 +76,10 @@ export class AdminSeasonConfigComponent implements OnInit {
         next: (c) => {
           this.config.set(c);
           this.saving.set(false);
-          this.success.set('Configuratie opgeslagen!');
-          setTimeout(() => this.success.set(''), 3000);
+          this.toast.show('Configuratie opgeslagen!');
         },
         error: () => {
-          this.error.set('Opslaan mislukt.');
+          this.toast.show('Opslaan mislukt.', 'error');
           this.saving.set(false);
         },
       });
@@ -111,7 +108,7 @@ export class AdminSeasonConfigComponent implements OnInit {
         this.superRareUpdating.set(new Set(s));
       },
       error: () => {
-        this.error.set('Super rare bijwerken mislukt.');
+        this.toast.show('Super rare bijwerken mislukt.', 'error');
         const s = this.superRareUpdating();
         s.delete(item.id);
         this.superRareUpdating.set(new Set(s));

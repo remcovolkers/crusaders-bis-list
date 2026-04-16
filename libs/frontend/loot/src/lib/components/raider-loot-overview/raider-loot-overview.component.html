@@ -2,10 +2,6 @@
   <div class="loading-spinner">Catalogus laden...</div>
 }
 
-@if (state.error()) {
-  <div class="error-banner">{{ state.error() }}</div>
-}
-
 @if (state.catalog() && !state.loading()) {
   <div class="loot-layout">
     <!-- Left sidebar: boss list -->
@@ -116,7 +112,7 @@
                           <span class="cat-badge" [ngClass]="'cat-' + item.category">
                             {{ categoryLabels[item.category] }}
                           </span>
-                          @if (item.primaryStats?.length) {
+                          @if (item.primaryStats.length) {
                             <span
                               class="stat-badge"
                               >{{ item.primaryStats.map(s => primaryStatLabels[s]).join('/') }}</span

@@ -37,6 +37,8 @@
   <router-outlet></router-outlet>
 </main>
 
+<lib-toast />
+
 @if (isAuthenticated() && showFeedbackButton()) {
   <app-feedback-button />
 }

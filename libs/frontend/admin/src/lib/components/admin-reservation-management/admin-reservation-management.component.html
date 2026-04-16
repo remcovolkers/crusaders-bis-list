@@ -10,12 +10,6 @@
   @if (loading()) {
     <div class="loading-spinner">Laden...</div>
   }
-  @if (error()) {
-    <div class="error-banner">{{ error() }}</div>
-  }
-  @if (success()) {
-    <div class="success-banner">{{ success() }}</div>
-  }
 
   @if (!loading()) {
     @if (raiders().length === 0) {
