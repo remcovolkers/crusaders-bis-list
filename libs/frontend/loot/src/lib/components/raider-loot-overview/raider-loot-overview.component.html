@@ -140,7 +140,16 @@
                             >&#10003; {{ tierLabels[received.tier] }} ontvangen</span
                           >
                         } @else {
-                          <span class="reserved-badge">&#10003; Gereserveerd</span>
+                          <span class="reserved-badge">
+                            &#10003; Gereserveerd
+                            <span class="reserved-info" aria-label="Info over reservering">
+                              ℹ
+                              <span class="reserved-tooltip"
+                                >Wil je de reservering verwijderen? Contacteer Melvin&nbsp;|&nbsp;Laforgèz op
+                                Discord.</span
+                              >
+                            </span>
+                          </span>
                         }
                       </div>
                     }
