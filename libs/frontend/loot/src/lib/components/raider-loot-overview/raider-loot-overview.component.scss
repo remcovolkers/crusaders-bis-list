@@ -305,20 +305,55 @@
   color: var(--text-muted);
   border: 1px solid rgba(148, 163, 184, 0.25);
   cursor: default;
+  animation: info-pulse 20s ease-in-out 5s infinite;
 
-  &:hover .card-info-tooltip {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
+  &:hover {
+    animation: none;
+
+    .card-info-tooltip {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+  }
+}
+
+@keyframes info-pulse {
+  0%,
+  70% {
+    box-shadow: none;
+    border-color: rgba(148, 163, 184, 0.25);
+    color: var(--text-muted);
+  }
+  75% {
+    box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2), 0 0 8px rgba(148, 163, 184, 0.3);
+    border-color: rgba(148, 163, 184, 0.6);
+    color: #e2e8f0;
+  }
+  80% {
+    box-shadow: none;
+    border-color: rgba(148, 163, 184, 0.25);
+    color: var(--text-muted);
+  }
+  85% {
+    box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.12), 0 0 5px rgba(148, 163, 184, 0.2);
+    border-color: rgba(148, 163, 184, 0.45);
+    color: #cbd5e1;
+  }
+  90%,
+  100% {
+    box-shadow: none;
+    border-color: rgba(148, 163, 184, 0.25);
+    color: var(--text-muted);
   }
 }
 
 .card-info-tooltip {
   position: absolute;
-  bottom: calc(100% + 8px);
-  left: 0;
-  right: auto;
-  transform: translateY(4px);
+  top: calc(100% + 6px);
+  right: 0;
+  left: auto;
+  transform: translateY(-4px);
   background: var(--bg-elevated, #1e2433);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
