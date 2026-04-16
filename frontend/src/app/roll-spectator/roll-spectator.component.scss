@@ -1,0 +1,70 @@
+.spectator-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-base, #0d1117);
+  padding: 24px;
+}
+
+.spectator-card {
+  width: min(520px, 100%);
+  background: var(--bg-surface, #161b22);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+}
+
+.spectator-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-primary, #e2e8f0);
+  margin: 0;
+}
+
+.spectator-item-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spectator-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  border: 2px solid rgba(201, 168, 76, 0.5);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.spectator-item {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-gold, #c9a84c);
+  margin: 0;
+}
+
+.spectator-waiting {
+  font-size: 13px;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+}
+
+.spectator-winner-label {
+  font-size: 20px;
+  font-weight: 700;
+  color: #4ade80;
+  margin: 0;
+}
+
+.spectator-connecting,
+.spectator-error {
+  color: var(--text-secondary, #94a3b8);
+  font-size: 14px;
+  margin: 0;
+}

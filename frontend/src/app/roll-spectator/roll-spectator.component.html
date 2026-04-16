@@ -1,0 +1,36 @@
+@if (notFound()) {
+  <div class="spectator-wrap">
+    <div class="spectator-card">
+      <p class="spectator-error">Sessie niet gevonden of verlopen.</p>
+    </div>
+  </div>
+} @else if (!sessionInfo()) {
+  <div class="spectator-wrap">
+    <div class="spectator-card">
+      <p class="spectator-connecting">Verbinden...</p>
+    </div>
+  </div>
+} @else {
+  <div class="spectator-wrap">
+    <div class="spectator-card">
+      <h1 class="spectator-title">🎲 Loot Roll</h1>
+      <div class="spectator-item-preview">
+        @if (sessionInfo()!.itemIconUrl) {
+          <img class="spectator-item-icon" [src]="sessionInfo()!.itemIconUrl" [alt]="sessionInfo()!.itemName" />
+        }
+        <p class="spectator-item">{{ sessionInfo()!.itemName }}</p>
+      </div>
+
+      <lib-wheel-of-fortune
+        [raiders]="wheelRaiders()"
+        [spinning]="rolling()"
+        [winnerRaiderId]="winner()?.raiderId ?? null"
+        [size]="360"
+      />
+
+      @if (!rolling() && !winner()) {
+        <p class="spectator-waiting">⏳ Wachten op de roll...</p>
+      }
+    </div>
+  </div>
+}

@@ -11,6 +11,7 @@ import {
   UpdateItemSuperRareUseCase,
 } from './use-cases/season-config.use-case';
 import { GetAllRaiderReservationsUseCase } from './use-cases/raider-reservations.use-case';
+import { RollSessionService } from './use-cases/roll-session.service';
 import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrastructure';
 
 @Module({
@@ -30,6 +31,7 @@ import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrast
     UpdateSeasonConfigUseCase,
     UpdateItemSuperRareUseCase,
     GetAllRaiderReservationsUseCase,
+    RollSessionService,
   ],
   exports: [
     BackendInfrastructureModule,
@@ -47,6 +49,7 @@ import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrast
     UpdateSeasonConfigUseCase,
     UpdateItemSuperRareUseCase,
     GetAllRaiderReservationsUseCase,
+    RollSessionService,
   ],
 })
 export class BackendApplicationModule {}

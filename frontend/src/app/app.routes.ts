@@ -10,6 +10,7 @@ import {
 } from '@crusaders-bis-list/frontend-auth';
 import { AdminFeedbackComponent } from './admin-feedback/admin-feedback.component';
 import { DevPanelComponent } from './dev-panel/dev-panel.component';
+import { RollSpectatorComponent } from './roll-spectator/roll-spectator.component';
 
 export const appRoutes: Route[] = [
   {
@@ -22,6 +23,10 @@ export const appRoutes: Route[] = [
     path: 'onboarding',
     canActivate: [AuthGuard],
     component: OnboardingComponent,
+  },
+  {
+    path: 'roll/:sessionId',
+    component: RollSpectatorComponent,
   },
   {
     path: 'loot',

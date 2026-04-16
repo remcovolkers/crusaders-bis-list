@@ -217,7 +217,10 @@
     >
       <div class="modal-header">
         <h3>🎲 Willekeurige toewijzing</h3>
-        <button class="modal-close" (click)="closeDiceModal()">✕</button>
+        <div class="modal-header-actions">
+          <button class="btn-share" title="Kopieer deellink voor spectators" (click)="copyShareUrl()">🔗 Deel</button>
+          <button class="modal-close" (click)="closeDiceModal()">✕</button>
+        </div>
       </div>
       <div class="modal-body">
         <div class="confirm-item-preview">
@@ -237,28 +240,20 @@
           </div>
         </div>
 
-        <div class="dice-carousel-wrap">
-          <div class="dice-candidates">
-            @for (r of dice.raiders; track r.raiderId) {
-              <span
-                class="dice-candidate-pill"
-                [class.is-winner]="dice.winner?.raiderId === r.raiderId"
-                [style.--class-color]="classColor(r.wowClass)"
-              >
-                {{ r.characterName }}
-              </span>
-            }
-          </div>
-          <div class="dice-display" [class.rolling]="dice.rolling" [class.has-winner]="!!dice.winner">
-            <span class="dice-name">{{ dice.displayName }}</span>
-          </div>
+        <div class="dice-wheel-wrap">
+          <lib-wheel-of-fortune
+            [raiders]="diceRaidersMapped()"
+            [spinning]="dice.rolling"
+            [winnerRaiderId]="dice.winner?.raiderId ?? null"
+            (spinDone)="onWheelDone()"
+          />
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn-ghost" (click)="closeDiceModal()">Annuleer</button>
         @if (!dice.winner && !dice.rolling) {
           <button class="btn-primary" (click)="rollDice()">🎲 Gooi!</button>
-        } @else if (dice.rolling) {
+        } @else if (dice.rolling || !wheelDone()) {
           <button class="btn-primary" disabled>Aan het rollen...</button>
         } @else {
           <button class="btn-primary" (click)="assignFromDice()">Toewijzen aan {{ dice.winner?.characterName }}</button>

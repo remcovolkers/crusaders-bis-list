@@ -10,6 +10,7 @@ import {
   IItem,
   ISeasonConfig,
   UpdateSeasonConfigDto,
+  RollSessionInfo,
 } from '@crusaders-bis-list/shared-domain';
 import { CatalogResponse } from '@crusaders-bis-list/frontend-loot';
 
@@ -55,6 +56,10 @@ export interface RaiderReservationSummary {
 export class AdminService {
   private readonly http = inject(HttpClient);
   private readonly base = inject(API_URL);
+
+  getBase(): string {
+    return this.base;
+  }
 
   getCatalog(): Observable<CatalogResponse> {
     return this.http.get<CatalogResponse>(`${this.base}/admin/catalog`);
@@ -122,5 +127,27 @@ export class AdminService {
 
   updateItemSuperRare(itemId: string, isSuperRare: boolean): Observable<IItem> {
     return this.http.put<IItem>(`${this.base}/admin/items/${itemId}/super-rare`, { isSuperRare });
+  }
+
+  createRollSession(
+    itemName: string,
+    itemIconUrl: string | undefined,
+    bossId: string,
+    raiders: { raiderId: string; name: string }[],
+  ): Observable<{ sessionId: string }> {
+    return this.http.post<{ sessionId: string }>(`${this.base}/roll-sessions`, {
+      itemName,
+      itemIconUrl,
+      bossId,
+      raiders,
+    });
+  }
+
+  startRoll(sessionId: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/roll-sessions/${sessionId}/start`, {});
+  }
+
+  getRollSession(sessionId: string): Observable<RollSessionInfo> {
+    return this.http.get<RollSessionInfo>(`${this.base}/roll-sessions/${sessionId}`);
   }
 }
