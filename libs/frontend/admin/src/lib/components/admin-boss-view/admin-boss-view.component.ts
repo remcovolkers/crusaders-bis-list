@@ -212,7 +212,7 @@ export class AdminBossViewComponent implements OnInit {
     const modal = this.diceModal();
     if (!modal || modal.rolling) return;
 
-    this.diceModal.update((m) => m ? { ...m, rolling: true, winner: null } : m);
+    this.diceModal.update((m) => (m ? { ...m, rolling: true, winner: null } : m));
 
     const names = modal.raiders.map((r) => r.characterName);
     let tick = 0;
@@ -226,13 +226,13 @@ export class AdminBossViewComponent implements OnInit {
       const delay = baseInterval + Math.pow(progress, 2) * 600;
 
       const current = names[tick % names.length];
-      this.diceModal.update((m) => m ? { ...m, displayName: current } : m);
+      this.diceModal.update((m) => (m ? { ...m, displayName: current } : m));
 
       if (tick >= totalTicks) {
         // Pick winner
         const winnerIndex = Math.floor(Math.random() * modal.raiders.length);
         const winner = modal.raiders[winnerIndex];
-        this.diceModal.update((m) => m ? { ...m, rolling: false, displayName: winner.characterName, winner } : m);
+        this.diceModal.update((m) => (m ? { ...m, rolling: false, displayName: winner.characterName, winner } : m));
         return;
       }
 

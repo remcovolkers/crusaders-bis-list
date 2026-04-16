@@ -141,7 +141,8 @@
   </div>
 }
 
-@if (pendingAssignment(); as pending) {  <div
+@if (pendingAssignment(); as pending) {
+  <div
     class="modal-backdrop"
     role="button"
     tabindex="0"
@@ -260,9 +261,7 @@
         } @else if (dice.rolling) {
           <button class="btn-primary" disabled>Aan het rollen...</button>
         } @else {
-          <button class="btn-primary" (click)="assignFromDice()">
-            Toewijzen aan {{ dice.winner?.characterName }}
-          </button>
+          <button class="btn-primary" (click)="assignFromDice()">Toewijzen aan {{ dice.winner?.characterName }}</button>
         }
       </div>
     </div>

@@ -218,7 +218,10 @@
   font-size: 16px;
   cursor: pointer;
   line-height: 1;
-  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    transform 0.1s;
 
   &:hover {
     background: var(--bg-hover, rgba(148, 163, 184, 0.08));
@@ -810,7 +813,10 @@
   background: rgba(148, 163, 184, 0.08);
   border: 1px solid rgba(148, 163, 184, 0.2);
   color: var(--class-color, var(--text-secondary));
-  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
 
   &.is-winner {
     background: rgba(var(--class-color-rgb, 148, 163, 184), 0.18);
