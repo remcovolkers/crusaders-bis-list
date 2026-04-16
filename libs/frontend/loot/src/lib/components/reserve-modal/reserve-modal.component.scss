@@ -61,9 +61,26 @@
 }
 
 .reserve-question {
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.reserve-subtext {
+  font-size: 13px;
   color: var(--text-secondary);
-  margin: 0 0 16px;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.receive-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin: 0 0 10px;
 }
 
 .tier-options {

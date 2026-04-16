@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { AssignmentStatus, IReceivedItem, RECEIVABLE_TIERS, TIER_LABELS } from '@crusaders-bis-list/shared-domain';
 import { ItemWithReservation } from '../../domain/loot-ui.types';
 
@@ -10,15 +10,26 @@ import { ItemWithReservation } from '../../domain/loot-ui.types';
 })
 export class ReserveModalComponent {
   readonly item = input.required<ItemWithReservation>();
-  /** Previously recorded received item for this item, if any. */
   readonly receivedItem = input<IReceivedItem | null>(null);
 
-  /** Emits the chosen tier when the raider clicked a tier button (tier + reserve).
-   *  Emits null when "reserve only" is chosen. */
   readonly confirmed = output<AssignmentStatus | null>();
   readonly cancelled = output<void>();
 
-  // Domain constants exposed to the template
   readonly receivableTiers = RECEIVABLE_TIERS;
   readonly tierLabels = TIER_LABELS;
+
+  readonly selectedTier = signal<AssignmentStatus | null>(null);
+
+  readonly confirmButtonLabel = computed(() => {
+    const tier = this.selectedTier();
+    if (!tier) return 'Reserveer';
+    const idx = RECEIVABLE_TIERS.indexOf(tier);
+    const higher = RECEIVABLE_TIERS.slice(idx + 1).map((t) => TIER_LABELS[t]);
+    if (higher.length === 0) return `${TIER_LABELS[tier]} in bezit`;
+    return `Reserveer (${higher.join(' / ')})`;
+  });
+
+  confirm(): void {
+    this.confirmed.emit(this.selectedTier());
+  }
 }
