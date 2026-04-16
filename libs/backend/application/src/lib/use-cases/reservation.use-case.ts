@@ -5,6 +5,8 @@ import {
   SEASON_CONFIG_REPOSITORY,
   ISeasonConfigRepository,
   LootDomainRules,
+  RECEIVED_ITEM_REPOSITORY,
+  IReceivedItemRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { RAID_CATALOG_REPOSITORY, IRaidCatalogRepository } from '@crusaders-bis-list/backend-domain';
 
@@ -67,9 +69,15 @@ export class CancelReservationUseCase {
   constructor(
     @Inject(RESERVATION_REPOSITORY)
     private readonly reservationRepo: IReservationRepository,
+    @Inject(RECEIVED_ITEM_REPOSITORY)
+    private readonly receivedItemRepo: IReceivedItemRepository,
   ) {}
 
   async execute(reservationId: string): Promise<void> {
+    const reservation = await this.reservationRepo.findById(reservationId);
+    if (reservation) {
+      await this.receivedItemRepo.deleteByRaiderAndItem(reservation.raiderId, reservation.itemId);
+    }
     await this.reservationRepo.delete(reservationId);
   }
 }

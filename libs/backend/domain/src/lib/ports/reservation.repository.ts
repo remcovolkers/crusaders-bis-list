@@ -10,6 +10,7 @@ export interface CreateReservationData {
 }
 
 export interface IReservationRepository {
+  findById(id: string): Promise<Reservation | null>;
   findByRaider(raiderId: string, raidSeasonId: string): Promise<Reservation[]>;
   findByRaiderAndCategory(raiderId: string, raidSeasonId: string, category: ItemCategory): Promise<Reservation[]>;
   findSuperRareByRaider(raiderId: string, raidSeasonId: string): Promise<Reservation[]>;

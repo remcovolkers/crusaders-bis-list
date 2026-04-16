@@ -65,6 +65,11 @@ export class ReservationRepository implements IReservationRepository {
     return e ? this.toModel(e) : null;
   }
 
+  async findById(id: string): Promise<Reservation | null> {
+    const e = await this.repo.findOne({ where: { id } });
+    return e ? this.toModel(e) : null;
+  }
+
   async findAllBySeason(raidSeasonId: string): Promise<Reservation[]> {
     const all = await this.repo.find({ where: { raidSeasonId }, order: { createdAt: 'ASC' } });
     return all.map((e) => this.toModel(e));

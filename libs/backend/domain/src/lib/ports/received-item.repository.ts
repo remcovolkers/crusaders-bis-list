@@ -19,6 +19,7 @@ export interface IReceivedItemRepository {
   findByRaiderAndItem(raiderId: string, itemId: string): Promise<IReceivedItem | null>;
   save(dto: CreateReceivedItemDto): Promise<IReceivedItem>;
   delete(id: string): Promise<void>;
+  deleteByRaiderAndItem(raiderId: string, itemId: string): Promise<void>;
 }
 
 export const RECEIVED_ITEM_REPOSITORY = Symbol('IReceivedItemRepository');
