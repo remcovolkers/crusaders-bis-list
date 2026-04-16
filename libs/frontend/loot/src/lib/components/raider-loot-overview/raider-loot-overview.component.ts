@@ -1,7 +1,14 @@
 ﻿import { Component, inject, OnInit, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AssignmentStatus, ITEM_CATEGORY_LABELS, TIER_LABELS } from '@crusaders-bis-list/shared-domain';
+import {
+  AssignmentStatus,
+  ITEM_CATEGORY_LABELS,
+  TIER_LABELS,
+  WEAPON_TYPE_LABELS,
+  PRIMARY_STAT_LABELS,
+  ItemCategory,
+} from '@crusaders-bis-list/shared-domain';
 import { RaiderLootStateService } from '../../services/raider-loot-state.service';
 import { ItemWithReservation } from '../../domain/loot-ui.types';
 import { ReserveModalComponent } from '../reserve-modal/reserve-modal.component';
@@ -23,6 +30,9 @@ export class RaiderLootOverviewComponent implements OnInit {
   // Domain constants for template binding
   readonly categoryLabels = ITEM_CATEGORY_LABELS;
   readonly tierLabels = TIER_LABELS;
+  readonly weaponTypeLabels = WEAPON_TYPE_LABELS;
+  readonly primaryStatLabels = PRIMARY_STAT_LABELS;
+  readonly ItemCategory = ItemCategory;
 
   ngOnInit(): void {
     this.state.load();

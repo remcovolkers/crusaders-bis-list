@@ -116,8 +116,14 @@
                           <span class="cat-badge" [ngClass]="'cat-' + item.category">
                             {{ categoryLabels[item.category] }}
                           </span>
-                          @if (item.slot) {
-                            <span class="slot-text">{{ item.slot }}</span>
+                          @if (item.primaryStats?.length) {
+                            <span
+                              class="stat-badge"
+                              >{{ item.primaryStats.map(s => primaryStatLabels[s]).join('/') }}</span
+                            >
+                          }
+                          @if (item.category === ItemCategory.WEAPON && item.weaponType) {
+                            <span class="weapon-badge">{{ weaponTypeLabels[item.weaponType] }}</span>
                           }
                         </div>
                       </div>

@@ -466,7 +466,11 @@ export function canSpecUseWeapon(spec: WowSpec, weaponType: WeaponType): boolean
  */
 export function canClassReserveItem(wowClass: WowClass, spec: WowSpec, item: IItem): boolean {
   if (item.armorType === ArmorType.NONE) {
-    if (item.weaponType) return canSpecUseWeapon(spec, item.weaponType);
+    if (item.weaponType) {
+      if (!canSpecUseWeapon(spec, item.weaponType)) return false;
+      if (item.primaryStats.length > 0) return item.primaryStats.includes(WOW_SPEC_REGISTRY[spec].primaryStat);
+      return true;
+    }
     if (item.primaryStats.length > 0) return item.primaryStats.includes(WOW_SPEC_REGISTRY[spec].primaryStat);
     return true;
   }

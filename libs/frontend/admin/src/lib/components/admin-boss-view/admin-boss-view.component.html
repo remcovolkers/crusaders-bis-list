@@ -86,13 +86,16 @@
                           <span class="item-panel-name">{{ drop.item.name }}</span>
                           <div class="item-panel-meta">
                             <span class="cat-badge" [ngClass]="'cat-' + drop.item.category">
-                              {{ drop.item.category }}
+                              {{ categoryLabels[drop.item.category] }}
                             </span>
-                            @if (drop.item.itemLevel) {
-                              <span class="ilvl-badge">ilvl {{ drop.item.itemLevel }}</span>
+                            @if (drop.item.primaryStats?.length) {
+                              <span
+                                class="stat-badge"
+                                >{{ drop.item.primaryStats.map(s => primaryStatLabels[s]).join('/') }}</span
+                              >
                             }
-                            @if (drop.item.slot) {
-                              <span class="slot-text-sm">{{ drop.item.slot }}</span>
+                            @if (drop.item.category === ItemCategory.WEAPON && drop.item.weaponType) {
+                              <span class="weapon-badge">{{ weaponTypeLabels[drop.item.weaponType] }}</span>
                             }
                           </div>
                         </div>

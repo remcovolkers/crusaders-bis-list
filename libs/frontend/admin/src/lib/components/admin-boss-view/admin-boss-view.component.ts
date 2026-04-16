@@ -9,6 +9,10 @@ import {
   AssignmentStatus,
   WowClass,
   WOW_CLASS_REGISTRY,
+  ITEM_CATEGORY_LABELS,
+  WEAPON_TYPE_LABELS,
+  PRIMARY_STAT_LABELS,
+  ItemCategory,
 } from '@crusaders-bis-list/shared-domain';
 import { CatalogResponse } from '@crusaders-bis-list/frontend-loot';
 
@@ -32,6 +36,11 @@ export class AdminBossViewComponent implements OnInit {
     { key: 'hero', label: 'Hero', value: AssignmentStatus.HERO_TIER },
     { key: 'myth', label: 'Myth', value: AssignmentStatus.MYTH_TIER },
   ];
+
+  readonly categoryLabels = ITEM_CATEGORY_LABELS;
+  readonly weaponTypeLabels = WEAPON_TYPE_LABELS;
+  readonly primaryStatLabels = PRIMARY_STAT_LABELS;
+  readonly ItemCategory = ItemCategory;
 
   readonly raidGroups = computed(() => {
     const catalog = this.catalog();

@@ -33,11 +33,11 @@ function extractPrimaryStatsFromBlizzard(item: BlizzardItem): PrimaryStat[] {
     STRENGTH: PrimaryStat.STRENGTH,
     AGILITY: PrimaryStat.AGILITY,
   };
-  const negated = stats.filter((s) => s.is_negated && STAT_MAP[s.type.type]).map((s) => STAT_MAP[s.type.type]);
-  if (negated.length > 0) return negated;
-  for (const key of ['INTELLECT', 'STRENGTH', 'AGILITY'] as const) {
-    if (stats.some((s) => s.type.type === key)) return [STAT_MAP[key]];
+  const present = new Set<PrimaryStat>();
+  for (const s of stats) {
+    if (STAT_MAP[s.type.type]) present.add(STAT_MAP[s.type.type]);
   }
+  if (present.size > 0) return Array.from(present);
   return [];
 }
 
@@ -215,6 +215,7 @@ export class SyncRaidCatalogFromBlizzardUseCase {
     });
 
     let totalItems = 0;
+    let globalBossOrder = 0;
     const warnings: string[] = [];
     const errors: string[] = [];
 
@@ -252,6 +253,7 @@ export class SyncRaidCatalogFromBlizzardUseCase {
           continue;
         }
 
+        globalBossOrder += 1;
         const boss = await this.catalogRepo.upsertBoss({
           wowEncounterId: encounter.id,
           name: encounter.name,
@@ -259,7 +261,7 @@ export class SyncRaidCatalogFromBlizzardUseCase {
           raidId: raid.instanceId,
           raidName: raid.name,
           raidAccentColor: raid.accentColor,
-          order: i + 1,
+          order: globalBossOrder,
         });
 
         const itemRefs = encounter.items ?? [];

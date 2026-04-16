@@ -69,8 +69,14 @@ export class GetAllRaiderReservationsUseCase {
 
     // Collect unique itemIds so we can fetch names
     const itemIds = [...new Set(allReservations.map((r) => r.itemId))];
-    const items = await Promise.all(itemIds.map((id) => this.catalogRepo.findItemById(id)));
+    const [items, bosses] = await Promise.all([
+      Promise.all(itemIds.map((id) => this.catalogRepo.findItemById(id))),
+      this.catalogRepo.findBossesBySeason(season.id),
+    ]);
     const itemMap = new Map(items.filter((i): i is NonNullable<typeof i> => i != null).map((i) => [i.id, i]));
+
+    // Build bossId -> sort index map so reservations can be ordered by boss order
+    const bossOrderMap = new Map(bosses.map((b, idx) => [b.id, idx]));
 
     // Group reservations by raiderId
     const byRaider = new Map<string, typeof allReservations>();
@@ -99,17 +105,23 @@ export class GetAllRaiderReservationsUseCase {
         characterName: raider?.characterName ?? raiderId,
         wowClass: raider?.wowClass ?? '',
         spec: raider?.spec ?? '',
-        reservations: reservations.map((res) => ({
-          id: res.id,
-          itemId: res.itemId,
-          itemName: itemMap.get(res.itemId)?.name ?? res.itemId,
-          iconUrl: itemMap.get(res.itemId)?.iconUrl,
-          itemCategory: res.itemCategory,
-          isSuperRare: res.isSuperRare,
-          createdAt: res.createdAt,
-          assignment: assignMap.get(`${raiderId}:${res.itemId}`) ?? null,
-          receivedTier: receivedMap.get(`${raiderId}:${res.itemId}`) ?? null,
-        })),
+        reservations: reservations
+          .map((res) => ({
+            id: res.id,
+            itemId: res.itemId,
+            itemName: itemMap.get(res.itemId)?.name ?? res.itemId,
+            iconUrl: itemMap.get(res.itemId)?.iconUrl,
+            itemCategory: res.itemCategory,
+            isSuperRare: res.isSuperRare,
+            createdAt: res.createdAt,
+            assignment: assignMap.get(`${raiderId}:${res.itemId}`) ?? null,
+            receivedTier: receivedMap.get(`${raiderId}:${res.itemId}`) ?? null,
+          }))
+          .sort((a, b) => {
+            const bossA = bossOrderMap.get(itemMap.get(a.itemId)?.bossId ?? '') ?? 999;
+            const bossB = bossOrderMap.get(itemMap.get(b.itemId)?.bossId ?? '') ?? 999;
+            return bossA - bossB;
+          }),
       });
     }
 
