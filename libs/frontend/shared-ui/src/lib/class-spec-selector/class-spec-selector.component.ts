@@ -1,5 +1,5 @@
 import { Component, computed, input, OnInit, output, signal } from '@angular/core';
-import { WowClass, WowSpec, WOW_CLASS_COLOR, SPECS_BY_CLASS } from '@crusaders-bis-list/shared-domain';
+import { WowClass, WowSpec, getClassData } from '@crusaders-bis-list/shared-domain';
 
 export interface ClassSpecSelection {
   wowClass: WowClass;
@@ -31,7 +31,7 @@ export class ClassSpecSelectorComponent implements OnInit {
   readonly classes: ClassOption[] = Object.values(WowClass).map((cls) => ({
     label: cls,
     value: cls,
-    color: WOW_CLASS_COLOR[cls],
+    color: getClassData(cls).color,
   }));
 
   readonly currentClass = signal<WowClass | null>(null);
@@ -60,10 +60,10 @@ export class ClassSpecSelectorComponent implements OnInit {
   }
 
   private getSpecsFor(cls: WowClass): SpecOption[] {
-    return (SPECS_BY_CLASS[cls] ?? []).map((s) => ({ label: s, value: s }));
+    return getClassData(cls).specs.map((s) => ({ label: s, value: s }));
   }
 
   getClassColor(cls: WowClass): string {
-    return WOW_CLASS_COLOR[cls] ?? '#94a3b8';
+    return getClassData(cls).color ?? '#94a3b8';
   }
 }

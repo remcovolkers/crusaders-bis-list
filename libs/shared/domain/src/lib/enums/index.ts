@@ -6,5 +6,4 @@ export * from './raider-status.enum';
 export * from './user-role.enum';
 export * from './weapon-type.enum';
 export * from './wow-class.enum';
-export * from './wow-data';
 export * from './wow-spec.enum';

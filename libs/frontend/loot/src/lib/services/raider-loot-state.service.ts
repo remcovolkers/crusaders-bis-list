@@ -8,10 +8,10 @@ import {
   IRaiderProfile,
   ItemCategory,
   AssignmentStatus,
-  WOW_CLASS_COLOR,
   ARMOR_ITEM_CATEGORIES,
   canClassReserveItem,
   WowSpec,
+  getClassData,
 } from '@crusaders-bis-list/shared-domain';
 import {
   CategoryTab,
@@ -70,7 +70,7 @@ export class RaiderLootStateService {
   readonly classColor = computed(() => {
     const wowClass = this.profile()?.wowClass;
     if (!wowClass) return 'var(--accent-gold)';
-    return WOW_CLASS_COLOR[wowClass] ?? 'var(--accent-gold)';
+    return getClassData(wowClass).color ?? 'var(--accent-gold)';
   });
 
   // ── Visible tabs (only tabs with at least one reservable item) ────────────

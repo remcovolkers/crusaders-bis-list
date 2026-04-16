@@ -1,4 +1,4 @@
-import { AssignmentStatus, ItemCategory, RESERVABLE_CATEGORIES } from '@crusaders-bis-list/shared-domain';
+import { AssignmentStatus, ItemCategory } from '@crusaders-bis-list/shared-domain';
 
 export class Reservation {
   id!: string;
@@ -41,6 +41,19 @@ export interface ReservationLimits {
   superrareLimit: number;
 }
 
+/** Maps each item category to its corresponding limit key in ReservationLimits. */
+const CATEGORY_LIMIT_MAP: Record<ItemCategory, keyof ReservationLimits> = {
+  [ItemCategory.TRINKET]: 'trinketLimit',
+  [ItemCategory.WEAPON]: 'weaponLimit',
+  [ItemCategory.OFFHAND]: 'weaponLimit',
+  [ItemCategory.JEWELRY]: 'jewelryLimit',
+  [ItemCategory.CLOTH]: 'armorLimit',
+  [ItemCategory.LEATHER]: 'armorLimit',
+  [ItemCategory.MAIL]: 'armorLimit',
+  [ItemCategory.PLATE]: 'armorLimit',
+  [ItemCategory.OTHER]: 'armorLimit',
+};
+
 /** Core business rules for the loot system. */
 export class LootDomainRules {
   /**
@@ -54,26 +67,7 @@ export class LootDomainRules {
     isSuperRare = false,
     existingSuperRareReservations = 0,
   ): { allowed: boolean; reason?: string } {
-    if (!RESERVABLE_CATEGORIES.has(category)) {
-      return { allowed: false, reason: 'This item type cannot be reserved.' };
-    }
-
-    let limit = 0;
-    if (category === ItemCategory.TRINKET) {
-      limit = limits.trinketLimit;
-    } else if (category === ItemCategory.WEAPON || category === ItemCategory.OFFHAND) {
-      limit = limits.weaponLimit;
-    } else if (category === ItemCategory.JEWELRY) {
-      limit = limits.jewelryLimit;
-    } else if (
-      category === ItemCategory.OTHER ||
-      category === ItemCategory.CLOTH ||
-      category === ItemCategory.LEATHER ||
-      category === ItemCategory.MAIL ||
-      category === ItemCategory.PLATE
-    ) {
-      limit = limits.armorLimit;
-    }
+    const limit = limits[CATEGORY_LIMIT_MAP[category]];
 
     if (limit === 0) {
       // A superrare bypasses a zero category limit — it uses the superrare slot instead
