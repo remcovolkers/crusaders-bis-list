@@ -6,3 +6,4 @@ export * from './lib/database/entities/loot.orm-entity';
 export * from './lib/database/entities/season-config.orm-entity';
 export * from './lib/database/entities/raider-received-item.orm-entity';
 export * from './lib/blizzard/blizzard-api.service';
+export { MIGRATIONS } from './lib/database/migrations';

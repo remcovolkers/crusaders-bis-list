@@ -21,6 +21,7 @@ import {
   AssignmentOrmEntity,
   SeasonConfigOrmEntity,
   RaiderReceivedItemOrmEntity,
+  MIGRATIONS,
 } from '@crusaders-bis-list/backend-infrastructure';
 
 @Module({
@@ -43,6 +44,9 @@ import {
           RaiderReceivedItemOrmEntity,
         ],
         synchronize: config.get('NODE_ENV') !== 'production',
+        migrations: MIGRATIONS,
+        migrationsRun: true,
+        migrationsTableName: 'typeorm_migrations',
         ssl: config.get('DATABASE_SSL') === 'true' ? { rejectUnauthorized: false } : false,
       }),
     }),
