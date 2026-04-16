@@ -7,7 +7,7 @@
 
 @if (catalog()) {
   <div class="admin-layout">
-    <!-- Sidebar: boss list grouped by raid -->
+    <!-- Sidebar: boss list grouped by raid, click scrolls to boss section -->
     <aside class="boss-sidebar">
       <div class="sidebar-header">
         <span class="sidebar-label">{{ catalog()!.season.name }}</span>
@@ -18,12 +18,7 @@
             <span class="raid-name">{{ group.raidName }}</span>
           </div>
           @for (boss of group.bosses; track boss.id) {
-            <button
-              class="boss-row"
-              [class.active]="selectedBoss()?.id === boss.id"
-              [style.--boss-color]="getBossColor(boss)"
-              (click)="selectBoss(boss)"
-            >
+            <button class="boss-row" [style.--boss-color]="getBossColor(boss)" (click)="scrollToBoss(boss.id)">
               <span class="boss-dot"></span>
               <span class="boss-row-name">{{ boss.name }}</span>
             </button>
@@ -34,108 +29,105 @@
 
     <!-- Main content -->
     <div class="admin-main">
-      @if (!selectedBoss()) {
-        <div class="empty-state">
-          <p>Selecteer een boss in de zijbalk</p>
+      @if (!selectedDifficulty()) {
+        <!-- Landing: select difficulty before assigning gear -->
+        <div class="landing-state">
+          <p class="landing-title">Selecteer gear tier om toe te wijzen</p>
+          <div class="difficulty-selector">
+            @for (d of difficulties; track d.key) {
+              <button class="diff-btn" [class]="'tier-' + d.key" (click)="selectedDifficulty.set(d.value)">
+                {{ d.label }}
+              </button>
+            }
+          </div>
         </div>
       }
 
-      @if (loadingBoss()) {
+      @if (loadingAll()) {
         <div class="loading-spinner">Laden...</div>
       }
 
-      @if (bossLootView() && !loadingBoss()) {
-        <div class="loot-view">
-          <div class="loot-view-header">
-            <h2>{{ bossLootView()!.boss.name }}</h2>
-            @if (bossLootView()!.boss.raidName) {
-              <span class="badge badge-muted">{{ bossLootView()!.boss.raidName }}</span>
-            }
-          </div>
-
-          <div class="item-panels">
-            @if (bossLootView()!.drops.length === 0) {
-              <div class="no-reservations-state">
-                <span class="no-reservations-icon">📋</span>
-                <p>
-                  Geen lootreservaties voor <strong>{{ bossLootView()!.boss.name }}</strong>
-                </p>
+      @if (selectedDifficulty() && !loadingAll()) {
+        <div class="boss-sections">
+          @for (view of bossLootViews(); track view.boss.id) {
+            <div class="loot-view" [id]="'boss-' + view.boss.id">
+              <div class="loot-view-header">
+                <h2>{{ view.boss.name }}</h2>
+                @if (view.boss.raidName) {
+                  <span class="badge badge-muted">{{ view.boss.raidName }}</span>
+                }
               </div>
-            }
-            @for (drop of bossLootView()!.drops; track drop.item.id) {
-              <div class="item-panel">
-                <div class="item-panel-header">
-                  <div class="item-panel-info">
-                    @if (drop.item.iconUrl) {
-                      <img class="item-icon-sm" [src]="drop.item.iconUrl" [alt]="drop.item.name" />
-                    }
-                    <div>
-                      <span class="item-panel-name">{{ drop.item.name }}</span>
-                      <div class="item-panel-meta">
-                        <span class="cat-badge" [ngClass]="'cat-' + drop.item.category">
-                          {{ drop.item.category }}
-                        </span>
-                        @if (drop.item.itemLevel) {
-                          <span class="ilvl-badge">ilvl {{ drop.item.itemLevel }}</span>
+
+              <div class="item-panels">
+                @if (view.drops.length === 0) {
+                  <div class="no-reservations-state">
+                    <span class="no-reservations-icon">📋</span>
+                    <p>
+                      Geen lootreservaties voor <strong>{{ view.boss.name }}</strong>
+                    </p>
+                  </div>
+                } @else if (visibleDrops(view.drops).length === 0) {
+                  <div class="no-reservations-state">
+                    <span class="no-reservations-icon">✅</span>
+                    <p>
+                      Alle raiders hebben hun items al voor
+                      <strong>{{ difficultyLabel(selectedDifficulty()!) }}</strong>
+                    </p>
+                  </div>
+                }
+                @for (drop of visibleDrops(view.drops); track drop.item.id) {
+                  <div class="item-panel">
+                    <div class="item-panel-header">
+                      <div class="item-panel-info">
+                        @if (drop.item.iconUrl) {
+                          <img class="item-icon-sm" [src]="drop.item.iconUrl" [alt]="drop.item.name" />
                         }
-                        @if (drop.item.slot) {
-                          <span class="slot-text-sm">{{ drop.item.slot }}</span>
-                        }
+                        <div>
+                          <span class="item-panel-name">{{ drop.item.name }}</span>
+                          <div class="item-panel-meta">
+                            <span class="cat-badge" [ngClass]="'cat-' + drop.item.category">
+                              {{ drop.item.category }}
+                            </span>
+                            @if (drop.item.itemLevel) {
+                              <span class="ilvl-badge">ilvl {{ drop.item.itemLevel }}</span>
+                            }
+                            @if (drop.item.slot) {
+                              <span class="slot-text-sm">{{ drop.item.slot }}</span>
+                            }
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
 
-                @if (drop.eligibleRaiders.length === 0) {
-                  <div class="no-eligible">Geen eligible raiders</div>
-                } @else {
-                  <div class="raiders-list">
-                    @for (raider of drop.eligibleRaiders; track raider.raiderId) {
-                      <div class="raider-row">
-                        <div class="raider-info">
-                          <span class="raider-name">{{ raider.characterName }}</span>
-                          <span class="raider-class">{{ raider.wowClass }} – {{ raider.spec }}</span>
-                          @if (raider.hasReservation) {
-                            <span class="badge badge-gold" style="font-size: 10px">★ Res</span>
-                          }
-                        </div>
-                        <div class="assign-actions">
-                          @if (raider.hasReservation && raider.reservationId) {
-                            @if (confirmingDeleteResId() === raider.reservationId) {
-                              <span class="confirm-text">Zeker weten?</span>
-                              <button
-                                class="assign-btn tier-danger"
-                                (click)="confirmDeleteReservation(raider.reservationId)"
-                              >
-                                Ja
-                              </button>
-                              <button class="assign-btn tier-ghost" (click)="abortDeleteReservation()">Nee</button>
-                            } @else {
-                              <button
-                                class="assign-btn tier-danger-outline"
-                                (click)="requestDeleteReservation(raider.reservationId)"
-                              >
-                                ✕ Reservering verwijderen
-                              </button>
+                    @if (drop.eligibleRaiders.length === 0) {
+                      <div class="no-eligible">Geen eligible raiders</div>
+                    } @else if (visibleRaiders(drop.eligibleRaiders).length === 0) {
+                      <div class="no-eligible">
+                        Iedereen heeft dit item al op {{ difficultyLabel(selectedDifficulty()!) }}
+                      </div>
+                    } @else {
+                      <div class="raiders-chips-panel">
+                        @for (raider of visibleRaiders(drop.eligibleRaiders); track raider.raiderId) {
+                          <button
+                            class="raider-chip"
+                            [class.has-reservation]="raider.hasReservation"
+                            [style.--class-color]="classColor(raider.wowClass)"
+                            [title]="raider.wowClass + ' – ' + raider.spec"
+                            (click)="assign(raider.raiderId, drop.item.id, view.boss.id)"
+                          >
+                            @if (raider.hasReservation) {
+                              <span class="chip-star">★</span>
                             }
-                          }
-                          @for (status of assignmentStatuses; track status.key) {
-                            <button
-                              class="assign-btn"
-                              [class]="'tier-' + status.key"
-                              (click)="assign(raider.raiderId, drop.item.id, status.value)"
-                            >
-                              {{ status.label }}
-                            </button>
-                          }
-                        </div>
+                            {{ raider.characterName }}
+                          </button>
+                        }
                       </div>
                     }
                   </div>
                 }
               </div>
-            }
-          </div>
+            </div>
+          }
         </div>
       }
     </div>

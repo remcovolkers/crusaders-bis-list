@@ -8,10 +8,12 @@ import {
   ItemCategory,
   ArmorType,
   PrimaryStat,
+  AssignmentStatus,
 } from '@crusaders-bis-list/shared-domain';
 import { BossOrmEntity, ItemOrmEntity } from '../entities/catalog.orm-entity';
 import { RaiderProfileOrmEntity } from '../entities/raider-profile.orm-entity';
 import { ReservationOrmEntity, AssignmentOrmEntity } from '../entities/loot.orm-entity';
+import { RaiderReceivedItemOrmEntity } from '../entities/raider-received-item.orm-entity';
 import { RaiderStatus } from '@crusaders-bis-list/shared-domain';
 
 @Injectable()
@@ -27,6 +29,8 @@ export class LootQueryRepository implements ILootQueryRepository {
     private readonly reservationRepo: Repository<ReservationOrmEntity>,
     @InjectRepository(AssignmentOrmEntity)
     private readonly assignmentRepo: Repository<AssignmentOrmEntity>,
+    @InjectRepository(RaiderReceivedItemOrmEntity)
+    private readonly receivedItemRepo: Repository<RaiderReceivedItemOrmEntity>,
   ) {}
 
   async getEligibleRaiders(itemId: string, raidSeasonId: string): Promise<IEligibleRaider[]> {
@@ -86,6 +90,14 @@ export class LootQueryRepository implements ILootQueryRepository {
             .getMany()
         : [];
 
+    const allReceivedItems =
+      itemIds.length > 0
+        ? await this.receivedItemRepo
+            .createQueryBuilder('rec')
+            .where('rec.item_id IN (:...itemIds)', { itemIds })
+            .getMany()
+        : [];
+
     // Group by itemId
     const resByItem = new Map<string, ReservationOrmEntity[]>();
     for (const r of allReservations) {
@@ -96,6 +108,10 @@ export class LootQueryRepository implements ILootQueryRepository {
     const assignByRaiderItem = new Map<string, AssignmentOrmEntity>();
     for (const a of allAssignments) {
       assignByRaiderItem.set(`${a.raiderId}:${a.itemId}`, a);
+    }
+    const receivedByRaiderItem = new Map<string, AssignmentStatus>();
+    for (const rec of allReceivedItems) {
+      receivedByRaiderItem.set(`${rec.raiderId}:${rec.itemId}`, rec.tier);
     }
 
     // Collect raider IDs we actually need, then fetch in one query
@@ -126,6 +142,7 @@ export class LootQueryRepository implements ILootQueryRepository {
             assignment: assignment
               ? { id: assignment.id, status: assignment.status, assignedAt: assignment.assignedAt }
               : null,
+            receivedTier: receivedByRaiderItem.get(`${res.raiderId}:${item.id}`) ?? null,
           };
         });
         // Sort: unassigned first, then by reservation date

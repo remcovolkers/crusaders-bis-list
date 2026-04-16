@@ -78,8 +78,6 @@ export class AdminUserManagementComponent implements OnInit {
         return 'Hero';
       case AssignmentStatus.MYTH_TIER:
         return 'Myth';
-      case AssignmentStatus.NIET_MEER_NODIG:
-        return 'Niet meer nodig';
       default:
         return '';
     }
@@ -93,8 +91,6 @@ export class AdminUserManagementComponent implements OnInit {
         return 'tier-hero';
       case AssignmentStatus.MYTH_TIER:
         return 'tier-myth';
-      case AssignmentStatus.NIET_MEER_NODIG:
-        return 'tier-no-need';
       default:
         return '';
     }

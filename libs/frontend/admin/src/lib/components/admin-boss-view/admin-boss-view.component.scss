@@ -100,6 +100,44 @@
   font-size: 14px;
 }
 
+.landing-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 24px;
+}
+
+.landing-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0;
+  text-align: center;
+}
+
+.difficulty-selector {
+  display: flex;
+  gap: 10px;
+}
+
+.diff-btn {
+  padding: 8px 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.12s;
+  opacity: 0.6;
+
+  &:hover {
+    opacity: 1;
+    box-shadow: 0 0 0 2px currentColor;
+  }
+}
+
 .no-reservations-state {
   display: flex;
   flex-direction: column;
@@ -126,21 +164,34 @@
   }
 }
 
+/* ── Boss sections ── */
+.boss-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
 /* ── Loot view ── */
 .loot-view-header {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 20px;
+
   h2 {
     font-size: 18px;
   }
 }
 
 .item-panels {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  align-items: start;
+
+  > .no-reservations-state {
+    grid-column: 1 / -1;
+  }
 }
 
 .item-panel {
@@ -258,49 +309,47 @@
   font-style: italic;
 }
 
-.raiders-list {
+/* ── Raider chips ── */
+.raiders-chips-panel {
   display: flex;
-  flex-direction: column;
-}
-
-.raider-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  gap: 12px;
-  border-bottom: 1px solid var(--border-color);
-
-  &:last-child {
-    border-bottom: none;
-  }
-  &:hover {
-    background: var(--bg-elevated);
-  }
-}
-
-.raider-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
-}
-
-.raider-name {
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.raider-class {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.assign-actions {
-  display: flex;
-  gap: 4px;
   flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+.raider-chip-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.raider-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--class-color, var(--border-bright)) 35%, transparent);
+  background: color-mix(in srgb, var(--class-color, transparent) 10%, var(--bg-elevated));
+  font-size: 12px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--class-color, var(--text-secondary)) 80%, var(--text-secondary));
+  cursor: pointer;
+  transition: all 0.12s;
+
+  &:hover {
+    background: color-mix(in srgb, var(--class-color, transparent) 18%, var(--bg-elevated));
+    border-color: color-mix(in srgb, var(--class-color, var(--border-bright)) 60%, transparent);
+  }
+
+  &.has-reservation {
+    --class-color: #fbbf24;
+  }
+}
+
+.chip-star {
+  font-size: 10px;
+  opacity: 0.85;
 }
 
 .assign-btn {
@@ -410,9 +459,14 @@
 }
 
 .item-panels {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  align-items: start;
+
+  > .no-reservations-state {
+    grid-column: 1 / -1;
+  }
 }
 
 .item-panel {

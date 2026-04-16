@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AdminService, RaiderReservationEntry, RaiderReservationSummary } from '../../services/admin.service';
 import { AssignmentStatus } from '@crusaders-bis-list/shared-domain';
@@ -15,6 +15,10 @@ export class AdminReservationManagementComponent implements OnInit {
   readonly error = signal('');
   readonly success = signal('');
   readonly confirmingId = signal<string | null>(null);
+
+  private readonly UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  readonly normalRaiders = computed(() => this.raiders().filter((r) => !this.UUID_RE.test(r.characterName)));
+  readonly orphanedRaiders = computed(() => this.raiders().filter((r) => this.UUID_RE.test(r.characterName)));
 
   readonly AssignmentStatus = AssignmentStatus;
 
@@ -55,8 +59,6 @@ export class AdminReservationManagementComponent implements OnInit {
         return 'Hero';
       case AssignmentStatus.MYTH_TIER:
         return 'Myth';
-      case AssignmentStatus.NIET_MEER_NODIG:
-        return 'Niet meer nodig';
       default:
         return '';
     }
@@ -70,10 +72,43 @@ export class AdminReservationManagementComponent implements OnInit {
         return 'tier-hero';
       case AssignmentStatus.MYTH_TIER:
         return 'tier-myth';
-      case AssignmentStatus.NIET_MEER_NODIG:
-        return 'tier-no-need';
       default:
         return '';
+    }
+  }
+
+  readonly confirmWipeAll = signal(false);
+  readonly wipingOrphaned = signal(false);
+
+  wipeAllOrphaned(): void {
+    const ids = this.orphanedRaiders().flatMap((r) => r.reservations.map((res) => res.id));
+    if (ids.length === 0) return;
+    this.confirmWipeAll.set(false);
+    this.wipingOrphaned.set(true);
+    this.error.set('');
+
+    let done = 0;
+    let failed = 0;
+    for (const id of ids) {
+      this.adminService.cancelReservation(id).subscribe({
+        next: () => {
+          done++;
+          if (done + failed === ids.length) {
+            this.wipingOrphaned.set(false);
+            this.success.set(`${done} wees-reservatie(s) verwijderd.`);
+            setTimeout(() => this.success.set(''), 4000);
+            this.load();
+          }
+        },
+        error: () => {
+          failed++;
+          if (done + failed === ids.length) {
+            this.wipingOrphaned.set(false);
+            this.error.set(`${failed} reservatie(s) konden niet worden verwijderd.`);
+            this.load();
+          }
+        },
+      });
     }
   }
 
@@ -102,6 +137,6 @@ export class AdminReservationManagementComponent implements OnInit {
   }
 
   totalReservations(): number {
-    return this.raiders().reduce((sum, r) => sum + r.reservations.length, 0);
+    return this.normalRaiders().reduce((sum, r) => sum + r.reservations.length, 0);
   }
 }

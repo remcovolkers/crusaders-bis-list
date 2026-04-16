@@ -22,7 +22,19 @@
       <div class="empty-state">Geen reserveringen gevonden.</div>
     }
 
-    @for (raider of raiders(); track raider.raiderId) {
+    @if (orphanedRaiders().length > 0) {
+      <div class="orphaned-section">
+        <div class="orphaned-header">
+          <span class="orphaned-icon">⚠</span>
+          <span class="orphaned-title"
+            >{{ orphanedRaiders().length }} wees-reservatie(s) gevonden — gebruik Admin Panel → Onderhoud om op te
+            ruimen.</span
+          >
+        </div>
+      </div>
+    }
+
+    @for (raider of normalRaiders(); track raider.raiderId) {
       @if (raider.reservations.length > 0) {
         <div class="raider-card card">
           <div class="raider-header">

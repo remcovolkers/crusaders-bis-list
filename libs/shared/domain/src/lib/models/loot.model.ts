@@ -45,6 +45,8 @@ export interface IEligibleRaider {
   reservationCreatedAt?: Date;
   reservationId?: string;
   assignment?: { id: string; status: AssignmentStatus; assignedAt: Date } | null;
+  /** Tier at which this raider already received the item via "mijn loot" self-report */
+  receivedTier?: AssignmentStatus | null;
 }
 
 export interface IBossLootView {

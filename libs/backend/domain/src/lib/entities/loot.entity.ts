@@ -27,10 +27,6 @@ export class Assignment {
       this.status === AssignmentStatus.MYTH_TIER
     );
   }
-
-  isNoLongerNeeded(): boolean {
-    return this.status === AssignmentStatus.NIET_MEER_NODIG;
-  }
 }
 
 export interface ReservationLimits {

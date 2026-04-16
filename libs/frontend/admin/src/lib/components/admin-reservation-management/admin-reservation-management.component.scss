@@ -271,3 +271,60 @@
   color: var(--text-muted);
   font-size: 14px;
 }
+
+/* ── Orphaned reservations ── */
+.orphaned-section {
+  margin-bottom: 32px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.orphaned-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.08);
+  border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+  flex-wrap: wrap;
+}
+
+.orphaned-wiping {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.orphaned-icon {
+  font-size: 16px;
+}
+
+.orphaned-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f87171;
+}
+
+.orphaned-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 8px 16px;
+  margin: 0;
+  border-bottom: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.orphaned-card {
+  border: none;
+  border-top: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 0;
+  margin: 0;
+}
+
+.orphaned-name {
+  font-family: monospace;
+  font-size: 11px;
+  color: #f87171;
+  opacity: 0.8;
+}

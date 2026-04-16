@@ -44,6 +44,30 @@
         </div>
       </div>
 
+      <!-- Onderhoud -->
+      <div class="config-card card sync-card">
+        <div class="sync-header">
+          <h3 class="sync-title">Onderhoud</h3>
+          <p class="sync-desc">Verwijder reservaties van raider-profielen die niet meer bestaan (UUID als naam).</p>
+        </div>
+        <div class="sync-actions">
+          @if (wipingOrphaned()) {
+            <button class="btn-sync" disabled>Bezig met opruimen...</button>
+          } @else if (confirmWipeAll()) {
+            <span style="font-size: 12px; color: var(--text-muted)"
+              >Zeker weten? Dit verwijdert alle wees-reservaties.</span
+            >
+            <button class="btn-sync btn-sync--danger" (click)="wipeAllOrphaned()">Ja, alles wissen</button>
+            <button class="btn-sync" (click)="confirmWipeAll.set(false)">Annuleer</button>
+          } @else {
+            <button class="btn-sync btn-sync--danger" (click)="confirmWipeAll.set(true)">
+              <span class="sync-icon" aria-hidden="true">&#x1F9F9;</span>
+              Wis wees-reservaties
+            </button>
+          }
+        </div>
+      </div>
+
       @if (config() && !loading()) {
         <div class="config-card card">
           <div class="config-row">

@@ -22,6 +22,8 @@ export class AdminSeasonConfigComponent implements OnInit {
   readonly syncing = signal(false);
   readonly syncSuccess = signal('');
   readonly resetting = signal(false);
+  readonly wipingOrphaned = signal(false);
+  readonly confirmWipeAll = signal(false);
   readonly error = signal('');
   readonly success = signal('');
 
@@ -176,5 +178,52 @@ export class AdminSeasonConfigComponent implements OnInit {
 
   isUpdating(itemId: string): boolean {
     return this.superRareUpdating().has(itemId);
+  }
+
+  wipeAllOrphaned(): void {
+    this.confirmWipeAll.set(false);
+    this.wipingOrphaned.set(true);
+    this.error.set('');
+    this.adminService.getAllReservations().subscribe({
+      next: (raiders) => {
+        const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        const ids = raiders
+          .filter((r) => UUID_RE.test(r.characterName))
+          .flatMap((r) => r.reservations.map((res) => res.id));
+
+        if (ids.length === 0) {
+          this.wipingOrphaned.set(false);
+          this.success.set('Geen wees-reservaties gevonden.');
+          setTimeout(() => this.success.set(''), 3000);
+          return;
+        }
+
+        let done = 0;
+        let failed = 0;
+        for (const id of ids) {
+          this.adminService.cancelReservation(id).subscribe({
+            next: () => {
+              done++;
+              if (done + failed === ids.length) {
+                this.wipingOrphaned.set(false);
+                this.success.set(`${done} wees-reservatie(s) verwijderd.`);
+                setTimeout(() => this.success.set(''), 4000);
+              }
+            },
+            error: () => {
+              failed++;
+              if (done + failed === ids.length) {
+                this.wipingOrphaned.set(false);
+                this.error.set(`${failed} reservatie(s) konden niet worden verwijderd.`);
+              }
+            },
+          });
+        }
+      },
+      error: () => {
+        this.wipingOrphaned.set(false);
+        this.error.set('Kon reserveringen niet ophalen.');
+      },
+    });
   }
 }
