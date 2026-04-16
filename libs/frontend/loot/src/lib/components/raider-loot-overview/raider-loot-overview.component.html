@@ -105,9 +105,10 @@
                         ℹ
                         <span class="card-info-tooltip">
                           @if (state.getReceivedItem(item.id)) {
-                            Reservering is nog van toepassing op hogere versies van dit item. Wil je dit aanpassen? Contacteer Melvin&nbsp;|&nbsp;Laforgèz op Discord.
+                            Reservering is nog van toepassing op hogere versies van dit item. Wil je dit aanpassen?
+                            Contacteer Melvin | Laforgèz op Discord.
                           } @else {
-                            Wil je de reservering verwijderen? Contacteer Melvin&nbsp;|&nbsp;Laforgèz op Discord.
+                            Wil je de reservering verwijderen? Contacteer Melvin | Laforgèz op Discord.
                           }
                         </span>
                       </span>
@@ -125,7 +126,10 @@
                             {{ categoryLabels[item.category] }}
                           </span>
                           @if (item.primaryStats.length) {
-                            <span class="stat-badge">{{ item.primaryStats.map(s => primaryStatLabels[s]).join('/') }}</span>
+                            <span
+                              class="stat-badge"
+                              >{{ item.primaryStats.map(s => primaryStatLabels[s]).join('/') }}</span
+                            >
                           }
                           @if (item.category === ItemCategory.WEAPON && item.weaponType) {
                             <span class="weapon-badge">{{ weaponTypeLabels[item.weaponType] }}</span>
@@ -145,7 +149,13 @@
                             {{ state.isAtLimit(item) ? 'Limiet bereikt' : 'Reserveer' }}
                           </button>
                         } @else {
-                          <span [class]="state.getReceivedItem(item.id) ? 'received-badge received-badge--actions' : 'reserved-badge'">
+                          <span
+                            [class]="
+                              state.getReceivedItem(item.id)
+                                ? 'received-badge received-badge--actions'
+                                : 'reserved-badge'
+                            "
+                          >
                             &#10003; {{ reservationPillLabel(item.id) }}
                           </span>
                         }
