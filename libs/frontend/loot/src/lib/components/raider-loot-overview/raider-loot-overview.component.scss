@@ -435,7 +435,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 10px;
   width: 100%;
   font-size: 12px;
   font-weight: 600;
@@ -573,6 +573,7 @@
   &--actions {
     width: 100%;
     justify-content: center;
+    gap: 10px;
     font-size: 12px;
     padding: 6px 12px;
   }

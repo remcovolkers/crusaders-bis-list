@@ -136,9 +136,15 @@
                             {{ state.isAtLimit(item) ? 'Limiet bereikt' : 'Reserveer' }}
                           </button>
                         } @else if (state.getReceivedItem(item.id); as received) {
-                          <span class="received-badge received-badge--actions"
-                            >&#10003; {{ tierLabels[received.tier] }} ontvangen</span
-                          >
+                          <span class="received-badge received-badge--actions">
+                            &#10003; {{ tierLabels[received.tier] }} ontvangen
+                            <span class="reserved-info" aria-label="Info over ontvangen item">
+                              ℹ
+                              <span class="reserved-tooltip"
+                                >Reservering is nog van toepassing op hogere versies van dit item. Wil je dit aanpassen? Contacteer Melvin&nbsp;|&nbsp;Laforgèz op Discord.</span
+                              >
+                            </span>
+                          </span>
                         } @else {
                           <span class="reserved-badge">
                             &#10003; Gereserveerd
