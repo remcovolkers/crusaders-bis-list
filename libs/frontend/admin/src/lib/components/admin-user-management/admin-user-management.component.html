@@ -1,14 +1,12 @@
-﻿<div class="user-mgmt" [class.panel-open]="expandedUserId() !== null">
-  <!-- ── Backdrop ── -->
-  @if (expandedUserId() !== null) {
-    <div class="backdrop" role="button" tabindex="0" (click)="closePanel()" (keydown.escape)="closePanel()"></div>
-  }
-
+﻿<div class="user-mgmt">
   <!-- ── Main content ── -->
   <div class="main-content">
     <div class="page-header">
       <h2>Gebruikersbeheer</h2>
-      <p class="page-subtitle">Klik op een gebruiker om acties uit te voeren.</p>
+      <p class="page-subtitle">
+        Bekijk alle geregistreerde gebruikers, pas adminrollen aan, reset raider-profielen en beheer reservaties per
+        gebruiker.
+      </p>
     </div>
 
     @if (message()) {
@@ -20,7 +18,6 @@
         @for (user of users(); track user.id) {
           <button class="user-row" [class.active]="expandedUserId() === user.id" (click)="toggleUser(user.id)">
             <span class="user-name">{{ profileFor(user.id)?.characterName ?? user.displayName }}</span>
-            <span class="user-email">{{ user.email }}</span>
             <div class="user-badges">
               @if (user.roles.includes(adminRole)) {
                 <span class="badge-admin">Admin</span>
@@ -38,15 +35,21 @@
     }
   </div>
 
-  <!-- ── Side panel ── -->
+  <!-- ── Modal ── -->
   @if (expandedUserId(); as userId) {
     @if (selectedUser(); as user) {
-      <aside class="side-panel">
-        <!-- Panel header -->
+      <div
+        class="modal-backdrop"
+        role="button"
+        tabindex="0"
+        (click)="closePanel()"
+        (keydown.escape)="closePanel()"
+      ></div>
+      <div class="modal" role="dialog" aria-modal="true">
+        <!-- Modal header -->
         <div class="panel-header">
           <div class="panel-user-info">
             <span class="panel-display-name">{{ profileFor(userId)?.characterName ?? user.displayName }}</span>
-            <span class="panel-email">{{ user.email }}</span>
           </div>
           <button class="close-btn" (click)="closePanel()" aria-label="Sluiten">✕</button>
         </div>
@@ -177,7 +180,7 @@
             <p class="empty-state">Geen reserveringen.</p>
           }
         </div>
-      </aside>
+      </div>
     }
   }
 </div>

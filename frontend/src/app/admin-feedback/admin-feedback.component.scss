@@ -1,0 +1,150 @@
+.feedback-page {
+  padding: 24px;
+  max-width: 800px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+
+  h2 {
+    font-size: 20px;
+    margin: 0;
+  }
+}
+
+.count-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+}
+
+.empty-state {
+  padding: 48px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.feedback-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.feedback-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.feedback-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.feedback-user {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.feedback-email {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.feedback-page-ctx {
+  font-size: 10px;
+  font-family: monospace;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
+  color: var(--accent-gold);
+  margin-left: auto;
+}
+
+.feedback-date {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.feedback-message {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.check-btn {
+  flex-shrink: 0;
+  align-self: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+
+  .check-icon {
+    font-size: 24px;
+    color: var(--text-muted);
+    transition: color 0.15s;
+  }
+
+  &:hover .check-icon {
+    color: var(--accent-gold);
+  }
+
+  &--done .check-icon {
+    color: var(--accent-green, #4ade80);
+  }
+}
+
+.feedback-card--done {
+  opacity: 0.55;
+
+  .feedback-message {
+    text-decoration: line-through;
+    text-decoration-color: var(--text-muted);
+  }
+}
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 12px;
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+  }
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}

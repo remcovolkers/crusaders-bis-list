@@ -1,0 +1,58 @@
+<div class="dev-panel-page">
+  <div class="page-header">
+    <h2>Dev Panel</h2>
+    <p class="page-subtitle">Interne tools — alleen zichtbaar voor supergebruikers</p>
+  </div>
+
+  @if (error()) {
+    <div class="error-banner">{{ error() }}</div>
+  }
+  @if (success()) {
+    <div class="success-banner">{{ success() }}</div>
+  }
+
+  <!-- Blizzard sync -->
+  <div class="dev-card card">
+    <div class="dev-card-header">
+      <h3>Blizzard synchronisatie</h3>
+      <p>Haal de nieuwste boss- en itemdata op uit de Blizzard API.</p>
+    </div>
+    <div class="dev-card-actions">
+      <button class="btn-dev" [class.busy]="syncing()" [disabled]="syncing() || resetting()" (click)="syncNow()">
+        <span class="dev-icon" aria-hidden="true">&#x21BB;</span>
+        {{ syncing() ? 'Synchroniseren...' : 'Synchroniseren' }}
+      </button>
+      <button
+        class="btn-dev btn-dev--danger"
+        [class.busy]="resetting()"
+        [disabled]="syncing() || resetting()"
+        (click)="resetAndSync()"
+      >
+        <span class="dev-icon" aria-hidden="true">&#x26A0;</span>
+        {{ resetting() ? 'Bezig...' : 'Forceer volledige sync' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Onderhoud -->
+  <div class="dev-card card">
+    <div class="dev-card-header">
+      <h3>Onderhoud</h3>
+      <p>Verwijder reservaties van raider-profielen die niet meer bestaan (UUID als naam).</p>
+    </div>
+    <div class="dev-card-actions">
+      @if (wipingOrphaned()) {
+        <button class="btn-dev" disabled>Bezig met opruimen...</button>
+      } @else if (confirmWipeAll()) {
+        <span class="confirm-text">Zeker weten? Dit verwijdert alle wees-reservaties.</span>
+        <button class="btn-dev btn-dev--danger" (click)="wipeAllOrphaned()">Ja, alles wissen</button>
+        <button class="btn-dev" (click)="confirmWipeAll.set(false)">Annuleer</button>
+      } @else {
+        <button class="btn-dev btn-dev--danger" (click)="confirmWipeAll.set(true)">
+          <span class="dev-icon" aria-hidden="true">&#x1F9F9;</span>
+          Wis wees-reservaties
+        </button>
+      }
+    </div>
+  </div>
+</div>

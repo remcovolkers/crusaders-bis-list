@@ -1,0 +1,67 @@
+<div class="feedback-page">
+  <div class="page-header">
+    <h2>Feedback</h2>
+    @if (!loading()) {
+      <span class="count-badge">{{ openEntries().length }} open</span>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner">Laden...</div>
+  }
+  @if (error()) {
+    <div class="error-banner">{{ error() }}</div>
+  }
+
+  @if (!loading() && openEntries().length === 0 && doneEntries().length === 0) {
+    <div class="empty-state">Nog geen feedback ontvangen.</div>
+  }
+
+  @if (!loading() && openEntries().length === 0 && doneEntries().length > 0) {
+    <div class="empty-state">Alle feedback is afgehandeld 🎉</div>
+  }
+
+  @for (entry of openEntries(); track entry.id) {
+    <div class="feedback-card">
+      <button class="check-btn" title="Markeer als afgehandeld" (click)="toggleResolved(entry)">
+        <span class="check-icon">☐</span>
+      </button>
+      <div class="feedback-card-body">
+        <div class="feedback-card-header">
+          <span class="feedback-user">{{ entry.userName }}</span>
+          @if (entry.userEmail !== entry.userName) {
+            <span class="feedback-email">{{ entry.userEmail }}</span>
+          }
+          <span class="feedback-page-ctx">{{ entry.pageContext }}</span>
+          <span class="feedback-date">{{ formatDate(entry.createdAt) }}</span>
+        </div>
+        <p class="feedback-message">{{ entry.message }}</p>
+      </div>
+    </div>
+  }
+
+  @if (!loading() && doneEntries().length > 0) {
+    <div class="section-divider">
+      <span class="section-label">Afgehandeld ({{ doneEntries().length }})</span>
+    </div>
+
+    @for (entry of doneEntries(); track entry.id) {
+      <div class="feedback-card feedback-card--done">
+        <button class="check-btn check-btn--done" title="Zet terug naar open" (click)="toggleResolved(entry)">
+          <span class="check-icon">☑</span>
+        </button>
+        <div class="feedback-card-body">
+          <div class="feedback-card-header">
+            <span class="feedback-user">{{ entry.userName }}</span>
+            @if (entry.userEmail !== entry.userName) {
+              <span class="feedback-email">{{ entry.userEmail }}</span>
+            }
+            <span class="feedback-page-ctx">{{ entry.pageContext }}</span>
+            <span class="feedback-date">{{ formatDate(entry.createdAt) }}</span>
+          </div>
+          <p class="feedback-message">{{ entry.message }}</p>
+        </div>
+      </div>
+    }
+  }
+</div>

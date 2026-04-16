@@ -11,13 +11,12 @@ import { AdminGuard } from '@crusaders-bis-list/frontend-auth';
     RouterModule.forChild([
       {
         path: '',
-        canActivate: [AdminGuard],
         children: [
           { path: '', redirectTo: 'boss-view', pathMatch: 'full' },
-          { path: 'boss-view', component: AdminBossViewComponent },
-          { path: 'users', component: AdminUserManagementComponent },
-          { path: 'reservations', component: AdminReservationManagementComponent },
-          { path: 'season-config', component: AdminSeasonConfigComponent },
+          { path: 'boss-view', canActivate: [AdminGuard], component: AdminBossViewComponent },
+          { path: 'users', canActivate: [AdminGuard], component: AdminUserManagementComponent },
+          { path: 'reservations', canActivate: [AdminGuard], component: AdminReservationManagementComponent },
+          { path: 'admin-panel', canActivate: [AdminGuard], component: AdminSeasonConfigComponent },
         ],
       },
     ]),

@@ -1,20 +1,19 @@
-﻿import { Component, inject } from '@angular/core';
+﻿import { Component, inject, computed } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { AsyncPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   selectIsAuthenticated,
   selectCurrentUser,
   selectIsAdmin,
   logout,
-  AuthUser,
   AuthService,
 } from '@crusaders-bis-list/frontend-auth';
+import { FeedbackButtonComponent } from './feedback-button/feedback-button.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, AsyncPipe],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, FeedbackButtonComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -23,9 +22,10 @@ export class App {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly isAuthenticated$: Observable<boolean> = this.store.select(selectIsAuthenticated);
-  readonly currentUser$: Observable<AuthUser | null> = this.store.select(selectCurrentUser);
-  readonly isAdmin$: Observable<boolean> = this.store.select(selectIsAdmin);
+  readonly isAuthenticated = toSignal(this.store.select(selectIsAuthenticated), { initialValue: false });
+  readonly currentUser = toSignal(this.store.select(selectCurrentUser), { initialValue: null });
+  readonly isAdmin = toSignal(this.store.select(selectIsAdmin), { initialValue: false });
+  readonly isSuperUser = computed(() => this.currentUser()?.email === 'remco.volkers1@gmail.com');
 
   logout(): void {
     this.authService.clearToken();

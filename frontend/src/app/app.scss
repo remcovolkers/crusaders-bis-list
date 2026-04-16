@@ -20,13 +20,15 @@
   flex-shrink: 0;
 }
 
-.brand-icon { font-size: 18px; }
+.brand-icon {
+  font-size: 18px;
+}
 
 .brand-name {
   font-size: 15px;
   font-weight: 700;
   color: var(--accent-gold);
-  letter-spacing: .3px;
+  letter-spacing: 0.3px;
 }
 
 .brand-sub {
@@ -48,7 +50,9 @@
     border-radius: var(--radius-sm);
     font-size: 13px;
     color: var(--text-secondary);
-    transition: color .15s, background .15s;
+    transition:
+      color 0.15s,
+      background 0.15s;
 
     &:hover {
       color: var(--text-primary);
@@ -88,12 +92,14 @@
   padding: 5px 12px;
   &:hover:not(:disabled) {
     color: #f87171;
-    border-color: rgba(239,68,68,.4);
+    border-color: rgba(239, 68, 68, 0.4);
   }
 }
 
 .app-main {
-  min-height: calc(100vh - 54px);
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }

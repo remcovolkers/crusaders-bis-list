@@ -1,14 +1,12 @@
 import { MigrationInterface } from 'typeorm';
 import { BeastMasterySpecFix1744761600000 } from './1744761600000-BeastMasterySpecFix';
 import { PrimaryStatToArray1744848000000 } from './1744848000000-PrimaryStatToArray';
+import { CreateFeedbackTable1745000000000 } from './1745000000000-CreateFeedbackTable';
+import { AddFeedbackResolved1745100000000 } from './1745100000000-AddFeedbackResolved';
 
-/**
- * All TypeORM migrations in chronological order.
- * Import MIGRATIONS in app.module.ts to ensure they run automatically on startup.
- * Add new migrations here after generating them with:
- *   npx nx run crusaders-bis-list:migration:generate --name=MyMigration
- */
 export const MIGRATIONS: (new () => MigrationInterface)[] = [
   BeastMasterySpecFix1744761600000,
   PrimaryStatToArray1744848000000,
+  CreateFeedbackTable1745000000000,
+  AddFeedbackResolved1745100000000,
 ];

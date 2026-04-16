@@ -1,0 +1,37 @@
+<div class="feedback-fab-wrapper">
+  @if (showLabel()) {
+    <span class="feedback-fab-label">Kan er iets beter? Let me know!</span>
+  }
+  <button class="feedback-fab" (click)="toggle()" [class.active]="open()" [class.glowing]="showLabel()" title="Feedback geven">💬</button>
+</div>
+
+@if (open()) {
+  <div class="feedback-panel">
+    <div class="feedback-header">
+      <span class="feedback-title">Feedback</span>
+      <span class="feedback-page">{{ currentPage }}</span>
+      <button class="feedback-close" (click)="toggle()">✕</button>
+    </div>
+
+    @if (sent()) {
+      <div class="feedback-sent">✓ Bedankt voor je feedback!</div>
+    } @else {
+      <textarea
+        class="feedback-textarea"
+        placeholder="Wat wil je kwijt? Bug, suggestie, verbetering…"
+        [value]="message()"
+        (input)="message.set($any($event.target).value)"
+        [disabled]="sending()"
+        rows="4"
+      ></textarea>
+
+      @if (error()) {
+        <div class="feedback-error">{{ error() }}</div>
+      }
+
+      <button class="feedback-submit" [disabled]="!message().trim() || sending()" (click)="send()">
+        {{ sending() ? 'Versturen…' : 'Verstuur feedback' }}
+      </button>
+    }
+  </div>
+}

@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { FeedbackOrmEntity } from './database/entities/feedback.orm-entity';
+import { FeedbackRepository } from './database/repositories/feedback.repository';
 
 import { UserOrmEntity } from './database/entities/user.orm-entity';
 import { RaiderProfileOrmEntity } from './database/entities/raider-profile.orm-entity';
@@ -39,6 +41,7 @@ const ORM_ENTITIES = [
   AssignmentOrmEntity,
   SeasonConfigOrmEntity,
   RaiderReceivedItemOrmEntity,
+  FeedbackOrmEntity,
 ];
 
 @Module({
@@ -53,6 +56,7 @@ const ORM_ENTITIES = [
     { provide: SEASON_CONFIG_REPOSITORY, useClass: SeasonConfigRepository },
     { provide: RECEIVED_ITEM_REPOSITORY, useClass: ReceivedItemRepository },
     { provide: BLIZZARD_API_SERVICE, useClass: BlizzardApiService },
+    FeedbackRepository,
   ],
   exports: [
     USER_REPOSITORY,
@@ -64,6 +68,7 @@ const ORM_ENTITIES = [
     SEASON_CONFIG_REPOSITORY,
     RECEIVED_ITEM_REPOSITORY,
     BLIZZARD_API_SERVICE,
+    FeedbackRepository,
   ],
 })
 export class BackendInfrastructureModule {}

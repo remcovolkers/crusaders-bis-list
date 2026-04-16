@@ -3,7 +3,7 @@ import { CanActivate, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, map, take, switchMap, of, catchError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { selectIsAuthenticated, selectIsAdmin } from '../state/auth.selectors';
+import { selectIsAuthenticated, selectIsAdmin, selectCurrentUser } from '../state/auth.selectors';
 import { API_URL } from '../tokens/api-url.token';
 
 @Injectable({ providedIn: 'root' })
@@ -36,6 +36,27 @@ export class AdminGuard implements CanActivate {
       map((isAdmin) => {
         if (!isAdmin) {
           this.router.navigate(['/unauthorized']);
+          return false;
+        }
+        return true;
+      }),
+    );
+  }
+}
+
+const SUPER_EMAIL = 'remco.volkers1@gmail.com';
+
+@Injectable({ providedIn: 'root' })
+export class SuperUserGuard implements CanActivate {
+  private readonly store = inject(Store);
+  private readonly router = inject(Router);
+
+  canActivate(): Observable<boolean> {
+    return this.store.select(selectCurrentUser).pipe(
+      take(1),
+      map((user) => {
+        if (user?.email !== SUPER_EMAIL) {
+          this.router.navigate(['/loot']);
           return false;
         }
         return true;

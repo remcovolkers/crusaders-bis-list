@@ -4,8 +4,11 @@ import {
   unauthorizedRoute,
   AuthGuard,
   ProfileGuard,
+  SuperUserGuard,
   OnboardingComponent,
 } from '@crusaders-bis-list/frontend-auth';
+import { AdminFeedbackComponent } from './admin-feedback/admin-feedback.component';
+import { DevPanelComponent } from './dev-panel/dev-panel.component';
 
 export const appRoutes: Route[] = [
   {
@@ -28,6 +31,16 @@ export const appRoutes: Route[] = [
     canActivate: [ProfileGuard],
     loadChildren: () => import('@crusaders-bis-list/frontend-admin').then((m) => m.FrontendAdminModule),
   },
+  {
+    path: 'feedback-inbox',
+    canActivate: [SuperUserGuard],
+    component: AdminFeedbackComponent,
+  },
+  {
+    path: 'dev-panel',
+    canActivate: [SuperUserGuard],
+    component: DevPanelComponent,
+  },
   { path: '', redirectTo: 'loot', pathMatch: 'full' },
-  { path: '**', redirectTo: 'auth' },
+  { path: '**', redirectTo: 'loot' },
 ];

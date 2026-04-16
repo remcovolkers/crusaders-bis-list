@@ -1,0 +1,208 @@
+.feedback-fab-wrapper {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.feedback-fab-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  animation: label-pop 4s ease forwards;
+}
+
+@keyframes label-pop {
+  0% {
+    opacity: 0;
+    transform: translateX(12px) scale(0.92);
+  }
+  12% {
+    opacity: 1;
+    transform: translateX(-4px) scale(1.04);
+  }
+  20% {
+    transform: translateX(0) scale(1);
+  }
+  65% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(4px);
+  }
+}
+
+.feedback-fab {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  font-size: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.glowing {
+    animation: btn-glow 4s ease forwards;
+  }
+
+  &:hover,
+  &.active {
+    transform: scale(1.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    border-color: var(--border-bright);
+  }
+}
+
+@keyframes btn-glow {
+  0%   { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4); }
+  15%  { box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.35), 0 0 20px rgba(250, 204, 21, 0.5); border-color: rgba(250, 204, 21, 0.7); }
+  50%  { box-shadow: 0 0 0 6px rgba(250, 204, 21, 0.2), 0 0 28px rgba(250, 204, 21, 0.4); border-color: rgba(250, 204, 21, 0.5); }
+  80%  { box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.1), 0 0 14px rgba(250, 204, 21, 0.2); }
+  100% { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4); border-color: var(--border-color); }
+}
+
+.feedback-panel {
+  position: fixed;
+  bottom: 78px;
+  right: 24px;
+  width: 320px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow: hidden;
+  animation: feedback-in 0.15s ease;
+}
+
+@keyframes feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.feedback-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.feedback-page {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: monospace;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feedback-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 2px 4px;
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+}
+
+.feedback-textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 13px;
+  resize: none;
+  outline: none;
+  font-family: inherit;
+
+  &::placeholder {
+    color: var(--text-muted);
+  }
+  &:disabled {
+    opacity: 0.6;
+  }
+}
+
+.feedback-error {
+  padding: 6px 14px;
+  font-size: 11px;
+  color: #f87171;
+}
+
+.feedback-submit {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-elevated);
+  border: none;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background 0.12s,
+    color 0.12s;
+
+  &:hover:not(:disabled) {
+    background: var(--bg-elevated);
+    color: var(--accent-gold);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.feedback-sent {
+  padding: 24px 14px;
+  text-align: center;
+  font-size: 13px;
+  color: #4ade80;
+  font-weight: 600;
+}

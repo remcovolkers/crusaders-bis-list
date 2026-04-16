@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthController, UserManagementController } from './controllers/auth.controller';
 import { RaiderController } from './controllers/raider.controller';
 import { AdminController } from './controllers/admin.controller';
+import { FeedbackController } from './controllers/feedback.controller';
 import { RolesGuard } from './guards/auth.guard';
 import { GoogleStrategy } from './auth/google.strategy';
 import { JwtStrategy } from './auth/jwt.strategy';
@@ -9,9 +10,8 @@ import { BackendApplicationModule } from '@crusaders-bis-list/backend-applicatio
 
 @Module({
   imports: [BackendApplicationModule],
-  controllers: [AuthController, UserManagementController, RaiderController, AdminController],
+  controllers: [AuthController, UserManagementController, RaiderController, AdminController, FeedbackController],
   providers: [RolesGuard, GoogleStrategy, JwtStrategy],
   exports: [RolesGuard],
 })
 export class BackendAdaptersModule {}
-

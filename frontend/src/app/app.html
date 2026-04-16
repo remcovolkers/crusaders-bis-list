@@ -1,4 +1,4 @@
-﻿@if (isAuthenticated$ | async) {
+﻿@if (isAuthenticated()) {
   <header class="app-header">
     <div class="header-brand">
       <span class="brand-icon">⚔️</span>
@@ -8,20 +8,23 @@
 
     <nav class="header-nav">
       <a routerLink="/loot" routerLinkActive="active">Mijn Loot</a>
-      @if (isAdmin$ | async) {
+      @if (isAdmin()) {
         <a routerLink="/admin/boss-view" routerLinkActive="active">Loot toewijzing</a>
-        <a routerLink="/admin/users" routerLinkActive="active">Gebruikers</a>
-        <a routerLink="/admin/season-config" routerLinkActive="active">Admin Panel</a>
+        <a routerLink="/admin/admin-panel" routerLinkActive="active">Admin Panel</a>
+      }
+      @if (isSuperUser()) {
+        <a routerLink="/dev-panel" routerLinkActive="active">Dev Panel</a>
+        <a routerLink="/feedback-inbox" routerLinkActive="active">Feedback</a>
       }
     </nav>
 
-    @if (currentUser$ | async; as user) {
+    @if (currentUser(); as user) {
       <div class="header-user">
         @if (user.avatarUrl) {
           <img class="user-avatar" [src]="user.avatarUrl" [alt]="user.displayName" />
         }
         <span class="user-name">{{ user.displayName }}</span>
-        @if (isAdmin$ | async) {
+        @if (isAdmin()) {
           <span class="badge badge-gold">Admin</span>
         }
         <button class="btn-ghost btn logout-btn" (click)="logout()">Uitloggen</button>
@@ -33,3 +36,7 @@
 <main class="app-main">
   <router-outlet></router-outlet>
 </main>
+
+@if (isAuthenticated()) {
+  <app-feedback-button />
+}
