@@ -109,7 +109,9 @@
                             [class.has-reservation]="raider.hasReservation"
                             [style.--class-color]="classColor(raider.wowClass)"
                             [title]="raider.wowClass + ' – ' + raider.spec"
-                            (click)="assign(raider.raiderId, drop.item.id, view.boss.id, raider.characterName, drop.item)"
+                            (click)="
+                              assign(raider.raiderId, drop.item.id, view.boss.id, raider.characterName, drop.item)
+                            "
                           >
                             @if (raider.hasReservation) {
                               <span class="chip-star">★</span>
@@ -169,11 +171,16 @@
               @if (pending.item.category === ItemCategory.WEAPON && pending.item.weaponType) {
                 <span class="weapon-badge">{{ weaponTypeLabels[pending.item.weaponType] }}</span>
               }
-              <span class="tier-badge tier-badge--{{ selectedDifficulty()! }}">{{ tierLabels[selectedDifficulty()!] }}</span>
+              <span class="tier-badge tier-badge--{{ selectedDifficulty()! }}">{{
+                tierLabels[selectedDifficulty()!]
+              }}</span>
             </div>
           </div>
         </div>
-        <p class="confirm-question">Ken dit item toe aan <strong>{{ pending.raiderName }}</strong>?</p>
+        <p class="confirm-question">
+          Ken dit item toe aan <strong>{{ pending.raiderName }}</strong
+          >?
+        </p>
       </div>
       <div class="modal-footer">
         <button class="btn-ghost" (click)="pendingAssignment.set(null)">Annuleer</button>
