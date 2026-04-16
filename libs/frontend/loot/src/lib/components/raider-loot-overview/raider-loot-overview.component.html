@@ -100,6 +100,18 @@
               <div class="items-grid">
                 @for (item of state.getFilteredItems(boss.items); track item.id) {
                   <div class="item-card" [class.reserved]="item.isReserved">
+                    @if (item.isReserved) {
+                      <span class="card-info-corner" aria-label="Info over reservering">
+                        ℹ
+                        <span class="card-info-tooltip">
+                          @if (state.getReceivedItem(item.id)) {
+                            Reservering is nog van toepassing op hogere versies van dit item. Wil je dit aanpassen? Contacteer Melvin&nbsp;|&nbsp;Laforgèz op Discord.
+                          } @else {
+                            Wil je de reservering verwijderen? Contacteer Melvin&nbsp;|&nbsp;Laforgèz op Discord.
+                          }
+                        </span>
+                      </span>
+                    }
                     <div class="item-top">
                       @if (item.iconUrl) {
                         <img class="item-icon" [src]="item.iconUrl" [alt]="item.name" />
@@ -113,10 +125,7 @@
                             {{ categoryLabels[item.category] }}
                           </span>
                           @if (item.primaryStats.length) {
-                            <span
-                              class="stat-badge"
-                              >{{ item.primaryStats.map(s => primaryStatLabels[s]).join('/') }}</span
-                            >
+                            <span class="stat-badge">{{ item.primaryStats.map(s => primaryStatLabels[s]).join('/') }}</span>
                           }
                           @if (item.category === ItemCategory.WEAPON && item.weaponType) {
                             <span class="weapon-badge">{{ weaponTypeLabels[item.weaponType] }}</span>
@@ -135,27 +144,9 @@
                           >
                             {{ state.isAtLimit(item) ? 'Limiet bereikt' : 'Reserveer' }}
                           </button>
-                        } @else if (state.getReceivedItem(item.id); as received) {
-                          <span class="received-badge received-badge--actions">
-                            &#10003; {{ tierLabels[received.tier] }} ontvangen
-                            <span class="reserved-info" aria-label="Info over ontvangen item">
-                              ℹ
-                              <span class="reserved-tooltip"
-                                >Reservering is nog van toepassing op hogere versies van dit item. Wil je dit aanpassen?
-                                Contacteer Melvin&nbsp;|&nbsp;Laforgèz op Discord.</span
-                              >
-                            </span>
-                          </span>
                         } @else {
-                          <span class="reserved-badge">
-                            &#10003; Gereserveerd
-                            <span class="reserved-info" aria-label="Info over reservering">
-                              ℹ
-                              <span class="reserved-tooltip"
-                                >Wil je de reservering verwijderen? Contacteer Melvin&nbsp;|&nbsp;Laforgèz op
-                                Discord.</span
-                              >
-                            </span>
+                          <span [class]="state.getReceivedItem(item.id) ? 'received-badge received-badge--actions' : 'reserved-badge'">
+                            &#10003; {{ reservationPillLabel(item.id) }}
                           </span>
                         }
                       </div>
