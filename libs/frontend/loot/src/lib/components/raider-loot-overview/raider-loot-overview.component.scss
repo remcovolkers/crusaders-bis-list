@@ -305,7 +305,7 @@
   color: var(--text-muted);
   border: 1px solid rgba(148, 163, 184, 0.25);
   cursor: default;
-  animation: info-pulse 20s ease-in-out 5s infinite;
+  animation: info-pulse 8s ease-in-out 3s infinite;
 
   &:hover {
     animation: none;

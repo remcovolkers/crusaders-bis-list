@@ -52,6 +52,12 @@ export class FeedbackButtonComponent {
       if (this.hideTimer) clearTimeout(this.hideTimer);
       this.showLabel.set(false);
 
+      // Reset the pulse interval so it never fires right after a nav label
+      if (this.pulseInterval) clearInterval(this.pulseInterval);
+      this.pulseInterval = setInterval(() => {
+        if (!this.open()) this.showLabelFor(3500);
+      }, 15000);
+
       this.showTimer = setTimeout(() => {
         this.showLabelFor(4000);
       }, 100);
