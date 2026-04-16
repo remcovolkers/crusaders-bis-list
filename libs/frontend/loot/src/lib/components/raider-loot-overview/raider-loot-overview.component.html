@@ -119,9 +119,6 @@
                           @if (item.slot) {
                             <span class="slot-text">{{ item.slot }}</span>
                           }
-                          @if (state.getReceivedItem(item.id); as received) {
-                            <span class="received-badge">{{ tierLabels[received.tier] }} ontvangen</span>
-                          }
                         </div>
                       </div>
                     </div>
@@ -136,6 +133,8 @@
                           >
                             {{ state.isAtLimit(item) ? 'Limiet bereikt' : 'Reserveer' }}
                           </button>
+                        } @else if (state.getReceivedItem(item.id); as received) {
+                          <span class="received-badge received-badge--actions">&#10003; {{ tierLabels[received.tier] }} ontvangen</span>
                         } @else {
                           <span class="reserved-badge">&#10003; Gereserveerd</span>
                         }
