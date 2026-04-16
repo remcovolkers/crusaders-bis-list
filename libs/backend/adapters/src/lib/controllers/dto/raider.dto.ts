@@ -1,5 +1,5 @@
 import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
-import { AssignmentStatus } from '@crusaders-bis-list/shared-domain';
+import { AssignmentStatus, WowClass, WowSpec } from '@crusaders-bis-list/shared-domain';
 
 export class ReserveItemDto {
   @IsUUID()
@@ -17,11 +17,11 @@ export class CreateRaiderProfileDto {
   @IsString()
   realm?: string;
 
-  @IsString()
-  wowClass!: string;
+  @IsEnum(WowClass)
+  wowClass!: WowClass;
 
-  @IsString()
-  spec!: string;
+  @IsEnum(WowSpec)
+  spec!: WowSpec;
 }
 
 export class UpdateRaiderProfileDto {
@@ -32,11 +32,11 @@ export class UpdateRaiderProfileDto {
   @IsString()
   realm?: string;
 
-  @IsString()
-  wowClass!: string;
+  @IsEnum(WowClass)
+  wowClass!: WowClass;
 
-  @IsString()
-  spec!: string;
+  @IsEnum(WowSpec)
+  spec!: WowSpec;
 }
 
 export class MarkReceivedDto {

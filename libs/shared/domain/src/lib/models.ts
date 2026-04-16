@@ -141,18 +141,6 @@ export interface BossLootQueryParams {
   raidSeasonId: string;
 }
 
-export const RESERVATION_LIMITS: Record<ItemCategory, number> = {
-  [ItemCategory.TRINKET]: 2,
-  [ItemCategory.WEAPON]: 2,
-  [ItemCategory.OFFHAND]: 2,
-  [ItemCategory.CLOTH]: 0,
-  [ItemCategory.LEATHER]: 0,
-  [ItemCategory.MAIL]: 0,
-  [ItemCategory.PLATE]: 0,
-  [ItemCategory.JEWELRY]: 1,
-  [ItemCategory.OTHER]: 1,
-};
-
 export interface ISeasonConfig {
   id: string;
   raidSeasonId: string;

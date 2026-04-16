@@ -49,38 +49,4 @@ import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrast
     GetAllRaiderReservationsUseCase,
   ],
 })
-@Module({
-  imports: [BackendInfrastructureModule],
-  providers: [
-    ReserveItemUseCase,
-    CancelReservationUseCase,
-    AssignLootUseCase,
-    UpdateAssignmentStatusUseCase,
-    GetBossLootViewUseCase,
-    GetRaidCatalogUseCase,
-    FindOrCreateUserUseCase,
-    ManageUserRolesUseCase,
-    SyncRaidCatalogFromBlizzardUseCase,
-    GetSeasonConfigUseCase,
-    UpdateSeasonConfigUseCase,
-    UpdateItemSuperRareUseCase,
-    GetAllRaiderReservationsUseCase,
-  ],
-  exports: [
-    BackendInfrastructureModule,
-    ReserveItemUseCase,
-    CancelReservationUseCase,
-    AssignLootUseCase,
-    UpdateAssignmentStatusUseCase,
-    GetBossLootViewUseCase,
-    GetRaidCatalogUseCase,
-    FindOrCreateUserUseCase,
-    ManageUserRolesUseCase,
-    SyncRaidCatalogFromBlizzardUseCase,
-    GetSeasonConfigUseCase,
-    UpdateSeasonConfigUseCase,
-    UpdateItemSuperRareUseCase,
-    GetAllRaiderReservationsUseCase,
-  ],
-})
 export class BackendApplicationModule {}

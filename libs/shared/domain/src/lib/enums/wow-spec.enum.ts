@@ -8,7 +8,7 @@ export enum WowSpec {
   PROTECTION_PALADIN = 'Protection (Paladin)',
   RETRIBUTION = 'Retribution',
   // Hunter
-  BEAST_MASTERY = 'BeastMastery',
+  BEAST_MASTERY = 'Beast Mastery',
   MARKSMANSHIP = 'Marksmanship',
   SURVIVAL = 'Survival',
   // Rogue
