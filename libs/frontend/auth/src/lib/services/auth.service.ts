@@ -39,6 +39,7 @@ export class AuthService {
         email: payload.email,
         displayName: payload.displayName ?? payload.email,
         roles: payload.roles ?? [],
+        isCrusadersMember: payload.isCrusadersMember ?? false,
       };
     } catch {
       return null;

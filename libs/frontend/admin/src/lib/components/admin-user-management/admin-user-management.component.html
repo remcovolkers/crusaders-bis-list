@@ -14,23 +14,64 @@
     }
 
     @if (users().length) {
-      <div class="user-list">
-        @for (user of users(); track user.id) {
-          <button class="user-row" [class.active]="expandedUserId() === user.id" (click)="toggleUser(user.id)">
-            <span class="user-name">{{ profileFor(user.id)?.characterName ?? user.displayName }}</span>
-            <div class="user-badges">
-              @if (user.roles.includes(adminRole)) {
-                <span class="badge-admin">Admin</span>
-              }
-              @if (reservationsFor(user.id); as summary) {
-                <span class="badge-res">{{ summary.reservations.length }} res.</span>
-              } @else if (profileFor(user.id)) {
-                <span class="badge-res">0 res.</span>
-              }
-            </div>
-            <span class="chevron-right">›</span>
-          </button>
-        }
+      <div class="user-columns">
+        <!-- Crusaders column -->
+        <div class="user-column">
+          <h3 class="column-title">
+            Crusaders
+            <span class="column-count">{{ crusaders().length }}</span>
+          </h3>
+          <div class="user-list">
+            @for (user of crusaders(); track user.id) {
+              <button class="user-row" [class.active]="expandedUserId() === user.id" (click)="toggleUser(user.id)">
+                <span class="user-name">{{ profileFor(user.id)?.characterName ?? user.displayName }}</span>
+                <div class="user-badges">
+                  @if (user.roles.includes(adminRole)) {
+                    <span class="badge-admin">Admin</span>
+                  }
+                  @if (reservationsFor(user.id); as summary) {
+                    <span class="badge-res">{{ summary.reservations.length }} res.</span>
+                  } @else if (profileFor(user.id)) {
+                    <span class="badge-res">0 res.</span>
+                  }
+                </div>
+                <span class="chevron-right">›</span>
+              </button>
+            }
+            @if (crusaders().length === 0) {
+              <p class="empty-column">Geen Crusaders gevonden.</p>
+            }
+          </div>
+        </div>
+
+        <!-- Visitors column -->
+        <div class="user-column">
+          <h3 class="column-title">
+            Bezoekers
+            <span class="column-count">{{ visitors().length }}</span>
+          </h3>
+          <div class="user-list">
+            @for (user of visitors(); track user.id) {
+              <button class="user-row" [class.active]="expandedUserId() === user.id" (click)="toggleUser(user.id)">
+                <span class="user-name">{{ profileFor(user.id)?.characterName ?? user.displayName }}</span>
+                <div class="user-badges">
+                  @if (user.roles.includes(adminRole)) {
+                    <span class="badge-admin">Admin</span>
+                  }
+                  @if (reservationsFor(user.id); as summary) {
+                    <span class="badge-res">{{ summary.reservations.length }} res.</span>
+                  } @else if (profileFor(user.id)) {
+                    <span class="badge-res">0 res.</span>
+                  }
+                </div>
+                <span class="chevron-right">›</span>
+              </button>
+            }
+            @if (visitors().length === 0) {
+              <p class="empty-column">Geen bezoekers gevonden.</p>
+            }
+          </div>
+        </div>
       </div>
     }
   </div>
@@ -80,6 +121,12 @@
               <button class="action-btn" (click)="makeAdmin(user)">Maak Admin</button>
             } @else {
               <button class="action-btn danger" (click)="removeAdmin(user)">Verwijder Admin rol</button>
+            }
+
+            @if (!user.isCrusadersMember) {
+              <button class="action-btn" (click)="makeCrusader(user)">Maak Crusader</button>
+            } @else {
+              <button class="action-btn danger" (click)="kickFromCrusaders(user)">Kick van Crusaders</button>
             }
 
             @if (reservationsFor(userId); as summary) {

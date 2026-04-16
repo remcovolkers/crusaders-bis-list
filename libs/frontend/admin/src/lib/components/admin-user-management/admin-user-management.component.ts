@@ -16,6 +16,8 @@ import { IUser, UserRole, AssignmentStatus } from '@crusaders-bis-list/shared-do
 })
 export class AdminUserManagementComponent implements OnInit {
   readonly users = signal<IUser[]>([]);
+  readonly crusaders = computed(() => this.users().filter((u) => u.isCrusadersMember));
+  readonly visitors = computed(() => this.users().filter((u) => !u.isCrusadersMember));
   readonly reservationsByUserId = signal<Map<string, RaiderReservationSummary>>(new Map());
   readonly profileByUserId = signal<Map<string, RaiderUser>>(new Map());
   readonly expandedUserId = signal<string | null>(null);
@@ -204,6 +206,26 @@ export class AdminUserManagementComponent implements OnInit {
       next: () => {
         this.users.update((list) => list.map((u) => (u.id === user.id ? { ...u, roles } : u)));
         this.message.set(`${user.displayName} is geen admin meer.`);
+        setTimeout(() => this.message.set(''), 3000);
+      },
+    });
+  }
+
+  makeCrusader(user: IUser): void {
+    this.adminService.updateUserMembership(user.id, true).subscribe({
+      next: () => {
+        this.users.update((list) => list.map((u) => (u.id === user.id ? { ...u, isCrusadersMember: true } : u)));
+        this.message.set(`${user.displayName} is nu Crusader.`);
+        setTimeout(() => this.message.set(''), 3000);
+      },
+    });
+  }
+
+  kickFromCrusaders(user: IUser): void {
+    this.adminService.updateUserMembership(user.id, false).subscribe({
+      next: () => {
+        this.users.update((list) => list.map((u) => (u.id === user.id ? { ...u, isCrusadersMember: false } : u)));
+        this.message.set(`${user.displayName} is geen Crusader meer.`);
         setTimeout(() => this.message.set(''), 3000);
       },
     });

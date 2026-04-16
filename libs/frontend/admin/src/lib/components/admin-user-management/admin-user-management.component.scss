@@ -41,11 +41,51 @@
 }
 
 /* ── User list ── */
+.user-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.user-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.column-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.column-count {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.empty-column {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 8px 0;
+}
+
 .user-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-width: 480px;
 }
 
 .user-row {
@@ -102,6 +142,16 @@
   background: rgba(167, 139, 250, 0.15);
   color: #a78bfa;
   border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+.badge-crusader {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.35);
 }
 
 .badge-res {
@@ -588,6 +638,16 @@
   background: rgba(167, 139, 250, 0.15);
   color: #a78bfa;
   border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+.badge-crusader {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.35);
 }
 
 .badge-res {

@@ -1,4 +1,4 @@
-﻿import { Component, inject, OnInit, signal } from '@angular/core';
+﻿import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -9,6 +9,9 @@ import {
   PRIMARY_STAT_LABELS,
   ItemCategory,
 } from '@crusaders-bis-list/shared-domain';
+import { Store } from '@ngrx/store';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { selectCurrentUser } from '@crusaders-bis-list/frontend-auth';
 import { RaiderLootStateService } from '../../services/raider-loot-state.service';
 import { ItemWithReservation } from '../../domain/loot-ui.types';
 import { ReserveModalComponent } from '../reserve-modal/reserve-modal.component';
@@ -21,6 +24,10 @@ import { ReserveModalComponent } from '../reserve-modal/reserve-modal.component'
   styleUrls: ['./raider-loot-overview.component.scss'],
 })
 export class RaiderLootOverviewComponent implements OnInit {
+  private readonly store = inject(Store);
+  private readonly currentUser = toSignal(this.store.select(selectCurrentUser));
+  readonly isCrusadersMember = computed(() => this.currentUser()?.isCrusadersMember ?? false);
+
   readonly state = inject(RaiderLootStateService);
 
   // UI-only modal state (not part of application state)

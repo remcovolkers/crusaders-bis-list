@@ -45,6 +45,21 @@
           />
         </div>
 
+        <div class="form-group membership-group">
+          <label class="membership-label">
+            <input
+              type="checkbox"
+              class="membership-checkbox"
+              [ngModel]="isCrusadersMember()"
+              (ngModelChange)="isCrusadersMember.set($event)"
+            />
+            <span class="membership-text">
+              Ik zit in Crusaders
+              <span class="membership-hint">(als je alleen rondkijkt, vink dit dan niet aan)</span>
+            </span>
+          </label>
+        </div>
+
         <div class="step-actions">
           @if (editMode()) {
             <button class="btn-ghost" (click)="cancel()">Annuleer</button>

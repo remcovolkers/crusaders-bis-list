@@ -23,6 +23,7 @@ export interface IUser {
   displayName: string;
   avatarUrl?: string;
   roles: UserRole[];
+  isCrusadersMember: boolean;
   createdAt: Date;
   updatedAt: Date;
   /** Populated when the user has completed onboarding */

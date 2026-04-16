@@ -6,6 +6,7 @@ export interface AuthUser {
   displayName: string;
   avatarUrl?: string;
   roles: UserRole[];
+  isCrusadersMember: boolean;
 }
 
 export interface AuthState {

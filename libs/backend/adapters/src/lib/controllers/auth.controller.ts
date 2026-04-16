@@ -1,6 +1,4 @@
-import {
-  Controller, Get, Post, Req, Res, UseGuards, Body, Param, HttpCode, HttpStatus,
-} from '@nestjs/common';
+import { Controller, Get, Post, Req, Res, UseGuards, Body, Param, HttpCode, HttpStatus, Inject } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
@@ -8,7 +6,7 @@ import { JwtAuthGuard } from '../guards/auth.guard';
 import { FindOrCreateUserUseCase, ManageUserRolesUseCase } from '@crusaders-bis-list/backend-application';
 import { Roles } from '../guards/roles.decorator';
 import { UserRole } from '@crusaders-bis-list/shared-domain';
-import { User } from '@crusaders-bis-list/backend-domain';
+import { User, IUserRepository, USER_REPOSITORY } from '@crusaders-bis-list/backend-domain';
 import { IsArray, IsEnum } from 'class-validator';
 
 export class UpdateRolesDto {
@@ -22,6 +20,7 @@ export class AuthController {
   constructor(
     private readonly jwtService: JwtService,
     private readonly findOrCreateUser: FindOrCreateUserUseCase,
+    @Inject(USER_REPOSITORY) private readonly userRepo: IUserRepository,
   ) {}
 
   @Get('google')
@@ -38,6 +37,7 @@ export class AuthController {
       sub: user.id,
       email: user.email,
       roles: user.roles,
+      isCrusadersMember: user.isCrusadersMember,
     });
     const frontendUrl = process.env['FRONTEND_URL'] ?? 'http://localhost:4200';
     res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
@@ -45,8 +45,18 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  getMe(@Req() req: Request) {
-    return req.user;
+  async getMe(@Req() req: Request) {
+    const payload = req.user as { sub: string };
+    const user = await this.userRepo.findById(payload.sub);
+    if (!user) return null;
+    return {
+      id: user.id,
+      email: user.email,
+      displayName: user.displayName,
+      avatarUrl: user.avatarUrl,
+      roles: user.roles,
+      isCrusadersMember: user.isCrusadersMember,
+    };
   }
 }
 

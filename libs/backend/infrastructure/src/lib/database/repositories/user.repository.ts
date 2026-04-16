@@ -20,6 +20,7 @@ export class UserRepository implements IUserRepository {
     user.displayName = orm.displayName;
     user.avatarUrl = orm.avatarUrl;
     user.roles = orm.roles;
+    user.isCrusadersMember = orm.isCrusadersMember ?? false;
     user.createdAt = orm.createdAt;
     user.updatedAt = orm.updatedAt;
     return user;
@@ -59,6 +60,12 @@ export class UserRepository implements IUserRepository {
 
   async updateRoles(userId: string, roles: UserRole[]): Promise<User> {
     await this.repo.update(userId, { roles });
+    const updated = await this.repo.findOneOrFail({ where: { id: userId } });
+    return this.toModel(updated);
+  }
+
+  async updateMembership(userId: string, isCrusadersMember: boolean): Promise<User> {
+    await this.repo.update(userId, { isCrusadersMember });
     const updated = await this.repo.findOneOrFail({ where: { id: userId } });
     return this.toModel(updated);
   }

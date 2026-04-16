@@ -84,6 +84,10 @@ export class AdminService {
     return this.http.post<void>(`${this.base}/admin/users/${userId}/roles`, { roles });
   }
 
+  updateUserMembership(userId: string, isCrusadersMember: boolean): Observable<void> {
+    return this.http.post<void>(`${this.base}/admin/users/${userId}/membership`, { isCrusadersMember });
+  }
+
   getAllReservations(): Observable<RaiderReservationSummary[]> {
     return this.http.get<RaiderReservationSummary[]>(`${this.base}/admin/reservations`);
   }

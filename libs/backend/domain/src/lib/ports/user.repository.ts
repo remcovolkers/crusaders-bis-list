@@ -7,6 +7,7 @@ export interface IUserRepository {
   findAll(): Promise<User[]>;
   save(user: User): Promise<User>;
   updateRoles(userId: string, roles: import('@crusaders-bis-list/shared-domain').UserRole[]): Promise<User>;
+  updateMembership(userId: string, isCrusadersMember: boolean): Promise<User>;
   delete(id: string): Promise<void>;
 }
 

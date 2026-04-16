@@ -1,6 +1,4 @@
-import {
-  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { UserRole } from '@crusaders-bis-list/shared-domain';
 
 @Entity('users')
@@ -22,6 +20,9 @@ export class UserOrmEntity {
 
   @Column({ type: 'simple-array', default: UserRole.RAIDER })
   roles!: UserRole[];
+
+  @Column({ name: 'is_crusaders_member', default: false })
+  isCrusadersMember!: boolean;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;

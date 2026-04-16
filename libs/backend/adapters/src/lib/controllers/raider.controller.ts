@@ -28,6 +28,8 @@ import {
   IReservationRepository,
   RECEIVED_ITEM_REPOSITORY,
   IReceivedItemRepository,
+  USER_REPOSITORY,
+  IUserRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { Inject } from '@nestjs/common';
 import { ReserveItemDto, CreateRaiderProfileDto, UpdateRaiderProfileDto, MarkReceivedDto } from './dto/raider.dto';
@@ -43,6 +45,7 @@ export class RaiderController {
     @Inject(RAIDER_REPOSITORY) private readonly raiderRepo: IRaiderRepository,
     @Inject(RESERVATION_REPOSITORY) private readonly reservationRepo: IReservationRepository,
     @Inject(RECEIVED_ITEM_REPOSITORY) private readonly receivedItemRepo: IReceivedItemRepository,
+    @Inject(USER_REPOSITORY) private readonly userRepo: IUserRepository,
   ) {}
 
   @Get('my-profile')
@@ -54,6 +57,7 @@ export class RaiderController {
   @Post('profile')
   async createProfile(@Req() req: Request, @Body() dto: CreateRaiderProfileDto) {
     const userId = (req.user as JwtPayload).sub;
+    await this.userRepo.updateMembership(userId, dto.isCrusadersMember);
     return this.raiderRepo.save({
       userId,
       characterName: dto.characterName,
@@ -68,6 +72,7 @@ export class RaiderController {
     const userId = (req.user as JwtPayload).sub;
     const raider = await this.raiderRepo.findByUserId(userId);
     if (!raider) throw new NotFoundException('Raider profile not found.');
+    await this.userRepo.updateMembership(userId, dto.isCrusadersMember);
     return this.raiderRepo.update(raider.id, {
       characterName: dto.characterName,
       realm: dto.realm,

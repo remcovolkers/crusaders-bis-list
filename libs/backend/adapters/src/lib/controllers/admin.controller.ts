@@ -75,6 +75,12 @@ export class AdminController {
     return this.userRepo.updateRoles(userId, dto.roles);
   }
 
+  @Post('users/:userId/membership')
+  @HttpCode(HttpStatus.OK)
+  async updateUserMembership(@Param('userId') userId: string, @Body() dto: { isCrusadersMember: boolean }) {
+    return this.userRepo.updateMembership(userId, dto.isCrusadersMember);
+  }
+
   @Delete('users/:userId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(@Param('userId') userId: string, @Req() req: Request) {

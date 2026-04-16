@@ -7,6 +7,7 @@ export class User {
   displayName!: string;
   avatarUrl?: string;
   roles!: UserRole[];
+  isCrusadersMember!: boolean;
   createdAt!: Date;
   updatedAt!: Date;
 

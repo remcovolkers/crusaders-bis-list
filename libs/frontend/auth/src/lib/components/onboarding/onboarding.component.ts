@@ -2,9 +2,13 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Store } from '@ngrx/store';
 import { ClassSpecSelectorComponent, ClassSpecSelection } from '@crusaders-bis-list/frontend-shared-ui';
 import { WowClass, WowSpec } from '@crusaders-bis-list/shared-domain';
 import { API_URL } from '../../tokens/api-url.token';
+import { AuthService } from '../../services/auth.service';
+import * as AuthActions from '../../state/auth.actions';
+import { selectCurrentUser } from '../../state/auth.selectors';
 
 interface RaiderProfile {
   id: string;
@@ -25,9 +29,12 @@ export class OnboardingComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
   private readonly apiUrl = inject(API_URL);
+  private readonly store = inject(Store);
+  private readonly authService = inject(AuthService);
 
   readonly characterName = signal('');
   readonly realm = signal('');
+  readonly isCrusadersMember = signal(false);
   readonly selectedClass = signal<WowClass | null>(null);
   readonly selectedSpec = signal<WowSpec | null>(null);
   readonly saving = signal(false);
@@ -52,6 +59,13 @@ export class OnboardingComponent implements OnInit {
             this.realm.set(profile.realm ?? '');
             this.selectedClass.set(profile.wowClass);
             this.selectedSpec.set(profile.spec);
+            // Pre-fill membership from current auth state
+            this.store
+              .select(selectCurrentUser)
+              .subscribe((u) => {
+                if (u) this.isCrusadersMember.set(u.isCrusadersMember);
+              })
+              .unsubscribe();
           } else {
             // Already has a profile and not editing — go to loot
             this.router.navigate(['/loot']);
@@ -96,6 +110,7 @@ export class OnboardingComponent implements OnInit {
       realm: this.realm().trim(),
       wowClass: this.selectedClass(),
       spec: this.selectedSpec(),
+      isCrusadersMember: this.isCrusadersMember(),
     };
 
     const request$ = this.editMode()
@@ -103,7 +118,21 @@ export class OnboardingComponent implements OnInit {
       : this.http.post(`${this.apiUrl}/raider/profile`, payload);
 
     request$.subscribe({
-      next: () => this.router.navigate(['/loot']),
+      next: () => {
+        // Refresh auth state so isCrusadersMember is up to date in the store
+        this.authService.getMe().subscribe({
+          next: (freshUser) => {
+            this.store.dispatch(
+              AuthActions.loginSuccess({
+                user: freshUser,
+                token: this.authService.getToken() ?? '',
+              }),
+            );
+            this.router.navigate(['/loot']);
+          },
+          error: () => this.router.navigate(['/loot']),
+        });
+      },
       error: () => {
         this.error.set('Opslaan mislukt, probeer opnieuw.');
         this.saving.set(false);
