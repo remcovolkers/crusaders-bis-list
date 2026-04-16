@@ -93,6 +93,15 @@
                           </div>
                         </div>
                       </div>
+                      @if (visibleRaiders(drop.eligibleRaiders).length > 1) {
+                        <button
+                          class="dice-btn"
+                          title="Willekeurig toewijzen"
+                          (click)="openDiceModal(drop, view.boss.id)"
+                        >
+                          🎲
+                        </button>
+                      }
                     </div>
 
                     @if (drop.eligibleRaiders.length === 0) {
@@ -132,8 +141,7 @@
   </div>
 }
 
-@if (pendingAssignment(); as pending) {
-  <div
+@if (pendingAssignment(); as pending) {  <div
     class="modal-backdrop"
     role="button"
     tabindex="0"
@@ -185,6 +193,77 @@
       <div class="modal-footer">
         <button class="btn-ghost" (click)="pendingAssignment.set(null)">Annuleer</button>
         <button class="btn-primary" (click)="confirmAssign()">Toewijzen</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (diceModal(); as dice) {
+  <div
+    class="modal-backdrop"
+    role="button"
+    tabindex="0"
+    aria-label="Sluit"
+    (click)="closeDiceModal()"
+    (keydown.escape)="closeDiceModal()"
+  >
+    <div
+      class="modal dice-modal"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <h3>🎲 Willekeurige toewijzing</h3>
+        <button class="modal-close" (click)="closeDiceModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="confirm-item-preview">
+          @if (dice.item.iconUrl) {
+            <img class="confirm-item-icon" [src]="dice.item.iconUrl" [alt]="dice.item.name" />
+          }
+          <div class="confirm-item-info">
+            <span class="confirm-item-name">{{ dice.item.name }}</span>
+            <div class="confirm-item-meta">
+              <span class="cat-badge" [ngClass]="'cat-' + dice.item.category">
+                {{ categoryLabels[dice.item.category] }}
+              </span>
+              <span class="tier-badge tier-badge--{{ selectedDifficulty()! }}">{{
+                tierLabels[selectedDifficulty()!]
+              }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dice-carousel-wrap">
+          <div class="dice-candidates">
+            @for (r of dice.raiders; track r.raiderId) {
+              <span
+                class="dice-candidate-pill"
+                [class.is-winner]="dice.winner?.raiderId === r.raiderId"
+                [style.--class-color]="classColor(r.wowClass)"
+              >
+                {{ r.characterName }}
+              </span>
+            }
+          </div>
+          <div class="dice-display" [class.rolling]="dice.rolling" [class.has-winner]="!!dice.winner">
+            <span class="dice-name">{{ dice.displayName }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" (click)="closeDiceModal()">Annuleer</button>
+        @if (!dice.winner && !dice.rolling) {
+          <button class="btn-primary" (click)="rollDice()">🎲 Gooi!</button>
+        } @else if (dice.rolling) {
+          <button class="btn-primary" disabled>Aan het rollen...</button>
+        } @else {
+          <button class="btn-primary" (click)="assignFromDice()">
+            Toewijzen aan {{ dice.winner?.characterName }}
+          </button>
+        }
       </div>
     </div>
   </div>

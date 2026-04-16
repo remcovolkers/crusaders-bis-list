@@ -205,6 +205,30 @@
   padding: 12px 16px;
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dice-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+
+  &:hover {
+    background: var(--bg-hover, rgba(148, 163, 184, 0.08));
+    border-color: var(--border-bright);
+    transform: scale(1.1) rotate(-10deg);
+  }
+
+  &:active {
+    transform: scale(0.95) rotate(15deg);
+  }
 }
 
 .item-panel-info {
@@ -756,4 +780,109 @@
   background: rgba(74, 222, 128, 0.1);
   border-radius: 8px;
   margin-top: 16px;
+}
+
+/* ── Dice modal ── */
+.dice-modal {
+  width: min(480px, 92vw);
+}
+
+.dice-carousel-wrap {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.dice-candidates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.dice-candidate-pill {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: var(--class-color, var(--text-secondary));
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+
+  &.is-winner {
+    background: rgba(var(--class-color-rgb, 148, 163, 184), 0.18);
+    border-color: var(--class-color, var(--border-bright));
+    transform: scale(1.08);
+    box-shadow: 0 0 8px rgba(250, 204, 21, 0.3);
+  }
+}
+
+.dice-display {
+  width: 100%;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated, #1e2433);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.3s;
+
+  &.rolling {
+    border-color: var(--accent-gold, #c9a84c);
+    animation: dice-border-pulse 0.4s ease infinite alternate;
+  }
+
+  &.has-winner {
+    border-color: #4ade80;
+    box-shadow: 0 0 16px rgba(74, 222, 128, 0.25);
+  }
+}
+
+.dice-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  padding: 0 16px;
+  transition: opacity 0.05s;
+
+  .rolling & {
+    animation: dice-flicker 0.12s step-end infinite;
+  }
+
+  .has-winner & {
+    color: #4ade80;
+  }
+}
+
+.dice-winner-label {
+  font-size: 13px;
+  color: #4ade80;
+  font-weight: 600;
+  margin: 0;
+}
+
+@keyframes dice-border-pulse {
+  from {
+    box-shadow: 0 0 4px rgba(201, 168, 76, 0.3);
+  }
+  to {
+    box-shadow: 0 0 14px rgba(201, 168, 76, 0.6);
+  }
+}
+
+@keyframes dice-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }

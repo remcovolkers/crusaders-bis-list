@@ -27,6 +27,15 @@ interface PendingAssignment {
   item: IItem;
 }
 
+interface DiceModal {
+  item: IItem;
+  bossId: string;
+  raiders: IEligibleRaider[];
+  rolling: boolean;
+  displayName: string;
+  winner: IEligibleRaider | null;
+}
+
 @Component({
   selector: 'lib-admin-boss-view',
   imports: [NgClass],
@@ -38,6 +47,9 @@ export class AdminBossViewComponent implements OnInit {
   readonly bossLootViews = signal<IBossLootView[]>([]);
   readonly loadingAll = signal(false);
   readonly pendingAssignment = signal<PendingAssignment | null>(null);
+  readonly diceModal = signal<DiceModal | null>(null);
+
+  private diceRollTimer: ReturnType<typeof setInterval> | null = null;
 
   private readonly toast = inject(ToastService);
 
@@ -176,5 +188,64 @@ export class AdminBossViewComponent implements OnInit {
 
   difficultyLabel(status: AssignmentStatus): string {
     return this.difficulties.find((d) => d.value === status)?.label ?? status;
+  }
+
+  openDiceModal(drop: IBossLootView['drops'][number], bossId: string): void {
+    const raiders = this.visibleRaiders(drop.eligibleRaiders);
+    if (raiders.length === 0) return;
+    this.diceModal.set({
+      item: drop.item,
+      bossId,
+      raiders,
+      rolling: false,
+      displayName: raiders[0].characterName,
+      winner: null,
+    });
+  }
+
+  closeDiceModal(): void {
+    if (this.diceRollTimer) clearInterval(this.diceRollTimer);
+    this.diceModal.set(null);
+  }
+
+  rollDice(): void {
+    const modal = this.diceModal();
+    if (!modal || modal.rolling) return;
+
+    this.diceModal.update((m) => m ? { ...m, rolling: true, winner: null } : m);
+
+    const names = modal.raiders.map((r) => r.characterName);
+    let tick = 0;
+    const totalTicks = 30;
+    // Start fast, slow down toward the end
+    const baseInterval = 60;
+
+    const runTick = (): void => {
+      tick++;
+      const progress = tick / totalTicks;
+      const delay = baseInterval + Math.pow(progress, 2) * 600;
+
+      const current = names[tick % names.length];
+      this.diceModal.update((m) => m ? { ...m, displayName: current } : m);
+
+      if (tick >= totalTicks) {
+        // Pick winner
+        const winnerIndex = Math.floor(Math.random() * modal.raiders.length);
+        const winner = modal.raiders[winnerIndex];
+        this.diceModal.update((m) => m ? { ...m, rolling: false, displayName: winner.characterName, winner } : m);
+        return;
+      }
+
+      this.diceRollTimer = setTimeout(runTick, delay) as unknown as ReturnType<typeof setInterval>;
+    };
+
+    this.diceRollTimer = setTimeout(runTick, baseInterval) as unknown as ReturnType<typeof setInterval>;
+  }
+
+  assignFromDice(): void {
+    const modal = this.diceModal();
+    if (!modal?.winner) return;
+    this.closeDiceModal();
+    this.assign(modal.winner.raiderId, modal.item.id, modal.bossId, modal.winner.characterName, modal.item);
   }
 }
