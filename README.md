@@ -15,9 +15,12 @@ See [HOSTING.md](HOSTING.md) for deployment and environment-variable instruction
 3. [Architecture — hexagonal layers](#architecture--hexagonal-layers)
 4. [Key conventions](#key-conventions)
 5. [How to add a new raid season](#how-to-add-a-new-raid-season)
-6. [Admin panel](#admin-panel)
-7. [Database notes](#database-notes)
-8. [Do's and don'ts](#dos-and-donts)
+6. [Access levels](#access-levels)
+7. [Admin panel](#admin-panel)
+8. [Dev Panel](#dev-panel-dev-panel)
+9. [Feedback system](#feedback-system)
+10. [Database notes](#database-notes)
+11. [Do's and don'ts](#dos-and-donts)
 
 ---
 
@@ -45,7 +48,7 @@ libs/
     adapters/                 NestJS controllers + request/response DTOs
 
   frontend/
-    auth/                     AuthGuard, ProfileGuard, OnboardingComponent, auth state (NgRx)
+    auth/                     Guards (Auth/Guest/Admin/SuperUser/Profile), OnboardingComponent, auth state (NgRx)
     loot/                     Raider loot overview — catalog, reservations, received items
       src/lib/domain/         loot-ui.types.ts (frontend-only view models)
       src/lib/services/       raider-loot-state.service.ts (application-layer facade)
@@ -98,18 +101,6 @@ backend/adapters        (NestJS controllers)
 apps/crusaders-bis-list (AppModule glues everything)
 ```
 
-The frontend has its own layering inside `libs/frontend/loot/`:
-
-```
-shared-domain types
-    ↓
-loot-ui.types.ts        (frontend view models — never imported by backend)
-    ↓
-raider-loot-state.service.ts  (application facade, provided at component level)
-    ↓
-raider-loot-overview.component (thin orchestrator — no business logic)
-```
-
 ### Guiding principles
 
 - **Domain logic lives in `shared/domain` or `backend/domain`**, never in controllers or components.
@@ -121,32 +112,10 @@ raider-loot-overview.component (thin orchestrator — no business logic)
 
 ## Key conventions
 
-### Enum values with spaces
-
-`WowClass.DEATH_KNIGHT = 'Death Knight'` and `WowClass.DEMON_HUNTER = 'Demon Hunter'` contain spaces.
-This matches the display format expected everywhere. Existing DB rows that still use the old `'DeathKnight'` / `'DemonHunter'` values need a one-time migration:
-
-```sql
-UPDATE raider_profiles SET wow_class = 'Death Knight' WHERE wow_class = 'DeathKnight';
-UPDATE raider_profiles SET wow_class = 'Demon Hunter' WHERE wow_class = 'DemonHunter';
-```
-
 ### Armor storage model
 
 All armor items from Blizzard are stored as `category = 'other'` with a separate `armor_type` column (`cloth` / `leather` / `mail` / `plate`).
 `canClassReserveItem` compares `CLASS_ARMOR_TYPE[wowClass]` against `item.armorType`, **not** `item.category`.
-
-### Cloaks (back slot)
-
-Cloaks arrive from Blizzard as `inventory_type = 'BACK'` and are stored as `category = 'jewelry'` (non-class-restricted). They are shown to all classes.
-
-### `isPrioritizable`
-
-Only items with `isPrioritizable = true` show up in the loot list. Non-gear drops (patterns, quest items) have `itemLevel ≤ 1` and are filtered out during sync.
-
-### Database schema
-
-TypeORM `synchronize: true` is **only enabled in development**. In production, all schema changes require a manual SQL migration. The DB column for armor limit is `other_limit` (legacy name) — the TypeScript property is `armorLimit`.
 
 ### Angular signals
 
@@ -196,7 +165,7 @@ export const ACTIVE_SEASON: SeasonDefinition = MIDNIGHT_T36_SEASON;
 
 ### Step 3 — Trigger a Blizzard sync
 
-After deploying, go to the **Admin panel → Sync** and press "Reset & sync catalogus". This will:
+After deploying, go to the **Dev Panel → Reset & sync catalogus**. This will:
 
 1. Create or update the season row in the DB (using the `slug` as the unique key).
 2. Fetch all encounters and items from the Blizzard API.
@@ -210,15 +179,47 @@ The old season's data is preserved in the database; only `isActive` changes on r
 
 Accessible at `/admin` (requires an account with the `admin` role).
 
-| Section          | What it does                                                                        |
-| ---------------- | ----------------------------------------------------------------------------------- |
-| Gebruikersbeheer | View all raiders, their reservations, remove/grant admin role, reset raider profile |
-| Loot toewijzing  | Per-boss loot view; assign items to raiders with Champion/Heroic/Mythic tier        |
-| Season config    | Set per-category reservation limits (trinkets, weapons, jewelry, armor, superrare)  |
-| Sync             | Trigger a fresh Blizzard API sync or a full reset-and-sync                          |
+| Section         | What it does                                                                         |
+| --------------- | ------------------------------------------------------------------------------------ |
+| Loot toewijzing | Per-boss loot view; assign items to raiders with Champion/Heroic/Mythic tier         |
+| Admin Panel     | User management (modal) + per-category reservation limits + super-rare flag per item |
 
-**Reset raider profile** removes the raider-profile row. The user account remains.
-On next login the user will be redirected to `/onboarding` to set up a new profile.
+The **Admin Panel** page (`/admin/admin-panel`) embeds user management directly above the season config.
+Clicking a user opens a centred modal with role management, profile reset, and reservation overview.
+
+**Blizzard sync** (reset catalog, wipe orphaned items) lives in the **Dev Panel** — superuser only.
+
+---
+
+## Access levels
+
+| Role      | Email / condition          | Access                                             |
+| --------- | -------------------------- | -------------------------------------------------- |
+| Raider    | any authenticated user     | `/loot`                                            |
+| Admin     | `ADMIN_EMAILS` in `.env`   | `/loot`, `/admin/*`                                |
+| Superuser | `remco.volkers1@gmail.com` | all of the above + `/dev-panel`, `/feedback-inbox` |
+
+Guards: `AuthGuard` (logged in), `ProfileGuard` (profile exists), `AdminGuard` (admin role), `SuperUserGuard` (superuser email), `GuestGuard` (redirect `/auth` → `/loot` when already logged in).
+
+---
+
+## Dev Panel (`/dev-panel`)
+
+Superuser-only. Contains:
+
+- **Blizzard sync** — sync catalog from Blizzard API
+- **Reset & sync** — wipe and re-fetch the full catalog
+- **Wipe orphaned items** — remove items no longer returned by the API
+
+---
+
+## Feedback system
+
+A floating button (bottom-right) appears on every page except `/dev-panel` and `/feedback-inbox`.
+It animates in on each page navigation with a label and a glow effect.
+
+Submissions are stored in the `feedback` table with `resolved` / `resolved_at` columns.
+The inbox at `/feedback-inbox` (superuser only) shows open items as a checkbox todo-list and resolved items below a divider.
 
 ---
 
@@ -247,9 +248,7 @@ On next login the user will be redirected to `/onboarding` to set up a new profi
 - Don't add business logic to NestJS controllers — they should only parse the request and call a use case.
 - Don't import `frontend-loot` or other frontend libs from the backend (or vice versa). `shared/domain` is the only shared boundary.
 - Don't use `@Input()` / `@Output()` decorators — use `input()` / `output()` signals.
+- Don't use `async` pipe for NgRx state — use `toSignal()` instead.
 - Don't store session-tier raid data (raid names, instance IDs, token patterns) anywhere other than the `seasons/` folder.
 - Don't enable `synchronize: true` in a production environment — it will auto-drop columns.
 - Don't put T36 (or later) data in `midnight-t35.season.ts` — create a new season file.
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
