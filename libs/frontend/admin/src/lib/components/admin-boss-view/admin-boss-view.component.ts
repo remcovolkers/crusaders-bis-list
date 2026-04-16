@@ -12,10 +12,20 @@ import {
   ITEM_CATEGORY_LABELS,
   WEAPON_TYPE_LABELS,
   PRIMARY_STAT_LABELS,
+  TIER_LABELS,
   ItemCategory,
+  IItem,
 } from '@crusaders-bis-list/shared-domain';
 import { CatalogResponse } from '@crusaders-bis-list/frontend-loot';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
+
+interface PendingAssignment {
+  raiderId: string;
+  itemId: string;
+  bossId: string;
+  raiderName: string;
+  item: IItem;
+}
 
 @Component({
   selector: 'lib-admin-boss-view',
@@ -27,8 +37,11 @@ export class AdminBossViewComponent implements OnInit {
   readonly catalog = signal<CatalogResponse | null>(null);
   readonly bossLootViews = signal<IBossLootView[]>([]);
   readonly loadingAll = signal(false);
+  readonly pendingAssignment = signal<PendingAssignment | null>(null);
 
   private readonly toast = inject(ToastService);
+
+  readonly tierLabels = TIER_LABELS;
 
   readonly selectedDifficulty = signal<AssignmentStatus | null>(null);
 
@@ -90,11 +103,18 @@ export class AdminBossViewComponent implements OnInit {
     return boss.raidAccentColor ?? '#94a3b8';
   }
 
-  assign(raiderId: string, itemId: string, bossId: string): void {
+  assign(raiderId: string, itemId: string, bossId: string, raiderName: string, item: IItem): void {
+    this.pendingAssignment.set({ raiderId, itemId, bossId, raiderName, item });
+  }
+
+  confirmAssign(): void {
+    const pending = this.pendingAssignment();
     const catalog = this.catalog();
     const difficulty = this.selectedDifficulty();
-    if (!catalog || !difficulty) return;
+    if (!pending || !catalog || !difficulty) return;
 
+    this.pendingAssignment.set(null);
+    const { raiderId, itemId, bossId } = pending;
     const payload = { raiderId, itemId, bossId, raidSeasonId: catalog.season.id, status: difficulty };
 
     this.adminService.assignLoot(payload).subscribe({
