@@ -5,6 +5,7 @@ import {
   AuthGuard,
   ProfileGuard,
   SuperUserGuard,
+  GuestGuard,
   OnboardingComponent,
 } from '@crusaders-bis-list/frontend-auth';
 import { AdminFeedbackComponent } from './admin-feedback/admin-feedback.component';
@@ -13,6 +14,7 @@ import { DevPanelComponent } from './dev-panel/dev-panel.component';
 export const appRoutes: Route[] = [
   {
     path: 'auth',
+    canActivate: [GuestGuard],
     children: authRoutes,
   },
   unauthorizedRoute,

@@ -72,11 +72,30 @@
 }
 
 @keyframes btn-glow {
-  0%   { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4); }
-  15%  { box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.35), 0 0 20px rgba(250, 204, 21, 0.5); border-color: rgba(250, 204, 21, 0.7); }
-  50%  { box-shadow: 0 0 0 6px rgba(250, 204, 21, 0.2), 0 0 28px rgba(250, 204, 21, 0.4); border-color: rgba(250, 204, 21, 0.5); }
-  80%  { box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.1), 0 0 14px rgba(250, 204, 21, 0.2); }
-  100% { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4); border-color: var(--border-color); }
+  0% {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  }
+  15% {
+    box-shadow:
+      0 0 0 4px rgba(250, 204, 21, 0.35),
+      0 0 20px rgba(250, 204, 21, 0.5);
+    border-color: rgba(250, 204, 21, 0.7);
+  }
+  50% {
+    box-shadow:
+      0 0 0 6px rgba(250, 204, 21, 0.2),
+      0 0 28px rgba(250, 204, 21, 0.4);
+    border-color: rgba(250, 204, 21, 0.5);
+  }
+  80% {
+    box-shadow:
+      0 0 0 4px rgba(250, 204, 21, 0.1),
+      0 0 14px rgba(250, 204, 21, 0.2);
+  }
+  100% {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    border-color: var(--border-color);
+  }
 }
 
 .feedback-panel {

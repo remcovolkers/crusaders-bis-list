@@ -20,15 +20,21 @@ export class FeedbackButtonComponent {
   readonly showLabel = signal(false);
 
   currentPage = '/';
+  private showTimer: ReturnType<typeof setTimeout> | null = null;
+  private hideTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     this.currentPage = this.router.url;
     this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe((e) => {
       this.currentPage = e.urlAfterRedirects;
+
+      if (this.showTimer) clearTimeout(this.showTimer);
+      if (this.hideTimer) clearTimeout(this.hideTimer);
       this.showLabel.set(false);
-      setTimeout(() => {
+
+      this.showTimer = setTimeout(() => {
         this.showLabel.set(true);
-        setTimeout(() => this.showLabel.set(false), 4000);
+        this.hideTimer = setTimeout(() => this.showLabel.set(false), 4000);
       }, 100);
     });
   }

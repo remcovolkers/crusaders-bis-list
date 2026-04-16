@@ -7,6 +7,25 @@ import { selectIsAuthenticated, selectIsAdmin, selectCurrentUser } from '../stat
 import { API_URL } from '../tokens/api-url.token';
 
 @Injectable({ providedIn: 'root' })
+export class GuestGuard implements CanActivate {
+  private readonly store = inject(Store);
+  private readonly router = inject(Router);
+
+  canActivate(): Observable<boolean> {
+    return this.store.select(selectIsAuthenticated).pipe(
+      take(1),
+      map((authenticated) => {
+        if (authenticated) {
+          this.router.navigate(['/loot']);
+          return false;
+        }
+        return true;
+      }),
+    );
+  }
+}
+
+@Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
   private readonly store = inject(Store);
   private readonly router = inject(Router);

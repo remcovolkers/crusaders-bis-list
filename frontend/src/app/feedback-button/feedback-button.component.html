@@ -2,7 +2,15 @@
   @if (showLabel()) {
     <span class="feedback-fab-label">Kan er iets beter? Let me know!</span>
   }
-  <button class="feedback-fab" (click)="toggle()" [class.active]="open()" [class.glowing]="showLabel()" title="Feedback geven">💬</button>
+  <button
+    class="feedback-fab"
+    (click)="toggle()"
+    [class.active]="open()"
+    [class.glowing]="showLabel()"
+    title="Feedback geven"
+  >
+    💬
+  </button>
 </div>
 
 @if (open()) {

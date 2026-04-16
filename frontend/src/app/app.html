@@ -37,6 +37,6 @@
   <router-outlet></router-outlet>
 </main>
 
-@if (isAuthenticated()) {
+@if (isAuthenticated() && showFeedbackButton()) {
   <app-feedback-button />
 }
