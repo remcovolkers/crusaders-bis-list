@@ -143,7 +143,7 @@ export class LootQueryRepository implements ILootQueryRepository {
             armorType: (item.armorType as ArmorType) ?? ArmorType.NONE,
             slot: item.slot ?? 'Unknown',
             itemLevel: item.itemLevel,
-            primaryStat: item.primaryStat as PrimaryStat | undefined,
+            primaryStats: (item.primaryStats ?? []) as PrimaryStat[],
             bossId: item.bossId,
             bossName: boss.name,
             iconUrl: item.iconUrl,

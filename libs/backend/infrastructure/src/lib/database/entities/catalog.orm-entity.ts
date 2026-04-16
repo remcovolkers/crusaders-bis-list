@@ -72,8 +72,8 @@ export class ItemOrmEntity {
   @Column({ name: 'item_level', type: 'int', nullable: true })
   itemLevel?: number;
 
-  @Column({ name: 'primary_stat', type: 'varchar', nullable: true })
-  primaryStat?: string;
+  @Column({ name: 'primary_stats', type: 'simple-array', nullable: true })
+  primaryStats!: string[];
 
   @Column({ name: 'weapon_type', type: 'varchar', nullable: true })
   weaponType?: string;

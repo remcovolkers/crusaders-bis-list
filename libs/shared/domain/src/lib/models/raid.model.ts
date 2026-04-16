@@ -31,7 +31,8 @@ export interface IItem {
   armorType: ArmorType;
   slot: string;
   itemLevel?: number;
-  primaryStat?: PrimaryStat;
+  /** Primary stats this item provides. Multiple values = adaptive (e.g. Str/Agi trinket). */
+  primaryStats: PrimaryStat[];
   weaponType?: WeaponType;
   bossId: string;
   bossName: string;

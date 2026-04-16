@@ -23,7 +23,7 @@ export interface UpsertItemData {
   armorType: ArmorType;
   slot: string;
   itemLevel?: number;
-  primaryStat?: PrimaryStat;
+  primaryStats: PrimaryStat[];
   weaponType?: WeaponType;
   bossId: string;
   iconUrl?: string;

@@ -22,15 +22,23 @@ function detectTierToken(
 }
 
 /**
- * Extracts the primary stat from Blizzard's preview_item.stats array.
- * Returns undefined for items with no primary stat (proc-only trinkets, universal items, armor).
+ * Extracts primary stats from Blizzard's preview_item.stats array.
+ * - Trinkets with negated Str+Agi return both (adaptive/multi-primary).
+ * - Other items return a single-element array, or empty if none found.
  */
-function extractPrimaryStatFromBlizzard(item: BlizzardItem): PrimaryStat | undefined {
+function extractPrimaryStatsFromBlizzard(item: BlizzardItem): PrimaryStat[] {
   const stats = item.preview_item?.stats ?? [];
-  if (stats.some((s) => s.type.type === 'INTELLECT')) return PrimaryStat.INTELLECT;
-  if (stats.some((s) => s.type.type === 'STRENGTH')) return PrimaryStat.STRENGTH;
-  if (stats.some((s) => s.type.type === 'AGILITY')) return PrimaryStat.AGILITY;
-  return undefined;
+  const STAT_MAP: Record<string, PrimaryStat> = {
+    INTELLECT: PrimaryStat.INTELLECT,
+    STRENGTH: PrimaryStat.STRENGTH,
+    AGILITY: PrimaryStat.AGILITY,
+  };
+  const negated = stats.filter((s) => s.is_negated && STAT_MAP[s.type.type]).map((s) => STAT_MAP[s.type.type]);
+  if (negated.length > 0) return negated;
+  for (const key of ['INTELLECT', 'STRENGTH', 'AGILITY'] as const) {
+    if (stats.some((s) => s.type.type === key)) return [STAT_MAP[key]];
+  }
+  return [];
 }
 
 function mapItemCategory(
@@ -40,7 +48,7 @@ function mapItemCategory(
 ): {
   category: ItemCategory;
   armorType: ArmorType;
-  primaryStat: PrimaryStat | undefined;
+  primaryStats: PrimaryStat[];
   weaponType: WeaponType | undefined;
   slot: string;
   isPrioritizable: boolean;
@@ -57,7 +65,7 @@ function mapItemCategory(
     return {
       category: ItemCategory.OTHER,
       armorType: tierToken.armorType,
-      primaryStat: undefined,
+      primaryStats: [],
       weaponType: undefined,
       slot: tierToken.slot,
       isPrioritizable: true,
@@ -69,7 +77,7 @@ function mapItemCategory(
     return {
       category: ItemCategory.TRINKET,
       armorType: ArmorType.NONE,
-      primaryStat: extractPrimaryStatFromBlizzard(item),
+      primaryStats: extractPrimaryStatsFromBlizzard(item),
       weaponType: undefined,
       slot,
       isPrioritizable: true,
@@ -81,7 +89,7 @@ function mapItemCategory(
     return {
       category: ItemCategory.JEWELRY,
       armorType: ArmorType.NONE,
-      primaryStat: extractPrimaryStatFromBlizzard(item),
+      primaryStats: extractPrimaryStatsFromBlizzard(item),
       weaponType: undefined,
       slot,
       isPrioritizable: true,
@@ -95,7 +103,7 @@ function mapItemCategory(
       return {
         category: ItemCategory.OFFHAND,
         armorType: ArmorType.NONE,
-        primaryStat: extractPrimaryStatFromBlizzard(item),
+        primaryStats: extractPrimaryStatsFromBlizzard(item),
         weaponType,
         slot,
         isPrioritizable: true,
@@ -125,7 +133,7 @@ function mapItemCategory(
     return {
       category: ItemCategory.WEAPON,
       armorType: ArmorType.NONE,
-      primaryStat: extractPrimaryStatFromBlizzard(item),
+      primaryStats: extractPrimaryStatsFromBlizzard(item),
       weaponType,
       slot,
       isPrioritizable: true,
@@ -139,7 +147,7 @@ function mapItemCategory(
       return {
         category: ItemCategory.OFFHAND,
         armorType: ArmorType.NONE,
-        primaryStat: extractPrimaryStatFromBlizzard(item),
+        primaryStats: extractPrimaryStatsFromBlizzard(item),
         weaponType: WeaponType.SHIELD,
         slot,
         isPrioritizable: true,
@@ -163,7 +171,7 @@ function mapItemCategory(
     return {
       category: ItemCategory.OTHER,
       armorType,
-      primaryStat: undefined,
+      primaryStats: [],
       weaponType: undefined,
       slot,
       isPrioritizable: true,
@@ -174,7 +182,7 @@ function mapItemCategory(
   return {
     category: ItemCategory.OTHER,
     armorType: ArmorType.NONE,
-    primaryStat: undefined,
+    primaryStats: [],
     weaponType: undefined,
     slot,
     isPrioritizable: false,
@@ -269,7 +277,7 @@ export class SyncRaidCatalogFromBlizzardUseCase {
             continue;
           }
 
-          const { category, armorType, primaryStat, weaponType, slot, isPrioritizable } = mapItemCategory(
+          const { category, armorType, primaryStats, weaponType, slot, isPrioritizable } = mapItemCategory(
             blizzardItem,
             ACTIVE_SEASON.tierTokenPatterns,
             ACTIVE_SEASON.tierArmorTypePrefixes,
@@ -295,7 +303,7 @@ export class SyncRaidCatalogFromBlizzardUseCase {
               armorType,
               slot,
               itemLevel: blizzardItem.level,
-              primaryStat,
+              primaryStats,
               weaponType,
               bossId: boss.id,
               isPrioritizable: false,
@@ -313,7 +321,7 @@ export class SyncRaidCatalogFromBlizzardUseCase {
             armorType,
             slot,
             itemLevel: blizzardItem.level,
-            primaryStat,
+            primaryStats,
             weaponType,
             bossId: boss.id,
             iconUrl,

@@ -459,9 +459,16 @@ export function canSpecUseWeapon(spec: WowSpec, weaponType: WeaponType): boolean
 /**
  * Single source of truth for item eligibility per class.
  * - Armor items: matched via the class armor type from the registry.
- * - Non-armor items (armorType = NONE): available to all classes.
+ * - Weapon items (armorType = NONE, weaponType set): filtered by spec usable weapon types.
+ * - Other non-armor items (trinkets, jewelry, etc.):
+ *     - primaryStats with 1+ values: spec must have a matching primaryStat.
+ *     - empty primaryStats (proc-only): available to all.
  */
-export function canClassReserveItem(wowClass: WowClass, _spec: WowSpec, item: IItem): boolean {
-  if (item.armorType === ArmorType.NONE) return true;
+export function canClassReserveItem(wowClass: WowClass, spec: WowSpec, item: IItem): boolean {
+  if (item.armorType === ArmorType.NONE) {
+    if (item.weaponType) return canSpecUseWeapon(spec, item.weaponType);
+    if (item.primaryStats.length > 0) return item.primaryStats.includes(WOW_SPEC_REGISTRY[spec].primaryStat);
+    return true;
+  }
   return getClassData(wowClass).armorType === item.armorType;
 }
