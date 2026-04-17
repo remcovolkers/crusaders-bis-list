@@ -16,14 +16,6 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response, NextFunction } from 'express';
-import 'express-session';
-
-declare module 'express-session' {
-  interface SessionData {
-    linkUserId?: string;
-  }
-}
-
 import * as passportLib from 'passport';
 const passport = (passportLib as { default?: typeof passportLib }).default ?? passportLib;
 import { JwtAuthGuard } from '../guards/auth.guard';
@@ -83,21 +75,23 @@ export class AuthController {
     @Query('lt') linkToken: string,
   ): Promise<void> {
     try {
-      const payload = this.jwtService.verify<{ sub: string }>(linkToken);
-      req.session.linkUserId = payload.sub;
-      await new Promise<void>((resolve, reject) => req.session.save((err) => (err ? reject(err) : resolve())));
+      this.jwtService.verify<{ sub: string }>(linkToken);
     } catch {
       res.status(401).json({ message: 'Invalid or expired link token' });
       return;
     }
-    (passport.authenticate('bnet') as (req: Request, res: Response, next: NextFunction) => void)(req, res, next);
+    // Pass the linkToken as the OAuth state — Blizzard will return it in the callback
+    (passport.authenticate('bnet', { state: linkToken }) as (req: Request, res: Response, next: NextFunction) => void)(
+      req,
+      res,
+      next,
+    );
   }
 
   @Get('bnet/callback')
   @UseGuards(AuthGuard('bnet'))
-  bnetCallback(@Req() req: Request, @Res() res: Response): void {
+  bnetCallback(@Res() res: Response): void {
     const frontendUrl = process.env['FRONTEND_URL'] ?? 'http://localhost:4200';
-    delete req.session.linkUserId;
     res.redirect(`${frontendUrl}/onboarding?bnet_linked=1`);
   }
 
