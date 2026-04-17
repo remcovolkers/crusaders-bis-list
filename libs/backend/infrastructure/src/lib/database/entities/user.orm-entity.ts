@@ -9,8 +9,17 @@ export class UserOrmEntity {
   @Column({ unique: true })
   email!: string;
 
-  @Column({ name: 'google_id', unique: true })
+  @Column({ name: 'google_id', nullable: true })
   googleId!: string;
+
+  @Column({ name: 'bnet_id', type: 'varchar', nullable: true, unique: true })
+  bnetId!: string | null;
+
+  @Column({ name: 'battletag', type: 'varchar', nullable: true })
+  battletag!: string | null;
+
+  @Column({ name: 'bnet_access_token', type: 'text', nullable: true })
+  bnetAccessToken!: string | null;
 
   @Column({ name: 'display_name' })
   displayName!: string;

@@ -1,6 +1,7 @@
 ﻿import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import {
   AssignmentStatus,
   ITEM_CATEGORY_LABELS,
@@ -11,7 +12,7 @@ import {
 } from '@crusaders-bis-list/shared-domain';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { selectCurrentUser } from '@crusaders-bis-list/frontend-auth';
+import { selectCurrentUser, AuthService } from '@crusaders-bis-list/frontend-auth';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 import { RaiderLootStateService } from '../../services/raider-loot-state.service';
 import { ItemWithReservation } from '../../domain/loot-ui.types';
@@ -28,6 +29,14 @@ export class RaiderLootOverviewComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly currentUser = toSignal(this.store.select(selectCurrentUser));
   private readonly toast = inject(ToastService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly authService = inject(AuthService);
+
+  readonly isBnetLinked = computed(() => this.currentUser()?.bnetLinked ?? false);
+
+  linkBnet(): void {
+    this.authService.redirectToBnetLink();
+  }
   readonly isCrusadersMember = computed(() => this.currentUser()?.isCrusadersMember ?? false);
 
   readonly state = inject(RaiderLootStateService);
@@ -45,6 +54,9 @@ export class RaiderLootOverviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.state.load();
+    if (this.route.snapshot.queryParamMap.get('bnet_linked')) {
+      this.toast.show('Battle.net account gekoppeld! ⚔️');
+    }
   }
 
   // Reserve modal

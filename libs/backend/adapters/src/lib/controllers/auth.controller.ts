@@ -1,7 +1,23 @@
-import { Controller, Get, Post, Req, Res, UseGuards, Body, Param, HttpCode, HttpStatus, Inject } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  Next,
+  UseGuards,
+  Body,
+  Param,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Query,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
+import * as passportLib from 'passport';
+const passport = (passportLib as any).default ?? passportLib;
 import { JwtAuthGuard } from '../guards/auth.guard';
 import { FindOrCreateUserUseCase, ManageUserRolesUseCase } from '@crusaders-bis-list/backend-application';
 import { Roles } from '../guards/roles.decorator';
@@ -43,6 +59,41 @@ export class AuthController {
     res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
   }
 
+  @Post('bnet/link/init')
+  @UseGuards(JwtAuthGuard)
+  bnetLinkInit(@Req() req: Request): { linkToken: string } {
+    const user = req.user as { sub: string };
+    const linkToken = this.jwtService.sign({ sub: user.sub }, { expiresIn: '5m' });
+    return { linkToken };
+  }
+
+  @Get('bnet/oauth-start')
+  async bnetOauthStart(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+    @Query('lt') linkToken: string,
+  ): Promise<void> {
+    try {
+      const payload = this.jwtService.verify<{ sub: string }>(linkToken);
+      (req.session as unknown as Record<string, unknown>)['linkUserId'] = payload.sub;
+      await new Promise<void>((resolve, reject) => req.session.save((err: unknown) => (err ? reject(err) : resolve())));
+    } catch {
+      res.status(401).json({ message: 'Invalid or expired link token' });
+      return;
+    }
+    (passport.authenticate('bnet') as (req: Request, res: Response, next: NextFunction) => void)(req, res, next);
+  }
+
+  @Get('bnet/callback')
+  @UseGuards(AuthGuard('bnet'))
+  bnetCallback(@Req() req: Request, @Res() res: Response): void {
+    const frontendUrl = process.env['FRONTEND_URL'] ?? 'http://localhost:4200';
+    const session = req.session as unknown as Record<string, unknown>;
+    delete session['linkUserId'];
+    res.redirect(`${frontendUrl}/onboarding?bnet_linked=1`);
+  }
+
   @Get('me')
   @UseGuards(JwtAuthGuard)
   async getMe(@Req() req: Request) {
@@ -56,6 +107,8 @@ export class AuthController {
       avatarUrl: user.avatarUrl,
       roles: user.roles,
       isCrusadersMember: user.isCrusadersMember,
+      bnetLinked: !!user.bnetId,
+      battletag: user.battletag ?? null,
     };
   }
 }

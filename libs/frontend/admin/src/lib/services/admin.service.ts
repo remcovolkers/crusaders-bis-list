@@ -109,6 +109,10 @@ export class AdminService {
     return this.http.delete<void>(`${this.base}/admin/users/${userId}`);
   }
 
+  unlinkBnet(userId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/admin/users/${userId}/bnet`);
+  }
+
   syncCatalog(): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.base}/admin/sync`, {});
   }

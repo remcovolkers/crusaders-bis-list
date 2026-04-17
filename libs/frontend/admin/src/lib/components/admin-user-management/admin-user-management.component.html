@@ -116,6 +116,20 @@
               <button class="action-btn danger" (click)="kickFromCrusaders(user)">Kick van Crusaders</button>
             }
 
+            @if (user.battletag) {
+              @if (confirmingUnlinkBnetUserId() === userId) {
+                <div class="confirm-row">
+                  <span class="confirm-text">Battle.net ontkoppelen?</span>
+                  <button class="action-btn danger" (click)="confirmUnlinkBnet(userId)">Ja, ontkoppel</button>
+                  <button class="action-btn" (click)="abortUnlinkBnet()">Annuleer</button>
+                </div>
+              } @else {
+                <button class="action-btn danger" (click)="requestUnlinkBnet(userId)" title="{{ user.battletag }}">
+                  Ontkoppel Battle.net ({{ user.battletag }})
+                </button>
+              }
+            }
+
             @if (reservationsFor(userId); as summary) {
               @if (confirmingResetRaiderId() === summary.raiderId) {
                 <div class="confirm-row">

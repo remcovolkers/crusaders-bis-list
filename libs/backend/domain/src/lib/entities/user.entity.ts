@@ -4,6 +4,9 @@ export class User {
   id!: string;
   email!: string;
   googleId!: string;
+  bnetId?: string | null;
+  battletag?: string | null;
+  bnetAccessToken?: string | null;
   displayName!: string;
   avatarUrl?: string;
   roles!: UserRole[];

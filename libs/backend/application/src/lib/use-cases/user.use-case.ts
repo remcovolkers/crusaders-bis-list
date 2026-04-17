@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { USER_REPOSITORY, IUserRepository, User } from '@crusaders-bis-list/backend-domain';
 import { UserRole } from '@crusaders-bis-list/shared-domain';
 import { ConfigService } from '@nestjs/config';
@@ -8,6 +8,11 @@ export interface GoogleProfile {
   email: string;
   displayName: string;
   avatarUrl?: string;
+}
+
+export interface BnetProfile {
+  bnetId: string;
+  battletag: string;
 }
 
 @Injectable()
@@ -39,8 +44,38 @@ export class FindOrCreateUserUseCase {
     newUser.createdAt = new Date();
     newUser.updatedAt = new Date();
 
-    const savedUser = await this.userRepo.save(newUser);
-    return savedUser;
+    return this.userRepo.save(newUser);
+  }
+
+  async executeWithBnet(profile: BnetProfile): Promise<User> {
+    const existing = await this.userRepo.findByBnetId(profile.bnetId);
+    if (existing) return existing;
+
+    const newUser = new User();
+    newUser.bnetId = profile.bnetId;
+    newUser.email = `${profile.battletag.replace('#', '-')}@bnet.local`;
+    newUser.displayName = profile.battletag;
+    newUser.roles = [UserRole.RAIDER];
+    newUser.createdAt = new Date();
+    newUser.updatedAt = new Date();
+
+    return this.userRepo.save(newUser);
+  }
+}
+
+@Injectable()
+export class LinkBnetUseCase {
+  constructor(
+    @Inject(USER_REPOSITORY)
+    private readonly userRepo: IUserRepository,
+  ) {}
+
+  async execute(userId: string, bnetId: string, battletag: string, accessToken: string): Promise<User> {
+    const existing = await this.userRepo.findByBnetId(bnetId);
+    if (existing && existing.id !== userId) {
+      throw new ConflictException('Dit Battle.net account is al gekoppeld aan een ander account.');
+    }
+    return this.userRepo.updateBnetAccount(userId, bnetId, battletag, accessToken);
   }
 }
 

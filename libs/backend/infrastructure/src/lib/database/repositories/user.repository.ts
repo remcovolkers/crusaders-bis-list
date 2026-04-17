@@ -17,6 +17,9 @@ export class UserRepository implements IUserRepository {
     user.id = orm.id;
     user.email = orm.email;
     user.googleId = orm.googleId;
+    user.bnetId = orm.bnetId;
+    user.battletag = orm.battletag;
+    user.bnetAccessToken = orm.bnetAccessToken;
     user.displayName = orm.displayName;
     user.avatarUrl = orm.avatarUrl;
     user.roles = orm.roles;
@@ -36,6 +39,11 @@ export class UserRepository implements IUserRepository {
     return e ? this.toModel(e) : null;
   }
 
+  async findByBnetId(bnetId: string): Promise<User | null> {
+    const e = await this.repo.findOne({ where: { bnetId } });
+    return e ? this.toModel(e) : null;
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     const e = await this.repo.findOne({ where: { email } });
     return e ? this.toModel(e) : null;
@@ -49,6 +57,7 @@ export class UserRepository implements IUserRepository {
   async save(user: User): Promise<User> {
     const orm = this.repo.create({
       googleId: user.googleId,
+      bnetId: user.bnetId,
       email: user.email,
       displayName: user.displayName,
       avatarUrl: user.avatarUrl,
@@ -66,6 +75,17 @@ export class UserRepository implements IUserRepository {
 
   async updateMembership(userId: string, isCrusadersMember: boolean): Promise<User> {
     await this.repo.update(userId, { isCrusadersMember });
+    const updated = await this.repo.findOneOrFail({ where: { id: userId } });
+    return this.toModel(updated);
+  }
+
+  async updateBnetAccount(
+    userId: string,
+    bnetId: string | null,
+    battletag: string | null,
+    accessToken: string | null,
+  ): Promise<User> {
+    await this.repo.update(userId, { bnetId, battletag, bnetAccessToken: accessToken });
     const updated = await this.repo.findOneOrFail({ where: { id: userId } });
     return this.toModel(updated);
   }

@@ -24,6 +24,12 @@
           <img class="user-avatar" [src]="user.avatarUrl" [alt]="user.displayName" />
         }
         <span class="user-name">{{ user.displayName }}</span>
+        @if (!isBnetLinked()) {
+          <button class="btn-link-bnet" (click)="linkBnet()" title="Koppel je Battle.net account">
+            <img src="/assets/bnet_logo.png" alt="Battle.net" class="bnet-icon" />
+            Link BNET
+          </button>
+        }
         @if (isAdmin()) {
           <span class="badge badge-gold">Admin</span>
         }

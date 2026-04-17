@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ReserveItemUseCase, CancelReservationUseCase } from './use-cases/reservation.use-case';
 import { AssignLootUseCase, UpdateAssignmentStatusUseCase } from './use-cases/assignment.use-case';
 import { GetBossLootViewUseCase, GetRaidCatalogUseCase } from './use-cases/raid-catalog.use-case';
-import { FindOrCreateUserUseCase, ManageUserRolesUseCase } from './use-cases/user.use-case';
+import { FindOrCreateUserUseCase, ManageUserRolesUseCase, LinkBnetUseCase } from './use-cases/user.use-case';
 import { SyncRaidCatalogFromBlizzardUseCase } from './use-cases/sync-raid-catalog.use-case';
 import { ResetCatalogAndSyncUseCase } from './use-cases/reset-catalog-and-sync.use-case';
 import {
@@ -24,6 +24,7 @@ import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrast
     GetBossLootViewUseCase,
     GetRaidCatalogUseCase,
     FindOrCreateUserUseCase,
+    LinkBnetUseCase,
     ManageUserRolesUseCase,
     SyncRaidCatalogFromBlizzardUseCase,
     ResetCatalogAndSyncUseCase,
@@ -42,6 +43,7 @@ import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrast
     GetBossLootViewUseCase,
     GetRaidCatalogUseCase,
     FindOrCreateUserUseCase,
+    LinkBnetUseCase,
     ManageUserRolesUseCase,
     SyncRaidCatalogFromBlizzardUseCase,
     ResetCatalogAndSyncUseCase,

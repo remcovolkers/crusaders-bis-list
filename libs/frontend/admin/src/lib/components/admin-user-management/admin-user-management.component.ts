@@ -26,6 +26,7 @@ export class AdminUserManagementComponent implements OnInit {
   readonly confirmingId = signal<string | null>(null);
   readonly confirmingResetRaiderId = signal<string | null>(null);
   readonly confirmingDeleteUserId = signal<string | null>(null);
+  readonly confirmingUnlinkBnetUserId = signal<string | null>(null);
   readonly adminRole = UserRole.ADMIN;
   readonly AssignmentStatus = AssignmentStatus;
 
@@ -58,6 +59,7 @@ export class AdminUserManagementComponent implements OnInit {
     this.confirmingId.set(null);
     this.confirmingResetRaiderId.set(null);
     this.confirmingDeleteUserId.set(null);
+    this.confirmingUnlinkBnetUserId.set(null);
   }
 
   reservationsFor(userId: string): RaiderReservationSummary | undefined {
@@ -159,6 +161,25 @@ export class AdminUserManagementComponent implements OnInit {
 
   requestDeleteUser(userId: string): void {
     this.confirmingDeleteUserId.set(userId);
+  }
+
+  requestUnlinkBnet(userId: string): void {
+    this.confirmingUnlinkBnetUserId.set(userId);
+  }
+
+  confirmUnlinkBnet(userId: string): void {
+    this.adminService.unlinkBnet(userId).subscribe({
+      next: () => {
+        this.users.update((list) => list.map((u) => (u.id === userId ? { ...u, battletag: null } : u)));
+        this.confirmingUnlinkBnetUserId.set(null);
+        this.toast.show('Battle.net ontkoppeld.');
+      },
+      error: () => this.toast.show('Ontkoppelen mislukt.', 'error'),
+    });
+  }
+
+  abortUnlinkBnet(): void {
+    this.confirmingUnlinkBnetUserId.set(null);
   }
 
   confirmDeleteUser(userId: string): void {

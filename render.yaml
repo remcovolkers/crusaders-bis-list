@@ -20,6 +20,14 @@ services:
         sync: false
       - key: GOOGLE_CALLBACK_URL
         sync: false # e.g. https://crusaders-bis-list-api.onrender.com/api/auth/google/callback
+      - key: BLIZZARD_CLIENT_ID
+        sync: false
+      - key: BLIZZARD_CLIENT_SECRET
+        sync: false
+      - key: BNET_CALLBACK_URL
+        sync: false # e.g. https://crusaders-bis-list-api.onrender.com/api/auth/bnet/callback
+      - key: BLIZZARD_REGION
+        value: eu
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL

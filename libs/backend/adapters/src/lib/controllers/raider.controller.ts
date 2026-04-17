@@ -12,6 +12,7 @@ import {
   HttpCode,
   HttpStatus,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtPayload } from '../auth/jwt.strategy';
@@ -37,6 +38,14 @@ import {
 import { Inject } from '@nestjs/common';
 import { ReserveItemDto, CreateRaiderProfileDto, UpdateRaiderProfileDto, MarkReceivedDto } from './dto/raider.dto';
 import { WowClass, WowSpec } from '@crusaders-bis-list/shared-domain';
+import { blizzardClassToWowClass } from '../mappers/blizzard-class.mapper';
+
+interface BlizzardCharacter {
+  name: string;
+  realm: { name: string; slug: string };
+  playable_class: { id: number; name: string };
+  level: number;
+}
 
 @Controller('raider')
 @UseGuards(JwtAuthGuard)
@@ -57,6 +66,39 @@ export class RaiderController {
   async getMyProfile(@Req() req: Request) {
     const userId = (req.user as JwtPayload).sub;
     return this.raiderRepo.findByUserId(userId);
+  }
+
+  @Get('wow-characters')
+  async getWowCharacters(@Req() req: Request) {
+    const userId = (req.user as JwtPayload).sub;
+    const user = await this.userRepo.findById(userId);
+    if (!user?.bnetAccessToken) throw new UnauthorizedException('Geen Battle.net account gekoppeld.');
+
+    const region = process.env['BLIZZARD_REGION'] ?? 'eu';
+    const url = `https://${region}.api.blizzard.com/profile/user/wow?namespace=profile-${region}&locale=en_US`;
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${user.bnetAccessToken}` },
+    });
+
+    if (response.status === 401) throw new UnauthorizedException('Battle.net token verlopen. Koppel opnieuw.');
+    if (!response.ok) throw new Error(`Blizzard API fout: ${response.status}`);
+
+    const data = (await response.json()) as { wow_accounts?: { characters?: BlizzardCharacter[] }[] };
+
+    const characters = (data.wow_accounts ?? [])
+      .flatMap((account) => account.characters ?? [])
+      .filter((c) => c.level >= 10)
+      .map((c) => ({
+        name: c.name,
+        realm: c.realm.name,
+        realmSlug: c.realm.slug,
+        wowClass: blizzardClassToWowClass(c.playable_class.id),
+        level: c.level,
+      }))
+      .filter((c) => c.wowClass !== null)
+      .sort((a, b) => b.level - a.level);
+
+    return characters;
   }
 
   @Post('profile')

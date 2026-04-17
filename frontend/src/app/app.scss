@@ -96,6 +96,35 @@
   }
 }
 
+.btn-link-bnet {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 174, 255, 0.35);
+  background: rgba(0, 174, 255, 0.08);
+  color: #00aeff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+
+  .bnet-icon {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+  }
+
+  &:hover {
+    background: rgba(0, 174, 255, 0.16);
+    border-color: rgba(0, 174, 255, 0.6);
+  }
+}
+
 .app-main {
   flex: 1;
   overflow-y: auto;

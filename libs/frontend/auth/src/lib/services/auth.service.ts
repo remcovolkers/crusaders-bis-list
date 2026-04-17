@@ -14,6 +14,25 @@ export class AuthService {
     window.location.href = `${this.apiUrl}/auth/google`;
   }
 
+  redirectToBnetLogin(): void {
+    window.location.href = `${this.apiUrl}/auth/bnet`;
+  }
+
+  redirectToBnetLink(): void {
+    const token = this.getToken();
+    this.http
+      .post<{ linkToken: string }>(
+        `${this.apiUrl}/auth/bnet/link/init`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
+      .subscribe((res) => {
+        window.location.href = `${this.apiUrl}/auth/bnet/oauth-start?lt=${encodeURIComponent(res.linkToken)}`;
+      });
+  }
+
   getMe(): Observable<AuthUser> {
     return this.http.get<AuthUser>(`${this.apiUrl}/auth/me`);
   }

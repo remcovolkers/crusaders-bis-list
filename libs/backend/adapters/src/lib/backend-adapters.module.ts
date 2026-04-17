@@ -6,6 +6,7 @@ import { FeedbackController } from './controllers/feedback.controller';
 import { RollController } from './controllers/roll.controller';
 import { RolesGuard } from './guards/auth.guard';
 import { GoogleStrategy } from './auth/google.strategy';
+import { BnetStrategy } from './auth/bnet.strategy';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { BackendApplicationModule } from '@crusaders-bis-list/backend-application';
 
@@ -19,7 +20,7 @@ import { BackendApplicationModule } from '@crusaders-bis-list/backend-applicatio
     FeedbackController,
     RollController,
   ],
-  providers: [RolesGuard, GoogleStrategy, JwtStrategy],
+  providers: [RolesGuard, GoogleStrategy, BnetStrategy, JwtStrategy],
   exports: [RolesGuard],
 })
 export class BackendAdaptersModule {}

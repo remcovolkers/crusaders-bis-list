@@ -28,6 +28,11 @@ export class App {
   readonly currentUser = toSignal(this.store.select(selectCurrentUser), { initialValue: null });
   readonly isAdmin = toSignal(this.store.select(selectIsAdmin), { initialValue: false });
   readonly isSuperUser = computed(() => this.currentUser()?.email === 'remco.volkers1@gmail.com');
+  readonly isBnetLinked = computed(() => this.currentUser()?.bnetLinked ?? false);
+
+  linkBnet(): void {
+    this.authService.redirectToBnetLink();
+  }
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(

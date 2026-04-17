@@ -2,22 +2,99 @@
   <div class="onboarding-card">
     <div class="onboarding-header">
       <h1 class="onboarding-title">
-        {{ editMode() ? 'Profiel bewerken' : 'Welkom bij Crusaders BiS List' }}
+        {{
+          updateCharMode() ? 'Karakter bijwerken' : editMode() ? 'Profiel bewerken' : 'Welkom bij Crusaders BiS List'
+        }}
       </h1>
       <p class="onboarding-subtitle">
-        {{ editMode() ? 'Pas je karakter of spec aan' : 'Stel je karakter in om te beginnen' }}
+        {{
+          updateCharMode()
+            ? 'Kies je nieuwe karakter via Battle.net'
+            : editMode()
+              ? 'Pas je karakter of spec aan'
+              : 'Stel je karakter in om te beginnen'
+        }}
       </p>
     </div>
 
-    <div class="step-indicator">
-      <span class="step-dot" [class.active]="step() >= 1" [class.done]="step() > 1">1</span>
-      <span class="step-line"></span>
-      <span class="step-dot" [class.active]="step() >= 2">2</span>
-    </div>
+    @if (step() !== 0) {
+      <div class="step-indicator">
+        <span class="step-dot" [class.active]="step() >= 1" [class.done]="step() > 1">1</span>
+        <span class="step-line"></span>
+        <span class="step-dot" [class.active]="step() >= 2">2</span>
+      </div>
+    }
+
+    @if (step() === 0) {
+      <div class="step-content">
+        <h2 class="step-title">Kies je karakter</h2>
+
+        @if (updateCharMode()) {
+          <div class="update-char-info">
+            <span class="update-char-label">Huidig karakter</span>
+            <span class="update-char-value">{{ characterName() }} &middot; {{ selectedClass() }}</span>
+            <span class="update-char-hint"
+              >Kies een karakter met dezelfde class om je naam en realm bij te werken.</span
+            >
+          </div>
+        }
+
+        @if (wowCharactersLoading()) {
+          <div class="chars-loading">Karakters laden...</div>
+        } @else if (wowCharactersError()) {
+          <p class="error-msg">{{ wowCharactersError() }}</p>
+          <button class="btn-ghost" style="margin-top: 8px" (click)="skipCharacterPicker()">
+            {{ updateCharMode() ? 'Overslaan' : 'Handmatig invullen →' }}
+          </button>
+        } @else {
+          <div class="char-list">
+            @for (char of wowCharacters(); track char.name + char.realm) {
+              <button class="char-card" [disabled]="saving()" (click)="pickCharacter(char)">
+                <span class="char-name">{{ char.name }}</span>
+                <span class="char-meta"
+                  >{{ char.realm }} &middot; {{ char.wowClass }} &middot; lvl {{ char.level }}</span
+                >
+              </button>
+            }
+          </div>
+          @if (updateCharError()) {
+            <p class="error-msg update-char-error">{{ updateCharError() }}</p>
+          }
+          @if (saving()) {
+            <p class="chars-loading">Opslaan...</p>
+          }
+          @if (updateCharMode()) {
+            <button class="btn-ghost" style="margin-top: 12px" (click)="skipCharacterPicker()">Overslaan</button>
+          } @else {
+            <button class="manual-link" (click)="skipCharacterPicker()">Handmatig invullen</button>
+          }
+        }
+      </div>
+    }
 
     @if (step() === 1) {
       <div class="step-content">
         <h2 class="step-title">Je karakter</h2>
+
+        @if (!editMode() && !isBnetLinked()) {
+          <div class="bnet-nudge">
+            <button class="btn-link-bnet" (click)="linkBnet()">
+              <img src="/assets/bnet_logo.png" alt="" class="bnet-nudge-icon" />
+              Link Battle.net account
+            </button>
+            <p class="bnet-nudge-hint">Koppel je Battle.net account om automatisch je karakter te selecteren.</p>
+          </div>
+          <div class="manual-divider">
+            <span>Of vul handmatig je character in</span>
+          </div>
+        }
+
+        @if (!editMode() && isBnetLinked() && wowCharacters().length > 0) {
+          <button class="btn-ghost blizzard-chars-btn" (click)="step.set(0)">
+            <img src="/assets/bnet_logo.png" alt="" class="bnet-nudge-icon" />
+            Toon Blizzard characters
+          </button>
+        }
 
         <div class="form-group">
           <label class="form-label" for="char-name">In-game naam</label>
@@ -45,6 +122,26 @@
           />
         </div>
 
+        <div class="step-actions">
+          @if (editMode()) {
+            <button class="btn-ghost" (click)="cancel()">Annuleer</button>
+          }
+          <button class="btn-primary" [disabled]="!canProceedStep1" (click)="goToStep2()">Volgende →</button>
+        </div>
+      </div>
+    }
+
+    @if (step() === 2) {
+      <div class="step-content">
+        <h2 class="step-title">{{ selectedCharacter() ? 'Wat is je main spec?' : 'Je class & spec' }}</h2>
+
+        <lib-class-spec-selector
+          [selectedClass]="selectedClass()"
+          [selectedSpec]="selectedSpec()"
+          [specOnly]="!!selectedCharacter()"
+          (selectionChange)="onClassSpecChange($event)"
+        />
+
         <div class="form-group membership-group">
           <label class="membership-label">
             <input
@@ -60,31 +157,12 @@
           </label>
         </div>
 
-        <div class="step-actions">
-          @if (editMode()) {
-            <button class="btn-ghost" (click)="cancel()">Annuleer</button>
-          }
-          <button class="btn-primary" [disabled]="!canProceedStep1" (click)="goToStep2()">Volgende →</button>
-        </div>
-      </div>
-    }
-
-    @if (step() === 2) {
-      <div class="step-content">
-        <h2 class="step-title">Je class & spec</h2>
-
-        <lib-class-spec-selector
-          [selectedClass]="selectedClass()"
-          [selectedSpec]="selectedSpec()"
-          (selectionChange)="onClassSpecChange($event)"
-        />
-
         @if (error()) {
           <p class="error-msg">{{ error() }}</p>
         }
 
         <div class="step-actions">
-          <button class="btn-ghost" (click)="step.set(1)">← Terug</button>
+          <button class="btn-ghost" (click)="step.set(selectedCharacter() ? 0 : 1)">← Terug</button>
           <button class="btn-primary" [disabled]="!canSubmit || saving()" (click)="save()">
             {{ saving() ? 'Opslaan...' : editMode() ? 'Opslaan' : 'Aan de slag!' }}
           </button>

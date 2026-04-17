@@ -92,6 +92,12 @@ export class AdminController {
     await this.userRepo.delete(userId);
   }
 
+  @Delete('users/:userId/bnet')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async unlinkBnet(@Param('userId') userId: string) {
+    await this.userRepo.updateBnetAccount(userId, null, null, null);
+  }
+
   @Delete('raiders/:raiderId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteRaiderProfile(@Param('raiderId') raiderId: string) {

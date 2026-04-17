@@ -7,6 +7,8 @@ export interface AuthUser {
   avatarUrl?: string;
   roles: UserRole[];
   isCrusadersMember: boolean;
+  bnetLinked?: boolean;
+  battletag?: string | null;
 }
 
 export interface AuthState {

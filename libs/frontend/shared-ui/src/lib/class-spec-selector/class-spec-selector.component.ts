@@ -26,6 +26,7 @@ interface SpecOption {
 export class ClassSpecSelectorComponent implements OnInit {
   readonly selectedClass = input<WowClass | null>(null);
   readonly selectedSpec = input<WowSpec | null>(null);
+  readonly specOnly = input<boolean>(false);
   readonly selectionChange = output<ClassSpecSelection>();
 
   readonly classes: ClassOption[] = Object.values(WowClass).map((cls) => ({

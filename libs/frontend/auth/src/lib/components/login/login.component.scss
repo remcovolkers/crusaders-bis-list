@@ -59,12 +59,35 @@ h1 {
 .google-icon {
   width: 20px;
   height: 20px;
-  background: linear-gradient(45deg, #4285f4, #34a853, #fbbc05, #ea4335);
-  border-radius: 50%;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.bnet-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  color: white;
-  font-size: 12px;
+  gap: 12px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 8px;
+  background: #00aeff;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 174, 255, 0.35);
+  }
+}
+
+.bnet-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
