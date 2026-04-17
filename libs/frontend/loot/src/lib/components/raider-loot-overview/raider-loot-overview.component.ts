@@ -83,13 +83,25 @@ export class RaiderLootOverviewComponent implements OnInit {
 
   // DOM helpers
   reservationPillLabel(itemId: string): string {
-    const received = this.state.getReceivedItem(itemId);
-    if (!received) return 'Gereserveerd';
     const tiers = [AssignmentStatus.CHAMPION_TIER, AssignmentStatus.HERO_TIER, AssignmentStatus.MYTH_TIER];
-    const idx = tiers.indexOf(received.tier);
-    const higher = tiers.slice(idx + 1).map((t) => TIER_LABELS[t]);
-    if (higher.length === 0) return TIER_LABELS[received.tier] + ' ontvangen';
-    return `Gereserveerd voor ${higher.join(' & ')}`;
+
+    const received = this.state.getReceivedItem(itemId);
+    if (received) {
+      const idx = tiers.indexOf(received.tier);
+      const higher = tiers.slice(idx + 1).map((t) => TIER_LABELS[t]);
+      if (higher.length === 0) return TIER_LABELS[received.tier] + ' ontvangen';
+      return `Gereserveerd voor ${higher.join(' & ')}`;
+    }
+
+    const assignment = this.state.getAssignmentStatus(itemId);
+    if (assignment) {
+      const idx = tiers.indexOf(assignment);
+      const higher = tiers.slice(idx + 1).map((t) => TIER_LABELS[t]);
+      if (higher.length === 0) return TIER_LABELS[assignment] + ' ontvangen';
+      return `Gereserveerd voor ${higher.join(' & ')}`;
+    }
+
+    return 'Gereserveerd';
   }
 
   scrollToBoss(bossId: string): void {

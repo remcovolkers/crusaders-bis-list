@@ -159,7 +159,7 @@
                         } @else {
                           <span
                             [class]="
-                              state.getReceivedItem(item.id)
+                              state.getReceivedItem(item.id) || state.getAssignmentStatus(item.id)
                                 ? 'received-badge received-badge--actions'
                                 : 'reserved-badge'
                             "

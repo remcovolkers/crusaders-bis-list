@@ -45,6 +45,7 @@ export class RaiderLootStateService {
   // ── Private state ─────────────────────────────────────────────────────────
   private readonly _reservationMap = signal(new Map<string, string>());
   private readonly _receivedItemsMap = signal(new Map<string, IReceivedItem>());
+  private readonly _assignmentStatusMap = signal(new Map<string, AssignmentStatus>());
 
   private readonly lootService = inject(LootService);
   private readonly toast = inject(ToastService);
@@ -175,6 +176,10 @@ export class RaiderLootStateService {
     return this._receivedItemsMap().get(itemId) ?? null;
   }
 
+  getAssignmentStatus(itemId: string): AssignmentStatus | null {
+    return this._assignmentStatusMap().get(itemId) ?? null;
+  }
+
   isReserved(itemId: string): boolean {
     return this._reservationMap().has(itemId);
   }
@@ -247,9 +252,14 @@ export class RaiderLootStateService {
   private _loadReservations(seasonId: string): void {
     this.lootService.getMyReservations(seasonId).subscribe({
       next: (reservations) => {
-        const map = new Map<string, string>();
-        reservations.forEach((r) => map.set(r.itemId, r.id));
-        this._reservationMap.set(map);
+        const resMap = new Map<string, string>();
+        const asnMap = new Map<string, AssignmentStatus>();
+        reservations.forEach((r) => {
+          resMap.set(r.itemId, r.id);
+          if (r.assignment?.status) asnMap.set(r.itemId, r.assignment.status);
+        });
+        this._reservationMap.set(resMap);
+        this._assignmentStatusMap.set(asnMap);
       },
     });
   }

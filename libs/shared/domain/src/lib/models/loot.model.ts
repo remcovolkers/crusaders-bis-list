@@ -19,6 +19,7 @@ export interface IReservation {
   itemName: string;
   raidSeasonId: string;
   createdAt: Date;
+  assignment?: { status: AssignmentStatus } | null;
 }
 
 export interface IAssignment {

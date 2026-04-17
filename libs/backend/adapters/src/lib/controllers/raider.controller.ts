@@ -30,6 +30,8 @@ import {
   IReceivedItemRepository,
   USER_REPOSITORY,
   IUserRepository,
+  ASSIGNMENT_REPOSITORY,
+  IAssignmentRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { Inject } from '@nestjs/common';
 import { ReserveItemDto, CreateRaiderProfileDto, UpdateRaiderProfileDto, MarkReceivedDto } from './dto/raider.dto';
@@ -46,6 +48,7 @@ export class RaiderController {
     @Inject(RESERVATION_REPOSITORY) private readonly reservationRepo: IReservationRepository,
     @Inject(RECEIVED_ITEM_REPOSITORY) private readonly receivedItemRepo: IReceivedItemRepository,
     @Inject(USER_REPOSITORY) private readonly userRepo: IUserRepository,
+    @Inject(ASSIGNMENT_REPOSITORY) private readonly assignmentRepo: IAssignmentRepository,
   ) {}
 
   @Get('my-profile')
@@ -96,7 +99,12 @@ export class RaiderController {
     const userId = (req.user as JwtPayload).sub;
     const raider = await this.raiderRepo.findByUserId(userId);
     if (!raider) return [];
-    return this.reservationRepo.findByRaider(raider.id, seasonId);
+    const [reservations, assignments] = await Promise.all([
+      this.reservationRepo.findByRaider(raider.id, seasonId),
+      this.assignmentRepo.findByRaider(raider.id, seasonId),
+    ]);
+    const assignmentByItemId = new Map(assignments.map((a) => [a.itemId, { status: a.status }]));
+    return reservations.map((r) => ({ ...r, assignment: assignmentByItemId.get(r.itemId) ?? null }));
   }
 
   @Post('reservations')
