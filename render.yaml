@@ -31,11 +31,11 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        sync: false # e.g. https://crusaders-bis-list.vercel.app
+        sync: false # e.g. https://crusaders-bis-list.onrender.com
 
   # Angular Frontend (Static Site)
   - type: web
-    name: crusaders-bis-list-frontend
+    name: crusaders-bis-list
     env: static
     buildCommand: npm ci --include=dev && ./node_modules/.bin/nx build frontend --configuration=production
     staticPublishPath: dist/frontend/browser

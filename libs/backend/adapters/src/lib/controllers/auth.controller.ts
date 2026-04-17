@@ -16,10 +16,18 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response, NextFunction } from 'express';
+import 'express-session';
+
+declare module 'express-session' {
+  interface SessionData {
+    linkUserId?: string;
+  }
+}
+
 import * as passportLib from 'passport';
-const passport = (passportLib as any).default ?? passportLib;
+const passport = (passportLib as { default?: typeof passportLib }).default ?? passportLib;
 import { JwtAuthGuard } from '../guards/auth.guard';
-import { FindOrCreateUserUseCase, ManageUserRolesUseCase } from '@crusaders-bis-list/backend-application';
+import { ManageUserRolesUseCase } from '@crusaders-bis-list/backend-application';
 import { Roles } from '../guards/roles.decorator';
 import { UserRole } from '@crusaders-bis-list/shared-domain';
 import { User, IUserRepository, USER_REPOSITORY } from '@crusaders-bis-list/backend-domain';
@@ -35,7 +43,7 @@ export class UpdateRolesDto {
 export class AuthController {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly findOrCreateUser: FindOrCreateUserUseCase,
+
     @Inject(USER_REPOSITORY) private readonly userRepo: IUserRepository,
   ) {}
 
@@ -76,8 +84,8 @@ export class AuthController {
   ): Promise<void> {
     try {
       const payload = this.jwtService.verify<{ sub: string }>(linkToken);
-      (req.session as unknown as Record<string, unknown>)['linkUserId'] = payload.sub;
-      await new Promise<void>((resolve, reject) => req.session.save((err: unknown) => (err ? reject(err) : resolve())));
+      req.session.linkUserId = payload.sub;
+      await new Promise<void>((resolve, reject) => req.session.save((err) => (err ? reject(err) : resolve())));
     } catch {
       res.status(401).json({ message: 'Invalid or expired link token' });
       return;
@@ -89,8 +97,7 @@ export class AuthController {
   @UseGuards(AuthGuard('bnet'))
   bnetCallback(@Req() req: Request, @Res() res: Response): void {
     const frontendUrl = process.env['FRONTEND_URL'] ?? 'http://localhost:4200';
-    const session = req.session as unknown as Record<string, unknown>;
-    delete session['linkUserId'];
+    delete req.session.linkUserId;
     res.redirect(`${frontendUrl}/onboarding?bnet_linked=1`);
   }
 

@@ -4,6 +4,8 @@
   "license": "MIT",
   "scripts": {
     "lint": "nx run-many --target=lint --all",
+    "typecheck": "nx run-many --target=typecheck --projects=crusaders-bis-list,frontend",
+    "check": "nx run-many --target=lint --all && nx run-many --target=typecheck --projects=crusaders-bis-list,frontend",
     "lint:fix": "nx run-many --target=lint --all -- --fix",
     "lint:backend": "nx run-many --target=lint --projects=backend-domain,backend-application,backend-adapters,backend-infrastructure,crusaders-bis-list",
     "lint:backend:fix": "nx run-many --target=lint --projects=backend-domain,backend-application,backend-adapters,backend-infrastructure,crusaders-bis-list -- --fix",

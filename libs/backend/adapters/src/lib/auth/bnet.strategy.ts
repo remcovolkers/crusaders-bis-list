@@ -5,6 +5,13 @@ import { ConfigService } from '@nestjs/config';
 import { LinkBnetUseCase } from '@crusaders-bis-list/backend-application';
 import { User } from '@crusaders-bis-list/backend-domain';
 import { Request } from 'express';
+import 'express-session';
+
+declare module 'express-session' {
+  interface SessionData {
+    linkUserId?: string;
+  }
+}
 
 interface BnetUserProfile {
   id: number | string;
@@ -37,8 +44,7 @@ export class BnetStrategy extends PassportStrategy(Strategy, 'bnet') {
     profile: BnetUserProfile,
     done: DoneFn,
   ): Promise<void> {
-    const session = req.session as unknown as Record<string, unknown>;
-    const linkUserId = session['linkUserId'] as string | undefined;
+    const linkUserId = req.session.linkUserId;
 
     if (!linkUserId) {
       done(new Error('Battle.net login is not supported; use account linking'), false);

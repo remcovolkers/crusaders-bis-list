@@ -98,7 +98,7 @@ export class OnboardingComponent implements OnInit {
           characterName: char.name,
           realm: char.realm,
           wowClass: existingClass,
-          spec: this.existingProfile()!.spec,
+          spec: this.existingProfile()?.spec,
           isCrusadersMember: this.isCrusadersMember(),
         })
         .subscribe({
