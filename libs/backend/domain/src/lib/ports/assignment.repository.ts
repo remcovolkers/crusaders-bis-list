@@ -17,6 +17,7 @@ export interface IAssignmentRepository {
   findAllBySeason(raidSeasonId: string): Promise<Assignment[]>;
   save(assignment: CreateAssignmentData): Promise<Assignment>;
   updateStatus(id: string, status: AssignmentStatus): Promise<Assignment>;
+  deleteByRaiderAndItem(raiderId: string, itemId: string): Promise<void>;
 }
 
 export const ASSIGNMENT_REPOSITORY = Symbol('IAssignmentRepository');

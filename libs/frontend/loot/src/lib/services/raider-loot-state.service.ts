@@ -260,6 +260,16 @@ export class RaiderLootStateService {
         });
         this._reservationMap.set(resMap);
         this._assignmentStatusMap.set(asnMap);
+
+        // Sync received items: the backend clears them when a reservation is
+        // cancelled, so reload to prevent stale "Gereserveerd voor Myth" labels.
+        this.lootService.getMyReceivedItems().subscribe({
+          next: (items) => {
+            const map = new Map<string, IReceivedItem>();
+            items.forEach((r) => map.set(r.itemId, r));
+            this._receivedItemsMap.set(map);
+          },
+        });
       },
     });
   }

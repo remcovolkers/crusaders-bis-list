@@ -20,6 +20,7 @@ import {
   ReserveItemUseCase,
   GetRaidCatalogUseCase,
   GetSeasonConfigUseCase,
+  CancelReservationUseCase,
 } from '@crusaders-bis-list/backend-application';
 import {
   RAIDER_REPOSITORY,
@@ -44,6 +45,7 @@ export class RaiderController {
     private readonly reserveItem: ReserveItemUseCase,
     private readonly getRaidCatalog: GetRaidCatalogUseCase,
     private readonly getSeasonConfig: GetSeasonConfigUseCase,
+    private readonly cancelReservation: CancelReservationUseCase,
     @Inject(RAIDER_REPOSITORY) private readonly raiderRepo: IRaiderRepository,
     @Inject(RESERVATION_REPOSITORY) private readonly reservationRepo: IReservationRepository,
     @Inject(RECEIVED_ITEM_REPOSITORY) private readonly receivedItemRepo: IReceivedItemRepository,
@@ -119,11 +121,11 @@ export class RaiderController {
 
   @Delete('reservations/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async cancelReservation(@Req() req: Request, @Param('id') id: string) {
+  async cancelReservationEndpoint(@Req() req: Request, @Param('id') id: string) {
     const userId = (req.user as JwtPayload).sub;
     const raider = await this.raiderRepo.findByUserId(userId);
     if (!raider) throw new NotFoundException('Raider profile not found.');
-    await this.reservationRepo.delete(id);
+    await this.cancelReservation.execute(id);
   }
 
   @Get('received-items')

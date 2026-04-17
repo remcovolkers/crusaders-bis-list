@@ -7,6 +7,8 @@ import {
   LootDomainRules,
   RECEIVED_ITEM_REPOSITORY,
   IReceivedItemRepository,
+  ASSIGNMENT_REPOSITORY,
+  IAssignmentRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { RAID_CATALOG_REPOSITORY, IRaidCatalogRepository } from '@crusaders-bis-list/backend-domain';
 
@@ -71,12 +73,17 @@ export class CancelReservationUseCase {
     private readonly reservationRepo: IReservationRepository,
     @Inject(RECEIVED_ITEM_REPOSITORY)
     private readonly receivedItemRepo: IReceivedItemRepository,
+    @Inject(ASSIGNMENT_REPOSITORY)
+    private readonly assignmentRepo: IAssignmentRepository,
   ) {}
 
   async execute(reservationId: string): Promise<void> {
     const reservation = await this.reservationRepo.findById(reservationId);
     if (reservation) {
-      await this.receivedItemRepo.deleteByRaiderAndItem(reservation.raiderId, reservation.itemId);
+      await Promise.all([
+        this.receivedItemRepo.deleteByRaiderAndItem(reservation.raiderId, reservation.itemId),
+        this.assignmentRepo.deleteByRaiderAndItem(reservation.raiderId, reservation.itemId),
+      ]);
     }
     await this.reservationRepo.delete(reservationId);
   }

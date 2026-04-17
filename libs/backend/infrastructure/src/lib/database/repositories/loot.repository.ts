@@ -137,4 +137,8 @@ export class AssignmentRepository implements IAssignmentRepository {
     const updated = await this.repo.findOneOrFail({ where: { id } });
     return this.toModel(updated);
   }
+
+  async deleteByRaiderAndItem(raiderId: string, itemId: string): Promise<void> {
+    await this.repo.delete({ raiderId, itemId });
+  }
 }
