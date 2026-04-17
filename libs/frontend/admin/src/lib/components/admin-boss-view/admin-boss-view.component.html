@@ -252,7 +252,7 @@
       <div class="modal-footer">
         <button class="btn-ghost" (click)="closeDiceModal()">Annuleer</button>
         @if (!dice.winner && !dice.rolling) {
-          <button class="btn-primary" (click)="rollDice()">🎲 Gooi!</button>
+          <button class="btn-primary" (click)="rollDice()">� Spin the wheel!</button>
         } @else if (dice.rolling || !wheelDone()) {
           <button class="btn-primary" disabled>Aan het rollen...</button>
         } @else {
