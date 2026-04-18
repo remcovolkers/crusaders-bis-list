@@ -156,6 +156,7 @@ export const WOW_SPEC_REGISTRY: Record<WowSpec, IWowSpecData> = {
       WeaponType.SWORD_2H,
       WeaponType.POLEARM,
       WeaponType.SHIELD,
+      WeaponType.OFFHAND,
     ],
   },
   [WowSpec.PROTECTION_PALADIN]: {
@@ -213,26 +214,54 @@ export const WOW_SPEC_REGISTRY: Record<WowSpec, IWowSpecData> = {
     id: WowSpec.DISCIPLINE,
     class: WowClass.PRIEST,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.MACE_1H, WeaponType.SWORD_1H, WeaponType.DAGGER],
+    usableWeaponTypes: [
+      WeaponType.STAFF,
+      WeaponType.WAND,
+      WeaponType.MACE_1H,
+      WeaponType.SWORD_1H,
+      WeaponType.DAGGER,
+      WeaponType.OFFHAND,
+    ],
   },
   [WowSpec.HOLY_PRIEST]: {
     id: WowSpec.HOLY_PRIEST,
     class: WowClass.PRIEST,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.MACE_1H, WeaponType.SWORD_1H, WeaponType.DAGGER],
+    usableWeaponTypes: [
+      WeaponType.STAFF,
+      WeaponType.WAND,
+      WeaponType.MACE_1H,
+      WeaponType.SWORD_1H,
+      WeaponType.DAGGER,
+      WeaponType.OFFHAND,
+    ],
   },
   [WowSpec.SHADOW]: {
     id: WowSpec.SHADOW,
     class: WowClass.PRIEST,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.MACE_1H, WeaponType.SWORD_1H, WeaponType.DAGGER],
+    usableWeaponTypes: [
+      WeaponType.STAFF,
+      WeaponType.WAND,
+      WeaponType.MACE_1H,
+      WeaponType.SWORD_1H,
+      WeaponType.DAGGER,
+      WeaponType.OFFHAND,
+    ],
   },
   // ── Shaman ──
   [WowSpec.ELEMENTAL]: {
     id: WowSpec.ELEMENTAL,
     class: WowClass.SHAMAN,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.MACE_1H, WeaponType.AXE_1H, WeaponType.DAGGER, WeaponType.SHIELD],
+    usableWeaponTypes: [
+      WeaponType.STAFF,
+      WeaponType.MACE_1H,
+      WeaponType.AXE_1H,
+      WeaponType.DAGGER,
+      WeaponType.SHIELD,
+      WeaponType.OFFHAND,
+    ],
   },
   [WowSpec.ENHANCEMENT]: {
     id: WowSpec.ENHANCEMENT,
@@ -244,52 +273,59 @@ export const WOW_SPEC_REGISTRY: Record<WowSpec, IWowSpecData> = {
     id: WowSpec.RESTORATION_SHAMAN,
     class: WowClass.SHAMAN,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.MACE_1H, WeaponType.AXE_1H, WeaponType.DAGGER, WeaponType.SHIELD],
+    usableWeaponTypes: [
+      WeaponType.STAFF,
+      WeaponType.MACE_1H,
+      WeaponType.AXE_1H,
+      WeaponType.DAGGER,
+      WeaponType.SHIELD,
+      WeaponType.OFFHAND,
+    ],
   },
   // ── Mage ──
   [WowSpec.ARCANE]: {
     id: WowSpec.ARCANE,
     class: WowClass.MAGE,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.SWORD_1H, WeaponType.DAGGER],
+    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.SWORD_1H, WeaponType.DAGGER, WeaponType.OFFHAND],
   },
   [WowSpec.FIRE]: {
     id: WowSpec.FIRE,
     class: WowClass.MAGE,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.SWORD_1H, WeaponType.DAGGER],
+    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.SWORD_1H, WeaponType.DAGGER, WeaponType.OFFHAND],
   },
   [WowSpec.FROST_MAGE]: {
     id: WowSpec.FROST_MAGE,
     class: WowClass.MAGE,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.SWORD_1H, WeaponType.DAGGER],
+    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.SWORD_1H, WeaponType.DAGGER, WeaponType.OFFHAND],
   },
   // ── Warlock ──
   [WowSpec.AFFLICTION]: {
     id: WowSpec.AFFLICTION,
     class: WowClass.WARLOCK,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.SWORD_1H, WeaponType.DAGGER],
+    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.SWORD_1H, WeaponType.DAGGER, WeaponType.OFFHAND],
   },
   [WowSpec.DEMONOLOGY]: {
     id: WowSpec.DEMONOLOGY,
     class: WowClass.WARLOCK,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.SWORD_1H, WeaponType.DAGGER],
+    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.SWORD_1H, WeaponType.DAGGER, WeaponType.OFFHAND],
   },
   [WowSpec.DESTRUCTION]: {
     id: WowSpec.DESTRUCTION,
     class: WowClass.WARLOCK,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.SWORD_1H, WeaponType.DAGGER],
+    usableWeaponTypes: [WeaponType.STAFF, WeaponType.WAND, WeaponType.SWORD_1H, WeaponType.DAGGER, WeaponType.OFFHAND],
   },
   // ── Druid ──
   [WowSpec.BALANCE]: {
     id: WowSpec.BALANCE,
     class: WowClass.DRUID,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.MACE_1H, WeaponType.DAGGER, WeaponType.FIST],
+    usableWeaponTypes: [WeaponType.STAFF, WeaponType.MACE_1H, WeaponType.DAGGER, WeaponType.FIST, WeaponType.OFFHAND],
   },
   [WowSpec.FERAL]: {
     id: WowSpec.FERAL,
@@ -307,7 +343,7 @@ export const WOW_SPEC_REGISTRY: Record<WowSpec, IWowSpecData> = {
     id: WowSpec.RESTORATION_DRUID,
     class: WowClass.DRUID,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.MACE_1H, WeaponType.DAGGER, WeaponType.FIST],
+    usableWeaponTypes: [WeaponType.STAFF, WeaponType.MACE_1H, WeaponType.DAGGER, WeaponType.FIST, WeaponType.OFFHAND],
   },
   // ── Death Knight ──
   [WowSpec.BLOOD]: {
@@ -354,7 +390,7 @@ export const WOW_SPEC_REGISTRY: Record<WowSpec, IWowSpecData> = {
     id: WowSpec.MISTWEAVER,
     class: WowClass.MONK,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.MACE_1H, WeaponType.AXE_1H, WeaponType.FIST],
+    usableWeaponTypes: [WeaponType.STAFF, WeaponType.MACE_1H, WeaponType.AXE_1H, WeaponType.FIST, WeaponType.OFFHAND],
   },
   [WowSpec.WINDWALKER]: {
     id: WowSpec.WINDWALKER,
@@ -412,6 +448,7 @@ export const WOW_SPEC_REGISTRY: Record<WowSpec, IWowSpecData> = {
       WeaponType.SWORD_1H,
       WeaponType.DAGGER,
       WeaponType.FIST,
+      WeaponType.OFFHAND,
     ],
   },
   [WowSpec.PRESERVATION]: {
@@ -425,6 +462,7 @@ export const WOW_SPEC_REGISTRY: Record<WowSpec, IWowSpecData> = {
       WeaponType.SWORD_1H,
       WeaponType.DAGGER,
       WeaponType.FIST,
+      WeaponType.OFFHAND,
     ],
   },
   [WowSpec.AUGMENTATION]: {
@@ -438,6 +476,7 @@ export const WOW_SPEC_REGISTRY: Record<WowSpec, IWowSpecData> = {
       WeaponType.SWORD_1H,
       WeaponType.DAGGER,
       WeaponType.FIST,
+      WeaponType.OFFHAND,
     ],
   },
 };

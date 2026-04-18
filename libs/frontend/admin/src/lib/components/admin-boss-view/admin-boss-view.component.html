@@ -41,6 +41,18 @@
       }
 
       @if (selectedDifficulty() && !loadingAll()) {
+        <div class="active-difficulty-bar">
+          @for (d of difficulties; track d.key) {
+            <button
+              class="diff-btn"
+              [class]="'tier-' + d.key"
+              [class.active]="selectedDifficulty() === d.value"
+              (click)="selectedDifficulty.set(d.value)"
+            >
+              {{ d.label }}
+            </button>
+          }
+        </div>
         <div class="boss-sections">
           @for (view of bossLootViews(); track view.boss.id) {
             <div class="loot-view" [id]="'boss-' + view.boss.id">

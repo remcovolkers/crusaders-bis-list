@@ -8,6 +8,7 @@ export enum WeaponType {
   GUN = 'gun',
   MACE_1H = 'mace_1h',
   MACE_2H = 'mace_2h',
+  OFFHAND = 'offhand',
   POLEARM = 'polearm',
   SHIELD = 'shield',
   STAFF = 'staff',

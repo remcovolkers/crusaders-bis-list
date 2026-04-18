@@ -10,6 +10,7 @@ export const WEAPON_TYPE_LABELS: Record<WeaponType, string> = {
   [WeaponType.GUN]: 'Gun',
   [WeaponType.MACE_1H]: 'One-Hand Mace',
   [WeaponType.MACE_2H]: 'Two-Hand Mace',
+  [WeaponType.OFFHAND]: 'Off Hand',
   [WeaponType.POLEARM]: 'Polearm',
   [WeaponType.SHIELD]: 'Shield',
   [WeaponType.STAFF]: 'Staff',

@@ -96,10 +96,23 @@ function mapItemCategory(
     };
   }
 
+  // Off-hand frails (books, orbs, tomes) — Blizzard may classify these as item_class 2 or 4
+  // depending on the expansion; check invType first to be safe.
+  if (invType === 'HOLDABLE') {
+    return {
+      category: ItemCategory.OFFHAND,
+      armorType: ArmorType.NONE,
+      primaryStats: extractPrimaryStatsFromBlizzard(item),
+      weaponType: WeaponType.OFFHAND,
+      slot,
+      isPrioritizable: true,
+    };
+  }
+
   // Weapons (Blizzard item class 2)
   if (itemClassId === 2) {
-    if (['HOLDABLE', 'SHIELD'].includes(invType)) {
-      const weaponType = invType === 'SHIELD' ? WeaponType.SHIELD : WeaponType.OTHER;
+    if (invType === 'SHIELD') {
+      const weaponType = WeaponType.SHIELD;
       return {
         category: ItemCategory.OFFHAND,
         armorType: ArmorType.NONE,
@@ -143,6 +156,7 @@ function mapItemCategory(
   // Armor (Blizzard item class 4)
   if (itemClassId === 4) {
     // Blizzard stores shields as armor class (id=4), subclass 6. Route to OFFHAND.
+    // Note: HOLDABLE is already handled above before reaching here.
     if (invType === 'SHIELD') {
       return {
         category: ItemCategory.OFFHAND,
