@@ -1,4 +1,4 @@
-﻿import { Component, inject, computed } from '@angular/core';
+﻿import { Component, inject, computed, signal } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -29,6 +29,7 @@ export class App {
   readonly isAdmin = toSignal(this.store.select(selectIsAdmin), { initialValue: false });
   readonly isSuperUser = computed(() => this.currentUser()?.email === 'remco.volkers1@gmail.com');
   readonly isBnetLinked = computed(() => this.currentUser()?.bnetLinked ?? false);
+  readonly menuOpen = signal(false);
 
   linkBnet(): void {
     this.authService.redirectToBnetLink();

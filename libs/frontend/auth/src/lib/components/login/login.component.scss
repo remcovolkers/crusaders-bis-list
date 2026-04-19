@@ -91,3 +91,18 @@ h1 {
   height: 20px;
   object-fit: contain;
 }
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 32px 20px;
+    border-radius: 12px;
+  }
+
+  .logo-icon {
+    font-size: 40px;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+}

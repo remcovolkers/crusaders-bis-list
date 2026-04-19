@@ -45,6 +45,7 @@ export class RaiderLootOverviewComponent implements OnInit {
   // UI-only modal state (not part of application state)
   readonly showReserveModal = signal(false);
   readonly pendingReserveItem = signal<ItemWithReservation | null>(null);
+  readonly sidebarOpen = signal(false);
 
   // Domain constants for template binding
   readonly categoryLabels = ITEM_CATEGORY_LABELS;

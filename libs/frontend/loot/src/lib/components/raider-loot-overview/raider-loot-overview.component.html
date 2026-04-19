@@ -3,11 +3,17 @@
 }
 
 @if (state.catalog() && !state.loading()) {
-  <div class="loot-layout">
+  <div class="loot-layout" [class.sidebar-is-open]="sidebarOpen()">
+    <!-- Mobile sidebar overlay -->
+    @if (sidebarOpen()) {
+      <button class="sidebar-overlay" (click)="sidebarOpen.set(false)" aria-label="Sluit bosslijst"></button>
+    }
+
     <!-- Left sidebar: boss list -->
-    <aside class="boss-sidebar">
+    <aside class="boss-sidebar" [class.open]="sidebarOpen()">
       <div class="sidebar-header">
         <span class="sidebar-title">{{ state.catalog()!.season.name }}</span>
+        <button class="sidebar-close-btn" (click)="sidebarOpen.set(false)" aria-label="Sluit bosslijst">&#x2715;</button>
       </div>
 
       @for (group of state.raidGroups(); track group.raidName) {
@@ -22,6 +28,7 @@
               (click)="scrollToBoss(boss.id)"
               (keydown.enter)="scrollToBoss(boss.id)"
               [style.--boss-color]="getBossColor(boss)"
+              (click)="scrollToBoss(boss.id); sidebarOpen.set(false)"
             >
               <span class="boss-dot"></span>
               <span class="boss-row-name">{{ boss.name }}</span>
@@ -35,6 +42,7 @@
     <div class="loot-main">
       <!-- Top bar: profile + reservation counters -->
       <div class="loot-topbar">
+        <button class="sidebar-toggle-btn" (click)="sidebarOpen.set(true)" aria-label="Open bosslijst">&#x2630;</button>
         <div class="profile-area">
           @if (state.profile()) {
             <div class="profile-badge" [style.border-color]="state.classColor()" [style.color]="state.classColor()">

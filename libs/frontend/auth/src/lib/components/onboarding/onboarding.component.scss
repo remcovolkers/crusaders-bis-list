@@ -448,3 +448,65 @@
   color: var(--text-muted);
   margin-top: 2px;
 }
+
+
+@media (max-width: 640px) {
+  .onboarding-wrapper {
+    padding: 12px;
+    align-items: flex-start;
+  }
+
+  .onboarding-card {
+    padding: 24px 16px;
+    border-radius: 10px;
+    margin: 0;
+  }
+
+  .onboarding-title {
+    font-size: 18px;
+  }
+
+  .onboarding-subtitle {
+    font-size: 13px;
+  }
+
+  .onboarding-header {
+    margin-bottom: 20px;
+  }
+
+  .step-indicator {
+    margin-bottom: 20px;
+  }
+
+  .char-list {
+    max-height: 260px;
+  }
+
+  .char-card {
+    padding: 8px 12px;
+  }
+
+  .btn-primary,
+  .btn-ghost {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .step-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .bnet-nudge {
+    padding: 14px;
+  }
+
+  .blizzard-chars-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .manual-entry-notice {
+    font-size: 12px;
+  }
+}

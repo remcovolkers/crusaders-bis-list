@@ -36,7 +36,49 @@
         <button class="btn-ghost btn logout-btn" (click)="logout()">Uitloggen</button>
       </div>
     }
+
+    <!-- Mobile: hamburger -->
+    <button class="mobile-menu-btn" (click)="menuOpen.set(!menuOpen())" [attr.aria-expanded]="menuOpen()" aria-label="Menu">
+      <span class="hamburger-line" [class.open]="menuOpen()"></span>
+    </button>
   </header>
+
+  <!-- Mobile dropdown menu -->
+  @if (menuOpen()) {
+    <div class="mobile-nav-drawer">
+      @if (currentUser(); as user) {
+        <div class="mobile-user-row">
+          @if (user.avatarUrl) {
+            <img class="user-avatar" [src]="user.avatarUrl" [alt]="user.displayName" />
+          }
+          <span class="user-name">{{ user.displayName }}</span>
+          @if (isAdmin()) {
+            <span class="badge badge-gold">Admin</span>
+          }
+        </div>
+      }
+      <nav class="mobile-nav-links">
+        <a routerLink="/loot" routerLinkActive="active" (click)="menuOpen.set(false)">Mijn Loot</a>
+        @if (isAdmin()) {
+          <a routerLink="/admin/boss-view" routerLinkActive="active" (click)="menuOpen.set(false)">Loot toewijzing</a>
+          <a routerLink="/admin/admin-panel" routerLinkActive="active" (click)="menuOpen.set(false)">Admin Panel</a>
+        }
+        @if (isSuperUser()) {
+          <a routerLink="/dev-panel" routerLinkActive="active" (click)="menuOpen.set(false)">Dev Panel</a>
+          <a routerLink="/feedback-inbox" routerLinkActive="active" (click)="menuOpen.set(false)">Feedback</a>
+        }
+      </nav>
+      <div class="mobile-nav-footer">
+        @if (!isBnetLinked()) {
+          <button class="btn-link-bnet" (click)="linkBnet(); menuOpen.set(false)">
+            <img src="/assets/bnet_logo.png" alt="Battle.net" class="bnet-icon" />
+            Link Battle.net
+          </button>
+        }
+        <button class="btn-ghost logout-btn" (click)="logout()">Uitloggen</button>
+      </div>
+    </div>
+  }
 }
 
 <main class="app-main">

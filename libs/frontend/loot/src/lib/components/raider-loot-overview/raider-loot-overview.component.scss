@@ -976,3 +976,176 @@
 .error {
   color: #f87171;
 }
+
+
+/* -- Mobile sidebar toggle button (hidden on desktop) -- */
+.sidebar-toggle-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+}
+
+.sidebar-close-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: auto;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+}
+
+.sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* Show hamburger, hide sidebar by default */
+  .sidebar-toggle-btn {
+    display: flex;
+  }
+
+  .sidebar-close-btn {
+    display: block;
+  }
+
+  .boss-sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 260px;
+    height: 100dvh;
+    z-index: 300;
+    transition: left 0.25s ease;
+    box-shadow: none;
+
+    &.open {
+      left: 0;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 299;
+    border: none;
+    padding: 0;
+    cursor: default;
+  }
+
+  /* Topbar: stack counters below profile on small screens */
+  .loot-topbar {
+    flex-wrap: wrap;
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .profile-area {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .reservation-counters {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .res-counter {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  /* Tab bar: horizontal scroll, no search visible inline */
+  .tab-bar {
+    padding: 8px 12px;
+    gap: 4px;
+
+    .search-input {
+      min-width: 120px;
+    }
+  }
+
+  /* Boss sections */
+  .boss-sections {
+    padding: 12px;
+    gap: 24px;
+  }
+
+  /* Items grid: single column on mobile */
+  .items-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .item-card {
+    padding: 10px;
+  }
+
+  .item-name {
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  /* Tooltip: show above on mobile to avoid overflow */
+  .card-info-tooltip {
+    right: 0;
+    left: auto;
+    top: auto;
+    bottom: calc(100% + 6px);
+    transform: translateY(4px);
+
+    &:hover {
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .loot-topbar {
+    padding: 8px;
+  }
+
+  .boss-sections {
+    padding: 10px 8px;
+  }
+
+  .tab-bar {
+    padding: 6px 8px;
+  }
+
+  .profile-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .boss-section-name {
+    font-size: 13px;
+  }
+}
