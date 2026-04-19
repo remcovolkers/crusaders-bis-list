@@ -29,4 +29,6 @@ export interface UpsertItemData {
   iconUrl?: string;
   isPrioritizable: boolean;
   isSuperRare?: boolean;
+  mergedWithItemId?: number;
+  mergedDisplayName?: string;
 }

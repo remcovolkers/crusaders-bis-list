@@ -351,6 +351,29 @@ export class SyncRaidCatalogFromBlizzardUseCase {
 
     this.logger.log(`Blizzard sync complete — ${totalItems} items synced.`);
 
+    // Apply merged-item definitions from the season config.
+    // Primary (first ID) gets mergedDisplayName; all others get mergedWithItemId + are hidden.
+    if (ACTIVE_SEASON.mergedItems?.length) {
+      for (const merge of ACTIVE_SEASON.mergedItems) {
+        const [primaryId, ...secondaryIds] = merge.itemIds;
+        const primary = await this.catalogRepo.findItemByWowId(primaryId);
+        if (!primary) {
+          this.logger.warn(`Merged item definition skipped — primary item ${primaryId} not found in DB.`);
+          continue;
+        }
+        await this.catalogRepo.updateItemMerge(primaryId, null, merge.displayName);
+        for (const secondaryId of secondaryIds) {
+          const secondary = await this.catalogRepo.findItemByWowId(secondaryId);
+          if (secondary) {
+            await this.catalogRepo.updateItemMerge(secondaryId, primaryId, null);
+            this.logger.log(`Merged: "${secondary.name}" → primary "${merge.displayName}"`);
+          } else {
+            this.logger.warn(`Merged item definition: secondary item ${secondaryId} not found in DB — skipped.`);
+          }
+        }
+      }
+    }
+
     if (warnings.length) {
       this.logger.warn(`Sync warnings (${warnings.length}):\n  ${warnings.join('\n  ')}`);
     }

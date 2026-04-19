@@ -45,6 +45,8 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
       iconUrl: i.iconUrl,
       isPrioritizable: i.isPrioritizable,
       isSuperRare: i.isSuperRare,
+      mergedWithItemId: i.mergedWithItemId,
+      mergedDisplayName: i.mergedDisplayName,
     };
   }
 
@@ -173,6 +175,24 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
     const item = await this.itemRepo.findOneOrFail({ where: { id: itemId } });
     const bossName = (await this.bossRepo.findOne({ where: { id: item.bossId } }))?.name ?? '';
     return this.toIItem(item, bossName);
+  }
+
+  async findItemByWowId(wowItemId: number): Promise<IItem | null> {
+    const item = await this.itemRepo.findOne({ where: { wowItemId } });
+    if (!item) return null;
+    const bossName = (await this.bossRepo.findOne({ where: { id: item.bossId } }))?.name ?? '';
+    return this.toIItem(item, bossName);
+  }
+
+  async updateItemMerge(
+    wowItemId: number,
+    mergedWithItemId: number | null,
+    mergedDisplayName: string | null,
+  ): Promise<void> {
+    await this.itemRepo.update(
+      { wowItemId },
+      { mergedWithItemId: mergedWithItemId ?? undefined, mergedDisplayName: mergedDisplayName ?? undefined },
+    );
   }
 
   async clearCatalog(): Promise<void> {

@@ -13,6 +13,8 @@ export interface IRaidCatalogRepository {
   upsertSeason(data: UpsertSeasonData): Promise<IRaidSeason>;
   upsertBoss(data: UpsertBossData): Promise<IBoss>;
   upsertItem(data: UpsertItemData): Promise<IItem>;
+  findItemByWowId(wowItemId: number): Promise<IItem | null>;
+  updateItemMerge(wowItemId: number, mergedWithItemId: number | null, mergedDisplayName: string | null): Promise<void>;
   updateItemSuperRare(itemId: string, isSuperRare: boolean): Promise<IItem>;
   /** Remove all items, bosses and seasons (in FK order). */
   clearCatalog(): Promise<void>;

@@ -39,4 +39,15 @@ export interface IItem {
   iconUrl?: string;
   isPrioritizable: boolean;
   isSuperRare?: boolean;
+  /**
+   * When set, this item is the secondary form of a toggle item. The value is the
+   * `wowItemId` of the primary item. Secondary items are hidden in the UI and
+   * their reservations are counted against the primary.
+   */
+  mergedWithItemId?: number;
+  /**
+   * Overrides the display name when two items are merged (shown on the primary item).
+   * E.g. "Radiant / Umbral Plume"
+   */
+  mergedDisplayName?: string;
 }

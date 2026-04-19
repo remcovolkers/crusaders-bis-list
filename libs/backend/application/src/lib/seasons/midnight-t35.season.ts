@@ -61,4 +61,18 @@ export const MIDNIGHT_T35_SEASON: SeasonDefinition = {
     { match: /alncured|voidcured/i, armorType: ArmorType.LEATHER },
     { match: /alncast|voidcast/i, armorType: ArmorType.MAIL },
   ],
+
+  /**
+   * Toggle trinkets that appear as two separate Blizzard items but are one
+   * in-game item. Reserving the primary counts as one reservation.
+   *
+   *   - Radiant Plume: https://www.wowhead.com/item=249806/radiant-plume
+   *   - Umbral Plume:  https://www.wowhead.com/item=260235/umbral-plume
+   */
+  mergedItems: [
+    {
+      itemIds: [249806, 260235], // Radiant Plume, Umbral Plume
+      displayName: 'Radiant / Umbral Plume',
+    },
+  ],
 };

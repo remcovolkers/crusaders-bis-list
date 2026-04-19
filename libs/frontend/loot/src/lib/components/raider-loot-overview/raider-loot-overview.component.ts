@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import {
   AssignmentStatus,
+  IItem,
   ITEM_CATEGORY_LABELS,
   TIER_LABELS,
   WEAPON_TYPE_LABELS,
@@ -122,5 +123,15 @@ export class RaiderLootOverviewComponent implements OnInit {
 
   getBossColor(boss: { raidAccentColor?: string }): string {
     return boss.raidAccentColor ?? '#94a3b8';
+  }
+
+  /**
+   * Returns the icon URL of the secondary (hidden) merged item for a given primary item,
+   * by searching the raw boss items list for an entry whose mergedWithItemId matches.
+   */
+  getMergedSecondaryIconUrl(item: IItem, allBossItems: IItem[]): string | null {
+    if (!item.mergedDisplayName) return null;
+    const secondary = allBossItems.find((i) => i.mergedWithItemId === item.wowItemId);
+    return secondary?.iconUrl ?? null;
   }
 }

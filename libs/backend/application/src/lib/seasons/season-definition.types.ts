@@ -44,6 +44,19 @@ export interface TierArmorTypePrefix {
   armorType: ArmorType;
 }
 
+/**
+ * A group of Blizzard item IDs that represent the same physical in-game item
+ * (e.g. a toggle trinket with multiple forms). The first ID is treated as the
+ * primary (shown in the UI); all others are hidden and their reservations are
+ * folded into the primary.
+ */
+export interface MergedItemDefinition {
+  /** At least two item IDs. First = primary shown in UI; rest = hidden aliases. */
+  itemIds: [number, number, ...number[]];
+  /** Display name shown in the UI (replaces all individual item names). */
+  displayName: string;
+}
+
 export interface SeasonDefinition {
   /** Stored in the DB — change only if you deliberately want a new season row. */
   slug: string;
@@ -63,4 +76,10 @@ export interface SeasonDefinition {
    * Omit this array for seasons where all tokens are universal.
    */
   tierArmorTypePrefixes?: TierArmorTypePrefix[];
+  /**
+   * Optional: pairs of Blizzard item IDs that represent the same in-game item
+   * (e.g. a toggle trinket with two forms). The secondary item will be hidden in
+   * the UI and reservations are counted once against the primary.
+   */
+  mergedItems?: MergedItemDefinition[];
 }

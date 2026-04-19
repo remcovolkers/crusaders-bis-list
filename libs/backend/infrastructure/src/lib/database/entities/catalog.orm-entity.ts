@@ -89,4 +89,10 @@ export class ItemOrmEntity {
 
   @Column({ name: 'is_super_rare', default: false })
   isSuperRare!: boolean;
+
+  @Column({ name: 'merged_with_item_id', type: 'int', nullable: true })
+  mergedWithItemId?: number;
+
+  @Column({ name: 'merged_display_name', type: 'varchar', nullable: true })
+  mergedDisplayName?: string;
 }

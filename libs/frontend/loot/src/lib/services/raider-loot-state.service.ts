@@ -197,15 +197,20 @@ export class RaiderLootStateService {
       .filter((i) => {
         if (!i.itemLevel || i.itemLevel <= 1) return false;
         if (!i.isPrioritizable) return false;
+        // Secondary merged items are hidden — they count against the primary's reservation
+        if (i.mergedWithItemId != null) return false;
         if (!profile) return false; // no profile = nothing reservable visible
         if (this.config() && !this.isItemReservable(i)) return false;
         if (!canClassReserveItem(profile.wowClass, profile.spec as WowSpec, i)) return false;
         if (activeTab !== 'all' && !itemMatchesTab(i, activeTab)) return false;
-        if (query && !i.name.toLowerCase().includes(query)) return false;
+        const displayName = i.mergedDisplayName ?? i.name;
+        if (query && !displayName.toLowerCase().includes(query)) return false;
         return true;
       })
       .map((i) => ({
         ...i,
+        // Show the merged display name in the UI when set
+        name: i.mergedDisplayName ?? i.name,
         isReserved: map.has(i.id),
         reservationId: map.get(i.id),
       }));
