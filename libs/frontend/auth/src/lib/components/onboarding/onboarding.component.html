@@ -47,13 +47,43 @@
             {{ updateCharMode() ? 'Overslaan' : 'Handmatig invullen →' }}
           </button>
         } @else {
+          @if (!updateCharMode() && !selectedCharacter() && characterName().trim().length > 0) {
+            <div class="manual-entry-notice">
+              <span class="manual-entry-icon">&#x26A0;</span>
+              <span class="manual-entry-text">Met de hand ingevoerd — niet gevalideerd via Battle.net.</span>
+            </div>
+            <div class="char-card char-card--current">
+              <div class="char-card-main">
+                <span class="char-name" [style.color]="classColor(selectedClass()!)">{{ characterName() }}</span>
+                <span class="char-level-badge">Huidig</span>
+              </div>
+              <div class="char-card-sub">
+                @if (selectedClass()) {
+                  <span class="char-class-dot" [style.background]="classColor(selectedClass()!)"></span>
+                  <span class="char-meta">{{ selectedClass() }} &middot; {{ realm() }}</span>
+                } @else {
+                  <span class="char-meta">{{ realm() }}</span>
+                }
+              </div>
+            </div>
+            <p class="char-list-heading">Hier zijn je Blizzard characters:</p>
+          }
           <div class="char-list">
             @for (char of wowCharacters(); track char.name + char.realm) {
-              <button class="char-card" [disabled]="saving()" (click)="pickCharacter(char)">
-                <span class="char-name">{{ char.name }}</span>
-                <span class="char-meta"
-                  >{{ char.realm }} &middot; {{ char.wowClass }} &middot; lvl {{ char.level }}</span
-                >
+              <button
+                class="char-card"
+                [disabled]="saving()"
+                [style.--class-color]="classColor(char.wowClass)"
+                (click)="pickCharacter(char)"
+              >
+                <div class="char-card-main">
+                  <span class="char-name" [style.color]="classColor(char.wowClass)">{{ char.name }}</span>
+                  <span class="char-level-badge">lvl {{ char.level }}</span>
+                </div>
+                <div class="char-card-sub">
+                  <span class="char-class-dot" [style.background]="classColor(char.wowClass)"></span>
+                  <span class="char-meta">{{ char.wowClass }} &middot; {{ char.realm }}</span>
+                </div>
               </button>
             }
           </div>
@@ -89,7 +119,7 @@
           </div>
         }
 
-        @if (!editMode() && isBnetLinked() && wowCharacters().length > 0) {
+        @if (!editMode() && isBnetLinked() && wowCharacters().length > 0 && !selectedCharacter()) {
           <button class="btn-ghost blizzard-chars-btn" (click)="step.set(0)">
             <img src="/assets/bnet_logo.png" alt="" class="bnet-nudge-icon" />
             Toon Blizzard characters

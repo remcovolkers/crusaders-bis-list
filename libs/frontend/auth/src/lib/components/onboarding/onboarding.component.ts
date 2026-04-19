@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ClassSpecSelectorComponent, ClassSpecSelection } from '@crusaders-bis-list/frontend-shared-ui';
-import { WowClass, WowSpec } from '@crusaders-bis-list/shared-domain';
+import { WowClass, WowSpec, WOW_CLASS_REGISTRY } from '@crusaders-bis-list/shared-domain';
 import { API_URL } from '../../tokens/api-url.token';
 import { AuthService } from '../../services/auth.service';
 import * as AuthActions from '../../state/auth.actions';
@@ -196,6 +196,10 @@ export class OnboardingComponent implements OnInit {
   onClassSpecChange(sel: ClassSpecSelection): void {
     this.selectedClass.set(sel.wowClass);
     this.selectedSpec.set(sel.spec);
+  }
+
+  classColor(wowClass: WowClass): string {
+    return WOW_CLASS_REGISTRY[wowClass]?.color ?? '#94a3b8';
   }
 
   get canProceedStep1(): boolean {
