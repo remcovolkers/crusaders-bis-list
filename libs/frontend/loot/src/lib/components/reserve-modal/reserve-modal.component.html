@@ -19,20 +19,25 @@
     </div>
 
     <div class="modal-body">
-      <p class="reserve-question">Reserveer je dit item?</p>
-      <p class="reserve-subtext">
-        Heb je dit item al ontvangen op een lagere difficulty? Geef dat dan hieronder aan — je reservering blijft dan
-        nog geldig voor hogere versies.
-      </p>
-      <p class="receive-label">Ik heb dit item al ontvangen op:</p>
+      <div class="modal-changelog-warning">
+        ⚠️ Dit venster is recent aangepast. Je geeft nu aan op welke tiers je wilt <strong>reserveren</strong>, in plaats van op welke je het item al hebt ontvangen.
+      </div>
+
+      <p class="reserve-question">Reserveer dit item op de volgende tiers</p>
+      <p class="reserve-subtext">Meerdere antwoorden mogelijk — een lagere tier selecteren includeert automatisch hogere tiers.</p>
+
       <div class="tier-options">
         @for (tier of receivableTiers; track tier) {
           <button
             class="tier-btn"
-            [class.selected]="selectedTier() === tier"
-            (click)="selectedTier.set(selectedTier() === tier ? null : tier)"
+            [class.selected]="isTierIncluded(tier)"
+            [class.is-floor]="selectedFloor() === tier"
+            (click)="selectedFloor.set(selectedFloor() === tier ? null : tier)"
           >
-            {{ tierLabels[tier] }}
+            <span class="tier-btn-label">{{ tierLabels[tier] }}</span>
+            @if (isTierIncluded(tier) && selectedFloor() !== tier) {
+              <span class="tier-btn-auto">auto</span>
+            }
           </button>
         }
       </div>
@@ -40,7 +45,7 @@
 
     <div class="modal-footer">
       <button class="btn-ghost" (click)="cancelled.emit()">Annuleer</button>
-      <button class="btn-primary" (click)="confirm()">{{ confirmButtonLabel() }}</button>
+      <button class="btn-primary" [disabled]="!selectedFloor()" (click)="confirm()">{{ confirmButtonLabel() }}</button>
     </div>
   </div>
 </div>

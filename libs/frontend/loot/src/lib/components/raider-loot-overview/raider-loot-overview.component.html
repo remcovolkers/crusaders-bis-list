@@ -184,7 +184,6 @@
 @if (showReserveModal() && pendingReserveItem(); as item) {
   <lib-reserve-modal
     [item]="item"
-    [receivedItem]="state.getReceivedItem(item.id)"
     (confirmed)="onReserveConfirmed($event)"
     (cancelled)="onReserveCancelled()"
   />
