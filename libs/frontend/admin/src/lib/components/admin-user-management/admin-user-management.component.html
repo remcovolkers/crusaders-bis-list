@@ -7,6 +7,37 @@
         Bekijk alle geregistreerde gebruikers, pas adminrollen aan, reset raider-profielen en beheer reservaties per
         gebruiker.
       </p>
+
+      <div class="reset-all-section">
+        @if (!confirmingResetAll()) {
+          <button
+            class="btn-danger-outline"
+            (click)="requestResetAll()"
+            title="Verwijder alle reserveringen en mail alle gebruikers"
+          >
+            &#x1F5D1; Reset alle reserveringen
+          </button>
+        } @else {
+          <div class="reset-all-confirm">
+            <p class="reset-all-confirm-label">
+              Weet je het zeker? Dit verwijdert <strong>alle</strong> reserveringen en mailt alle gebruikers.
+            </p>
+            <textarea
+              class="reset-reason-input"
+              placeholder="Reden (optioneel) — wordt meegestuurd in de mail..."
+              rows="2"
+              [ngModel]="resetReason()"
+              (ngModelChange)="resetReason.set($event)"
+            ></textarea>
+            <div class="reset-all-confirm-actions">
+              <button class="btn-danger" [disabled]="resettingAll()" (click)="confirmResetAll()">
+                {{ resettingAll() ? 'Bezig...' : 'Ja, reset alles' }}
+              </button>
+              <button class="btn-ghost" [disabled]="resettingAll()" (click)="abortResetAll()">Annuleer</button>
+            </div>
+          </div>
+        }
+      </div>
     </div>
 
     @if (users().length) {

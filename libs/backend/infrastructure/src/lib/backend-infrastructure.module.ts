@@ -18,6 +18,7 @@ import { RaidCatalogRepository } from './database/repositories/raid-catalog.repo
 import { SeasonConfigRepository } from './database/repositories/season-config.repository';
 import { ReceivedItemRepository } from './database/repositories/received-item.repository';
 import { BlizzardApiService } from './blizzard/blizzard-api.service';
+import { EmailService } from './email/email.service';
 
 import {
   USER_REPOSITORY,
@@ -57,6 +58,7 @@ const ORM_ENTITIES = [
     { provide: RECEIVED_ITEM_REPOSITORY, useClass: ReceivedItemRepository },
     { provide: BLIZZARD_API_SERVICE, useClass: BlizzardApiService },
     FeedbackRepository,
+    EmailService,
   ],
   exports: [
     USER_REPOSITORY,
@@ -69,6 +71,7 @@ const ORM_ENTITIES = [
     RECEIVED_ITEM_REPOSITORY,
     BLIZZARD_API_SERVICE,
     FeedbackRepository,
+    EmailService,
   ],
 })
 export class BackendInfrastructureModule {}

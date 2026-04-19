@@ -19,6 +19,8 @@ export interface IReservationRepository {
   findExisting(raiderId: string, itemId: string, raidSeasonId: string): Promise<Reservation | null>;
   save(reservation: CreateReservationData): Promise<Reservation>;
   delete(id: string): Promise<void>;
+  deleteByRaider(raiderId: string): Promise<void>;
+  deleteAll(): Promise<void>;
 }
 
 export const RESERVATION_REPOSITORY = Symbol('IReservationRepository');

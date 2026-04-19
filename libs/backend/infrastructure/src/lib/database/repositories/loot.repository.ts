@@ -84,6 +84,14 @@ export class ReservationRepository implements IReservationRepository {
   async delete(id: string): Promise<void> {
     await this.repo.delete(id);
   }
+
+  async deleteByRaider(raiderId: string): Promise<void> {
+    await this.repo.delete({ raiderId });
+  }
+
+  async deleteAll(): Promise<void> {
+    await this.repo.clear();
+  }
 }
 
 @Injectable()

@@ -102,6 +102,10 @@ export class AdminService {
     return this.http.delete<void>(`${this.base}/admin/reservations/${reservationId}`);
   }
 
+  resetAllReservations(reason?: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/admin/reservations/reset-all`, { reason });
+  }
+
   resetRaiderProfile(raiderId: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/admin/raiders/${raiderId}`);
   }

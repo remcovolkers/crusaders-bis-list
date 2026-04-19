@@ -1,5 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
   AdminService,
   RaiderReservationEntry,
@@ -11,7 +12,7 @@ import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
   selector: 'lib-admin-user-management',
-  imports: [NgClass],
+  imports: [NgClass, FormsModule],
   templateUrl: './admin-user-management.component.html',
   styleUrls: ['./admin-user-management.component.scss'],
 })
@@ -27,6 +28,9 @@ export class AdminUserManagementComponent implements OnInit {
   readonly confirmingResetRaiderId = signal<string | null>(null);
   readonly confirmingDeleteUserId = signal<string | null>(null);
   readonly confirmingUnlinkBnetUserId = signal<string | null>(null);
+  readonly confirmingResetAll = signal(false);
+  readonly resettingAll = signal(false);
+  readonly resetReason = signal('');
   readonly adminRole = UserRole.ADMIN;
   readonly AssignmentStatus = AssignmentStatus;
 
@@ -240,6 +244,31 @@ export class AdminUserManagementComponent implements OnInit {
       next: () => {
         this.users.update((list) => list.map((u) => (u.id === user.id ? { ...u, isCrusadersMember: false } : u)));
         this.toast.show(`${user.displayName} is geen Crusader meer.`);
+      },
+    });
+  }
+
+  requestResetAll(): void {
+    this.confirmingResetAll.set(true);
+    this.resetReason.set('');
+  }
+
+  abortResetAll(): void {
+    this.confirmingResetAll.set(false);
+  }
+
+  confirmResetAll(): void {
+    this.resettingAll.set(true);
+    this.adminService.resetAllReservations(this.resetReason() || undefined).subscribe({
+      next: () => {
+        this.reservationsByUserId.set(new Map());
+        this.confirmingResetAll.set(false);
+        this.resettingAll.set(false);
+        this.toast.show('Alle reserveringen zijn gereset. Gebruikers ontvangen een e-mail.');
+      },
+      error: () => {
+        this.resettingAll.set(false);
+        this.toast.show('Reset mislukt. Probeer opnieuw.', 'error');
       },
     });
   }

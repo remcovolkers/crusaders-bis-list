@@ -27,6 +27,7 @@ import {
   SyncRaidCatalogFromBlizzardUseCase,
   ResetCatalogAndSyncUseCase,
   UpdateItemSuperRareUseCase,
+  ResetAllReservationsUseCase,
 } from '@crusaders-bis-list/backend-application';
 import {
   RAIDER_REPOSITORY,
@@ -55,6 +56,7 @@ export class AdminController {
     private readonly syncCatalog: SyncRaidCatalogFromBlizzardUseCase,
     private readonly resetAndSync: ResetCatalogAndSyncUseCase,
     private readonly updateItemSuperRare: UpdateItemSuperRareUseCase,
+    private readonly resetAllReservations: ResetAllReservationsUseCase,
     @Inject(RAIDER_REPOSITORY) private readonly raiderRepo: IRaiderRepository,
     @Inject(USER_REPOSITORY) private readonly userRepo: IUserRepository,
   ) {}
@@ -144,6 +146,12 @@ export class AdminController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async adminCancelReservation(@Param('id') reservationId: string) {
     await this.cancelReservation.execute(reservationId);
+  }
+
+  @Post('reservations/reset-all')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async resetAllReservationsEndpoint(@Body() dto: { reason?: string }) {
+    await this.resetAllReservations.execute(dto.reason);
   }
 
   @Get('season-config')

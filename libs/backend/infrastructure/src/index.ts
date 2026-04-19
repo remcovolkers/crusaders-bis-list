@@ -8,4 +8,5 @@ export * from './lib/database/entities/raider-received-item.orm-entity';
 export * from './lib/database/entities/feedback.orm-entity';
 export * from './lib/database/repositories/feedback.repository';
 export * from './lib/blizzard/blizzard-api.service';
+export * from './lib/email/email.service';
 export { MIGRATIONS } from './lib/database/migrations';
