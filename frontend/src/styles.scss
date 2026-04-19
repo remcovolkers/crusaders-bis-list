@@ -50,8 +50,8 @@
 
   /* Gear tier colours */
   --tier-champion: #60a5fa;
-  --tier-hero:     #c084fc;
-  --tier-myth:     #fb923c;
+  --tier-hero: #c084fc;
+  --tier-myth: #fb923c;
 }
 
 /* ============================================================
@@ -432,9 +432,15 @@ h4 {
 }
 
 /* Tier color utilities — apply to any element that needs per-tier coloring */
-.tier-champion_tier { color: var(--tier-champion); }
-.tier-hero_tier     { color: var(--tier-hero); }
-.tier-myth_tier     { color: var(--tier-myth); }
+.tier-champion_tier {
+  color: var(--tier-champion);
+}
+.tier-hero_tier {
+  color: var(--tier-hero);
+}
+.tier-myth_tier {
+  color: var(--tier-myth);
+}
 
 /* ============================================================
    Shared: item icon (small)

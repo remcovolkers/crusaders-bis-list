@@ -266,9 +266,18 @@
   }
 
   &.active {
-    &.tier-champion_tier { background: rgba(96, 165, 250, 0.2); border-color: var(--tier-champion); }
-    &.tier-hero_tier     { background: rgba(192, 132, 252, 0.2); border-color: var(--tier-hero); }
-    &.tier-myth_tier     { background: rgba(251, 146, 60, 0.2); border-color: var(--tier-myth); }
+    &.tier-champion_tier {
+      background: rgba(96, 165, 250, 0.2);
+      border-color: var(--tier-champion);
+    }
+    &.tier-hero_tier {
+      background: rgba(192, 132, 252, 0.2);
+      border-color: var(--tier-hero);
+    }
+    &.tier-myth_tier {
+      background: rgba(251, 146, 60, 0.2);
+      border-color: var(--tier-myth);
+    }
   }
 }
 

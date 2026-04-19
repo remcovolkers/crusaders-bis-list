@@ -49,8 +49,8 @@ export class AdminBossViewComponent implements OnInit {
 
   readonly difficulties = [
     { key: AssignmentStatus.CHAMPION_TIER, label: 'Champion', value: AssignmentStatus.CHAMPION_TIER },
-    { key: AssignmentStatus.HERO_TIER,     label: 'Hero',     value: AssignmentStatus.HERO_TIER },
-    { key: AssignmentStatus.MYTH_TIER,     label: 'Myth',     value: AssignmentStatus.MYTH_TIER },
+    { key: AssignmentStatus.HERO_TIER, label: 'Hero', value: AssignmentStatus.HERO_TIER },
+    { key: AssignmentStatus.MYTH_TIER, label: 'Myth', value: AssignmentStatus.MYTH_TIER },
   ];
 
   readonly categoryLabels = ITEM_CATEGORY_LABELS;

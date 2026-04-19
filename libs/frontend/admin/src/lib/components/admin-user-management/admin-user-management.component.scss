@@ -962,7 +962,6 @@
   }
 }
 
-
 /* -- Reset all reservations -- */
 .page-header-top {
   display: flex;
@@ -972,7 +971,9 @@
   flex-wrap: wrap;
   margin-bottom: 4px;
 
-  h2 { margin: 0; }
+  h2 {
+    margin: 0;
+  }
 }
 
 .btn-danger-outline {
@@ -983,7 +984,9 @@
   color: #f87171;
   font-size: 13px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
   white-space: nowrap;
 
   &:hover {
@@ -1015,8 +1018,13 @@
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover:not(:disabled) { background: #b91c1c; }
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
+  &:hover:not(:disabled) {
+    background: #b91c1c;
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .btn-ghost {
@@ -1032,9 +1040,11 @@
     border-color: var(--border-bright);
     color: var(--text-primary);
   }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
-
 
 /* -- Reset all reservations section -- */
 .reset-all-section {
@@ -1096,7 +1106,9 @@
   color: #f87171;
   font-size: 13px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 
   &:hover {
     background: rgba(239, 68, 68, 0.18);
@@ -1115,8 +1127,13 @@
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover:not(:disabled) { background: #b91c1c; }
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
+  &:hover:not(:disabled) {
+    background: #b91c1c;
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .btn-ghost {
@@ -1132,7 +1149,10 @@
     border-color: var(--border-bright);
     color: var(--text-primary);
   }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 /* -- Mobile -- */
