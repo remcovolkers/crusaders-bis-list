@@ -58,6 +58,7 @@ export class AdminBossViewComponent implements OnInit, OnDestroy {
     (this.diceModal()?.raiders ?? []).map((r) => ({
       raiderId: r.raiderId,
       name: r.characterName,
+      color: WOW_CLASS_REGISTRY[r.wowClass]?.color,
     })),
   );
 
@@ -210,24 +211,34 @@ export class AdminBossViewComponent implements OnInit, OnDestroy {
     const raiders = this.visibleRaiders(drop.eligibleRaiders).map((r) => ({
       raiderId: r.raiderId,
       name: r.characterName,
+      color: WOW_CLASS_REGISTRY[r.wowClass]?.color,
     }));
     if (raiders.length < 2) return;
 
-    this.adminService.createRollSession(drop.item.name, drop.item.iconUrl, bossId, raiders).subscribe({
-      next: ({ sessionId }) => {
-        this.diceModal.set({
-          item: drop.item,
-          bossId,
-          raiders: this.visibleRaiders(drop.eligibleRaiders),
-          rolling: false,
-          displayName: raiders[0].name,
-          winner: null,
-          sessionId,
-          shareUrl: `${window.location.origin}/roll/${sessionId}`,
-        });
-      },
-      error: () => this.toast.show('Kon dobbelsteensessie niet aanmaken.', 'error'),
-    });
+    this.adminService
+      .createRollSession(
+        drop.item.name,
+        drop.item.iconUrl,
+        drop.item.secondaryIconUrl,
+        this.selectedDifficulty() ? this.difficultyLabel(this.selectedDifficulty()!) : undefined,
+        bossId,
+        raiders,
+      )
+      .subscribe({
+        next: ({ sessionId }) => {
+          this.diceModal.set({
+            item: drop.item,
+            bossId,
+            raiders: this.visibleRaiders(drop.eligibleRaiders),
+            rolling: false,
+            displayName: raiders[0].name,
+            winner: null,
+            sessionId,
+            shareUrl: `${window.location.origin}/roll/${sessionId}`,
+          });
+        },
+        error: () => this.toast.show('Kon dobbelsteensessie niet aanmaken.', 'error'),
+      });
   }
 
   closeDiceModal(): void {

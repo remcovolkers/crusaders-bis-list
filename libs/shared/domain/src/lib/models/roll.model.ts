@@ -8,6 +8,8 @@ export interface RollSessionInfo {
   sessionId: string;
   itemName: string;
   itemIconUrl?: string;
-  raiders: { raiderId: string; name: string }[];
+  secondaryIconUrl?: string;
+  difficulty?: string;
+  raiders: { raiderId: string; name: string; color?: string }[];
   status: 'waiting' | 'rolling' | 'done';
 }

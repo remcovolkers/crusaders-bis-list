@@ -5,7 +5,7 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, effect, inp
   standalone: true,
   template: `
     <div class="wheel-host" [style.width.px]="size()" [style.height.px]="size()">
-      <div class="wheel-pointer">&#9660;</div>
+      <div class="wheel-pointer"></div>
       <canvas #canvas [width]="size()" [height]="size()"></canvas>
     </div>
   `,
@@ -17,14 +17,16 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, effect, inp
       }
       .wheel-pointer {
         position: absolute;
-        top: -4px;
+        top: -2px;
         left: 50%;
         transform: translateX(-50%);
-        color: #f0c040;
-        font-size: 22px;
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 22px solid #f0c040;
         z-index: 2;
-        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
-        line-height: 1;
+        filter: drop-shadow(0 2px 8px rgba(240, 192, 64, 0.85));
       }
       canvas {
         display: block;
@@ -34,10 +36,12 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, effect, inp
   ],
 })
 export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
-  readonly raiders = input<{ raiderId: string; name: string }[]>([]);
+  readonly raiders = input<{ raiderId: string; name: string; color?: string }[]>([]);
   readonly spinning = input(false);
   readonly winnerRaiderId = input<string | null>(null);
   readonly size = input(320);
+  readonly itemIconUrl = input<string | undefined>(undefined);
+  readonly secondaryIconUrl = input<string | undefined>(undefined);
   readonly spinDone = output<void>();
 
   @ViewChild('canvas', { static: false }) canvasRef!: ElementRef<HTMLCanvasElement>;
@@ -49,14 +53,45 @@ export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
   private decelerateStart = 0;
   private decelerateFromAngle = 0;
   private decelerateTargetAngle = 0;
-  private readonly DECELERATE_MS = 3500;
-  private readonly SPIN_VELOCITY = 0.06; // rad/frame (~3.4°/frame)
+  private readonly DECELERATE_MS = 4000;
+  private readonly SPIN_VELOCITY = 0.065;
   private canvasReady = false;
 
-  // 8 alternating segment colours (dark WoW-ish palette)
-  private readonly COLORS = ['#5b21b6', '#1d4ed8', '#065f46', '#92400e', '#831843', '#155e75', '#3f6212', '#991b1b'];
+  private hubPrimaryImg: HTMLImageElement | null = null;
+  private hubSecondaryImg: HTMLImageElement | null = null;
+
+  // Vibrant Wheel-of-Fortune palette
+  private readonly COLORS = ['#1a56db', '#f97316', '#16a34a', '#ef4444', '#8b5cf6', '#d97706', '#14b8a6', '#db2777'];
 
   constructor() {
+    effect(() => {
+      const url = this.itemIconUrl();
+      if (url) {
+        const img = new Image();
+        img.onload = () => {
+          this.hubPrimaryImg = img;
+          if (this.canvasReady) this.drawWheel();
+        };
+        img.src = url;
+      } else {
+        this.hubPrimaryImg = null;
+      }
+    });
+
+    effect(() => {
+      const url = this.secondaryIconUrl();
+      if (url) {
+        const img = new Image();
+        img.onload = () => {
+          this.hubSecondaryImg = img;
+          if (this.canvasReady) this.drawWheel();
+        };
+        img.src = url;
+      } else {
+        this.hubSecondaryImg = null;
+      }
+    });
+
     effect(() => {
       const spinning = this.spinning();
       const winner = this.winnerRaiderId();
@@ -166,8 +201,8 @@ export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
     const s = this.size();
     const cx = s / 2;
     const cy = s / 2;
-    const outerR = cx - 6;
-    const innerR = 18; // hub
+    const outerR = cx - 8;
+    const hubR = Math.min(44, Math.round(outerR * 0.28));
     const raiders = this.raiders();
     const n = raiders.length;
 
@@ -182,21 +217,33 @@ export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
       const start = this.currentAngle + i * segAngle;
       const end = start + segAngle;
       const isWinner = this.phase === 'done' && raiders[i].raiderId === winnerRaiderId;
-      const baseColor = this.COLORS[i % this.COLORS.length];
+      const baseColor = raiders[i].color ?? this.COLORS[i % this.COLORS.length];
+      // Slightly darken very bright class colors (e.g. Mage #FFF468) for readability
+      const effectiveColor = this.cap(baseColor);
 
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(cx, cy);
       ctx.arc(cx, cy, outerR, start, end);
       ctx.closePath();
-      ctx.fillStyle = isWinner ? this.lighten(baseColor, 40) : baseColor;
+
       if (isWinner) {
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, outerR);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.4, this.lighten(effectiveColor, 60));
+        grad.addColorStop(1, this.lighten(effectiveColor, 20));
+        ctx.fillStyle = grad;
         ctx.shadowColor = '#f0c040';
-        ctx.shadowBlur = 18;
+        ctx.shadowBlur = 22;
+      } else {
+        const grad = ctx.createRadialGradient(cx, cy, hubR, cx, cy, outerR);
+        grad.addColorStop(0, this.lighten(effectiveColor, 28));
+        grad.addColorStop(1, this.darken(effectiveColor, 12));
+        ctx.fillStyle = grad;
       }
       ctx.fill();
-      ctx.strokeStyle = 'rgba(0,0,0,0.4)';
-      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+      ctx.lineWidth = 1;
       ctx.stroke();
       ctx.restore();
 
@@ -206,36 +253,120 @@ export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
       ctx.translate(cx, cy);
       ctx.rotate(midAngle);
       ctx.textAlign = 'right';
-      ctx.font = `bold ${n > 8 ? 10 : 12}px system-ui, sans-serif`;
-      ctx.fillStyle = '#fff';
-      ctx.shadowColor = 'rgba(0,0,0,0.6)';
-      ctx.shadowBlur = 4;
+      const fontSize = n > 10 ? 9 : n > 7 ? 11 : 13;
+      ctx.font = `bold ${fontSize}px system-ui, sans-serif`;
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = 'rgba(0,0,0,0.9)';
+      ctx.shadowBlur = 3;
       const raw = raiders[i].name;
       const label = raw.length > 14 ? raw.slice(0, 13) + '…' : raw;
-      ctx.fillText(label, outerR - 12, 4);
+      ctx.fillText(label, outerR - 14, 4);
       ctx.restore();
     }
 
-    // ── Outer ring ──
+    // ── Gold outer ring ──
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, cy, outerR, 0, 2 * Math.PI);
-    ctx.strokeStyle = this.phase === 'done' ? 'rgba(74, 222, 128, 0.6)' : 'rgba(240, 192, 64, 0.35)';
-    ctx.lineWidth = this.phase === 'spinning' || this.phase === 'decelerating' ? 4 : 3;
-    if (this.phase === 'spinning' || this.phase === 'decelerating') {
-      ctx.shadowColor = '#f0c040';
-      ctx.shadowBlur = 12;
+    if (this.phase === 'done') {
+      ctx.strokeStyle = '#4ade80';
+      ctx.shadowColor = '#4ade80';
+      ctx.shadowBlur = 14;
+    } else {
+      const ringGrad = ctx.createLinearGradient(cx - outerR, cy, cx + outerR, cy);
+      ringGrad.addColorStop(0, '#92660a');
+      ringGrad.addColorStop(0.25, '#f0c040');
+      ringGrad.addColorStop(0.5, '#c9a84c');
+      ringGrad.addColorStop(0.75, '#f0c040');
+      ringGrad.addColorStop(1, '#92660a');
+      ctx.strokeStyle = ringGrad;
+      if (this.phase === 'spinning' || this.phase === 'decelerating') {
+        ctx.shadowColor = '#f0c040';
+        ctx.shadowBlur = 14;
+      }
     }
+    ctx.lineWidth = 5;
     ctx.stroke();
     ctx.restore();
 
-    // ── Hub ──
+    // ── Segment-boundary notch triangles on outer rim ──
+    for (let i = 0; i < n; i++) {
+      const angle = this.currentAngle + i * segAngle;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(cx + (outerR + 3) * Math.cos(angle - 0.055), cy + (outerR + 3) * Math.sin(angle - 0.055));
+      ctx.lineTo(cx + (outerR + 3) * Math.cos(angle + 0.055), cy + (outerR + 3) * Math.sin(angle + 0.055));
+      ctx.lineTo(cx + (outerR - 5) * Math.cos(angle), cy + (outerR - 5) * Math.sin(angle));
+      ctx.closePath();
+      ctx.fillStyle = '#f0c040';
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // ── Hub background ──
     ctx.save();
     ctx.beginPath();
-    ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
-    ctx.fillStyle = '#0d1117';
+    ctx.arc(cx, cy, hubR, 0, 2 * Math.PI);
+    const hubGrad = ctx.createRadialGradient(cx - hubR * 0.3, cy - hubR * 0.3, 1, cx, cy, hubR);
+    hubGrad.addColorStop(0, '#1f2937');
+    hubGrad.addColorStop(1, '#0d1117');
+    ctx.fillStyle = hubGrad;
     ctx.fill();
-    ctx.strokeStyle = 'rgba(240,192,64,0.5)';
+    ctx.restore();
+
+    // ── Item icon in hub ──
+    const iconR = hubR - 5;
+    if (this.hubPrimaryImg && this.hubSecondaryImg) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, iconR, 0, 2 * Math.PI);
+      ctx.clip();
+
+      // Primary: top-left triangle
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(cx - iconR - 1, cy - iconR - 1);
+      ctx.lineTo(cx + iconR + 1, cy - iconR - 1);
+      ctx.lineTo(cx - iconR - 1, cy + iconR + 1);
+      ctx.closePath();
+      ctx.clip();
+      ctx.drawImage(this.hubPrimaryImg, cx - iconR, cy - iconR, iconR * 2, iconR * 2);
+      ctx.restore();
+
+      // Secondary: bottom-right triangle
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(cx + iconR + 1, cy - iconR - 1);
+      ctx.lineTo(cx + iconR + 1, cy + iconR + 1);
+      ctx.lineTo(cx - iconR - 1, cy + iconR + 1);
+      ctx.closePath();
+      ctx.clip();
+      ctx.drawImage(this.hubSecondaryImg, cx - iconR, cy - iconR, iconR * 2, iconR * 2);
+      ctx.restore();
+
+      // Diagonal divider line
+      ctx.beginPath();
+      ctx.moveTo(cx - iconR, cy + iconR);
+      ctx.lineTo(cx + iconR, cy - iconR);
+      ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.restore();
+    } else if (this.hubPrimaryImg) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, iconR, 0, 2 * Math.PI);
+      ctx.clip();
+      ctx.drawImage(this.hubPrimaryImg, cx - iconR, cy - iconR, iconR * 2, iconR * 2);
+      ctx.restore();
+    }
+
+    // ── Hub gold ring ──
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, hubR, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'rgba(240,192,64,0.8)';
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.restore();
@@ -247,6 +378,29 @@ export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
     const g = Math.min(255, ((num >> 8) & 0xff) + amount);
     const b = Math.min(255, (num & 0xff) + amount);
     return `rgb(${r},${g},${b})`;
+  }
+
+  private darken(hex: string, amount: number): string {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const r = Math.max(0, (num >> 16) - amount);
+    const g = Math.max(0, ((num >> 8) & 0xff) - amount);
+    const b = Math.max(0, (num & 0xff) - amount);
+    return `rgb(${r},${g},${b})`;
+  }
+
+  /** Clamp perceived brightness so very pale colors (e.g. Priest white, Rogue yellow) stay readable on the wheel. */
+  private cap(hex: string): string {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const r = (num >> 16) & 0xff;
+    const g = (num >> 8) & 0xff;
+    const b = num & 0xff;
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    if (brightness < 180) return hex;
+    const scale = 0.65;
+    const nr = Math.round(r * scale);
+    const ng = Math.round(g * scale);
+    const nb = Math.round(b * scale);
+    return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
   }
 
   ngOnDestroy(): void {

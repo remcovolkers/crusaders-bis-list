@@ -30,7 +30,14 @@ export class RollController {
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.CREATED)
   create(@Body() dto: CreateRollSessionDto): { sessionId: string } {
-    const sessionId = this.rollSessionService.create(dto.itemName, dto.itemIconUrl, dto.bossId, dto.raiders);
+    const sessionId = this.rollSessionService.create(
+      dto.itemName,
+      dto.itemIconUrl,
+      dto.secondaryIconUrl,
+      dto.difficulty,
+      dto.bossId,
+      dto.raiders,
+    );
     return { sessionId };
   }
 

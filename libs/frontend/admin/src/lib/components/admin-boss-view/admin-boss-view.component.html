@@ -84,7 +84,13 @@
                   <div class="item-panel">
                     <div class="item-panel-header">
                       <div class="item-panel-info">
-                        @if (drop.item.iconUrl) {
+                        @if (drop.item.iconUrl && drop.item.secondaryIconUrl) {
+                          <div class="item-icon-sm item-icon-sm--split" [attr.aria-label]="drop.item.name">
+                            <img class="split-primary" [src]="drop.item.iconUrl" alt="" />
+                            <img class="split-secondary" [src]="drop.item.secondaryIconUrl" alt="" />
+                            <div class="split-divider"></div>
+                          </div>
+                        } @else if (drop.item.iconUrl) {
                           <img class="item-icon-sm" [src]="drop.item.iconUrl" [alt]="drop.item.name" />
                         }
                         <div>
@@ -108,10 +114,10 @@
                       @if (visibleRaiders(drop.eligibleRaiders).length > 1) {
                         <button
                           class="dice-btn"
-                          title="Willekeurig toewijzen"
+                          title="Willekeurig toewijzen via Wheel of Fortune"
                           (click)="openDiceModal(drop, view.boss.id)"
                         >
-                          🎲
+                          &#x1F3A1;
                         </button>
                       }
                     </div>
@@ -228,7 +234,7 @@
       (keydown)="$event.stopPropagation()"
     >
       <div class="modal-header">
-        <h3>🎲 Willekeurige toewijzing</h3>
+        <h3>🎡 Wheel of Fortune</h3>
         <div class="modal-header-actions">
           <button class="btn-share" title="Kopieer deellink voor spectators" (click)="copyShareUrl()">🔗 Deel</button>
           <button class="modal-close" (click)="closeDiceModal()">✕</button>
@@ -236,7 +242,13 @@
       </div>
       <div class="modal-body">
         <div class="confirm-item-preview">
-          @if (dice.item.iconUrl) {
+          @if (dice.item.iconUrl && dice.item.secondaryIconUrl) {
+            <div class="confirm-item-icon confirm-item-icon--split">
+              <img class="split-primary" [src]="dice.item.iconUrl" [alt]="dice.item.name" />
+              <img class="split-secondary" [src]="dice.item.secondaryIconUrl" [alt]="dice.item.name" />
+              <div class="split-divider"></div>
+            </div>
+          } @else if (dice.item.iconUrl) {
             <img class="confirm-item-icon" [src]="dice.item.iconUrl" [alt]="dice.item.name" />
           }
           <div class="confirm-item-info">
@@ -257,6 +269,8 @@
             [raiders]="diceRaidersMapped()"
             [spinning]="dice.rolling"
             [winnerRaiderId]="dice.winner?.raiderId ?? null"
+            [itemIconUrl]="dice.item.iconUrl"
+            [secondaryIconUrl]="dice.item.secondaryIconUrl"
             (spinDone)="onWheelDone()"
           />
         </div>
@@ -264,9 +278,9 @@
       <div class="modal-footer">
         <button class="btn-ghost" (click)="closeDiceModal()">Annuleer</button>
         @if (!dice.winner && !dice.rolling) {
-          <button class="btn-primary" (click)="rollDice()">� Spin the wheel!</button>
+          <button class="btn-primary" (click)="rollDice()">Spin THAT Wheel!</button>
         } @else if (dice.rolling || !wheelDone()) {
-          <button class="btn-primary" disabled>Aan het rollen...</button>
+          <button class="btn-primary" disabled>Draait...</button>
         } @else {
           <button class="btn-primary" (click)="assignFromDice()">Toewijzen aan {{ dice.winner?.characterName }}</button>
         }

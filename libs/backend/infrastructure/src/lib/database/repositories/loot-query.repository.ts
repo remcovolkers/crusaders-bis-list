@@ -122,14 +122,56 @@ export class LootQueryRepository implements ILootQueryRepository {
         : [];
     const raiderMap = new Map(raiders.map((r) => [r.id, r]));
 
-    // Only include items that have at least one reservation
-    const drops = items
-      .filter((item) => (resByItem.get(item.id)?.length ?? 0) > 0)
+    // Only include items that have at least one reservation.
+    // Merged secondary items (mergedWithItemId set) are folded into their primary:
+    // their reservations appear under the primary drop, deduped by raiderId.
+    const primaryItems = items.filter((i) => !i.mergedWithItemId);
+    const secondaryItemsByPrimaryWowId = new Map<number, (typeof items)[number][]>();
+    for (const i of items) {
+      if (i.mergedWithItemId) {
+        const list = secondaryItemsByPrimaryWowId.get(i.mergedWithItemId) ?? [];
+        list.push(i);
+        secondaryItemsByPrimaryWowId.set(i.mergedWithItemId, list);
+      }
+    }
+
+    const drops = primaryItems
+      .filter((item) => {
+        // Include if primary or any secondary has reservations
+        const secondaries = secondaryItemsByPrimaryWowId.get(item.wowItemId ?? -1) ?? [];
+        const allIds = [item.id, ...secondaries.map((s) => s.id)];
+        return allIds.some((id) => (resByItem.get(id)?.length ?? 0) > 0);
+      })
       .map((item) => {
-        const reservations = resByItem.get(item.id) ?? [];
-        const eligibleRaiders: IEligibleRaider[] = reservations.map((res) => {
+        const secondaries = secondaryItemsByPrimaryWowId.get(item.wowItemId ?? -1) ?? [];
+        const allItemIds = [item.id, ...secondaries.map((s) => s.id)];
+
+        // Collect all reservations across primary + secondary items
+        const allItemReservations = allItemIds.flatMap((id) => resByItem.get(id) ?? []);
+
+        // Deduplicate by raiderId — prefer entries that have an assignment, then earliest date
+        const byRaider = new Map<string, (typeof allItemReservations)[number]>();
+        for (const res of allItemReservations) {
+          const existing = byRaider.get(res.raiderId);
+          if (!existing) {
+            byRaider.set(res.raiderId, res);
+          } else {
+            const existingHasAssignment = assignByRaiderItem.has(`${res.raiderId}:${existing.itemId}`);
+            const newHasAssignment = assignByRaiderItem.has(`${res.raiderId}:${res.itemId}`);
+            if (!existingHasAssignment && newHasAssignment) {
+              byRaider.set(res.raiderId, res);
+            }
+          }
+        }
+
+        const eligibleRaiders: IEligibleRaider[] = [...byRaider.values()].map((res) => {
           const raider = raiderMap.get(res.raiderId);
-          const assignment = assignByRaiderItem.get(`${res.raiderId}:${item.id}`);
+          // Look for assignment on primary or any secondary item
+          const assignment =
+            allItemIds.map((id) => assignByRaiderItem.get(`${res.raiderId}:${id}`)).find(Boolean) ?? undefined;
+          // Look for received tier on primary or any secondary item
+          const receivedTier =
+            allItemIds.map((id) => receivedByRaiderItem.get(`${res.raiderId}:${id}`)).find(Boolean) ?? null;
           return {
             raiderId: res.raiderId,
             raiderName: raider?.characterName ?? res.raiderId,
@@ -142,7 +184,7 @@ export class LootQueryRepository implements ILootQueryRepository {
             assignment: assignment
               ? { id: assignment.id, status: assignment.status, assignedAt: assignment.assignedAt }
               : null,
-            receivedTier: receivedByRaiderItem.get(`${res.raiderId}:${item.id}`) ?? null,
+            receivedTier,
           };
         });
         // Sort: unassigned first, then by reservation date
@@ -151,10 +193,14 @@ export class LootQueryRepository implements ILootQueryRepository {
           if (a.assignment && !b.assignment) return 1;
           return (a.reservationCreatedAt?.getTime() ?? 0) - (b.reservationCreatedAt?.getTime() ?? 0);
         });
+
+        // Use the first secondary's iconUrl as the split icon (for display in admin)
+        const secondaryIconUrl = secondaries[0]?.iconUrl;
+
         return {
           item: {
             id: item.id,
-            name: item.name,
+            name: item.mergedDisplayName ?? item.name,
             wowItemId: item.wowItemId,
             category: item.category as ItemCategory,
             armorType: (item.armorType as ArmorType) ?? ArmorType.NONE,
@@ -166,6 +212,8 @@ export class LootQueryRepository implements ILootQueryRepository {
             iconUrl: item.iconUrl,
             isPrioritizable: item.isPrioritizable,
             isSuperRare: item.isSuperRare,
+            mergedDisplayName: item.mergedDisplayName,
+            secondaryIconUrl,
           },
           eligibleRaiders,
         };

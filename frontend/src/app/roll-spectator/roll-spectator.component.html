@@ -1,4 +1,4 @@
-@if (notFound()) {
+﻿@if (notFound()) {
   <div class="spectator-wrap">
     <div class="spectator-card">
       <p class="spectator-error">Sessie niet gevonden of verlopen.</p>
@@ -13,12 +13,23 @@
 } @else {
   <div class="spectator-wrap">
     <div class="spectator-card">
-      <h1 class="spectator-title">🎲 Loot Roll</h1>
+      <h1 class="spectator-title">🎡 Wheel of Fortune</h1>
       <div class="spectator-item-preview">
-        @if (sessionInfo()!.itemIconUrl) {
+        @if (sessionInfo()!.itemIconUrl && sessionInfo()!.secondaryIconUrl) {
+          <div class="spectator-item-icon spectator-item-icon--split">
+            <img class="split-primary" [src]="sessionInfo()!.itemIconUrl!" [alt]="sessionInfo()!.itemName" />
+            <img class="split-secondary" [src]="sessionInfo()!.secondaryIconUrl!" [alt]="sessionInfo()!.itemName" />
+            <div class="split-divider"></div>
+          </div>
+        } @else if (sessionInfo()!.itemIconUrl) {
           <img class="spectator-item-icon" [src]="sessionInfo()!.itemIconUrl" [alt]="sessionInfo()!.itemName" />
         }
-        <p class="spectator-item">{{ sessionInfo()!.itemName }}</p>
+        <div class="spectator-item-info">
+          <p class="spectator-item">{{ sessionInfo()!.itemName }}</p>
+          @if (sessionInfo()!.difficulty) {
+            <span class="spectator-difficulty">{{ sessionInfo()!.difficulty }}</span>
+          }
+        </div>
       </div>
 
       <lib-wheel-of-fortune
@@ -26,6 +37,8 @@
         [spinning]="rolling()"
         [winnerRaiderId]="winner()?.raiderId ?? null"
         [size]="360"
+        [itemIconUrl]="sessionInfo()!.itemIconUrl"
+        [secondaryIconUrl]="sessionInfo()!.secondaryIconUrl"
       />
 
       @if (!rolling() && !winner()) {

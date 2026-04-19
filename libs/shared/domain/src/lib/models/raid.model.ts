@@ -50,4 +50,9 @@ export interface IItem {
    * E.g. "Radiant / Umbral Plume"
    */
   mergedDisplayName?: string;
+  /**
+   * Icon URL of the first secondary merged item. Only populated in loot-view contexts
+   * (admin boss view) for split-icon rendering. Not stored in DB.
+   */
+  secondaryIconUrl?: string;
 }

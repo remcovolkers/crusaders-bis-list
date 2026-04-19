@@ -179,7 +179,18 @@
             @for (entry of summary.reservations; track entry.id) {
               <div class="res-row">
                 <div class="res-item">
-                  @if (entry.iconUrl) {
+                  @if (entry.iconUrl && entry.secondaryIconUrl) {
+                    <div class="item-icon-sm item-icon-sm--split">
+                      <img class="split-primary" [src]="entry.iconUrl" [alt]="entry.itemName" loading="lazy" />
+                      <img
+                        class="split-secondary"
+                        [src]="entry.secondaryIconUrl"
+                        [alt]="entry.itemName"
+                        loading="lazy"
+                      />
+                      <div class="split-divider"></div>
+                    </div>
+                  } @else if (entry.iconUrl) {
                     <img class="item-icon-sm" [src]="entry.iconUrl" [alt]="entry.itemName" loading="lazy" />
                   }
                   <div class="item-text">

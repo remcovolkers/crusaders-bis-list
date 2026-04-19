@@ -36,6 +36,7 @@ export interface RaiderReservationEntry {
   itemId: string;
   itemName: string;
   iconUrl?: string;
+  secondaryIconUrl?: string;
   itemCategory: string;
   isSuperRare: boolean;
   createdAt: string;
@@ -136,12 +137,16 @@ export class AdminService {
   createRollSession(
     itemName: string,
     itemIconUrl: string | undefined,
+    secondaryIconUrl: string | undefined,
+    difficulty: string | undefined,
     bossId: string,
-    raiders: { raiderId: string; name: string }[],
+    raiders: { raiderId: string; name: string; color?: string }[],
   ): Observable<{ sessionId: string }> {
     return this.http.post<{ sessionId: string }>(`${this.base}/roll-sessions`, {
       itemName,
       itemIconUrl,
+      secondaryIconUrl,
+      difficulty,
       bossId,
       raiders,
     });

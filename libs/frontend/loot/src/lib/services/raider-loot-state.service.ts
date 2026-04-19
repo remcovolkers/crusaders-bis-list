@@ -281,7 +281,10 @@ export class RaiderLootStateService {
 
   private _countReserved(predicate: (cat: string) => boolean): number {
     return Array.from(this._reservationMap().keys()).filter((id) => {
-      const cat = this.findItem(id)?.category;
+      const item = this.findItem(id);
+      // Secondary merged items don't count — their reservation is folded into the primary
+      if (item?.mergedWithItemId != null) return false;
+      const cat = item?.category;
       return cat !== undefined && predicate(cat);
     }).length;
   }

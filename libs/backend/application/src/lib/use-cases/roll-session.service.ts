@@ -5,12 +5,15 @@ import { RollEvent, RollSessionInfo } from '@crusaders-bis-list/shared-domain';
 interface RollRaider {
   raiderId: string;
   name: string;
+  color?: string;
 }
 
 interface RollSession {
   id: string;
   itemName: string;
   itemIconUrl?: string;
+  secondaryIconUrl?: string;
+  difficulty?: string;
   bossId: string;
   raiders: RollRaider[];
   status: 'waiting' | 'rolling' | 'done';
@@ -23,7 +26,14 @@ interface RollSession {
 export class RollSessionService {
   private readonly sessions = new Map<string, RollSession>();
 
-  create(itemName: string, itemIconUrl: string | undefined, bossId: string, raiders: RollRaider[]): string {
+  create(
+    itemName: string,
+    itemIconUrl: string | undefined,
+    secondaryIconUrl: string | undefined,
+    difficulty: string | undefined,
+    bossId: string,
+    raiders: RollRaider[],
+  ): string {
     const sessionId = crypto.randomUUID();
     const subject = new Subject<RollEvent>();
 
@@ -31,6 +41,8 @@ export class RollSessionService {
       id: sessionId,
       itemName,
       itemIconUrl,
+      secondaryIconUrl,
+      difficulty,
       bossId,
       raiders,
       status: 'waiting',
@@ -50,7 +62,15 @@ export class RollSessionService {
   getInfo(sessionId: string): RollSessionInfo | null {
     const s = this.sessions.get(sessionId);
     if (!s) return null;
-    return { sessionId: s.id, itemName: s.itemName, itemIconUrl: s.itemIconUrl, raiders: s.raiders, status: s.status };
+    return {
+      sessionId: s.id,
+      itemName: s.itemName,
+      itemIconUrl: s.itemIconUrl,
+      secondaryIconUrl: s.secondaryIconUrl,
+      difficulty: s.difficulty,
+      raiders: s.raiders,
+      status: s.status,
+    };
   }
 
   getStream(sessionId: string): Observable<RollEvent> | null {

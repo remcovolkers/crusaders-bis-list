@@ -13,13 +13,14 @@ import {
   RECEIVED_ITEM_REPOSITORY,
   IReceivedItemRepository,
 } from '@crusaders-bis-list/backend-domain';
-import { AssignmentStatus } from '@crusaders-bis-list/shared-domain';
+import { AssignmentStatus, IItem } from '@crusaders-bis-list/shared-domain';
 
 export interface RaiderReservationEntry {
   id: string;
   itemId: string;
   itemName: string;
   iconUrl?: string;
+  secondaryIconUrl?: string;
   itemCategory: string;
   isSuperRare: boolean;
   createdAt: Date;
@@ -69,11 +70,19 @@ export class GetAllRaiderReservationsUseCase {
 
     // Collect unique itemIds so we can fetch names
     const itemIds = [...new Set(allReservations.map((r) => r.itemId))];
-    const [items, bosses] = await Promise.all([
+    const [items, bosses, allSeasonItems] = await Promise.all([
       Promise.all(itemIds.map((id) => this.catalogRepo.findItemById(id))),
       this.catalogRepo.findBossesBySeason(season.id),
+      this.catalogRepo.findAllItemsBySeason(season.id),
     ]);
     const itemMap = new Map(items.filter((i): i is NonNullable<typeof i> => i != null).map((i) => [i.id, i]));
+    // Build lookup: primary wowItemId -> secondary item (for split icon)
+    const secondaryByPrimaryWowId = new Map<number, IItem>();
+    for (const si of allSeasonItems) {
+      if (si.mergedWithItemId != null) {
+        secondaryByPrimaryWowId.set(si.mergedWithItemId, si);
+      }
+    }
 
     // Build bossId -> sort index map so reservations can be ordered by boss order
     const bossOrderMap = new Map(bosses.map((b, idx) => [b.id, idx]));
@@ -106,17 +115,22 @@ export class GetAllRaiderReservationsUseCase {
         wowClass: raider?.wowClass ?? '',
         spec: raider?.spec ?? '',
         reservations: reservations
-          .map((res) => ({
-            id: res.id,
-            itemId: res.itemId,
-            itemName: itemMap.get(res.itemId)?.name ?? res.itemId,
-            iconUrl: itemMap.get(res.itemId)?.iconUrl,
-            itemCategory: res.itemCategory,
-            isSuperRare: res.isSuperRare,
-            createdAt: res.createdAt,
-            assignment: assignMap.get(`${raiderId}:${res.itemId}`) ?? null,
-            receivedTier: receivedMap.get(`${raiderId}:${res.itemId}`) ?? null,
-          }))
+          .map((res) => {
+            const item = itemMap.get(res.itemId);
+            const secondary = item?.wowItemId != null ? secondaryByPrimaryWowId.get(item.wowItemId) : undefined;
+            return {
+              id: res.id,
+              itemId: res.itemId,
+              itemName: item?.mergedDisplayName ?? item?.name ?? res.itemId,
+              iconUrl: item?.iconUrl,
+              secondaryIconUrl: secondary?.iconUrl,
+              itemCategory: res.itemCategory,
+              isSuperRare: res.isSuperRare,
+              createdAt: res.createdAt,
+              assignment: assignMap.get(`${raiderId}:${res.itemId}`) ?? null,
+              receivedTier: receivedMap.get(`${raiderId}:${res.itemId}`) ?? null,
+            };
+          })
           .sort((a, b) => {
             const bossA = bossOrderMap.get(itemMap.get(a.itemId)?.bossId ?? '') ?? 999;
             const bossB = bossOrderMap.get(itemMap.get(b.itemId)?.bossId ?? '') ?? 999;
