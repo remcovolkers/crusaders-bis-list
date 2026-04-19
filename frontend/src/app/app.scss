@@ -159,7 +159,7 @@
 
   &::before,
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     left: 0;
     width: 18px;
@@ -169,14 +169,22 @@
     transition: transform 0.2s;
   }
 
-  &::before { top: -6px; }
-  &::after  { top: 6px; }
+  &::before {
+    top: -6px;
+  }
+  &::after {
+    top: 6px;
+  }
 
   &.open {
     background: transparent;
 
-    &::before { transform: translateY(6px) rotate(45deg); }
-    &::after  { transform: translateY(-6px) rotate(-45deg); }
+    &::before {
+      transform: translateY(6px) rotate(45deg);
+    }
+    &::after {
+      transform: translateY(-6px) rotate(-45deg);
+    }
   }
 }
 
@@ -211,7 +219,9 @@
     border-radius: 6px;
     font-size: 14px;
     color: var(--text-secondary);
-    transition: background 0.12s, color 0.12s;
+    transition:
+      background 0.12s,
+      color 0.12s;
 
     &:hover,
     &.active {

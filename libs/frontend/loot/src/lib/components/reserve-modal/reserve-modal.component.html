@@ -33,6 +33,7 @@
         @for (tier of receivableTiers; track tier) {
           <button
             class="tier-btn"
+            [ngClass]="'tier-' + tier"
             [class.selected]="isTierIncluded(tier)"
             [class.is-floor]="selectedFloor() === tier"
             (click)="selectedFloor.set(selectedFloor() === tier ? null : tier)"

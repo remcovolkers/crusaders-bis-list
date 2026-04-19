@@ -1,0 +1,25 @@
+/* All modal, badge, and confirm-item styles come from the global styles.scss */
+
+.confirm-modal {
+  width: min(420px, 95vw);
+}
+
+@media (max-width: 480px) {
+  .confirm-modal {
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    margin-top: auto;
+  }
+
+  .modal-backdrop {
+    align-items: flex-end;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+    }
+  }
+}

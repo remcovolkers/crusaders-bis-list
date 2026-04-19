@@ -1,0 +1,61 @@
+<div
+  class="modal-backdrop"
+  role="button"
+  tabindex="0"
+  aria-label="Annuleer"
+  (click)="cancelled.emit()"
+  (keydown.escape)="cancelled.emit()"
+>
+  <div
+    class="modal confirm-modal"
+    role="dialog"
+    aria-modal="true"
+    (click)="$event.stopPropagation()"
+    (keydown)="$event.stopPropagation()"
+  >
+    <div class="modal-header">
+      <h3>Loot toewijzen</h3>
+      <button class="modal-close" (click)="cancelled.emit()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-item-preview">
+        @if (pending().item.iconUrl && pending().item.secondaryIconUrl) {
+          <div class="confirm-item-icon confirm-item-icon--split">
+            <img class="split-primary" [src]="pending().item.iconUrl" [alt]="pending().item.name" />
+            <img class="split-secondary" [src]="pending().item.secondaryIconUrl" [alt]="pending().item.name" />
+            <div class="split-divider"></div>
+          </div>
+        } @else if (pending().item.iconUrl) {
+          <img class="confirm-item-icon" [src]="pending().item.iconUrl" [alt]="pending().item.name" />
+        } @else {
+          <div class="confirm-item-icon-placeholder"></div>
+        }
+        <div class="confirm-item-info">
+          <span class="confirm-item-name">{{ pending().item.name }}</span>
+          <div class="confirm-item-meta">
+            <span class="cat-badge" [ngClass]="'cat-' + pending().item.category">
+              {{ categoryLabels[pending().item.category] }}
+            </span>
+            @if (pending().item.primaryStats.length) {
+              <span class="stat-badge">{{ pending().item.primaryStats.map(s => primaryStatLabels[s]).join('/') }}</span>
+            }
+            @if (pending().item.category === ItemCategory.WEAPON && pending().item.weaponType) {
+              <span class="weapon-badge">{{ weaponTypeLabels[pending().item.weaponType!] }}</span>
+            }
+            <span class="tier-badge tier-badge--{{ selectedDifficulty() }}">{{
+              tierLabels[selectedDifficulty()]
+            }}</span>
+          </div>
+        </div>
+      </div>
+      <p class="confirm-question">
+        Ken dit item toe aan <strong>{{ pending().raiderName }}</strong
+        >?
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="cancelled.emit()">Annuleer</button>
+      <button class="btn-primary" (click)="confirmed.emit()">Toewijzen</button>
+    </div>
+  </div>
+</div>

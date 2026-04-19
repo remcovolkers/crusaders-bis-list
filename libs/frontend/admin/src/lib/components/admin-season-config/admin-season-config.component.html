@@ -1,159 +1,192 @@
-<div class="config-page">
+﻿<div class="config-page">
   <div class="config-header">
     <h2>Admin Panel</h2>
-    <p class="config-subtitle">
-      Beheer gebruikersrollen en reservaties, stel reservatielimieten per categorie in en markeer items als super rare.
-    </p>
+    <p class="config-subtitle">Beheer gebruikers, reservatielimieten en super rare items.</p>
   </div>
 
-  <!-- Gebruikersbeheer -->
-  <div class="users-section">
-    <lib-admin-user-management />
+  <!-- ── Tab bar ── -->
+  <div class="admin-tabs" role="tablist">
+    <button
+      class="admin-tab"
+      role="tab"
+      [class.active]="activeTab() === 'users'"
+      [attr.aria-selected]="activeTab() === 'users'"
+      (click)="activeTab.set('users')"
+    >
+      Gebruikersbeheer
+    </button>
+    <button
+      class="admin-tab"
+      role="tab"
+      [class.active]="activeTab() === 'config'"
+      [attr.aria-selected]="activeTab() === 'config'"
+      (click)="activeTab.set('config')"
+    >
+      Seizoensconfiguratie
+    </button>
+    <button
+      class="admin-tab"
+      role="tab"
+      [class.active]="activeTab() === 'superrare'"
+      [attr.aria-selected]="activeTab() === 'superrare'"
+      (click)="activeTab.set('superrare')"
+    >
+      ⭐ Super Rare
+    </button>
   </div>
 
-  <!-- Seizoensconfiguratie -->
-  <div class="config-section">
-    <div class="section-heading">
-      <h3>Seizoensconfiguratie</h3>
-      <p>
-        Stel per itemcategorie in hoeveel reservaties een raider per seizoen mag plaatsen. Markeer specifieke items als
-        super rare om een apart limiet toe te passen.
-      </p>
+  <!-- ── Tab: Gebruikersbeheer ── -->
+  @if (activeTab() === 'users') {
+    <div class="tab-panel" role="tabpanel">
+      <lib-admin-user-management />
     </div>
-    <div class="panel-columns">
-      <!-- LEFT: limits -->
-      <div class="panel-left">
-        @if (loading()) {
-          <div class="loading-spinner">Laden...</div>
-        }
+  }
 
-        @if (config() && !loading()) {
-          <div class="config-card card">
-            <div class="config-row">
-              <div class="config-field">
-                <label class="form-label" for="trinket-limit">Trinket limiet</label>
-                <input
-                  id="trinket-limit"
-                  class="form-input config-input"
-                  type="number"
-                  [ngModel]="trinketLimit()"
-                  (ngModelChange)="trinketLimit.set($event)"
-                  min="0"
-                  max="10"
-                />
-                <span class="config-hint">Max. trinkets per raider per seizoen</span>
-              </div>
-              <div class="config-field">
-                <label class="form-label" for="weapon-limit">Wapen limiet</label>
-                <input
-                  id="weapon-limit"
-                  class="form-input config-input"
-                  type="number"
-                  [ngModel]="weaponLimit()"
-                  (ngModelChange)="weaponLimit.set($event)"
-                  min="0"
-                  max="10"
-                />
-                <span class="config-hint">Max. wapens (incl. offhands) per raider per seizoen</span>
-              </div>
-            </div>
-
-            <div class="config-row">
-              <div class="config-field">
-                <label class="form-label" for="jewelry-limit">Jewelry limiet</label>
-                <input
-                  id="jewelry-limit"
-                  class="form-input config-input"
-                  type="number"
-                  [ngModel]="jewelryLimit()"
-                  (ngModelChange)="jewelryLimit.set($event)"
-                  min="0"
-                  max="10"
-                />
-                <span class="config-hint"
-                  >Max. sieraden (ringen/ketting) per raider per seizoen. 0 = uitgeschakeld</span
-                >
-              </div>
-              <div class="config-field">
-                <label class="form-label" for="other-limit">Armor items limiet</label>
-                <input
-                  id="other-limit"
-                  class="form-input config-input"
-                  type="number"
-                  [ngModel]="armorLimit()"
-                  (ngModelChange)="armorLimit.set($event)"
-                  min="0"
-                  max="10"
-                />
-                <span class="config-hint">Max. armor items per raider per seizoen. 0 = uitgeschakeld</span>
-              </div>
-            </div>
-
-            <div class="config-row">
-              <div class="config-field">
-                <label class="form-label" for="superrare-limit">Superrare limiet</label>
-                <input
-                  id="superrare-limit"
-                  class="form-input config-input"
-                  type="number"
-                  [ngModel]="superrareLimit()"
-                  (ngModelChange)="superrareLimit.set($event)"
-                  min="0"
-                  max="10"
-                />
-                <span class="config-hint">Max. superrare items per raider per seizoen. 0 = uitgeschakeld</span>
-              </div>
-            </div>
-
-            <div class="config-actions">
-              <button class="btn-primary" [disabled]="saving()" (click)="save()">
-                {{ saving() ? 'Opslaan...' : 'Opslaan' }}
-              </button>
-            </div>
-          </div>
-        }
+  <!-- ── Tab: Seizoensconfiguratie ── -->
+  @if (activeTab() === 'config') {
+    <div class="tab-panel" role="tabpanel">
+      <div class="section-heading">
+        <h3>Seizoensconfiguratie</h3>
+        <p>
+          Stel per itemcategorie in hoeveel reservaties een raider per seizoen mag plaatsen. Markeer specifieke items
+          als super rare om een apart limiet toe te passen.
+        </p>
       </div>
 
-      <!-- RIGHT: super rare items -->
-      <div class="panel-right">
-        @if (catalog()) {
-          <div class="config-card card item-boss-card">
-            <div class="item-card-header">
-              <h3>Super Rare markering</h3>
-              <p>Markeer items als super rare zodat de limiet van toepassing is</p>
+      @if (loading()) {
+        <div class="loading-spinner">Laden...</div>
+      }
+
+      @if (config() && !loading()) {
+        <div class="config-card card">
+          <div class="config-row">
+            <div class="config-field">
+              <label class="form-label" for="trinket-limit">Trinket limiet</label>
+              <input
+                id="trinket-limit"
+                class="form-input config-input"
+                type="number"
+                [ngModel]="trinketLimit()"
+                (ngModelChange)="trinketLimit.set($event)"
+                min="0"
+                max="10"
+              />
+              <span class="config-hint">Max. trinkets per raider per seizoen</span>
             </div>
-            <div class="boss-and-items">
-              <div class="boss-selector">
-                @for (boss of catalog()!.bosses; track boss.id) {
-                  <button
-                    class="boss-tab"
-                    [class.active]="selectedBossId() === boss.id"
-                    (click)="selectedBossId.set(boss.id)"
-                  >
-                    {{ boss.name }}
-                  </button>
-                }
-              </div>
-              <div class="item-list">
-                @for (item of selectedBossItems(); track item.id) {
-                  <button
-                    class="item-row"
-                    [class.is-super-rare]="item.isSuperRare"
-                    [disabled]="isUpdating(item.id)"
-                    (click)="toggleSuperRare(item)"
-                  >
-                    <span class="item-row-name">{{ item.name }}</span>
-                    <span class="item-row-slot">{{ item.slot }}</span>
-                    <span class="sr-badge" [class.sr-on]="item.isSuperRare" [class.sr-off]="!item.isSuperRare">
-                      {{ item.isSuperRare ? '★ Super Rare' : '☆ Normaal' }}
-                    </span>
-                  </button>
-                }
-              </div>
+            <div class="config-field">
+              <label class="form-label" for="weapon-limit">Wapen limiet</label>
+              <input
+                id="weapon-limit"
+                class="form-input config-input"
+                type="number"
+                [ngModel]="weaponLimit()"
+                (ngModelChange)="weaponLimit.set($event)"
+                min="0"
+                max="10"
+              />
+              <span class="config-hint">Max. wapens (incl. offhands) per raider per seizoen</span>
             </div>
           </div>
-        }
-      </div>
+
+          <div class="config-row">
+            <div class="config-field">
+              <label class="form-label" for="jewelry-limit">Jewelry limiet</label>
+              <input
+                id="jewelry-limit"
+                class="form-input config-input"
+                type="number"
+                [ngModel]="jewelryLimit()"
+                (ngModelChange)="jewelryLimit.set($event)"
+                min="0"
+                max="10"
+              />
+              <span class="config-hint">Max. sieraden (ringen/ketting) per raider per seizoen. 0 = uitgeschakeld</span>
+            </div>
+            <div class="config-field">
+              <label class="form-label" for="other-limit">Armor items limiet</label>
+              <input
+                id="other-limit"
+                class="form-input config-input"
+                type="number"
+                [ngModel]="armorLimit()"
+                (ngModelChange)="armorLimit.set($event)"
+                min="0"
+                max="10"
+              />
+              <span class="config-hint">Max. armor items per raider per seizoen. 0 = uitgeschakeld</span>
+            </div>
+          </div>
+
+          <div class="config-row">
+            <div class="config-field">
+              <label class="form-label" for="superrare-limit">Superrare limiet</label>
+              <input
+                id="superrare-limit"
+                class="form-input config-input"
+                type="number"
+                [ngModel]="superrareLimit()"
+                (ngModelChange)="superrareLimit.set($event)"
+                min="0"
+                max="10"
+              />
+              <span class="config-hint">Max. superrare items per raider per seizoen. 0 = uitgeschakeld</span>
+            </div>
+          </div>
+
+          <div class="config-actions">
+            <button class="btn-primary" [disabled]="saving()" (click)="save()">
+              {{ saving() ? 'Opslaan...' : 'Opslaan' }}
+            </button>
+          </div>
+        </div>
+      }
     </div>
-  </div>
+  }
+
+  <!-- ── Tab: Super Rare markering ── -->
+  @if (activeTab() === 'superrare') {
+    <div class="tab-panel" role="tabpanel">
+      @if (!catalog()) {
+        <div class="loading-spinner">Laden...</div>
+      } @else {
+        <div class="section-heading">
+          <h3>⭐ Super Rare markering</h3>
+          <p>Klik op een item om de super rare markering aan of uit te zetten.</p>
+        </div>
+
+        <!-- Boss tabs (horizontal scrollable row) -->
+        <div class="sr-boss-tabs" role="tablist">
+          @for (boss of catalog()!.bosses; track boss.id) {
+            <button
+              class="sr-boss-tab"
+              role="tab"
+              [class.active]="selectedBossId() === boss.id"
+              [attr.aria-selected]="selectedBossId() === boss.id"
+              (click)="selectedBossId.set(boss.id)"
+            >
+              {{ boss.name }}
+            </button>
+          }
+        </div>
+
+        <!-- Item list -->
+        <div class="sr-item-list">
+          @for (item of selectedBossItems(); track item.id) {
+            <button
+              class="item-row"
+              [class.is-super-rare]="item.isSuperRare"
+              [disabled]="isUpdating(item.id)"
+              (click)="toggleSuperRare(item)"
+            >
+              <span class="item-row-name">{{ item.name }}</span>
+              <span class="item-row-slot">{{ item.slot }}</span>
+              <span class="sr-badge" [class.sr-on]="item.isSuperRare" [class.sr-off]="!item.isSuperRare">
+                {{ item.isSuperRare ? '★ Super Rare' : '☆ Normaal' }}
+              </span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
 </div>

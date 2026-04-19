@@ -13,6 +13,8 @@ import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
   styleUrl: './admin-season-config.component.scss',
 })
 export class AdminSeasonConfigComponent implements OnInit {
+  readonly activeTab = signal<'users' | 'config' | 'superrare'>('users');
+
   readonly config = signal<ISeasonConfig | null>(null);
   readonly trinketLimit = signal(2);
   readonly weaponLimit = signal(2);

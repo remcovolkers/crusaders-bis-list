@@ -1,9 +1,15 @@
 ﻿@if (catalog()) {
   <div class="admin-layout">
+    <!-- Mobile overlay -->
+    @if (sidebarOpen()) {
+      <button class="sidebar-overlay" aria-label="Sluit sidebar" (click)="sidebarOpen.set(false)"></button>
+    }
+
     <!-- Sidebar: boss list grouped by raid, click scrolls to boss section -->
-    <aside class="boss-sidebar">
+    <aside class="boss-sidebar" [class.open]="sidebarOpen()">
       <div class="sidebar-header">
         <span class="sidebar-label">{{ catalog()!.season.name }}</span>
+        <button class="sidebar-close-btn" aria-label="Sluit" (click)="sidebarOpen.set(false)">✕</button>
       </div>
       @for (group of raidGroups(); track group.raidName) {
         <div class="raid-group">
@@ -11,7 +17,11 @@
             <span class="raid-name">{{ group.raidName }}</span>
           </div>
           @for (boss of group.bosses; track boss.id) {
-            <button class="boss-row" [style.--boss-color]="getBossColor(boss)" (click)="scrollToBoss(boss.id)">
+            <button
+              class="boss-row"
+              [style.--boss-color]="getBossColor(boss)"
+              (click)="scrollToBoss(boss.id); sidebarOpen.set(false)"
+            >
               <span class="boss-dot"></span>
               <span class="boss-row-name">{{ boss.name }}</span>
             </button>
@@ -22,6 +32,16 @@
 
     <!-- Main content -->
     <div class="admin-main">
+      <!-- Mobile topbar -->
+      <div class="mobile-topbar">
+        <button class="sidebar-toggle-btn" aria-label="Open boss sidebar" (click)="sidebarOpen.set(true)">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+        <span class="mobile-topbar-title">Loot toewijzing</span>
+      </div>
+
       @if (!selectedDifficulty()) {
         <!-- Landing: select difficulty before assigning gear -->
         <div class="landing-state">
@@ -160,131 +180,21 @@
 }
 
 @if (pendingAssignment(); as pending) {
-  <div
-    class="modal-backdrop"
-    role="button"
-    tabindex="0"
-    aria-label="Annuleer"
-    (click)="pendingAssignment.set(null)"
-    (keydown.escape)="pendingAssignment.set(null)"
-  >
-    <div
-      class="modal confirm-modal"
-      role="dialog"
-      aria-modal="true"
-      (click)="$event.stopPropagation()"
-      (keydown)="$event.stopPropagation()"
-    >
-      <div class="modal-header">
-        <h3>Loot toewijzen</h3>
-        <button class="modal-close" (click)="pendingAssignment.set(null)">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="confirm-item-preview">
-          @if (pending.item.iconUrl) {
-            <img class="confirm-item-icon" [src]="pending.item.iconUrl" [alt]="pending.item.name" />
-          } @else {
-            <div class="confirm-item-icon-placeholder"></div>
-          }
-          <div class="confirm-item-info">
-            <span class="confirm-item-name">{{ pending.item.name }}</span>
-            <div class="confirm-item-meta">
-              <span class="cat-badge" [ngClass]="'cat-' + pending.item.category">
-                {{ categoryLabels[pending.item.category] }}
-              </span>
-              @if (pending.item.primaryStats.length) {
-                <span class="stat-badge">{{ pending.item.primaryStats.map(s => primaryStatLabels[s]).join('/') }}</span>
-              }
-              @if (pending.item.category === ItemCategory.WEAPON && pending.item.weaponType) {
-                <span class="weapon-badge">{{ weaponTypeLabels[pending.item.weaponType] }}</span>
-              }
-              <span class="tier-badge tier-badge--{{ selectedDifficulty()! }}">{{
-                tierLabels[selectedDifficulty()!]
-              }}</span>
-            </div>
-          </div>
-        </div>
-        <p class="confirm-question">
-          Ken dit item toe aan <strong>{{ pending.raiderName }}</strong
-          >?
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-ghost" (click)="pendingAssignment.set(null)">Annuleer</button>
-        <button class="btn-primary" (click)="confirmAssign()">Toewijzen</button>
-      </div>
-    </div>
-  </div>
+  <lib-admin-assign-confirm
+    [pending]="pending"
+    [selectedDifficulty]="selectedDifficulty()!"
+    (confirmed)="confirmAssign()"
+    (cancelled)="pendingAssignment.set(null)"
+  />
 }
 
-@if (diceModal(); as dice) {
-  <div
-    class="modal-backdrop"
-    role="button"
-    tabindex="0"
-    aria-label="Sluit"
-    (click)="closeDiceModal()"
-    (keydown.escape)="closeDiceModal()"
-  >
-    <div
-      class="modal dice-modal"
-      role="dialog"
-      aria-modal="true"
-      (click)="$event.stopPropagation()"
-      (keydown)="$event.stopPropagation()"
-    >
-      <div class="modal-header">
-        <h3>🎡 Wheel of Fortune</h3>
-        <div class="modal-header-actions">
-          <button class="btn-share" title="Kopieer deellink voor spectators" (click)="copyShareUrl()">🔗 Deel</button>
-          <button class="modal-close" (click)="closeDiceModal()">✕</button>
-        </div>
-      </div>
-      <div class="modal-body">
-        <div class="confirm-item-preview">
-          @if (dice.item.iconUrl && dice.item.secondaryIconUrl) {
-            <div class="confirm-item-icon confirm-item-icon--split">
-              <img class="split-primary" [src]="dice.item.iconUrl" [alt]="dice.item.name" />
-              <img class="split-secondary" [src]="dice.item.secondaryIconUrl" [alt]="dice.item.name" />
-              <div class="split-divider"></div>
-            </div>
-          } @else if (dice.item.iconUrl) {
-            <img class="confirm-item-icon" [src]="dice.item.iconUrl" [alt]="dice.item.name" />
-          }
-          <div class="confirm-item-info">
-            <span class="confirm-item-name">{{ dice.item.name }}</span>
-            <div class="confirm-item-meta">
-              <span class="cat-badge" [ngClass]="'cat-' + dice.item.category">
-                {{ categoryLabels[dice.item.category] }}
-              </span>
-              <span class="tier-badge tier-badge--{{ selectedDifficulty()! }}">{{
-                tierLabels[selectedDifficulty()!]
-              }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="dice-wheel-wrap">
-          <lib-wheel-of-fortune
-            [raiders]="diceRaidersMapped()"
-            [spinning]="dice.rolling"
-            [winnerRaiderId]="dice.winner?.raiderId ?? null"
-            [itemIconUrl]="dice.item.iconUrl"
-            [secondaryIconUrl]="dice.item.secondaryIconUrl"
-            (spinDone)="onWheelDone()"
-          />
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-ghost" (click)="closeDiceModal()">Annuleer</button>
-        @if (!dice.winner && !dice.rolling) {
-          <button class="btn-primary" (click)="rollDice()">Spin THAT Wheel!</button>
-        } @else if (dice.rolling || !wheelDone()) {
-          <button class="btn-primary" disabled>Draait...</button>
-        } @else {
-          <button class="btn-primary" (click)="assignFromDice()">Toewijzen aan {{ dice.winner?.characterName }}</button>
-        }
-      </div>
-    </div>
-  </div>
+@if (activeDiceModal(); as dice) {
+  <lib-admin-dice-modal
+    [item]="dice.item"
+    [bossId]="dice.bossId"
+    [eligibleRaiders]="dice.raiders"
+    [selectedDifficulty]="selectedDifficulty()!"
+    (closed)="activeDiceModal.set(null)"
+    (winnerSelected)="onDiceWinner($event)"
+  />
 }

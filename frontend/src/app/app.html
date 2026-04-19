@@ -38,7 +38,12 @@
     }
 
     <!-- Mobile: hamburger -->
-    <button class="mobile-menu-btn" (click)="menuOpen.set(!menuOpen())" [attr.aria-expanded]="menuOpen()" aria-label="Menu">
+    <button
+      class="mobile-menu-btn"
+      (click)="menuOpen.set(!menuOpen())"
+      [attr.aria-expanded]="menuOpen()"
+      aria-label="Menu"
+    >
       <span class="hamburger-line" [class.open]="menuOpen()"></span>
     </button>
   </header>

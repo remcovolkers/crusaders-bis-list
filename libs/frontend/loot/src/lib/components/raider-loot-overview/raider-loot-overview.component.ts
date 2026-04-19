@@ -1,16 +1,8 @@
 ﻿import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import {
-  AssignmentStatus,
-  IItem,
-  ITEM_CATEGORY_LABELS,
-  TIER_LABELS,
-  WEAPON_TYPE_LABELS,
-  PRIMARY_STAT_LABELS,
-  ItemCategory,
-} from '@crusaders-bis-list/shared-domain';
+import { AssignmentStatus } from '@crusaders-bis-list/shared-domain';
+import { LootItemCardComponent } from '../loot-item-card/loot-item-card.component';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { selectCurrentUser, AuthService } from '@crusaders-bis-list/frontend-auth';
@@ -21,7 +13,7 @@ import { ReserveModalComponent } from '../reserve-modal/reserve-modal.component'
 
 @Component({
   selector: 'lib-raider-loot-overview',
-  imports: [NgClass, FormsModule, ReserveModalComponent],
+  imports: [FormsModule, ReserveModalComponent, LootItemCardComponent],
   providers: [RaiderLootStateService],
   templateUrl: './raider-loot-overview.component.html',
   styleUrls: ['./raider-loot-overview.component.scss'],
@@ -46,13 +38,6 @@ export class RaiderLootOverviewComponent implements OnInit {
   readonly showReserveModal = signal(false);
   readonly pendingReserveItem = signal<ItemWithReservation | null>(null);
   readonly sidebarOpen = signal(false);
-
-  // Domain constants for template binding
-  readonly categoryLabels = ITEM_CATEGORY_LABELS;
-  readonly tierLabels = TIER_LABELS;
-  readonly weaponTypeLabels = WEAPON_TYPE_LABELS;
-  readonly primaryStatLabels = PRIMARY_STAT_LABELS;
-  readonly ItemCategory = ItemCategory;
 
   ngOnInit(): void {
     this.state.load();
@@ -95,44 +80,11 @@ export class RaiderLootOverviewComponent implements OnInit {
     this.pendingReserveItem.set(null);
   }
 
-  // DOM helpers
-  reservationPillLabel(itemId: string): string {
-    const tiers = [AssignmentStatus.CHAMPION_TIER, AssignmentStatus.HERO_TIER, AssignmentStatus.MYTH_TIER];
-
-    const received = this.state.getReceivedItem(itemId);
-    if (received) {
-      const idx = tiers.indexOf(received.tier);
-      const higher = tiers.slice(idx + 1).map((t) => TIER_LABELS[t]);
-      if (higher.length === 0) return TIER_LABELS[received.tier] + ' ontvangen';
-      return `Gereserveerd voor ${higher.join(' & ')}`;
-    }
-
-    const assignment = this.state.getAssignmentStatus(itemId);
-    if (assignment) {
-      const idx = tiers.indexOf(assignment);
-      const higher = tiers.slice(idx + 1).map((t) => TIER_LABELS[t]);
-      if (higher.length === 0) return TIER_LABELS[assignment] + ' ontvangen';
-      return `Gereserveerd voor ${higher.join(' & ')}`;
-    }
-
-    return 'Gereserveerd';
-  }
-
   scrollToBoss(bossId: string): void {
     document.getElementById('boss-' + bossId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   getBossColor(boss: { raidAccentColor?: string }): string {
     return boss.raidAccentColor ?? '#94a3b8';
-  }
-
-  /**
-   * Returns the icon URL of the secondary (hidden) merged item for a given primary item,
-   * by searching the raw boss items list for an entry whose mergedWithItemId matches.
-   */
-  getMergedSecondaryIconUrl(item: IItem, allBossItems: IItem[]): string | null {
-    if (!item.mergedDisplayName) return null;
-    const secondary = allBossItems.find((i) => i.mergedWithItemId === item.wowItemId);
-    return secondary?.iconUrl ?? null;
   }
 }

@@ -1,0 +1,40 @@
+/* All modal, badge, and item-icon styles come from the global styles.scss */
+
+.dice-modal {
+  width: min(520px, 95vw);
+}
+
+.dice-wheel-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+}
+
+.dice-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+@media (max-width: 560px) {
+  .dice-modal {
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    margin-top: auto;
+  }
+
+  .modal-backdrop {
+    align-items: flex-end;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+    }
+  }
+}

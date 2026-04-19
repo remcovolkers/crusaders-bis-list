@@ -13,7 +13,9 @@
     <aside class="boss-sidebar" [class.open]="sidebarOpen()">
       <div class="sidebar-header">
         <span class="sidebar-title">{{ state.catalog()!.season.name }}</span>
-        <button class="sidebar-close-btn" (click)="sidebarOpen.set(false)" aria-label="Sluit bosslijst">&#x2715;</button>
+        <button class="sidebar-close-btn" (click)="sidebarOpen.set(false)" aria-label="Sluit bosslijst">
+          &#x2715;
+        </button>
       </div>
 
       @for (group of state.raidGroups(); track group.raidName) {
@@ -107,84 +109,12 @@
 
               <div class="items-grid">
                 @for (item of state.getFilteredItems(boss.items); track item.id) {
-                  <div class="item-card" [class.reserved]="item.isReserved">
-                    @if (item.isReserved) {
-                      <span class="card-info-corner" aria-label="Info over reservering">
-                        ℹ
-                        <span class="card-info-tooltip">
-                          @if (state.getReceivedItem(item.id)) {
-                            Reservering is nog van toepassing op hogere versies van dit item. Wil je dit aanpassen?
-                            Contacteer Melvin | Laforgèz op Discord.
-                          } @else {
-                            Wil je de reservering verwijderen? Contacteer Melvin | Laforgèz op Discord.
-                          }
-                        </span>
-                      </span>
-                    } @else if (state.isAtLimit(item) && item.isPrioritizable && isCrusadersMember()) {
-                      <span class="card-info-corner" aria-label="Info over limiet">
-                        ℹ
-                        <span class="card-info-tooltip"
-                          >Wil je liever dit item reserveren? Dan moet je eerst een andere reservering annuleren. Neem
-                          hiervoor contact op met Melvin | Laforgèz op Discord.</span
-                        >
-                      </span>
-                    }
-                    <div class="item-top">
-                      @let secondaryIcon = getMergedSecondaryIconUrl(item, boss.items);
-                      @if (item.iconUrl && secondaryIcon) {
-                        <div class="item-icon item-icon--split" [attr.aria-label]="item.name">
-                          <img class="split-primary" [src]="item.iconUrl" alt="" />
-                          <img class="split-secondary" [src]="secondaryIcon" alt="" />
-                          <div class="split-divider"></div>
-                        </div>
-                      } @else if (item.iconUrl) {
-                        <img class="item-icon" [src]="item.iconUrl" [alt]="item.name" />
-                      } @else {
-                        <div class="item-icon-placeholder"></div>
-                      }
-                      <div class="item-info">
-                        <span class="item-name">{{ item.name }}</span>
-                        <div class="item-meta">
-                          <span class="cat-badge" [ngClass]="'cat-' + item.category">
-                            {{ categoryLabels[item.category] }}
-                          </span>
-                          @if (item.primaryStats.length) {
-                            <span
-                              class="stat-badge"
-                              >{{ item.primaryStats.map(s => primaryStatLabels[s]).join('/') }}</span
-                            >
-                          }
-                          @if (item.category === ItemCategory.WEAPON && item.weaponType) {
-                            <span class="weapon-badge">{{ weaponTypeLabels[item.weaponType] }}</span>
-                          }
-                        </div>
-                      </div>
-                    </div>
-
-                    @if (item.isPrioritizable && isCrusadersMember()) {
-                      <div class="item-actions">
-                        @if (!item.isReserved) {
-                          <button
-                            class="btn-primary"
-                            [disabled]="state.isAtLimit(item)"
-                            (click)="openReserveModal(item)"
-                          >
-                            {{ state.isAtLimit(item) ? 'Limiet bereikt' : 'Reserveer' }}
-                          </button>
-                        } @else {
-                          <span
-                            [class]="
-                              state.getReceivedItem(item.id) || state.getAssignmentStatus(item.id)
-                                ? 'received-badge received-badge--actions'
-                                : 'reserved-badge'
-                            "
-                          >
-                            &#10003; {{ reservationPillLabel(item.id) }}
-                          </span>
-                        }
-                      </div>
-                    }
-                  </div>
+                  <lib-loot-item-card
+                    [item]="item"
+                    [allBossItems]="boss.items"
+                    [isCrusadersMember]="isCrusadersMember()"
+                    (reserveClicked)="openReserveModal(item)"
+                  />
                 }
               </div>
             </section>

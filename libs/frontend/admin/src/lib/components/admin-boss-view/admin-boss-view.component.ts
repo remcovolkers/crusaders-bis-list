@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { AdminService } from '../../services/admin.service';
@@ -15,55 +15,32 @@ import {
   TIER_LABELS,
   ItemCategory,
   IItem,
-  RollEvent,
 } from '@crusaders-bis-list/shared-domain';
 import { CatalogResponse } from '@crusaders-bis-list/frontend-loot';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
-import { WheelOfFortuneComponent } from '@crusaders-bis-list/frontend-shared-ui';
+import { AdminAssignConfirmComponent, PendingAssignment } from '../admin-assign-confirm/admin-assign-confirm.component';
+import { AdminDiceModalComponent } from '../admin-dice-modal/admin-dice-modal.component';
 
-interface PendingAssignment {
-  raiderId: string;
-  itemId: string;
-  bossId: string;
-  raiderName: string;
-  item: IItem;
-}
-
-interface DiceModal {
+interface DiceModalInput {
   item: IItem;
   bossId: string;
   raiders: IEligibleRaider[];
-  rolling: boolean;
-  displayName: string;
-  winner: IEligibleRaider | null;
-  sessionId: string;
-  shareUrl: string;
 }
 
 @Component({
   selector: 'lib-admin-boss-view',
-  imports: [NgClass, WheelOfFortuneComponent],
+  imports: [NgClass, AdminAssignConfirmComponent, AdminDiceModalComponent],
   templateUrl: './admin-boss-view.component.html',
   styleUrls: ['./admin-boss-view.component.scss'],
 })
-export class AdminBossViewComponent implements OnInit, OnDestroy {
+export class AdminBossViewComponent implements OnInit {
   readonly catalog = signal<CatalogResponse | null>(null);
   readonly bossLootViews = signal<IBossLootView[]>([]);
   readonly loadingAll = signal(false);
   readonly pendingAssignment = signal<PendingAssignment | null>(null);
-  readonly diceModal = signal<DiceModal | null>(null);
-  readonly wheelDone = signal(false);
+  readonly activeDiceModal = signal<DiceModalInput | null>(null);
+  readonly sidebarOpen = signal(false);
 
-  readonly diceRaidersMapped = computed(() =>
-    (this.diceModal()?.raiders ?? []).map((r) => ({
-      raiderId: r.raiderId,
-      name: r.characterName,
-      color: WOW_CLASS_REGISTRY[r.wowClass]?.color,
-    })),
-  );
-
-  private diceRollTimer: ReturnType<typeof setInterval> | null = null;
-  private sseSource: EventSource | null = null;
   private readonly toast = inject(ToastService);
 
   readonly tierLabels = TIER_LABELS;
@@ -71,9 +48,9 @@ export class AdminBossViewComponent implements OnInit, OnDestroy {
   readonly selectedDifficulty = signal<AssignmentStatus | null>(null);
 
   readonly difficulties = [
-    { key: 'champion', label: 'Champion', value: AssignmentStatus.CHAMPION_TIER },
-    { key: 'hero', label: 'Hero', value: AssignmentStatus.HERO_TIER },
-    { key: 'myth', label: 'Myth', value: AssignmentStatus.MYTH_TIER },
+    { key: AssignmentStatus.CHAMPION_TIER, label: 'Champion', value: AssignmentStatus.CHAMPION_TIER },
+    { key: AssignmentStatus.HERO_TIER,     label: 'Hero',     value: AssignmentStatus.HERO_TIER },
+    { key: AssignmentStatus.MYTH_TIER,     label: 'Myth',     value: AssignmentStatus.MYTH_TIER },
   ];
 
   readonly categoryLabels = ITEM_CATEGORY_LABELS;
@@ -155,10 +132,6 @@ export class AdminBossViewComponent implements OnInit, OnDestroy {
     });
   }
 
-  onWheelDone(): void {
-    this.wheelDone.set(true);
-  }
-
   private readonly UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
   private isUuid(val: string): boolean {
@@ -208,108 +181,15 @@ export class AdminBossViewComponent implements OnInit, OnDestroy {
   }
 
   openDiceModal(drop: IBossLootView['drops'][number], bossId: string): void {
-    const raiders = this.visibleRaiders(drop.eligibleRaiders).map((r) => ({
-      raiderId: r.raiderId,
-      name: r.characterName,
-      color: WOW_CLASS_REGISTRY[r.wowClass]?.color,
-    }));
+    const raiders = this.visibleRaiders(drop.eligibleRaiders);
     if (raiders.length < 2) return;
-
-    this.adminService
-      .createRollSession(
-        drop.item.name,
-        drop.item.iconUrl,
-        drop.item.secondaryIconUrl,
-        this.selectedDifficulty() ? this.difficultyLabel(this.selectedDifficulty()!) : undefined,
-        bossId,
-        raiders,
-      )
-      .subscribe({
-        next: ({ sessionId }) => {
-          this.diceModal.set({
-            item: drop.item,
-            bossId,
-            raiders: this.visibleRaiders(drop.eligibleRaiders),
-            rolling: false,
-            displayName: raiders[0].name,
-            winner: null,
-            sessionId,
-            shareUrl: `${window.location.origin}/roll/${sessionId}`,
-          });
-        },
-        error: () => this.toast.show('Kon dobbelsteensessie niet aanmaken.', 'error'),
-      });
+    this.activeDiceModal.set({ item: drop.item, bossId, raiders });
   }
 
-  closeDiceModal(): void {
-    this.teardownSse();
-    this.diceModal.set(null);
-  }
-
-  rollDice(): void {
-    const modal = this.diceModal();
-    if (!modal || modal.rolling || !modal.sessionId) return;
-
-    this.wheelDone.set(false);
-    this.diceModal.update((m) => (m ? { ...m, rolling: true, winner: null } : m));
-    this.connectSse(modal.sessionId);
-
-    this.adminService.startRoll(modal.sessionId).subscribe({
-      error: () => {
-        this.teardownSse();
-        this.diceModal.update((m) => (m ? { ...m, rolling: false } : m));
-        this.toast.show('Kon de roll niet starten.', 'error');
-      },
-    });
-  }
-
-  private connectSse(sessionId: string): void {
-    this.teardownSse();
-    const apiBase = this.adminService.getBase();
-    this.sseSource = new EventSource(`${apiBase}/roll-sessions/${sessionId}/stream`);
-
-    this.sseSource.onmessage = (e: MessageEvent<string>) => {
-      const event = JSON.parse(e.data) as RollEvent;
-      if (event.type === 'tick') {
-        this.diceModal.update((m) => (m ? { ...m, displayName: event.name } : m));
-      } else if (event.type === 'winner') {
-        const winner = this.diceModal()?.raiders.find((r) => r.raiderId === event.raiderId) ?? null;
-        this.diceModal.update((m) => (m ? { ...m, rolling: false, displayName: event.name, winner } : m));
-        this.teardownSse();
-      }
-    };
-
-    this.sseSource.onerror = () => {
-      this.teardownSse();
-      this.diceModal.update((m) => (m ? { ...m, rolling: false } : m));
-    };
-  }
-
-  private teardownSse(): void {
-    if (this.sseSource) {
-      this.sseSource.close();
-      this.sseSource = null;
-    }
-    if (this.diceRollTimer) {
-      clearTimeout(this.diceRollTimer);
-      this.diceRollTimer = null;
-    }
-  }
-
-  copyShareUrl(): void {
-    const url = this.diceModal()?.shareUrl;
-    if (!url) return;
-    navigator.clipboard.writeText(url).then(() => this.toast.show('Deellink gekopieerd!'));
-  }
-
-  assignFromDice(): void {
-    const modal = this.diceModal();
-    if (!modal?.winner) return;
-    this.closeDiceModal();
-    this.assign(modal.winner.raiderId, modal.item.id, modal.bossId, modal.winner.characterName, modal.item);
-  }
-
-  ngOnDestroy(): void {
-    this.teardownSse();
+  onDiceWinner(winner: IEligibleRaider): void {
+    const modal = this.activeDiceModal();
+    if (!modal) return;
+    this.activeDiceModal.set(null);
+    this.assign(winner.raiderId, modal.item.id, modal.bossId, winner.characterName, modal.item);
   }
 }
