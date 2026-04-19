@@ -337,44 +337,12 @@
 }
 
 @media (max-width: 768px) {
-  .sidebar-toggle-btn {
-    display: flex;
-  }
-
-  .sidebar-close-btn {
-    display: block;
-  }
-
   .boss-sidebar {
-    position: fixed;
-    top: 0;
-    left: -260px;
-    width: 260px;
-    height: 100dvh;
-    z-index: 300;
-    transition: left 0.25s ease;
-    box-shadow: none;
-
-    &.open {
-      left: 0;
-      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
-    }
+    display: none;
   }
 
-  .sidebar-header {
-    display: flex;
-    align-items: center;
-  }
-
-  .sidebar-overlay {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 299;
-    border: none;
-    padding: 0;
-    cursor: default;
+  .sidebar-toggle-btn {
+    display: none;
   }
 
   .loot-topbar {
