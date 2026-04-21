@@ -56,13 +56,16 @@ export class AuthController {
   googleCallback(@Req() req: Request, @Res() res: Response): void {
     const user = req.user as User;
     const accessToken = this.jwtService.sign(
-      { sub: user.id, email: user.email, roles: user.roles, isCrusadersMember: user.isCrusadersMember },
+      {
+        sub: user.id,
+        email: user.email,
+        displayName: user.displayName,
+        roles: user.roles,
+        isCrusadersMember: user.isCrusadersMember,
+      },
       { expiresIn: '1h' },
     );
-    const refreshToken = this.jwtService.sign(
-      { sub: user.id, type: 'refresh' },
-      { expiresIn: '365d' },
-    );
+    const refreshToken = this.jwtService.sign({ sub: user.id, type: 'refresh' }, { expiresIn: '365d' });
     const frontendUrl = process.env['FRONTEND_URL'] ?? 'http://localhost:4200';
     res.redirect(`${frontendUrl}/auth/callback?token=${accessToken}&rt=${encodeURIComponent(refreshToken)}`);
   }

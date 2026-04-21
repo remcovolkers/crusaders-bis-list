@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { API_URL } from '../../tokens/api-url.token';
+import { AuthUser } from '../../state/auth.state';
 import * as AuthActions from '../../state/auth.actions';
 
 @Component({
@@ -43,6 +44,16 @@ export class AuthCallbackComponent implements OnInit {
     if (rt) {
       this.authService.saveRefreshToken(rt);
     }
+
+    // Fetch fresh user data (includes bnetLinked, latest roles, etc.) and update store
+    this.http.get<AuthUser>(`${this.apiUrl}/auth/me`).subscribe({
+      next: (freshUser) => {
+        if (freshUser) this.store.dispatch(AuthActions.loginSuccess({ user: freshUser, token }));
+      },
+      error: () => {
+        /* non-critical, store already has basic user data */
+      },
+    });
 
     // Check if user already has a raider profile; if not, send to onboarding
     this.http.get(`${this.apiUrl}/raider/my-profile`).subscribe({

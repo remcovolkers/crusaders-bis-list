@@ -41,7 +41,13 @@ bootstrapApplication(App, {
             http.post<{ token: string }>(`${environment.apiUrl}/auth/refresh`, { refreshToken }),
           );
           authService.saveToken(result.token);
-          const user = authService.decodeToken(result.token);
+          // Fetch full user data (includes bnetLinked, displayName, etc.)
+          const freshUser = await firstValueFrom(
+            http.get<AuthUser>(`${environment.apiUrl}/auth/me`, {
+              headers: { Authorization: `Bearer ${result.token}` },
+            }),
+          );
+          const user = freshUser ?? authService.decodeToken(result.token);
           if (user) store.dispatch(loginSuccess({ user, token: result.token }));
           return !!user;
         } catch {
