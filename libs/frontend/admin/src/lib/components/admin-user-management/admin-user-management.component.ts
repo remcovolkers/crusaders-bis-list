@@ -79,6 +79,18 @@ export class AdminUserManagementComponent implements OnInit {
     return s === AssignmentStatus.CHAMPION_TIER || s === AssignmentStatus.HERO_TIER || s === AssignmentStatus.MYTH_TIER;
   }
 
+  isBis(entry: RaiderReservationEntry): boolean {
+    return entry.receivedTier === AssignmentStatus.MYTH_TIER;
+  }
+
+  getReservedTiers(entry: RaiderReservationEntry): AssignmentStatus[] {
+    const tiers = [AssignmentStatus.CHAMPION_TIER, AssignmentStatus.HERO_TIER, AssignmentStatus.MYTH_TIER];
+    if (!entry.receivedTier) return tiers;
+    const idx = tiers.indexOf(entry.receivedTier);
+    if (idx < 0) return tiers;
+    return tiers.slice(idx + 1);
+  }
+
   tierLabel(status: AssignmentStatus | undefined): string {
     switch (status) {
       case AssignmentStatus.CHAMPION_TIER:

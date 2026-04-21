@@ -21,7 +21,10 @@
 
   &.reserved {
     border-color: var(--accent-gold-dim);
-    background: rgba(201, 168, 76, 0.04);
+
+    .item-info {
+      padding-right: 72px;
+    }
   }
 }
 
@@ -207,12 +210,33 @@
 /* ── Actions ── */
 .item-actions {
   .btn-primary,
+  .btn-ghost,
   .btn-danger {
     width: 100%;
     justify-content: center;
     font-size: 12px;
     padding: 6px 12px;
   }
+
+  .btn-ghost {
+    background: var(--bg-elevated);
+  }
+
+  .btn-edit-reservation {
+    background: rgba(201, 168, 76, 0.1);
+    border-color: rgba(201, 168, 76, 0.35);
+    color: #e5c06a;
+
+    &:hover:not(:disabled) {
+      background: rgba(201, 168, 76, 0.18);
+      border-color: rgba(201, 168, 76, 0.55);
+      color: #facc15;
+    }
+  }
+}
+
+.btn-edit-reservation {
+  // no extra styles needed — btn-ghost + item-actions sizing covers it
 }
 
 .reservation-pill {
@@ -254,6 +278,90 @@
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
+.bis-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.18), rgba(250, 204, 21, 0.12));
+  color: #facc15;
+  border: 1px solid rgba(201, 168, 76, 0.45);
+  box-shadow: 0 0 8px rgba(201, 168, 76, 0.15);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bis-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.18), rgba(250, 204, 21, 0.12));
+  color: #facc15;
+  border: 1px solid rgba(201, 168, 76, 0.45);
+  box-shadow: 0 0 8px rgba(201, 168, 76, 0.15);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Tier corner badges (reserved state) ── */
+.tier-corner-badges {
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  justify-content: flex-end;
+  max-width: 80px;
+}
+
+.tier-corner-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  border: 1px solid;
+  line-height: 1.2;
+
+  &.tier-champion_tier {
+    color: var(--tier-champion);
+    background: rgba(96, 165, 250, 0.1);
+    border-color: rgba(96, 165, 250, 0.3);
+  }
+  &.tier-hero_tier {
+    color: var(--tier-hero);
+    background: rgba(192, 132, 252, 0.1);
+    border-color: rgba(192, 132, 252, 0.3);
+  }
+  &.tier-myth_tier {
+    color: var(--tier-myth);
+    background: rgba(251, 146, 60, 0.1);
+    border-color: rgba(251, 146, 60, 0.3);
+  }
+}
+
 .received-badge {
   display: inline-flex;
   align-items: center;
@@ -274,6 +382,10 @@
     font-size: 12px;
     padding: 6px 12px;
   }
+}
+
+.info-tap-backdrop {
+  display: none;
 }
 
 /* ── Click-info modal (mobile) ── */
@@ -343,7 +455,17 @@
     display: none !important;
   }
 
+  .info-tap-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: transparent;
+    cursor: default;
+  }
+
   .info-modal-overlay {
     display: block;
+    z-index: 101;
   }
 }

@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { Observable, EMPTY, map, tap } from 'rxjs';
+import { Observable, EMPTY, map, switchMap, tap } from 'rxjs';
 import { LootService } from './loot.service';
 import {
   IItem,
@@ -168,6 +168,31 @@ export class RaiderLootStateService {
         this._receivedItemsMap.set(map);
       }),
     );
+  }
+
+  /**
+   * Cancels a reservation and removes any floor-marker receivedItem.
+   * A MYTH_TIER receivedItem (BiS) is intentionally kept.
+   */
+  cancelReservationAndCleanup(reservationId: string, itemId: string): Observable<void> {
+    const seasonId = this.catalog()?.season.id;
+    if (!reservationId || !seasonId) return EMPTY;
+    const receivedItem = this.getReceivedItem(itemId);
+    const doCancel = this.lootService
+      .cancelReservation(reservationId)
+      .pipe(tap(() => this._loadReservations(seasonId)));
+    // Remove the received-item floor marker (but not a genuine BiS mark)
+    if (receivedItem && receivedItem.tier !== AssignmentStatus.MYTH_TIER) {
+      return this.lootService.removeReceivedItem(receivedItem.id).pipe(
+        tap(() => {
+          const m = new Map(this._receivedItemsMap());
+          m.delete(itemId);
+          this._receivedItemsMap.set(m);
+        }),
+        switchMap(() => doCancel),
+      );
+    }
+    return doCancel;
   }
 
   // ── Queries ───────────────────────────────────────────────────────────────

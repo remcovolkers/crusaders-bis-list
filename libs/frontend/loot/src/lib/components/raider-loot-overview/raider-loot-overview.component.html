@@ -114,6 +114,7 @@
                     [allBossItems]="boss.items"
                     [isCrusadersMember]="isCrusadersMember()"
                     (reserveClicked)="openReserveModal(item)"
+                    (editReservationClicked)="openEditReserveModal(item)"
                   />
                 }
               </div>
@@ -127,5 +128,12 @@
 
 <!-- Reserve confirmation modal -->
 @if (showReserveModal() && pendingReserveItem(); as item) {
-  <lib-reserve-modal [item]="item" (confirmed)="onReserveConfirmed($event)" (cancelled)="onReserveCancelled()" />
+  <lib-reserve-modal
+    [item]="item"
+    [isEditing]="isEditingReservation()"
+    [currentReceivedTier]="pendingReservedTier()"
+    (confirmed)="onReserveConfirmed($event)"
+    (cancelled)="onReserveCancelled()"
+    (receivedAtMythTier)="onReceivedAtMythTier()"
+  />
 }

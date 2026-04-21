@@ -36,8 +36,15 @@ export class RaiderLootOverviewComponent implements OnInit {
 
   // UI-only modal state (not part of application state)
   readonly showReserveModal = signal(false);
+  readonly isEditingReservation = signal(false);
   readonly pendingReserveItem = signal<ItemWithReservation | null>(null);
   readonly sidebarOpen = signal(false);
+
+  readonly pendingReservedTier = (): AssignmentStatus | null => {
+    const item = this.pendingReserveItem();
+    if (!item) return null;
+    return this.state.getReceivedItem(item.id)?.tier ?? null;
+  };
 
   ngOnInit(): void {
     this.state.load();
@@ -49,15 +56,36 @@ export class RaiderLootOverviewComponent implements OnInit {
   // Reserve modal
   openReserveModal(item: ItemWithReservation): void {
     this.pendingReserveItem.set(item);
+    this.isEditingReservation.set(false);
+    this.showReserveModal.set(true);
+  }
+
+  openEditReserveModal(item: ItemWithReservation): void {
+    this.pendingReserveItem.set(item);
+    this.isEditingReservation.set(true);
     this.showReserveModal.set(true);
   }
 
   onReserveConfirmed(tier: AssignmentStatus | null): void {
     const item = this.pendingReserveItem();
+    const isEditing = this.isEditingReservation();
     if (!item) return;
 
     this.showReserveModal.set(false);
     this.pendingReserveItem.set(null);
+    this.isEditingReservation.set(false);
+
+    if (isEditing) {
+      // Edit mode: update the received-tier marker; reservation already exists
+      this.state.markItemReceived(item.id, tier ?? AssignmentStatus.CHAMPION_TIER).subscribe({
+        next: () => this.toast.show('Reservering bijgewerkt.'),
+        error: (e: unknown) => {
+          const msg = (e as { error?: { message?: string } }).error?.message ?? 'Bijwerken mislukt';
+          this.toast.show(msg, 'error');
+        },
+      });
+      return;
+    }
 
     const doReserve = () => {
       this.state.reserve(item.id).subscribe({
@@ -78,6 +106,29 @@ export class RaiderLootOverviewComponent implements OnInit {
   onReserveCancelled(): void {
     this.showReserveModal.set(false);
     this.pendingReserveItem.set(null);
+    this.isEditingReservation.set(false);
+  }
+
+  onReceivedAtMythTier(): void {
+    const item = this.pendingReserveItem();
+    if (!item) return;
+    this.showReserveModal.set(false);
+    this.pendingReserveItem.set(null);
+    this.state.markItemReceived(item.id, AssignmentStatus.MYTH_TIER).subscribe({
+      next: () => {
+        this.state.reserve(item.id).subscribe({
+          next: () => this.toast.show('BiS in bezit gemarkeerd en reservering aangemaakt! 🏆'),
+          error: (e: unknown) => {
+            const msg = (e as { error?: { message?: string } }).error?.message ?? 'Reservering mislukt';
+            this.toast.show(msg, 'error');
+          },
+        });
+      },
+      error: (e: unknown) => {
+        const msg = (e as { error?: { message?: string } }).error?.message ?? 'Markering mislukt';
+        this.toast.show(msg, 'error');
+      },
+    });
   }
 
   scrollToBoss(bossId: string): void {

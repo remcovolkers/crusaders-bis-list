@@ -25,11 +25,14 @@ export class LootItemCardComponent {
   readonly allBossItems = input.required<IItem[]>();
   readonly isCrusadersMember = input.required<boolean>();
   readonly reserveClicked = output<void>();
+  readonly editReservationClicked = output<void>();
 
   readonly categoryLabels = ITEM_CATEGORY_LABELS;
   readonly weaponTypeLabels = WEAPON_TYPE_LABELS;
   readonly primaryStatLabels = PRIMARY_STAT_LABELS;
+  readonly tierLabels = TIER_LABELS;
   readonly ItemCategory = ItemCategory;
+  readonly AssignmentStatus = AssignmentStatus;
 
   readonly infoModal = signal<'res' | 'lim' | null>(null);
 
@@ -38,6 +41,17 @@ export class LootItemCardComponent {
     if (!item.mergedDisplayName) return null;
     const secondary = this.allBossItems().find((i) => i.mergedWithItemId === item.wowItemId);
     return secondary?.iconUrl ?? null;
+  }
+
+  /** Returns the tiers currently reserved (based on the floor encoded in receivedTier). */
+  getReservedTiers(): AssignmentStatus[] {
+    const tiers = [AssignmentStatus.CHAMPION_TIER, AssignmentStatus.HERO_TIER, AssignmentStatus.MYTH_TIER];
+    const received = this.state.getReceivedItem(this.item().id);
+    if (!received) return tiers;
+    const idx = tiers.indexOf(received.tier);
+    // idx === 2 (Myth) → BiS, shown separately; idx < 0 → fallback to all
+    if (idx < 0) return tiers;
+    return tiers.slice(idx + 1);
   }
 
   reservationPillLabel(): string {

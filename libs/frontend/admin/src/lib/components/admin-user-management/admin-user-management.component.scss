@@ -177,7 +177,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 50;
-  width: min(520px, 95vw);
+  width: min(820px, 95vw);
   max-height: 85vh;
   background: var(--bg-surface);
   border: 1px solid var(--border-bright);
@@ -241,15 +241,37 @@
 }
 
 /* ── Sections ── */
+.modal-body-columns {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.modal-col {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+
+  &--actions {
+    width: 280px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border-color);
+  }
+
+  &--reservations {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
 .panel-section {
-  padding: 16px 20px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 
   &.reservations-section {
-    flex: 1;
-    overflow-y: auto;
-    flex-shrink: 1;
+    border-bottom: none;
   }
 }
 
@@ -357,22 +379,20 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
   padding: 9px 0;
   border-bottom: 1px solid var(--border-color);
 
   &:last-child {
     border-bottom: none;
   }
-  &:hover {
-    background: rgba(255, 255, 255, 0.02);
-  }
 }
 
 .res-item {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
   min-width: 0;
   flex: 1;
 }
@@ -475,26 +495,52 @@
   border: 1px solid rgba(251, 191, 36, 0.25);
 }
 
-.tier-badge {
-  font-size: 11px;
+.bis-badge-sm {
+  font-size: 10px;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.18), rgba(250, 204, 21, 0.1));
+  color: #facc15;
+  border: 1px solid rgba(201, 168, 76, 0.4);
+}
+
+.tier-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.tier-pills-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  margin-right: 2px;
+}
+
+.tier-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
   border-radius: 999px;
 }
 .tier-champion {
-  background: rgba(59, 130, 246, 0.15);
+  background: rgba(96, 165, 250, 0.12);
   color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(96, 165, 250, 0.25);
 }
 .tier-hero {
-  background: rgba(139, 92, 246, 0.15);
-  color: #a78bfa;
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: rgba(192, 132, 252, 0.12);
+  color: #c084fc;
+  border: 1px solid rgba(192, 132, 252, 0.25);
 }
 .tier-myth {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(251, 146, 60, 0.12);
+  color: #fb923c;
+  border: 1px solid rgba(251, 146, 60, 0.25);
 }
 .tier-no-need {
   background: var(--bg-elevated);
@@ -869,25 +915,25 @@
 }
 
 .tier-badge {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
   border-radius: 999px;
 }
 .tier-champion {
-  background: rgba(59, 130, 246, 0.15);
+  background: rgba(96, 165, 250, 0.12);
   color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(96, 165, 250, 0.25);
 }
 .tier-hero {
-  background: rgba(139, 92, 246, 0.15);
-  color: #a78bfa;
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: rgba(192, 132, 252, 0.12);
+  color: #c084fc;
+  border: 1px solid rgba(192, 132, 252, 0.25);
 }
 .tier-myth {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(251, 146, 60, 0.12);
+  color: #fb923c;
+  border: 1px solid rgba(251, 146, 60, 0.25);
 }
 .tier-no-need {
   background: var(--bg-elevated);
@@ -1195,6 +1241,16 @@
     border-radius: 16px 16px 0 0;
     border-bottom: none;
     animation: modal-in-bottom 0.2s ease;
+  }
+
+  .modal-body-columns {
+    flex-direction: column;
+  }
+
+  .modal-col--actions {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
   }
 
   @keyframes modal-in-bottom {

@@ -1,21 +1,5 @@
 <div class="item-card" [class.reserved]="item().isReserved">
-  @if (item().isReserved) {
-    <button
-      class="card-info-corner"
-      aria-label="Info over reservering"
-      (click)="infoModal.set(infoModal() === 'res' ? null : 'res')"
-    >
-      ℹ
-      <span class="card-info-tooltip">
-        @if (state.getReceivedItem(item().id)) {
-          Reservering is nog van toepassing op hogere versies van dit item. Wil je dit aanpassen? Contacteer Melvin |
-          Laforgèz op Discord.
-        } @else {
-          Wil je de reservering verwijderen? Contacteer Melvin | Laforgèz op Discord.
-        }
-      </span>
-    </button>
-  } @else if (state.isAtLimit(item()) && item().isPrioritizable && isCrusadersMember()) {
+  @if (!item().isReserved && state.isAtLimit(item()) && item().isPrioritizable && isCrusadersMember()) {
     <button
       class="card-info-corner"
       aria-label="Info over limiet"
@@ -29,21 +13,23 @@
     </button>
   }
 
+  @if (item().isReserved && getReservedTiers().length) {
+    <div class="tier-corner-badges">
+      @for (tier of getReservedTiers(); track tier) {
+        <span class="tier-corner-badge" [ngClass]="'tier-' + tier">{{ tierLabels[tier] }}</span>
+      }
+    </div>
+  }
+
   @if (infoModal()) {
-    <div class="info-modal-overlay" role="dialog" aria-modal="true">
-      <button class="info-modal-close" aria-label="Sluit" (click)="infoModal.set(null)">✕</button>
+    <div class="info-tap-backdrop" (click)="infoModal.set(null)"></div>
+    <div class="info-modal-overlay" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <button class="info-modal-close" aria-label="Sluit" (click)="infoModal.set(null)">
+        ✕
+      </button>
       <p class="info-modal-text">
-        @if (infoModal() === 'res') {
-          @if (state.getReceivedItem(item().id)) {
-            Reservering is nog van toepassing op hogere versies van dit item. Wil je dit aanpassen? Contacteer Melvin |
-            Laforgèz op Discord.
-          } @else {
-            Wil je de reservering verwijderen? Contacteer Melvin | Laforgèz op Discord.
-          }
-        } @else {
-          Wil je liever dit item reserveren? Dan moet je eerst een andere reservering annuleren. Neem hiervoor contact
-          op met Melvin | Laforgèz op Discord.
-        }
+        Wil je liever dit item reserveren? Dan moet je eerst een andere reservering annuleren. Neem hiervoor contact op
+        met Melvin | Laforgèz op Discord.
       </p>
     </div>
   }
@@ -67,7 +53,12 @@
         <span class="cat-badge" [ngClass]="'cat-' + item().category">
           {{ categoryLabels[item().category] }}
         </span>
-        @if (item().primaryStats.length) {
+        @if (
+          item().primaryStats.length &&
+          (item().category === ItemCategory.TRINKET ||
+            item().category === ItemCategory.WEAPON ||
+            item().category === ItemCategory.JEWELRY)
+        ) {
           <span class="stat-badge">{{ item().primaryStats.map(s => primaryStatLabels[s]).join('/') }}</span>
         }
         @if (item().category === ItemCategory.WEAPON && item().weaponType) {
@@ -79,20 +70,16 @@
 
   @if (item().isPrioritizable && isCrusadersMember()) {
     <div class="item-actions">
-      @if (!item().isReserved) {
+      @if (state.getReceivedItem(item().id)?.tier === AssignmentStatus.MYTH_TIER) {
+        <span class="bis-badge">&#11088; BiS in bezit! Gefeliciteerd!</span>
+      } @else if (!item().isReserved) {
         <button class="btn-primary" [disabled]="state.isAtLimit(item())" (click)="reserveClicked.emit()">
           {{ state.isAtLimit(item()) ? 'Limiet bereikt' : 'Reserveer' }}
         </button>
       } @else {
-        <span
-          [class]="
-            state.getReceivedItem(item().id) || state.getAssignmentStatus(item().id)
-              ? 'received-badge received-badge--actions'
-              : 'reserved-badge'
-          "
-        >
-          &#10003; {{ reservationPillLabel() }}
-        </span>
+        <button class="btn-ghost btn-edit-reservation" (click)="editReservationClicked.emit()">
+          Pas reservering aan
+        </button>
       }
     </div>
   }
