@@ -81,7 +81,9 @@ export class AdminReservationManagementComponent implements OnInit {
   readonly wipingOrphaned = signal(false);
 
   wipeAllOrphaned(): void {
-    const ids = this.orphanedRaiders().flatMap((r) => r.reservations.map((res) => res.id));
+    const ids = this.orphanedRaiders().flatMap((r) =>
+      r.reservations.map((res) => res.id).filter((id): id is string => id !== null),
+    );
     if (ids.length === 0) return;
     this.confirmWipeAll.set(false);
     this.wipingOrphaned.set(true);

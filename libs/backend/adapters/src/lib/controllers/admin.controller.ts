@@ -34,9 +34,16 @@ import {
   IRaiderRepository,
   USER_REPOSITORY,
   IUserRepository,
+  RESERVATION_REPOSITORY,
+  IReservationRepository,
+  RAID_CATALOG_REPOSITORY,
+  IRaidCatalogRepository,
+  RECEIVED_ITEM_REPOSITORY,
+  IReceivedItemRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { Request } from 'express';
 import { UserRole } from '@crusaders-bis-list/shared-domain';
+import { AuditLogService } from '@crusaders-bis-list/backend-infrastructure';
 import { AssignLootDto, UpdateAssignmentStatusDto, UpdateSeasonConfigDto } from './dto/admin.dto';
 import { JwtPayload } from '../auth/jwt.strategy';
 
@@ -57,8 +64,12 @@ export class AdminController {
     private readonly resetAndSync: ResetCatalogAndSyncUseCase,
     private readonly updateItemSuperRare: UpdateItemSuperRareUseCase,
     private readonly resetAllReservations: ResetAllReservationsUseCase,
+    private readonly auditLog: AuditLogService,
     @Inject(RAIDER_REPOSITORY) private readonly raiderRepo: IRaiderRepository,
     @Inject(USER_REPOSITORY) private readonly userRepo: IUserRepository,
+    @Inject(RESERVATION_REPOSITORY) private readonly reservationRepo: IReservationRepository,
+    @Inject(RAID_CATALOG_REPOSITORY) private readonly catalogRepo: IRaidCatalogRepository,
+    @Inject(RECEIVED_ITEM_REPOSITORY) private readonly receivedItemRepo: IReceivedItemRepository,
   ) {}
 
   @Get('raiders')
@@ -120,6 +131,8 @@ export class AdminController {
   @HttpCode(HttpStatus.CREATED)
   async assignLootToRaider(@Req() req: Request, @Body() dto: AssignLootDto) {
     const adminId = (req.user as JwtPayload).sub;
+    const admin = await this.userRepo.findById(adminId);
+    const actorName = admin?.displayName ?? adminId;
     await this.assignLoot.execute({
       raiderId: dto.raiderId,
       itemId: dto.itemId,
@@ -127,6 +140,14 @@ export class AdminController {
       raidSeasonId: dto.raidSeasonId,
       status: dto.status,
       assignedByUserId: adminId,
+    });
+    this.auditLog.log({
+      action: 'loot_assigned',
+      actorId: adminId,
+      actorName,
+      raiderName: dto.raiderName ?? null,
+      itemName: dto.itemName ?? null,
+      details: { status: dto.status },
     });
     return { message: 'Assignment created' };
   }
@@ -144,14 +165,67 @@ export class AdminController {
 
   @Delete('reservations/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async adminCancelReservation(@Param('id') reservationId: string) {
+  async adminCancelReservation(@Req() req: Request, @Param('id') reservationId: string) {
+    const adminId = (req.user as JwtPayload).sub;
+    const [admin, reservation] = await Promise.all([
+      this.userRepo.findById(adminId),
+      this.reservationRepo.findById(reservationId),
+    ]);
+    const [raider, item] = await Promise.all([
+      reservation ? this.raiderRepo.findById(reservation.raiderId) : Promise.resolve(null),
+      reservation ? this.catalogRepo.findItemById(reservation.itemId) : Promise.resolve(null),
+    ]);
     await this.cancelReservation.execute(reservationId);
+    this.auditLog.log({
+      action: 'reservation_cancelled',
+      actorId: adminId,
+      actorName: admin?.displayName ?? adminId,
+      raiderName: raider?.characterName ?? null,
+      itemName: item?.mergedDisplayName ?? item?.name ?? null,
+    });
+  }
+
+  @Delete('raiders/:raiderId/received-items/:itemId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async adminDeleteReceivedItem(
+    @Req() req: Request,
+    @Param('raiderId') raiderId: string,
+    @Param('itemId') itemId: string,
+  ) {
+    const adminId = (req.user as JwtPayload).sub;
+    const [admin, raider, item] = await Promise.all([
+      this.userRepo.findById(adminId),
+      this.raiderRepo.findById(raiderId),
+      this.catalogRepo.findItemById(itemId),
+    ]);
+    await this.receivedItemRepo.deleteByRaiderAndItem(raiderId, itemId);
+    this.auditLog.log({
+      action: 'reservation_cancelled',
+      actorId: adminId,
+      actorName: admin?.displayName ?? adminId,
+      raiderName: raider?.characterName ?? null,
+      itemName: item?.mergedDisplayName ?? item?.name ?? null,
+    });
   }
 
   @Post('reservations/reset-all')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async resetAllReservationsEndpoint(@Body() dto: { reason?: string }) {
+  async resetAllReservationsEndpoint(@Req() req: Request, @Body() dto: { reason?: string }) {
+    const adminId = (req.user as JwtPayload).sub;
+    const admin = await this.userRepo.findById(adminId);
+    const actorName = admin?.displayName ?? adminId;
     await this.resetAllReservations.execute(dto.reason);
+    this.auditLog.log({
+      action: 'reservation_reset_all',
+      actorId: adminId,
+      actorName,
+      details: dto.reason ? { reason: dto.reason } : null,
+    });
+  }
+
+  @Get('audit-log')
+  getAuditLog() {
+    return this.auditLog.getRecent(200);
   }
 
   @Get('season-config')

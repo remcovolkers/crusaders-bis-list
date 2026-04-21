@@ -17,6 +17,7 @@ import {
 import { Request } from 'express';
 import { JwtPayload } from '../auth/jwt.strategy';
 import { JwtAuthGuard } from '../guards/auth.guard';
+import { AuditLogService } from '@crusaders-bis-list/backend-infrastructure';
 import {
   ReserveItemUseCase,
   GetRaidCatalogUseCase,
@@ -34,6 +35,8 @@ import {
   IUserRepository,
   ASSIGNMENT_REPOSITORY,
   IAssignmentRepository,
+  RAID_CATALOG_REPOSITORY,
+  IRaidCatalogRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { Inject } from '@nestjs/common';
 import { ReserveItemDto, CreateRaiderProfileDto, UpdateRaiderProfileDto, MarkReceivedDto } from './dto/raider.dto';
@@ -55,11 +58,13 @@ export class RaiderController {
     private readonly getRaidCatalog: GetRaidCatalogUseCase,
     private readonly getSeasonConfig: GetSeasonConfigUseCase,
     private readonly cancelReservation: CancelReservationUseCase,
+    private readonly auditLog: AuditLogService,
     @Inject(RAIDER_REPOSITORY) private readonly raiderRepo: IRaiderRepository,
     @Inject(RESERVATION_REPOSITORY) private readonly reservationRepo: IReservationRepository,
     @Inject(RECEIVED_ITEM_REPOSITORY) private readonly receivedItemRepo: IReceivedItemRepository,
     @Inject(USER_REPOSITORY) private readonly userRepo: IUserRepository,
     @Inject(ASSIGNMENT_REPOSITORY) private readonly assignmentRepo: IAssignmentRepository,
+    @Inject(RAID_CATALOG_REPOSITORY) private readonly catalogRepo: IRaidCatalogRepository,
   ) {}
 
   @Get('my-profile')
@@ -155,9 +160,18 @@ export class RaiderController {
   @HttpCode(HttpStatus.CREATED)
   async reserve(@Req() req: Request, @Body() dto: ReserveItemDto) {
     const userId = (req.user as JwtPayload).sub;
+    const user = await this.userRepo.findById(userId);
+    const actorName = user?.displayName ?? userId;
     const raider = await this.raiderRepo.findByUserId(userId);
     if (!raider) throw new NotFoundException('Raider profile not found. Please create your profile first.');
     await this.reserveItem.execute(raider.id, dto.itemId, dto.raidSeasonId);
+    this.auditLog.log({
+      action: 'reservation_created',
+      actorId: userId,
+      actorName,
+      raiderName: raider.characterName,
+      itemName: dto.itemName ?? null,
+    });
     return { message: 'Reserved successfully' };
   }
 
@@ -165,9 +179,21 @@ export class RaiderController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async cancelReservationEndpoint(@Req() req: Request, @Param('id') id: string) {
     const userId = (req.user as JwtPayload).sub;
-    const raider = await this.raiderRepo.findByUserId(userId);
+    const [user, raider, reservation] = await Promise.all([
+      this.userRepo.findById(userId),
+      this.raiderRepo.findByUserId(userId),
+      this.reservationRepo.findById(id),
+    ]);
+    const item = reservation ? await this.catalogRepo.findItemById(reservation.itemId) : null;
     if (!raider) throw new NotFoundException('Raider profile not found.');
     await this.cancelReservation.execute(id);
+    this.auditLog.log({
+      action: 'reservation_cancelled',
+      actorId: userId,
+      actorName: user?.displayName ?? userId,
+      raiderName: raider.characterName,
+      itemName: item?.mergedDisplayName ?? item?.name ?? null,
+    });
   }
 
   @Get('received-items')
@@ -182,9 +208,20 @@ export class RaiderController {
   @HttpCode(HttpStatus.CREATED)
   async markItemReceived(@Req() req: Request, @Body() dto: MarkReceivedDto) {
     const userId = (req.user as JwtPayload).sub;
+    const user = await this.userRepo.findById(userId);
+    const actorName = user?.displayName ?? userId;
     const raider = await this.raiderRepo.findByUserId(userId);
     if (!raider) throw new NotFoundException('Raider profile not found.');
-    return this.receivedItemRepo.save({ raiderId: raider.id, itemId: dto.itemId, tier: dto.tier });
+    const result = await this.receivedItemRepo.save({ raiderId: raider.id, itemId: dto.itemId, tier: dto.tier });
+    this.auditLog.log({
+      action: 'received_item_marked',
+      actorId: userId,
+      actorName,
+      raiderName: raider.characterName,
+      itemName: dto.itemName ?? null,
+      details: { tier: dto.tier },
+    });
+    return result;
   }
 
   @Delete('received-items/:id')

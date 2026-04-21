@@ -79,7 +79,13 @@ export class AuthController {
       const user = await this.userRepo.findById(payload.sub);
       if (!user) throw new Error('User not found');
       const token = this.jwtService.sign(
-        { sub: user.id, email: user.email, roles: user.roles, isCrusadersMember: user.isCrusadersMember },
+        {
+          sub: user.id,
+          email: user.email,
+          displayName: user.displayName,
+          roles: user.roles,
+          isCrusadersMember: user.isCrusadersMember,
+        },
         { expiresIn: '1h' },
       );
       return { token };

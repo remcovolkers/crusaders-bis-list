@@ -17,6 +17,8 @@ import { LootQueryRepository } from './database/repositories/loot-query.reposito
 import { RaidCatalogRepository } from './database/repositories/raid-catalog.repository';
 import { SeasonConfigRepository } from './database/repositories/season-config.repository';
 import { ReceivedItemRepository } from './database/repositories/received-item.repository';
+import { AuditLogService } from './database/repositories/audit-log.service';
+import { AuditLogOrmEntity } from './database/entities/audit-log.orm-entity';
 import { BlizzardApiService } from './blizzard/blizzard-api.service';
 import { EmailService } from './email/email.service';
 
@@ -43,6 +45,7 @@ const ORM_ENTITIES = [
   SeasonConfigOrmEntity,
   RaiderReceivedItemOrmEntity,
   FeedbackOrmEntity,
+  AuditLogOrmEntity,
 ];
 
 @Module({
@@ -59,6 +62,7 @@ const ORM_ENTITIES = [
     { provide: BLIZZARD_API_SERVICE, useClass: BlizzardApiService },
     FeedbackRepository,
     EmailService,
+    AuditLogService,
   ],
   exports: [
     USER_REPOSITORY,
@@ -72,6 +76,7 @@ const ORM_ENTITIES = [
     BLIZZARD_API_SERVICE,
     FeedbackRepository,
     EmailService,
+    AuditLogService,
   ],
 })
 export class BackendInfrastructureModule {}

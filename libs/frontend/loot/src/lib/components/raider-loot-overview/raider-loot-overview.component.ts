@@ -77,18 +77,20 @@ export class RaiderLootOverviewComponent implements OnInit {
 
     if (isEditing) {
       // Edit mode: update the received-tier marker; reservation already exists
-      this.state.markItemReceived(item.id, tier ?? AssignmentStatus.CHAMPION_TIER).subscribe({
-        next: () => this.toast.show('Reservering bijgewerkt.'),
-        error: (e: unknown) => {
-          const msg = (e as { error?: { message?: string } }).error?.message ?? 'Bijwerken mislukt';
-          this.toast.show(msg, 'error');
-        },
-      });
+      this.state
+        .markItemReceived(item.id, tier ?? AssignmentStatus.CHAMPION_TIER, item.mergedDisplayName ?? item.name)
+        .subscribe({
+          next: () => this.toast.show('Reservering bijgewerkt.'),
+          error: (e: unknown) => {
+            const msg = (e as { error?: { message?: string } }).error?.message ?? 'Bijwerken mislukt';
+            this.toast.show(msg, 'error');
+          },
+        });
       return;
     }
 
     const doReserve = () => {
-      this.state.reserve(item.id).subscribe({
+      this.state.reserve(item.id, item.mergedDisplayName ?? item.name).subscribe({
         error: (e: unknown) => {
           const msg = (e as { error?: { message?: string } }).error?.message ?? 'Reservering mislukt';
           this.toast.show(msg, 'error');
@@ -97,7 +99,9 @@ export class RaiderLootOverviewComponent implements OnInit {
     };
 
     if (tier) {
-      this.state.markItemReceived(item.id, tier).subscribe({ next: doReserve, error: doReserve });
+      this.state
+        .markItemReceived(item.id, tier, item.mergedDisplayName ?? item.name)
+        .subscribe({ next: doReserve, error: doReserve });
     } else {
       doReserve();
     }
@@ -114,9 +118,9 @@ export class RaiderLootOverviewComponent implements OnInit {
     if (!item) return;
     this.showReserveModal.set(false);
     this.pendingReserveItem.set(null);
-    this.state.markItemReceived(item.id, AssignmentStatus.MYTH_TIER).subscribe({
+    this.state.markItemReceived(item.id, AssignmentStatus.MYTH_TIER, item.mergedDisplayName ?? item.name).subscribe({
       next: () => {
-        this.state.reserve(item.id).subscribe({
+        this.state.reserve(item.id, item.mergedDisplayName ?? item.name).subscribe({
           next: () => this.toast.show('BiS in bezit gemarkeerd en reservering aangemaakt! 🏆'),
           error: (e: unknown) => {
             const msg = (e as { error?: { message?: string } }).error?.message ?? 'Reservering mislukt';

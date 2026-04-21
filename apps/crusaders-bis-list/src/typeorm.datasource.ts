@@ -16,6 +16,7 @@ import { RaidSeasonOrmEntity, BossOrmEntity, ItemOrmEntity } from '@crusaders-bi
 import { ReservationOrmEntity, AssignmentOrmEntity } from '@crusaders-bis-list/backend-infrastructure';
 import { SeasonConfigOrmEntity } from '@crusaders-bis-list/backend-infrastructure';
 import { RaiderReceivedItemOrmEntity } from '@crusaders-bis-list/backend-infrastructure';
+import { AuditLogOrmEntity } from '@crusaders-bis-list/backend-infrastructure';
 import { MIGRATIONS } from '@crusaders-bis-list/backend-infrastructure';
 
 export default new DataSource({
@@ -31,6 +32,7 @@ export default new DataSource({
     AssignmentOrmEntity,
     SeasonConfigOrmEntity,
     RaiderReceivedItemOrmEntity,
+    AuditLogOrmEntity,
   ],
   migrations: MIGRATIONS,
   migrationsTableName: 'typeorm_migrations',

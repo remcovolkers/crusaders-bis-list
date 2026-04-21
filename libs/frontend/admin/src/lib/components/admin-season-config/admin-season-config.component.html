@@ -33,6 +33,15 @@
     >
       ⭐ Super Rare
     </button>
+    <button
+      class="admin-tab"
+      role="tab"
+      [class.active]="activeTab() === 'auditlog'"
+      [attr.aria-selected]="activeTab() === 'auditlog'"
+      (click)="activeTab.set('auditlog')"
+    >
+      📋 Audit Log
+    </button>
   </div>
 
   <!-- ── Tab: Gebruikersbeheer ── -->
@@ -187,6 +196,20 @@
           }
         </div>
       }
+    </div>
+  }
+
+  <!-- ── Tab: Audit Log ── -->
+  @if (activeTab() === 'auditlog') {
+    <div class="tab-panel" role="tabpanel">
+      <div class="section-heading">
+        <h3>📋 Audit Log</h3>
+        <p>
+          Recente activiteit: reserveringen aangemaakt of aangepast, loot toegekend. De laatste 200 acties worden
+          getoond.
+        </p>
+      </div>
+      <lib-admin-audit-log />
     </div>
   }
 </div>

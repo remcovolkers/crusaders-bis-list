@@ -1,0 +1,184 @@
+<div
+  class="modal-backdrop"
+  role="button"
+  tabindex="0"
+  aria-label="Sluit venster"
+  (click)="close()"
+  (keydown.escape)="close()"
+></div>
+
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <!-- Header -->
+  <div class="panel-header">
+    <div class="panel-user-info">
+      <span id="modal-title" class="panel-display-name">
+        {{ summary()?.characterName ?? profile()?.characterName ?? user().displayName }}
+      </span>
+    </div>
+    <button class="close-btn" (click)="close()" aria-label="Sluiten">✕</button>
+  </div>
+
+  <!-- Body -->
+  <div class="modal-body-columns">
+    <!-- Left column: profile + account actions -->
+    <div class="modal-col modal-col--actions">
+      <!-- Raider profiel -->
+      <div class="panel-section">
+        <h3 class="section-title">Raider profiel</h3>
+        @if (summary(); as s) {
+          <div class="profile-card">
+            <span class="profile-char">{{ s.characterName }}</span>
+            <span class="profile-meta">{{ s.wowClass }} – {{ s.spec }}</span>
+          </div>
+        } @else if (profile(); as p) {
+          <div class="profile-card">
+            <span class="profile-char">{{ p.characterName }}</span>
+            <span class="profile-meta">{{ p.wowClass }} – {{ p.spec }}</span>
+          </div>
+        } @else {
+          <p class="empty-state">Geen raider-profiel.</p>
+        }
+      </div>
+
+      <!-- Account acties -->
+      <div class="panel-section">
+        <h3 class="section-title">Account acties</h3>
+        <div class="action-group">
+          @if (!user().roles.includes(adminRole)) {
+            <button class="action-btn" (click)="makeAdmin(user())">Maak Admin</button>
+          } @else {
+            <button class="action-btn danger" (click)="removeAdmin(user())">Verwijder Admin rol</button>
+          }
+
+          @if (!user().isCrusadersMember) {
+            <button class="action-btn" (click)="makeCrusader(user())">Maak Crusader</button>
+          } @else {
+            <button class="action-btn danger" (click)="kickFromCrusaders(user())">Kick van Crusaders</button>
+          }
+
+          @if (user().battletag) {
+            @if (confirmingUnlinkBnetUserId() === user().id) {
+              <div class="confirm-row">
+                <span class="confirm-text">Battle.net ontkoppelen?</span>
+                <button class="action-btn danger" (click)="confirmUnlinkBnet(user())">Ja, ontkoppel</button>
+                <button class="action-btn" (click)="abortUnlinkBnet()">Annuleer</button>
+              </div>
+            } @else {
+              <button class="action-btn danger" (click)="requestUnlinkBnet(user().id)" [title]="user().battletag ?? ''">
+                Ontkoppel Battle.net ({{ user().battletag }})
+              </button>
+            }
+          }
+
+          @if (summary(); as s) {
+            @if (confirmingResetRaiderId() === s.raiderId) {
+              <div class="confirm-row">
+                <span class="confirm-text">Profiel resetten?</span>
+                <button class="action-btn danger" (click)="confirmReset(s.raiderId)">Ja, reset</button>
+                <button class="action-btn" (click)="abortReset()">Annuleer</button>
+              </div>
+            } @else {
+              <button class="action-btn danger" (click)="requestReset(s.raiderId)">Reset raider profiel</button>
+            }
+          } @else if (profile(); as p) {
+            @if (confirmingResetRaiderId() === p.id) {
+              <div class="confirm-row">
+                <span class="confirm-text">Profiel resetten?</span>
+                <button class="action-btn danger" (click)="confirmReset(p.id)">Ja, reset</button>
+                <button class="action-btn" (click)="abortReset()">Annuleer</button>
+              </div>
+            } @else {
+              <button class="action-btn danger" (click)="requestReset(p.id)">Reset raider profiel</button>
+            }
+          }
+
+          @if (confirmingDeleteUserId() === user().id) {
+            <div class="confirm-row">
+              <span class="confirm-text">Account verwijderen?</span>
+              <button class="action-btn danger" (click)="confirmDeleteUser(user().id)">Ja, verwijder</button>
+              <button class="action-btn" (click)="abortDeleteUser()">Annuleer</button>
+            </div>
+          } @else {
+            <button class="action-btn danger" (click)="requestDeleteUser(user().id)">Verwijder account</button>
+          }
+        </div>
+      </div>
+    </div>
+    <!-- /.modal-col--actions -->
+
+    <!-- Right column: reservations -->
+    <div class="modal-col modal-col--reservations">
+      <div class="panel-section reservations-section">
+        <h3 class="section-title">
+          Reserveringen
+          @if (summary(); as s) {
+            <span class="section-count">{{ s.reservations.length }}</span>
+          }
+        </h3>
+
+        @if (summary(); as s) {
+          @if (s.reservations.length === 0) {
+            <p class="empty-state">Geen reserveringen.</p>
+          }
+          @for (entry of s.reservations; track entry.id) {
+            <div class="res-row" [class.res-row--bis]="isBis(entry)">
+              <div class="res-item">
+                @if (entry.iconUrl && entry.secondaryIconUrl) {
+                  <div class="item-icon-sm item-icon-sm--split">
+                    <img class="split-primary" [src]="entry.iconUrl" [alt]="entry.itemName" loading="lazy" />
+                    <img class="split-secondary" [src]="entry.secondaryIconUrl" [alt]="entry.itemName" loading="lazy" />
+                    <div class="split-divider"></div>
+                  </div>
+                } @else if (entry.iconUrl) {
+                  <img class="item-icon-sm" [src]="entry.iconUrl" [alt]="entry.itemName" loading="lazy" />
+                }
+                <div class="item-text">
+                  <span class="item-name">{{ entry.itemName }}</span>
+                  <div class="item-badges">
+                    <span class="cat-badge" [ngClass]="'cat-' + entry.itemCategory">{{ entry.itemCategory }}</span>
+                    @if (entry.isSuperRare) {
+                      <span class="superrare-badge">⭐ Superrare</span>
+                    }
+                  </div>
+                  @if (isBis(entry)) {
+                    <div class="tier-pills">
+                      <span class="bis-badge-sm">&#10003; BiS Ontvangen</span>
+                      @if (entry.assignment?.status) {
+                        <span class="tier-badge" [ngClass]="tierClass(entry.assignment!.status)">{{
+                          tierLabel(entry.assignment!.status)
+                        }}</span>
+                      }
+                    </div>
+                  } @else if (getReservedTiers(entry).length) {
+                    <div class="tier-pills">
+                      <span class="tier-pills-label">Gereserveerde tiers</span>
+                      @for (tier of getReservedTiers(entry); track tier) {
+                        <span class="tier-badge" [ngClass]="tierClass(tier)">{{ tierLabel(tier) }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="res-right">
+                <div class="res-actions">
+                  @if (confirmingEntry()?.itemId === entry.itemId) {
+                    <span class="confirm-text">Zeker?</span>
+                    <button class="action-btn-sm danger" (click)="confirmCancel()">Ja</button>
+                    <button class="action-btn-sm" (click)="abortCancel()">Nee</button>
+                  } @else {
+                    <button class="action-btn-sm" (click)="requestCancel(entry)">Intrekken</button>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        } @else {
+          <p class="empty-state">Geen reserveringen.</p>
+        }
+      </div>
+    </div>
+    <!-- /.modal-col--reservations -->
+  </div>
+  <!-- /.modal-body-columns -->
+</div>
+<!-- /.modal -->

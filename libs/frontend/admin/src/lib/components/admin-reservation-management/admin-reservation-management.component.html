@@ -69,10 +69,10 @@
                 <div class="res-actions">
                   @if (confirmingId() === entry.id) {
                     <span class="confirm-text">Zeker weten?</span>
-                    <button class="btn-danger-sm" (click)="confirmCancel(entry.id)">Ja, intrekken</button>
+                    <button class="btn-danger-sm" (click)="confirmCancel(entry.id!)">Ja, intrekken</button>
                     <button class="btn-ghost-sm" (click)="abortCancel()">Annuleer</button>
                   } @else {
-                    <button class="btn-ghost-sm" [class.warn]="isAcquired(entry)" (click)="requestCancel(entry.id)">
+                    <button class="btn-ghost-sm" [class.warn]="isAcquired(entry)" (click)="requestCancel(entry.id!)">
                       Intrekken
                     </button>
                   }

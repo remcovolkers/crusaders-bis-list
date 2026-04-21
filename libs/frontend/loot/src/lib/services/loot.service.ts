@@ -57,10 +57,11 @@ export class LootService {
     return this.http.get<ISeasonConfig>(`${this.base}/raider/season-config`);
   }
 
-  reserve(itemId: string, raidSeasonId: string): Observable<{ message: string }> {
+  reserve(itemId: string, raidSeasonId: string, itemName?: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.base}/raider/reservations`, {
       itemId,
       raidSeasonId,
+      itemName,
     });
   }
 
@@ -72,8 +73,8 @@ export class LootService {
     return this.http.get<IReceivedItem[]>(`${this.base}/raider/received-items`);
   }
 
-  markItemReceived(itemId: string, tier: AssignmentStatus): Observable<IReceivedItem> {
-    return this.http.post<IReceivedItem>(`${this.base}/raider/received-items`, { itemId, tier });
+  markItemReceived(itemId: string, tier: AssignmentStatus, itemName?: string): Observable<IReceivedItem> {
+    return this.http.post<IReceivedItem>(`${this.base}/raider/received-items`, { itemId, tier, itemName });
   }
 
   removeReceivedItem(id: string): Observable<void> {

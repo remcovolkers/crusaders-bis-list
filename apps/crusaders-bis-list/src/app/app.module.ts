@@ -22,6 +22,7 @@ import {
   SeasonConfigOrmEntity,
   RaiderReceivedItemOrmEntity,
   FeedbackOrmEntity,
+  AuditLogOrmEntity,
   MIGRATIONS,
 } from '@crusaders-bis-list/backend-infrastructure';
 
@@ -44,6 +45,7 @@ import {
           SeasonConfigOrmEntity,
           RaiderReceivedItemOrmEntity,
           FeedbackOrmEntity,
+          AuditLogOrmEntity,
         ],
         synchronize: config.get('NODE_ENV') !== 'production',
         migrations: MIGRATIONS,

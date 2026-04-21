@@ -59,7 +59,7 @@ export class DevPanelComponent {
         const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         const ids = raiders
           .filter((r) => UUID_RE.test(r.characterName))
-          .flatMap((r) => r.reservations.map((res) => res.id));
+          .flatMap((r) => r.reservations.map((res) => res.id).filter((id): id is string => id !== null));
 
         if (ids.length === 0) {
           this.wipingOrphaned.set(false);

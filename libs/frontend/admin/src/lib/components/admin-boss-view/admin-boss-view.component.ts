@@ -116,8 +116,16 @@ export class AdminBossViewComponent implements OnInit {
     if (!pending || !catalog || !difficulty) return;
 
     this.pendingAssignment.set(null);
-    const { raiderId, itemId, bossId } = pending;
-    const payload = { raiderId, itemId, bossId, raidSeasonId: catalog.season.id, status: difficulty };
+    const { raiderId, itemId, bossId, raiderName, item } = pending;
+    const payload = {
+      raiderId,
+      itemId,
+      bossId,
+      raidSeasonId: catalog.season.id,
+      status: difficulty,
+      raiderName,
+      itemName: item.mergedDisplayName ?? item.name,
+    };
 
     this.adminService.assignLoot(payload).subscribe({
       next: () => {

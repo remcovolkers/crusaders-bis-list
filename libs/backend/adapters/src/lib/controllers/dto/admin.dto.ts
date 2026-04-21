@@ -1,4 +1,4 @@
-import { IsEnum, IsInt, IsUUID, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 import { AssignmentStatus } from '@crusaders-bis-list/shared-domain';
 
 export class AssignLootDto {
@@ -16,6 +16,14 @@ export class AssignLootDto {
 
   @IsEnum(AssignmentStatus)
   status!: AssignmentStatus;
+
+  @IsOptional()
+  @IsString()
+  itemName?: string;
+
+  @IsOptional()
+  @IsString()
+  raiderName?: string;
 }
 
 export class UpdateAssignmentStatusDto {

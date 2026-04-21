@@ -16,7 +16,8 @@ import {
 import { AssignmentStatus, IItem } from '@crusaders-bis-list/shared-domain';
 
 export interface RaiderReservationEntry {
-  id: string;
+  /** Reservation ID, or null when the entry represents a received-only item (no reservation). */
+  id: string | null;
   itemId: string;
   itemName: string;
   iconUrl?: string;
@@ -26,6 +27,8 @@ export interface RaiderReservationEntry {
   createdAt: Date;
   assignment: { id: string; status: AssignmentStatus; assignedAt: Date } | null;
   receivedTier?: AssignmentStatus | null;
+  /** True when there is no reservation — only a received-item record. Admin must use a different cancel endpoint. */
+  receivedOnly?: boolean;
 }
 
 export interface RaiderReservationSummary {
@@ -97,13 +100,18 @@ export class GetAllRaiderReservationsUseCase {
 
     const raiderMap = new Map(allRaiders.map((r) => [r.id, r]));
 
-    // Fetch received items for all raiders
-    const raiderIds = [...byRaider.keys()];
-    const allReceived = (await Promise.all(raiderIds.map((id) => this.receivedItemRepo.findByRaider(id)))).flat();
+    // Fetch received items for ALL active raiders (not only those with reservations)
+    const allActiveRaiderIds = allRaiders.map((r) => r.id);
+    const allReceived = (
+      await Promise.all(allActiveRaiderIds.map((id) => this.receivedItemRepo.findByRaider(id)))
+    ).flat();
     const receivedMap = new Map<string, AssignmentStatus>();
     for (const r of allReceived) {
       receivedMap.set(`${r.raiderId}:${r.itemId}`, r.tier);
     }
+
+    // Build set of reservation keys so we can detect received-only items
+    const reservedKeys = new Set(allReservations.map((r) => `${r.raiderId}:${r.itemId}`));
 
     const result: RaiderReservationSummary[] = [];
     for (const [raiderId, reservations] of byRaider) {
@@ -136,6 +144,44 @@ export class GetAllRaiderReservationsUseCase {
             const bossB = bossOrderMap.get(itemMap.get(b.itemId)?.bossId ?? '') ?? 999;
             return bossA - bossB;
           }),
+      });
+    }
+
+    // Include received-only items for raiders who have no reservation for that item.
+    // These appear when a raider marks BiS at Myth tier but the reserve step failed (e.g. limit reached).
+    for (const receivedItem of allReceived) {
+      if (reservedKeys.has(`${receivedItem.raiderId}:${receivedItem.itemId}`)) continue; // already covered
+      const raider = raiderMap.get(receivedItem.raiderId);
+      if (!raider) continue;
+
+      // Find or create summary entry for this raider
+      let summary = result.find((s) => s.raiderId === receivedItem.raiderId);
+      if (!summary) {
+        summary = {
+          raiderId: receivedItem.raiderId,
+          userId: raider.userId ?? '',
+          characterName: raider.characterName ?? receivedItem.raiderId,
+          wowClass: raider.wowClass ?? '',
+          spec: raider.spec ?? '',
+          reservations: [],
+        };
+        result.push(summary);
+      }
+
+      const item = await this.catalogRepo.findItemById(receivedItem.itemId);
+      const secondary = item?.wowItemId != null ? secondaryByPrimaryWowId.get(item.wowItemId) : undefined;
+      summary.reservations.push({
+        id: null,
+        itemId: receivedItem.itemId,
+        itemName: item?.mergedDisplayName ?? item?.name ?? receivedItem.itemId,
+        iconUrl: item?.iconUrl,
+        secondaryIconUrl: secondary?.iconUrl,
+        itemCategory: item?.category ?? 'unknown',
+        isSuperRare: item?.isSuperRare ?? false,
+        createdAt: receivedItem.createdAt,
+        assignment: assignMap.get(`${receivedItem.raiderId}:${receivedItem.itemId}`) ?? null,
+        receivedTier: receivedItem.tier,
+        receivedOnly: true,
       });
     }
 

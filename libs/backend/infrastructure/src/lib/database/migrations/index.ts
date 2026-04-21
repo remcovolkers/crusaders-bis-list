@@ -6,6 +6,7 @@ import { AddFeedbackResolved1745100000000 } from './1745100000000-AddFeedbackRes
 import { AddUserMembership1745200000000 } from './1745200000000-AddUserMembership';
 import { AddBnetId1745300000000 } from './1745300000000-AddBnetId';
 import { AddMergedItemsAndCleanReservations1745400000000 } from './1745400000000-AddMergedItemsAndCleanReservations';
+import { CreateAuditLog1745500000000 } from './1745500000000-CreateAuditLog';
 
 export const MIGRATIONS: (new () => MigrationInterface)[] = [
   BeastMasterySpecFix1744761600000,
@@ -15,4 +16,5 @@ export const MIGRATIONS: (new () => MigrationInterface)[] = [
   AddUserMembership1745200000000,
   AddBnetId1745300000000,
   AddMergedItemsAndCleanReservations1745400000000,
+  CreateAuditLog1745500000000,
 ];

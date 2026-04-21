@@ -151,17 +151,17 @@ export class RaiderLootStateService {
     return req.pipe(tap((p) => this.profile.set(p)));
   }
 
-  reserve(itemId: string): Observable<void> {
+  reserve(itemId: string, itemName?: string): Observable<void> {
     const seasonId = this.catalog()?.season.id;
     if (!seasonId) return EMPTY;
-    return this.lootService.reserve(itemId, seasonId).pipe(
+    return this.lootService.reserve(itemId, seasonId, itemName).pipe(
       tap(() => this._loadReservations(seasonId)),
       map(() => undefined),
     );
   }
 
-  markItemReceived(itemId: string, tier: AssignmentStatus): Observable<IReceivedItem> {
-    return this.lootService.markItemReceived(itemId, tier).pipe(
+  markItemReceived(itemId: string, tier: AssignmentStatus, itemName?: string): Observable<IReceivedItem> {
+    return this.lootService.markItemReceived(itemId, tier, itemName).pipe(
       tap((received) => {
         const map = new Map(this._receivedItemsMap());
         map.set(itemId, received);

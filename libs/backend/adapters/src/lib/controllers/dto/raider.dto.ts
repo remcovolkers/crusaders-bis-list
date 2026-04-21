@@ -7,6 +7,10 @@ export class ReserveItemDto {
 
   @IsUUID()
   raidSeasonId!: string;
+
+  @IsOptional()
+  @IsString()
+  itemName?: string;
 }
 
 export class CreateRaiderProfileDto {
@@ -51,4 +55,8 @@ export class MarkReceivedDto {
 
   @IsEnum(AssignmentStatus)
   tier!: AssignmentStatus;
+
+  @IsOptional()
+  @IsString()
+  itemName?: string;
 }

@@ -20,6 +20,8 @@ export interface AssignLootPayload {
   bossId: string;
   raidSeasonId: string;
   status: AssignmentStatus;
+  raiderName?: string;
+  itemName?: string;
 }
 
 export interface RaiderUser {
@@ -32,7 +34,8 @@ export interface RaiderUser {
 }
 
 export interface RaiderReservationEntry {
-  id: string;
+  /** Reservation ID, or null when receivedOnly=true (no reservation exists). */
+  id: string | null;
   itemId: string;
   itemName: string;
   iconUrl?: string;
@@ -42,6 +45,8 @@ export interface RaiderReservationEntry {
   createdAt: string;
   assignment: { id: string; status: AssignmentStatus; assignedAt: string } | null;
   receivedTier?: AssignmentStatus | null;
+  /** True when there is no reservation — only a received-item record. */
+  receivedOnly?: boolean;
 }
 
 export interface RaiderReservationSummary {
@@ -51,6 +56,25 @@ export interface RaiderReservationSummary {
   wowClass: string;
   spec: string;
   reservations: RaiderReservationEntry[];
+}
+
+export type AuditAction =
+  | 'reservation_created'
+  | 'reservation_cancelled'
+  | 'reservation_reset_all'
+  | 'loot_assigned'
+  | 'assignment_updated'
+  | 'received_item_marked';
+
+export interface AuditLogEntry {
+  id: string;
+  action: AuditAction;
+  actorId: string;
+  actorName: string;
+  raiderName: string | null;
+  itemName: string | null;
+  details: Record<string, unknown> | null;
+  createdAt: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -100,6 +124,10 @@ export class AdminService {
 
   cancelReservation(reservationId: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/admin/reservations/${reservationId}`);
+  }
+
+  deleteReceivedItem(raiderId: string, itemId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/admin/raiders/${raiderId}/received-items/${itemId}`);
   }
 
   resetAllReservations(reason?: string): Observable<void> {
@@ -162,5 +190,9 @@ export class AdminService {
 
   getRollSession(sessionId: string): Observable<RollSessionInfo> {
     return this.http.get<RollSessionInfo>(`${this.base}/roll-sessions/${sessionId}`);
+  }
+
+  getAuditLog(): Observable<AuditLogEntry[]> {
+    return this.http.get<AuditLogEntry[]>(`${this.base}/admin/audit-log`);
   }
 }

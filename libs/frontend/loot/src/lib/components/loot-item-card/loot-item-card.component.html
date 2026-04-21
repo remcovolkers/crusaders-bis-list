@@ -22,11 +22,22 @@
   }
 
   @if (infoModal()) {
-    <div class="info-tap-backdrop" (click)="infoModal.set(null)"></div>
-    <div class="info-modal-overlay" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
-      <button class="info-modal-close" aria-label="Sluit" (click)="infoModal.set(null)">
-        ✕
-      </button>
+    <div
+      class="info-tap-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Sluit info"
+      (click)="infoModal.set(null)"
+      (keydown.escape)="infoModal.set(null)"
+    ></div>
+    <div
+      class="info-modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+    >
+      <button class="info-modal-close" aria-label="Sluit" (click)="infoModal.set(null)">✕</button>
       <p class="info-modal-text">
         Wil je liever dit item reserveren? Dan moet je eerst een andere reservering annuleren. Neem hiervoor contact op
         met Melvin | Laforgèz op Discord.
@@ -70,7 +81,10 @@
 
   @if (item().isPrioritizable && isCrusadersMember()) {
     <div class="item-actions">
-      @if (state.getReceivedItem(item().id)?.tier === AssignmentStatus.MYTH_TIER) {
+      @if (
+        state.getReceivedItem(item().id)?.tier === AssignmentStatus.MYTH_TIER ||
+        state.getAssignmentStatus(item().id) === AssignmentStatus.MYTH_TIER
+      ) {
         <span class="bis-badge">&#11088; BiS in bezit! Gefeliciteerd!</span>
       } @else if (!item().isReserved) {
         <button class="btn-primary" [disabled]="state.isAtLimit(item())" (click)="reserveClicked.emit()">
