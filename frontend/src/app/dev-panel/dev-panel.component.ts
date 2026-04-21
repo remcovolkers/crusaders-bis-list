@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { AdminService } from '@crusaders-bis-list/frontend-admin';
+import { API_URL } from '@crusaders-bis-list/frontend-auth';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
@@ -16,6 +17,7 @@ export class DevPanelComponent {
 
   private readonly toast = inject(ToastService);
   private readonly adminService = inject(AdminService);
+  readonly swaggerUrl = inject(API_URL) + '/docs';
 
   syncNow(): void {
     this.syncing.set(true);
