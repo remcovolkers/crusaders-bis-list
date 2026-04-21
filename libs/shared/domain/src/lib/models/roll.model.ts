@@ -1,7 +1,12 @@
+export interface SpectatorInfo {
+  displayName: string;
+}
+
 export interface RollEvent {
-  type: 'tick' | 'winner' | 'waiting';
+  type: 'tick' | 'winner' | 'waiting' | 'spectators';
   name: string;
   raiderId?: string;
+  spectators?: SpectatorInfo[];
 }
 
 export interface RollSessionInfo {
@@ -12,4 +17,6 @@ export interface RollSessionInfo {
   difficulty?: string;
   raiders: { raiderId: string; name: string; color?: string }[];
   status: 'waiting' | 'rolling' | 'done';
+  spectators: SpectatorInfo[];
+  winner?: { raiderId: string; name: string } | null;
 }

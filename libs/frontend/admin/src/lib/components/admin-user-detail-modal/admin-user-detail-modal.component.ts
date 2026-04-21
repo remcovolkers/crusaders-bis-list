@@ -103,9 +103,10 @@ export class AdminUserDetailModalComponent {
     const entry = this.confirmingEntry();
     if (!entry) return;
     const raiderId = this.summary()?.raiderId ?? '';
-    const action$ = entry.receivedOnly
-      ? this.adminService.deleteReceivedItem(raiderId, entry.itemId)
-      : this.adminService.cancelReservation(entry.id!);
+    const action$ =
+      entry.receivedOnly || entry.id === null
+        ? this.adminService.deleteReceivedItem(raiderId, entry.itemId)
+        : this.adminService.cancelReservation(entry.id);
     action$.subscribe({
       next: () => {
         this.toast.show('Reservering ingetrokken.');

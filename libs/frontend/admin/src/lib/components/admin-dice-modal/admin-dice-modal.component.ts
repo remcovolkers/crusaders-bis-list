@@ -9,9 +9,13 @@ import {
   ItemCategory,
   WOW_CLASS_REGISTRY,
   RollEvent,
+  SpectatorInfo,
 } from '@crusaders-bis-list/shared-domain';
 import { ToastService, WheelOfFortuneComponent } from '@crusaders-bis-list/frontend-shared-ui';
 import { AdminService } from '../../services/admin.service';
+import { Store } from '@ngrx/store';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { selectCurrentUser } from '@crusaders-bis-list/frontend-auth';
 
 @Component({
   selector: 'lib-admin-dice-modal',
@@ -34,6 +38,7 @@ export class AdminDiceModalComponent implements OnInit, OnDestroy {
   readonly winner = signal<IEligibleRaider | null>(null);
   readonly wheelDone = signal(false);
   readonly loading = signal(true);
+  readonly spectators = signal<SpectatorInfo[]>([]);
 
   readonly tierLabels = TIER_LABELS;
   readonly categoryLabels = ITEM_CATEGORY_LABELS;
@@ -51,6 +56,8 @@ export class AdminDiceModalComponent implements OnInit, OnDestroy {
   private diceRollTimer: ReturnType<typeof setInterval> | null = null;
   private readonly toast = inject(ToastService);
   private readonly adminService = inject(AdminService);
+  private readonly store = inject(Store);
+  private readonly currentUser = toSignal(this.store.select(selectCurrentUser));
 
   ngOnInit(): void {
     const raiders = this.diceRaidersMapped();
@@ -69,6 +76,7 @@ export class AdminDiceModalComponent implements OnInit, OnDestroy {
           this.sessionId.set(sessionId);
           this.shareUrl.set(`${window.location.origin}/roll/${sessionId}`);
           this.loading.set(false);
+          this.connectSse(sessionId);
         },
         error: () => {
           this.toast.show('Kon dobbelsteensessie niet aanmaken.', 'error');
@@ -84,7 +92,10 @@ export class AdminDiceModalComponent implements OnInit, OnDestroy {
     this.wheelDone.set(false);
     this.rolling.set(true);
     this.winner.set(null);
-    this.connectSse(id);
+    // SSE is already open since session creation; re-connect only if it was closed
+    if (!this.sseSource) {
+      this.connectSse(id);
+    }
 
     this.adminService.startRoll(id).subscribe({
       error: () => {
@@ -120,7 +131,9 @@ export class AdminDiceModalComponent implements OnInit, OnDestroy {
   private connectSse(sessionId: string): void {
     this.teardownSse();
     const apiBase = this.adminService.getBase();
-    this.sseSource = new EventSource(`${apiBase}/roll-sessions/${sessionId}/stream`);
+    const myDisplayName = this.currentUser()?.displayName ?? 'Admin';
+    const url = `${apiBase}/roll-sessions/${sessionId}/stream?displayName=${encodeURIComponent(myDisplayName)}`;
+    this.sseSource = new EventSource(url);
 
     this.sseSource.onmessage = (e: MessageEvent<string>) => {
       const event = JSON.parse(e.data) as RollEvent;
@@ -131,6 +144,8 @@ export class AdminDiceModalComponent implements OnInit, OnDestroy {
         this.winner.set(found);
         this.rolling.set(false);
         this.teardownSse();
+      } else if (event.type === 'spectators') {
+        this.spectators.set(event.spectators ?? []);
       }
     };
 

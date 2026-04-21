@@ -36,6 +36,7 @@
         [raiders]="wheelRaiders()"
         [spinning]="rolling()"
         [winnerRaiderId]="winner()?.raiderId ?? null"
+        [instantWinner]="sessionInfo()?.status === 'done'"
         [size]="360"
         [itemIconUrl]="sessionInfo()!.itemIconUrl"
         [secondaryIconUrl]="sessionInfo()!.secondaryIconUrl"
@@ -44,6 +45,19 @@
       @if (!rolling() && !winner()) {
         <p class="spectator-waiting">⏳ Wachten op de roll...</p>
       }
+
+      <div class="spectator-viewers">
+        <span class="spectator-viewers-count"
+          >👁 {{ spectators().length }} kijker{{ spectators().length === 1 ? '' : 's' }}</span
+        >
+        @if (spectators().length) {
+          <ul class="spectator-viewers-list">
+            @for (s of spectators(); track s.displayName) {
+              <li>{{ s.displayName }}</li>
+            }
+          </ul>
+        }
+      </div>
     </div>
   </div>
 }

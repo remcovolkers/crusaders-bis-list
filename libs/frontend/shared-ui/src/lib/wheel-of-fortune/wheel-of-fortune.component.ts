@@ -39,6 +39,8 @@ export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
   readonly raiders = input<{ raiderId: string; name: string; color?: string }[]>([]);
   readonly spinning = input(false);
   readonly winnerRaiderId = input<string | null>(null);
+  /** When true, snap directly to the winner segment without any animation. */
+  readonly instantWinner = input(false);
   readonly size = input(320);
   readonly itemIconUrl = input<string | undefined>(undefined);
   readonly secondaryIconUrl = input<string | undefined>(undefined);
@@ -98,7 +100,9 @@ export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
       // Raiders change → redraw
       void this.raiders();
 
-      if (winner && this.phase !== 'decelerating' && this.phase !== 'done') {
+      if (winner && this.instantWinner() && this.phase === 'idle') {
+        this.snapToWinner(winner);
+      } else if (winner && this.phase !== 'decelerating' && this.phase !== 'done') {
         this.beginDecelerate(winner);
       } else if (spinning && !winner && this.phase === 'idle') {
         this.beginSpin();
@@ -121,6 +125,19 @@ export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
   private beginSpin(): void {
     this.phase = 'spinning';
     this.loop();
+  }
+
+  private snapToWinner(winnerRaiderId: string): void {
+    const raiders = this.raiders();
+    const n = raiders.length;
+    if (n === 0) return;
+    const winnerIndex = raiders.findIndex((r) => r.raiderId === winnerRaiderId);
+    if (winnerIndex === -1) return;
+    const segAngle = (2 * Math.PI) / n;
+    this.currentAngle = -Math.PI / 2 - winnerIndex * segAngle - segAngle / 2;
+    this.phase = 'done';
+    if (this.canvasReady) this.drawWheel();
+    this.spinDone.emit();
   }
 
   private beginDecelerate(winnerRaiderId: string): void {

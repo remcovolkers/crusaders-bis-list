@@ -3,6 +3,7 @@ import {
   Post,
   Get,
   Param,
+  Query,
   Body,
   NotFoundException,
   UseGuards,
@@ -12,7 +13,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { Observable, map } from 'rxjs';
+import { Observable, finalize, map } from 'rxjs';
 import { Response } from 'express';
 import { JwtAuthGuard, RolesGuard } from '../guards/auth.guard';
 import { Roles } from '../guards/roles.decorator';
@@ -61,7 +62,11 @@ export class RollController {
 
   /** SSE stream — no auth, public by design */
   @Sse(':id/stream')
-  stream(@Param('id') id: string, @Res() res: Response): Observable<MessageEvent> {
+  stream(
+    @Param('id') id: string,
+    @Query('displayName') displayName: string | undefined,
+    @Res() res: Response,
+  ): Observable<MessageEvent> {
     const obs = this.rollSessionService.getStream(id);
     if (!obs) throw new NotFoundException('Sessie niet gevonden');
 
@@ -69,6 +74,13 @@ export class RollController {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('X-Accel-Buffering', 'no');
 
-    return obs.pipe(map((event) => ({ data: event }) as MessageEvent));
+    const spectatorId = crypto.randomUUID();
+    const name = displayName?.trim() || 'Oningelogde gebruiker';
+    this.rollSessionService.addSpectator(id, spectatorId, name);
+
+    return obs.pipe(
+      finalize(() => this.rollSessionService.removeSpectator(id, spectatorId)),
+      map((event) => ({ data: event }) as MessageEvent),
+    );
   }
 }

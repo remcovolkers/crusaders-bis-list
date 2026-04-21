@@ -10,6 +10,14 @@
       <h3>🎡 Wheel of Fortune</h3>
       <div class="modal-header-actions">
         <button class="btn-share" title="Kopieer deellink voor spectators" (click)="copyShareUrl()">🔗 Deel</button>
+        @if (spectators().length) {
+          <span
+            class="spectator-badge"
+            [title]="spectators().length + ' kijkers: ' + spectators().map(s => s.displayName).join(', ')"
+          >
+            👁 {{ spectators().length }}
+          </span>
+        }
         <button class="modal-close" (click)="close()">✕</button>
       </div>
     </div>
