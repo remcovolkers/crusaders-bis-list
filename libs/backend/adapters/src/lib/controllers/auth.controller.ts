@@ -12,6 +12,7 @@ import {
   HttpStatus,
   Inject,
   Query,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
@@ -23,12 +24,17 @@ import { ManageUserRolesUseCase } from '@crusaders-bis-list/backend-application'
 import { Roles } from '../guards/roles.decorator';
 import { UserRole } from '@crusaders-bis-list/shared-domain';
 import { User, IUserRepository, USER_REPOSITORY } from '@crusaders-bis-list/backend-domain';
-import { IsArray, IsEnum } from 'class-validator';
+import { IsArray, IsEnum, IsString } from 'class-validator';
 
 export class UpdateRolesDto {
   @IsArray()
   @IsEnum(UserRole, { each: true })
   roles!: UserRole[];
+}
+
+export class RefreshDto {
+  @IsString()
+  refreshToken!: string;
 }
 
 @Controller('auth')
@@ -49,14 +55,34 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   googleCallback(@Req() req: Request, @Res() res: Response): void {
     const user = req.user as User;
-    const token = this.jwtService.sign({
-      sub: user.id,
-      email: user.email,
-      roles: user.roles,
-      isCrusadersMember: user.isCrusadersMember,
-    });
+    const accessToken = this.jwtService.sign(
+      { sub: user.id, email: user.email, roles: user.roles, isCrusadersMember: user.isCrusadersMember },
+      { expiresIn: '1h' },
+    );
+    const refreshToken = this.jwtService.sign(
+      { sub: user.id, type: 'refresh' },
+      { expiresIn: '365d' },
+    );
     const frontendUrl = process.env['FRONTEND_URL'] ?? 'http://localhost:4200';
-    res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
+    res.redirect(`${frontendUrl}/auth/callback?token=${accessToken}&rt=${encodeURIComponent(refreshToken)}`);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refreshToken(@Body() dto: RefreshDto): Promise<{ token: string }> {
+    try {
+      const payload = this.jwtService.verify<{ sub: string; type?: string }>(dto.refreshToken);
+      if (payload.type !== 'refresh') throw new Error('Invalid token type');
+      const user = await this.userRepo.findById(payload.sub);
+      if (!user) throw new Error('User not found');
+      const token = this.jwtService.sign(
+        { sub: user.id, email: user.email, roles: user.roles, isCrusadersMember: user.isCrusadersMember },
+        { expiresIn: '1h' },
+      );
+      return { token };
+    } catch {
+      throw new UnauthorizedException('Ongeldige of verlopen refresh token');
+    }
   }
 
   @Post('bnet/link/init')

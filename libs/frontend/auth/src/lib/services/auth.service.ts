@@ -7,6 +7,7 @@ import { AuthUser } from '../state/auth.state';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly storageKey = 'auth_token';
+  private readonly refreshTokenKey = 'refresh_token';
   private readonly http = inject(HttpClient);
   private readonly apiUrl = inject(API_URL);
 
@@ -47,6 +48,23 @@ export class AuthService {
 
   clearToken(): void {
     localStorage.removeItem(this.storageKey);
+  }
+
+  saveRefreshToken(token: string): void {
+    localStorage.setItem(this.refreshTokenKey, token);
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem(this.refreshTokenKey);
+  }
+
+  clearRefreshToken(): void {
+    localStorage.removeItem(this.refreshTokenKey);
+  }
+
+  refreshAccessToken(): Observable<{ token: string }> {
+    const refreshToken = this.getRefreshToken();
+    return this.http.post<{ token: string }>(`${this.apiUrl}/auth/refresh`, { refreshToken });
   }
 
   decodeToken(token: string): AuthUser | null {

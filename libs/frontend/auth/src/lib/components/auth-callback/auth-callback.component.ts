@@ -38,6 +38,12 @@ export class AuthCallbackComponent implements OnInit {
     this.authService.saveToken(token);
     this.store.dispatch(AuthActions.loginSuccess({ user, token }));
 
+    // Save refresh token if provided
+    const rt = this.route.snapshot.queryParamMap.get('rt');
+    if (rt) {
+      this.authService.saveRefreshToken(rt);
+    }
+
     // Check if user already has a raider profile; if not, send to onboarding
     this.http.get(`${this.apiUrl}/raider/my-profile`).subscribe({
       next: (profile) => {

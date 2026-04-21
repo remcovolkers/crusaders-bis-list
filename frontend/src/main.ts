@@ -32,10 +32,28 @@ bootstrapApplication(App, {
       const authService = inject(AuthService);
       const store = inject(Store);
       const http = inject(HttpClient);
+
+      const tryRefresh = async (): Promise<boolean> => {
+        const refreshToken = authService.getRefreshToken();
+        if (!refreshToken) return false;
+        try {
+          const result = await firstValueFrom(
+            http.post<{ token: string }>(`${environment.apiUrl}/auth/refresh`, { refreshToken }),
+          );
+          authService.saveToken(result.token);
+          const user = authService.decodeToken(result.token);
+          if (user) store.dispatch(loginSuccess({ user, token: result.token }));
+          return !!user;
+        } catch {
+          authService.clearToken();
+          authService.clearRefreshToken();
+          return false;
+        }
+      };
+
       const token = authService.getToken();
       if (token) {
         try {
-          // Fetch fresh user data from server (includes latest isCrusadersMember)
           const user = await firstValueFrom(
             http.get<AuthUser>(`${environment.apiUrl}/auth/me`, {
               headers: { Authorization: `Bearer ${token}` },
@@ -44,12 +62,12 @@ bootstrapApplication(App, {
           if (user) {
             store.dispatch(loginSuccess({ user, token }));
           } else {
-            authService.clearToken();
+            await tryRefresh();
           }
         } catch (err) {
           if (err instanceof HttpErrorResponse && err.status === 401) {
-            // Server explicitly rejected the token — it's expired or invalid
-            authService.clearToken();
+            // Access token expired — try refresh token
+            await tryRefresh();
           } else {
             // Network error / server unreachable — fall back to decoded JWT
             const user = authService.decodeToken(token);
@@ -57,9 +75,13 @@ bootstrapApplication(App, {
               store.dispatch(loginSuccess({ user, token }));
             } else {
               authService.clearToken();
+              authService.clearRefreshToken();
             }
           }
         }
+      } else {
+        // No access token — attempt silent re-login via refresh token
+        await tryRefresh();
       }
     }),
   ],

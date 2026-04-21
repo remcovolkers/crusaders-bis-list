@@ -50,6 +50,7 @@ export class App {
 
   logout(): void {
     this.authService.clearToken();
+    this.authService.clearRefreshToken();
     this.store.dispatch(logout());
     this.router.navigate(['/auth']);
   }
