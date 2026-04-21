@@ -1,6 +1,6 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS, HttpErrorResponse } from '@angular/common/http';
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 import { inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
@@ -46,13 +46,18 @@ bootstrapApplication(App, {
           } else {
             authService.clearToken();
           }
-        } catch {
-          // Server unreachable or token expired — fall back to decoded JWT
-          const user = authService.decodeToken(token);
-          if (user) {
-            store.dispatch(loginSuccess({ user, token }));
-          } else {
+        } catch (err) {
+          if (err instanceof HttpErrorResponse && err.status === 401) {
+            // Server explicitly rejected the token — it's expired or invalid
             authService.clearToken();
+          } else {
+            // Network error / server unreachable — fall back to decoded JWT
+            const user = authService.decodeToken(token);
+            if (user) {
+              store.dispatch(loginSuccess({ user, token }));
+            } else {
+              authService.clearToken();
+            }
           }
         }
       }
