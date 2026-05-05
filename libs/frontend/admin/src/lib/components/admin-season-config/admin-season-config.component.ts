@@ -3,19 +3,15 @@ import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../services/admin.service';
 import { IItem, ISeasonConfig } from '@crusaders-bis-list/shared-domain';
 import { CatalogResponse } from '@crusaders-bis-list/frontend-loot';
-import { AdminUserManagementComponent } from '../admin-user-management/admin-user-management.component';
-import { AdminAuditLogComponent } from '../admin-audit-log/admin-audit-log.component';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
   selector: 'lib-admin-season-config',
-  imports: [FormsModule, AdminUserManagementComponent, AdminAuditLogComponent],
+  imports: [FormsModule],
   templateUrl: './admin-season-config.component.html',
   styleUrl: './admin-season-config.component.scss',
 })
 export class AdminSeasonConfigComponent implements OnInit {
-  readonly activeTab = signal<'users' | 'config' | 'superrare' | 'auditlog'>('users');
-
   readonly config = signal<ISeasonConfig | null>(null);
   readonly trinketLimit = signal(2);
   readonly weaponLimit = signal(2);

@@ -1,5 +1,6 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DatePipe, JsonPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AdminService, AuditLogEntry, AuditAction } from '../../services/admin.service';
 
 const ACTION_LABELS: Record<AuditAction, string> = {
@@ -8,7 +9,7 @@ const ACTION_LABELS: Record<AuditAction, string> = {
   reservation_reset_all: 'Alle reserveringen gereset',
   loot_assigned: 'Loot toegekend',
   assignment_updated: 'Toekenning bijgewerkt',
-  received_item_marked: 'Reservering aangepast',
+  received_item_marked: 'Tier ontvangen gemarkeerd',
 };
 
 const ACTION_CLASSES: Record<AuditAction, string> = {
@@ -22,7 +23,7 @@ const ACTION_CLASSES: Record<AuditAction, string> = {
 
 @Component({
   selector: 'lib-admin-audit-log',
-  imports: [DatePipe, JsonPipe],
+  imports: [DatePipe, JsonPipe, FormsModule],
   templateUrl: './admin-audit-log.component.html',
   styleUrls: ['./admin-audit-log.component.scss'],
 })
@@ -30,6 +31,32 @@ export class AdminAuditLogComponent implements OnInit {
   readonly entries = signal<AuditLogEntry[]>([]);
   readonly loading = signal(true);
   readonly error = signal(false);
+
+  // Filters
+  readonly filterAction = signal<AuditAction | ''>('');
+  readonly filterActor = signal('');
+  readonly filterRaider = signal('');
+  readonly filterItem = signal('');
+
+  readonly actionOptions = Object.entries(ACTION_LABELS) as [AuditAction, string][];
+
+  readonly filteredEntries = computed(() => {
+    const action = this.filterAction();
+    const actor = this.filterActor().toLowerCase().trim();
+    const raider = this.filterRaider().toLowerCase().trim();
+    const item = this.filterItem().toLowerCase().trim();
+    return this.entries().filter((e) => {
+      if (action && e.action !== action) return false;
+      if (actor && !e.actorName?.toLowerCase().includes(actor)) return false;
+      if (raider && !e.raiderName?.toLowerCase().includes(raider)) return false;
+      if (item && !e.itemName?.toLowerCase().includes(item)) return false;
+      return true;
+    });
+  });
+
+  readonly hasActiveFilter = computed(
+    () => !!this.filterAction() || !!this.filterActor() || !!this.filterRaider() || !!this.filterItem(),
+  );
 
   private readonly adminService = inject(AdminService);
 
@@ -47,5 +74,12 @@ export class AdminAuditLogComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  clearFilters(): void {
+    this.filterAction.set('');
+    this.filterActor.set('');
+    this.filterRaider.set('');
+    this.filterItem.set('');
   }
 }

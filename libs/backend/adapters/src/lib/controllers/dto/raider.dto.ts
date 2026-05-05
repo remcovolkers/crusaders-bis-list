@@ -11,6 +11,10 @@ export class ReserveItemDto {
   @IsOptional()
   @IsString()
   itemName?: string;
+
+  @IsOptional()
+  @IsEnum(AssignmentStatus)
+  receivedTier?: AssignmentStatus;
 }
 
 export class CreateRaiderProfileDto {

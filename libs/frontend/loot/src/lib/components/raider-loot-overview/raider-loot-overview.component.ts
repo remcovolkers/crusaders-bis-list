@@ -88,8 +88,8 @@ export class RaiderLootOverviewComponent implements OnInit {
       return;
     }
 
-    const doReserve = () => {
-      this.state.reserve(item.id, item.mergedDisplayName ?? item.name).subscribe({
+    const doReserve = (reservedTier?: typeof tier) => {
+      this.state.reserve(item.id, item.mergedDisplayName ?? item.name, reservedTier ?? undefined).subscribe({
         error: (e: unknown) => {
           const msg = (e as { error?: { message?: string } }).error?.message ?? 'Reservering mislukt';
           this.toast.show(msg, 'error');
@@ -100,7 +100,7 @@ export class RaiderLootOverviewComponent implements OnInit {
     if (tier) {
       this.state
         .markItemReceived(item.id, tier, item.mergedDisplayName ?? item.name)
-        .subscribe({ next: doReserve, error: doReserve });
+        .subscribe({ next: () => doReserve(tier), error: () => doReserve(tier) });
     } else {
       doReserve();
     }
@@ -119,7 +119,7 @@ export class RaiderLootOverviewComponent implements OnInit {
     this.pendingReserveItem.set(null);
     this.state.markItemReceived(item.id, AssignmentStatus.MYTH_TIER, item.mergedDisplayName ?? item.name).subscribe({
       next: () => {
-        this.state.reserve(item.id, item.mergedDisplayName ?? item.name).subscribe({
+        this.state.reserve(item.id, item.mergedDisplayName ?? item.name, AssignmentStatus.MYTH_TIER).subscribe({
           next: () => this.toast.show('BiS in bezit gemarkeerd en reservering aangemaakt! 🏆'),
           error: (e: unknown) => {
             const msg = (e as { error?: { message?: string } }).error?.message ?? 'Reservering mislukt';

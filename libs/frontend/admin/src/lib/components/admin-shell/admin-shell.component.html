@@ -1,0 +1,36 @@
+<div class="admin-shell">
+  <nav class="admin-sidenav">
+    <div class="sidenav-brand">
+      <span class="sidenav-brand-icon">⚔️</span>
+      <div class="sidenav-brand-text">
+        <span class="sidenav-brand-name">Admin</span>
+        <span class="sidenav-brand-sub">Crusaders BIS</span>
+      </div>
+    </div>
+
+    <ul class="sidenav-list">
+      @for (item of navItems; track item.path) {
+        <li>
+          <a class="sidenav-item" [routerLink]="item.path" routerLinkActive="active">
+            <span class="sidenav-icon">{{ item.icon }}</span>
+            <span class="sidenav-label">{{ item.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <main class="admin-content">
+    <router-outlet />
+  </main>
+
+  <!-- Mobile bottom navigation -->
+  <nav class="admin-bottom-nav">
+    @for (item of navItems; track item.path) {
+      <a class="bottom-nav-item" [routerLink]="item.path" routerLinkActive="active">
+        <span class="bottom-nav-icon">{{ item.icon }}</span>
+        <span class="bottom-nav-label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+</div>

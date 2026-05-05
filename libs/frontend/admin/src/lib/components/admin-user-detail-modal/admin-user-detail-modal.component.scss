@@ -218,8 +218,7 @@
 /* ── Reservation rows ── */
 .res-row {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   padding: 9px 0;
   border-bottom: 1px solid var(--border-color);
@@ -240,10 +239,18 @@
 .res-item {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
   min-width: 0;
   flex: 1;
+}
+
+.res-tiers {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  flex-shrink: 0;
 }
 
 .res-right {
@@ -405,18 +412,9 @@
 
 .tier-pills {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 3px;
-  margin-top: 4px;
-}
-
-.tier-pills-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.03em;
-  margin-right: 2px;
 }
 
 .tier-badge {
@@ -482,6 +480,8 @@
     border-radius: 16px 16px 0 0;
     border-bottom: none;
     animation: modal-in-bottom 0.2s ease;
+    /* sit above the bottom nav bar (~57px) */
+    margin-bottom: calc(57px + env(safe-area-inset-bottom, 0px));
   }
 
   @keyframes modal-in-bottom {

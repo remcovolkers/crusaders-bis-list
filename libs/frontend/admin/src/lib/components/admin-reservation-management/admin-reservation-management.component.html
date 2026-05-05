@@ -1,11 +1,15 @@
 <div class="reservations-page">
   <div class="page-header">
-    <h2>Reserveringsbeheer</h2>
-    @if (!loading()) {
-      <span class="count-badge">{{ totalReservations() }} reserveringen</span>
-    }
+    <div class="page-header-main">
+      <div>
+        <h2>Reserveringsbeheer</h2>
+        <p class="page-subtitle">Bekijk alle reserveringen per raider. Alleen admins kunnen reserveringen intrekken.</p>
+      </div>
+      @if (!loading()) {
+        <span class="count-badge">{{ totalReservations() }} reserveringen</span>
+      }
+    </div>
   </div>
-  <p class="page-subtitle">Bekijk alle reserveringen per raider. Alleen admins kunnen reserveringen intrekken.</p>
 
   @if (loading()) {
     <div class="loading-spinner">Laden...</div>
@@ -39,7 +43,7 @@
 
           <div class="res-table">
             @for (entry of raider.reservations; track entry.id) {
-              <div class="res-row" [class.has-assignment]="!!entry.assignment">
+              <div class="res-row">
                 <!-- Item info -->
                 <div class="res-item">
                   <span class="item-name">{{ entry.itemName }}</span>
@@ -49,19 +53,22 @@
                       <span class="superrare-badge">⭐ Superrare</span>
                     }
                   </div>
-                </div>
-
-                <!-- Assignment status -->
-                <div class="res-assignment">
-                  @if (entry.assignment) {
-                    <span class="tier-badge" [ngClass]="tierClass(entry.assignment.status)">
-                      {{ tierLabel(entry.assignment.status) }}
-                    </span>
-                    @if (isAcquired(entry)) {
-                      <span class="warning-text">⚠ Item al ontvangen</span>
-                    }
+                  @if (isBis(entry)) {
+                    <div class="tier-pills">
+                      <span class="bis-badge-sm">&#10003; BiS ontvangen</span>
+                      @if (entry.assignment?.status) {
+                        <span class="tier-badge" [ngClass]="tierClass(entry.assignment!.status)">{{
+                          tierLabel(entry.assignment!.status)
+                        }}</span>
+                      }
+                    </div>
                   } @else {
-                    <span class="no-assignment">Nog niet toegewezen</span>
+                    <div class="tier-pills">
+                      <span class="tier-pills-label">Tiers</span>
+                      @for (tier of getReservedTiers(entry); track tier) {
+                        <span class="tier-badge" [ngClass]="tierClass(tier)">{{ tierLabel(tier) }}</span>
+                      }
+                    </div>
                   }
                 </div>
 
@@ -72,7 +79,7 @@
                     <button class="btn-danger-sm" (click)="confirmCancel(entry.id!)">Ja, intrekken</button>
                     <button class="btn-ghost-sm" (click)="abortCancel()">Annuleer</button>
                   } @else {
-                    <button class="btn-ghost-sm" [class.warn]="isAcquired(entry)" (click)="requestCancel(entry.id!)">
+                    <button class="btn-ghost-sm" [class.warn]="isBis(entry)" (click)="requestCancel(entry.id!)">
                       Intrekken
                     </button>
                   }

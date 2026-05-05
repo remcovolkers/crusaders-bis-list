@@ -1,58 +1,5 @@
 ﻿@if (catalog()) {
   <div class="admin-layout">
-    <!-- Left panel: raid attendance -->
-    @if (allRaiders().length > 0) {
-      <aside class="raid-panel">
-        <div class="raid-panel-header">
-          <span class="raid-panel-count"
-            >{{ allRaiders().length - excludedRaiders().size }} / {{ allRaiders().length }}</span
-          >
-          <span class="raid-panel-label">Aanwezig</span>
-          <button
-            class="raid-panel-reset"
-            title="Iedereen weer aanwezig zetten"
-            [disabled]="excludedRaiders().size === 0"
-            (click)="resetExcluded()"
-          >
-            Reset
-          </button>
-        </div>
-        <div class="raid-panel-list">
-          @for (raider of allRaiders(); track raider.raiderId; let i = $index) {
-            @if (i === 0 || raidRole(raider.spec) !== raidRole(allRaiders()[i - 1].spec)) {
-              <div class="raid-role-divider raid-role-divider--{{ raidRole(raider.spec) }}">
-                {{
-                  raidRole(raider.spec) === 'tank'
-                    ? '🛡 Tanks'
-                    : raidRole(raider.spec) === 'healer'
-                      ? '💚 Healers'
-                      : '⚔ DPS'
-                }}
-              </div>
-            }
-            @if (
-              i === 0 ||
-              raider.wowClass !== allRaiders()[i - 1].wowClass ||
-              raidRole(raider.spec) !== raidRole(allRaiders()[i - 1].spec)
-            ) {
-              <div class="raid-class-divider" [style.--class-color]="classColor(raider.wowClass)">
-                {{ raider.wowClass }}
-              </div>
-            }
-            <button
-              class="raid-panel-row"
-              [class.excluded]="isExcluded(raider.raiderId)"
-              [style.--class-color]="classColor(raider.wowClass)"
-              [title]="isExcluded(raider.raiderId) ? 'Zet aanwezig' : 'Zet absent'"
-              (click)="toggleExclude(raider.raiderId)"
-            >
-              <span class="raid-panel-name">{{ raider.characterName }}</span>
-            </button>
-          }
-        </div>
-      </aside>
-    }
-
     <!-- Main content -->
     <div class="admin-main">
       @if (!selectedDifficulty()) {
@@ -74,16 +21,23 @@
 
       @if (selectedDifficulty() && !loadingAll()) {
         <div class="active-difficulty-bar">
-          @for (d of difficulties; track d.key) {
-            <button
-              class="diff-btn"
-              [class]="'tier-' + d.key"
-              [class.active]="selectedDifficulty() === d.value"
-              (click)="selectedDifficulty.set(d.value)"
-            >
-              {{ d.label }}
+          @if (allRaiders().length > 0) {
+            <button class="raid-toggle-btn" (click)="raidDrawerOpen.set(true)" aria-label="Raider aanwezigheid tonen">
+              👥 {{ allRaiders().length - excludedRaiders().size }}/{{ allRaiders().length }}
             </button>
           }
+          <div class="diff-btns">
+            @for (d of difficulties; track d.key) {
+              <button
+                class="diff-btn"
+                [class]="'tier-' + d.key"
+                [class.active]="selectedDifficulty() === d.value"
+                (click)="selectedDifficulty.set(d.value)"
+              >
+                {{ d.label }}
+              </button>
+            }
+          </div>
         </div>
         <div class="boss-sections">
           @for (view of bossLootViews(); track view.boss.id) {
@@ -190,6 +144,61 @@
         </div>
       }
     </div>
+
+    <!-- Right panel: raid attendance -->
+    @if (allRaiders().length > 0) {
+      <div class="raid-backdrop" [class.visible]="raidDrawerOpen()" (click)="raidDrawerOpen.set(false)"></div>
+      <aside class="raid-panel" [class.drawer-open]="raidDrawerOpen()">
+        <div class="raid-panel-header">
+          <span class="raid-panel-count"
+            >{{ allRaiders().length - excludedRaiders().size }} / {{ allRaiders().length }}</span
+          >
+          <span class="raid-panel-label">Aanwezig</span>
+          <button
+            class="raid-panel-reset"
+            title="Iedereen weer aanwezig zetten"
+            [disabled]="excludedRaiders().size === 0"
+            (click)="resetExcluded()"
+          >
+            Reset
+          </button>
+          <button class="raid-drawer-close" (click)="raidDrawerOpen.set(false)" aria-label="Sluiten">✕</button>
+        </div>
+        <div class="raid-panel-list">
+          @for (raider of allRaiders(); track raider.raiderId; let i = $index) {
+            @if (i === 0 || raidRole(raider.spec) !== raidRole(allRaiders()[i - 1].spec)) {
+              <div class="raid-role-divider raid-role-divider--{{ raidRole(raider.spec) }}">
+                {{
+                  raidRole(raider.spec) === 'tank'
+                    ? '🛡 Tanks'
+                    : raidRole(raider.spec) === 'healer'
+                      ? '💚 Healers'
+                      : '⚔ DPS'
+                }}
+              </div>
+            }
+            @if (
+              i === 0 ||
+              raider.wowClass !== allRaiders()[i - 1].wowClass ||
+              raidRole(raider.spec) !== raidRole(allRaiders()[i - 1].spec)
+            ) {
+              <div class="raid-class-divider" [style.--class-color]="classColor(raider.wowClass)">
+                {{ raider.wowClass }}
+              </div>
+            }
+            <button
+              class="raid-panel-row"
+              [class.excluded]="isExcluded(raider.raiderId)"
+              [style.--class-color]="classColor(raider.wowClass)"
+              [title]="isExcluded(raider.raiderId) ? 'Zet aanwezig' : 'Zet absent'"
+              (click)="toggleExclude(raider.raiderId)"
+            >
+              <span class="raid-panel-name">{{ raider.characterName }}</span>
+            </button>
+          }
+        </div>
+      </aside>
+    }
   </div>
 }
 

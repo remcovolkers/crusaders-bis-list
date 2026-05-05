@@ -134,6 +134,12 @@
 }
 
 /* ── Mobile header ── */
+.mobile-feedback-btn {
+  display: none;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .mobile-menu-btn {
   display: none;
   align-items: center;
@@ -144,7 +150,6 @@
   border: 1px solid var(--border-color);
   background: var(--bg-elevated);
   cursor: pointer;
-  margin-left: auto;
   flex-shrink: 0;
 }
 
@@ -255,8 +260,14 @@
     display: none;
   }
 
+  .mobile-feedback-btn {
+    display: flex;
+    margin-left: auto;
+  }
+
   .mobile-menu-btn {
     display: flex;
+    margin-left: 8px;
   }
 
   .mobile-nav-drawer {

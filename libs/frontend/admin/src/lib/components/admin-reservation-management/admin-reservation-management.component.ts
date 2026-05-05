@@ -51,6 +51,17 @@ export class AdminReservationManagementComponent implements OnInit {
     );
   }
 
+  isBis(entry: RaiderReservationEntry): boolean {
+    return entry.receivedTier === AssignmentStatus.MYTH_TIER || entry.assignment?.status === AssignmentStatus.MYTH_TIER;
+  }
+
+  getReservedTiers(entry: RaiderReservationEntry): AssignmentStatus[] {
+    const tiers = [AssignmentStatus.CHAMPION_TIER, AssignmentStatus.HERO_TIER, AssignmentStatus.MYTH_TIER];
+    if (!entry.receivedTier) return tiers;
+    const idx = tiers.indexOf(entry.receivedTier);
+    return idx < 0 ? tiers : tiers.slice(idx + 1);
+  }
+
   tierLabel(status: AssignmentStatus | undefined): string {
     switch (status) {
       case AssignmentStatus.CHAMPION_TIER:

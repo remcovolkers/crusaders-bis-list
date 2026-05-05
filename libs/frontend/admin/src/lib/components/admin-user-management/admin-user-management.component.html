@@ -1,53 +1,72 @@
 ﻿<div class="user-mgmt">
-  <!-- ── Main content ── -->
-  <div class="main-content">
-    <div class="page-header">
-      <h2>Gebruikersbeheer</h2>
-      <p class="page-subtitle">
-        Bekijk alle geregistreerde gebruikers, pas adminrollen aan, reset raider-profielen en beheer reservaties per
-        gebruiker.
-      </p>
-
-      <div class="reset-all-section">
-        @if (!confirmingResetAll()) {
-          <button
-            class="btn-danger-outline"
-            (click)="requestResetAll()"
-            title="Verwijder alle reserveringen en mail alle gebruikers"
-          >
-            &#x1F5D1; Reset alle reserveringen
-          </button>
-        } @else {
-          <div class="reset-all-confirm">
-            <p class="reset-all-confirm-label">
-              Weet je het zeker? Dit verwijdert <strong>alle</strong> reserveringen en mailt alle gebruikers.
-            </p>
-            <textarea
-              class="reset-reason-input"
-              placeholder="Reden (optioneel) — wordt meegestuurd in de mail..."
-              rows="2"
-              [ngModel]="resetReason()"
-              (ngModelChange)="resetReason.set($event)"
-            ></textarea>
-            <div class="reset-all-confirm-actions">
-              <button class="btn-danger" [disabled]="resettingAll()" (click)="confirmResetAll()">
-                {{ resettingAll() ? 'Bezig...' : 'Ja, reset alles' }}
-              </button>
-              <button class="btn-ghost" [disabled]="resettingAll()" (click)="abortResetAll()">Annuleer</button>
-            </div>
-          </div>
-        }
+  <!-- Page header -->
+  <div class="page-header">
+    <div class="page-header-main">
+      <div>
+        <h2>Gebruikersbeheer</h2>
+        <p class="page-subtitle">
+          Bekijk alle geregistreerde gebruikers, pas adminrollen aan, reset raider-profielen en beheer reservaties per
+          gebruiker.
+        </p>
       </div>
+      @if (!confirmingResetAll()) {
+        <button
+          class="btn-danger-outline"
+          (click)="requestResetAll()"
+          title="Verwijder alle reserveringen en mail alle gebruikers"
+        >
+          &#x1F5D1; Reset alle reserveringen
+        </button>
+      }
     </div>
+    @if (confirmingResetAll()) {
+      <div class="reset-all-confirm">
+        <p class="reset-all-confirm-label">
+          Weet je het zeker? Dit verwijdert <strong>alle</strong> reserveringen en mailt alle gebruikers.
+        </p>
+        <textarea
+          class="reset-reason-input"
+          placeholder="Reden (optioneel) — wordt meegestuurd in de mail..."
+          rows="2"
+          [ngModel]="resetReason()"
+          (ngModelChange)="resetReason.set($event)"
+        ></textarea>
+        <div class="reset-all-confirm-actions">
+          <button class="btn-danger" [disabled]="resettingAll()" (click)="confirmResetAll()">
+            {{ resettingAll() ? 'Bezig...' : 'Ja, reset alles' }}
+          </button>
+          <button class="btn-ghost" [disabled]="resettingAll()" (click)="abortResetAll()">Annuleer</button>
+        </div>
+      </div>
+    }
 
-    @if (users().length) {
-      <div class="user-columns">
-        <!-- Crusaders column -->
-        <div class="user-column">
-          <h3 class="column-title">
+    @if (orphanedReservationCount() > 0) {
+      <div class="orphaned-indicator">
+        <span class="orphaned-badge">⚠ {{ orphanedReservationCount() }} wees-reservering(en)</span>
+        <span
+          class="orphaned-info"
+          title="Reserveringen zonder gekoppeld gebruikersaccount. Remco moet deze handmatig opruimen via de database."
+          >ℹ</span
+        >
+      </div>
+    } @else {
+      <div class="orphaned-indicator">
+        <span class="orphaned-badge orphaned-badge--ok">✓ Geen wees-reserveringen</span>
+      </div>
+    }
+  </div>
+
+  @if (users().length) {
+    <div class="user-columns">
+      <!-- Crusaders column -->
+      <div class="user-column">
+        <div class="section-heading">
+          <h3>
             Crusaders
             <span class="column-count">{{ crusaders().length }}</span>
           </h3>
+        </div>
+        <div class="card user-list-card">
           <div class="user-list">
             @for (user of crusaders(); track user.id) {
               <button class="user-row" [class.active]="expandedUserId() === user.id" (click)="toggleUser(user.id)">
@@ -66,13 +85,17 @@
             }
           </div>
         </div>
+      </div>
 
-        <!-- Visitors column -->
-        <div class="user-column">
-          <h3 class="column-title">
-            Bezoekers
+      <!-- Niet Crusaders column -->
+      <div class="user-column">
+        <div class="section-heading">
+          <h3>
+            Niet Crusaders
             <span class="column-count">{{ visitors().length }}</span>
           </h3>
+        </div>
+        <div class="card user-list-card">
           <div class="user-list">
             @for (user of visitors(); track user.id) {
               <button class="user-row" [class.active]="expandedUserId() === user.id" (click)="toggleUser(user.id)">
@@ -86,15 +109,15 @@
               </button>
             }
             @if (visitors().length === 0) {
-              <p class="empty-column">Geen bezoekers gevonden.</p>
+              <p class="empty-column">Geen niet-Crusaders gevonden.</p>
             }
           </div>
         </div>
       </div>
-    }
-  </div>
+    </div>
+  }
 
-  <!-- ── User detail modal ── -->
+  <!-- User detail modal -->
   @if (selectedUser(); as user) {
     <lib-admin-user-detail-modal
       [user]="user"

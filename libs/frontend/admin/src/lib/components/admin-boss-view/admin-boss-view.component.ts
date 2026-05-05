@@ -85,6 +85,7 @@ export class AdminBossViewComponent implements OnInit {
   readonly bossLootViews = signal<IBossLootView[]>([]);
   readonly loadingAll = signal(false);
   readonly pendingAssignment = signal<PendingAssignment | null>(null);
+  readonly raidDrawerOpen = signal(false);
   readonly activeDiceModal = signal<DiceModalInput | null>(null);
   private readonly EXCLUDED_STORAGE_KEY = 'raid_excluded_raiders';
   readonly excludedRaiders = signal<Set<string>>(this.loadExcluded());

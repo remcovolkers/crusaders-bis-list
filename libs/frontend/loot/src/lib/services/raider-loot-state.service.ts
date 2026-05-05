@@ -151,10 +151,10 @@ export class RaiderLootStateService {
     return req.pipe(tap((p) => this.profile.set(p)));
   }
 
-  reserve(itemId: string, itemName?: string): Observable<void> {
+  reserve(itemId: string, itemName?: string, receivedTier?: AssignmentStatus): Observable<void> {
     const seasonId = this.catalog()?.season.id;
     if (!seasonId) return EMPTY;
-    return this.lootService.reserve(itemId, seasonId, itemName).pipe(
+    return this.lootService.reserve(itemId, seasonId, itemName, receivedTier).pipe(
       tap(() => this._loadReservations(seasonId)),
       map(() => undefined),
     );

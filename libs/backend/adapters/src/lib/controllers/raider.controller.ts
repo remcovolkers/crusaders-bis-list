@@ -173,6 +173,7 @@ export class RaiderController {
       actorName,
       raiderName: raider.characterName,
       itemName: dto.itemName ?? null,
+      details: dto.receivedTier ? { tier: dto.receivedTier } : null,
     });
     return { message: 'Reserved successfully' };
   }

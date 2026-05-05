@@ -1,17 +1,28 @@
 .reservations-page {
   padding: 24px;
   max-width: 900px;
+  margin: 0 auto;
 }
 
+/* -- Page header -- */
 .page-header {
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.page-header-main {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 4px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 
   h2 {
     font-size: 20px;
-    margin: 0;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: var(--text-primary);
   }
 }
 
@@ -26,9 +37,9 @@
 }
 
 .page-subtitle {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 .raider-card {
@@ -68,8 +79,8 @@
 
 .res-row {
   display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
+  grid-template-columns: 1fr auto;
+  align-items: start;
   gap: 16px;
   padding: 10px 16px;
   border-bottom: 1px solid var(--border-color);
@@ -79,9 +90,6 @@
   }
   &:hover {
     background: var(--bg-elevated);
-  }
-  &.has-assignment {
-    background: rgba(59, 130, 246, 0.04);
   }
 }
 
@@ -213,6 +221,31 @@
   font-size: 11px;
   color: var(--text-muted);
   font-style: italic;
+}
+
+/* -- Tier pills -- */
+.tier-pills {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.tier-pills-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.bis-badge-sm {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .res-actions {

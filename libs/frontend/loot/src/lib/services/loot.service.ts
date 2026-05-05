@@ -57,11 +57,12 @@ export class LootService {
     return this.http.get<ISeasonConfig>(`${this.base}/raider/season-config`);
   }
 
-  reserve(itemId: string, raidSeasonId: string, itemName?: string): Observable<{ message: string }> {
+  reserve(itemId: string, raidSeasonId: string, itemName?: string, receivedTier?: AssignmentStatus): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.base}/raider/reservations`, {
       itemId,
       raidSeasonId,
       itemName,
+      ...(receivedTier ? { receivedTier } : {}),
     });
   }
 

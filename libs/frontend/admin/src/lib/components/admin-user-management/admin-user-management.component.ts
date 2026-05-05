@@ -24,6 +24,15 @@ export class AdminUserManagementComponent implements OnInit {
   readonly resetReason = signal('');
   readonly adminRole = UserRole.ADMIN;
 
+  private readonly UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  readonly orphanedReservationCount = computed(() => {
+    let count = 0;
+    for (const summary of this.reservationsByUserId().values()) {
+      if (this.UUID_RE.test(summary.characterName)) count += summary.reservations.length;
+    }
+    return count;
+  });
+
   private readonly toast = inject(ToastService);
   private readonly adminService = inject(AdminService);
 
