@@ -20,6 +20,7 @@ import { Roles } from '../guards/roles.decorator';
 import { RollSessionService } from '@crusaders-bis-list/backend-application';
 import { UserRole } from '@crusaders-bis-list/shared-domain';
 import { CreateRollSessionDto } from './dto/roll.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('roll-sessions')
 export class RollController {
@@ -29,6 +30,7 @@ export class RollController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() dto: CreateRollSessionDto): { sessionId: string } {
     const sessionId = this.rollSessionService.create(
@@ -46,6 +48,7 @@ export class RollController {
   @Post(':id/start')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
   start(@Param('id') id: string): void {
     const started = this.rollSessionService.startRoll(id);

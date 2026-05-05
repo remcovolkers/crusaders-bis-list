@@ -25,6 +25,7 @@ import { Roles } from '../guards/roles.decorator';
 import { UserRole } from '@crusaders-bis-list/shared-domain';
 import { User, IUserRepository, USER_REPOSITORY } from '@crusaders-bis-list/backend-domain';
 import { IsArray, IsEnum, IsString } from 'class-validator';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 export class UpdateRolesDto {
   @IsArray()
@@ -96,6 +97,7 @@ export class AuthController {
 
   @Post('bnet/link/init')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   bnetLinkInit(@Req() req: Request): { linkToken: string } {
     const user = req.user as { sub: string };
     const linkToken = this.jwtService.sign({ sub: user.sub }, { expiresIn: '5m' });

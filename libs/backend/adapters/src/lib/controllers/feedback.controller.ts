@@ -1,6 +1,7 @@
 import { Controller, Post, Get, Patch, Param, Body, Req, UseGuards, ForbiddenException } from '@nestjs/common';
 import { IsString, MaxLength } from 'class-validator';
 import { JwtAuthGuard } from '../guards/auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { FeedbackRepository, FeedbackOrmEntity } from '@crusaders-bis-list/backend-infrastructure';
 import { Request } from 'express';
 import { JwtPayload } from '../auth/jwt.strategy';
@@ -19,6 +20,7 @@ export class SubmitFeedbackDto {
 
 @Controller('feedback')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class FeedbackController {
   constructor(private readonly feedbackRepo: FeedbackRepository) {}
 

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { AdminService } from '@crusaders-bis-list/frontend-admin';
-import { API_URL } from '@crusaders-bis-list/frontend-auth';
+import { API_URL, AuthService } from '@crusaders-bis-list/frontend-auth';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
@@ -14,10 +14,27 @@ export class DevPanelComponent {
   readonly resetting = signal(false);
   readonly wipingOrphaned = signal(false);
   readonly confirmWipeAll = signal(false);
+  readonly showTokenModal = signal(false);
+  readonly swaggerToken = signal<string | null>(null);
 
   private readonly toast = inject(ToastService);
   private readonly adminService = inject(AdminService);
+  private readonly authService = inject(AuthService);
   readonly swaggerUrl = inject(API_URL) + '/docs';
+
+  openTokenModal(): void {
+    const token = this.authService.getToken();
+    this.swaggerToken.set(token);
+    this.showTokenModal.set(true);
+  }
+
+  copyToken(): void {
+    const token = this.swaggerToken();
+    if (!token) return;
+    navigator.clipboard.writeText(token).then(() => {
+      this.toast.show('Token gekopieerd naar klembord.');
+    });
+  }
 
   syncNow(): void {
     this.syncing.set(true);

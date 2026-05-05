@@ -42,6 +42,7 @@ import { Inject } from '@nestjs/common';
 import { ReserveItemDto, CreateRaiderProfileDto, UpdateRaiderProfileDto, MarkReceivedDto } from './dto/raider.dto';
 import { WowClass, WowSpec } from '@crusaders-bis-list/shared-domain';
 import { blizzardClassToWowClass } from '../mappers/blizzard-class.mapper';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 interface BlizzardCharacter {
   name: string;
@@ -52,6 +53,7 @@ interface BlizzardCharacter {
 
 @Controller('raider')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class RaiderController {
   constructor(
     private readonly reserveItem: ReserveItemUseCase,

@@ -46,10 +46,12 @@ import { UserRole } from '@crusaders-bis-list/shared-domain';
 import { AuditLogService } from '@crusaders-bis-list/backend-infrastructure';
 import { AssignLootDto, UpdateAssignmentStatusDto, UpdateSeasonConfigDto } from './dto/admin.dto';
 import { JwtPayload } from '../auth/jwt.strategy';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
+@ApiBearerAuth()
 export class AdminController {
   constructor(
     private readonly assignLoot: AssignLootUseCase,
