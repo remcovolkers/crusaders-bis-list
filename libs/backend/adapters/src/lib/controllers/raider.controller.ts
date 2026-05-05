@@ -234,4 +234,27 @@ export class RaiderController {
     if (!raider) throw new NotFoundException('Raider profile not found.');
     await this.receivedItemRepo.delete(receivedId);
   }
+
+  @Get('item-peers/:itemId')
+  async getItemPeers(
+    @Param('itemId') itemId: string,
+  ): Promise<{ characterName: string; receivedTier: string | null }[]> {
+    const season = await this.catalogRepo.findActiveSeason();
+    if (!season) return [];
+    const reservations = await this.reservationRepo.findByItem(itemId, season.id);
+    if (reservations.length === 0) return [];
+    const raiderIds = [...new Set(reservations.map((r) => r.raiderId))];
+    const [raiders, receivedPerRaider] = await Promise.all([
+      Promise.all(raiderIds.map((id) => this.raiderRepo.findById(id))),
+      Promise.all(raiderIds.map((id) => this.receivedItemRepo.findByRaider(id))),
+    ]);
+    return raiderIds
+      .map((id, i) => {
+        const raider = raiders[i];
+        if (!raider) return null;
+        const received = receivedPerRaider[i].find((r) => r.itemId === itemId);
+        return { characterName: raider.characterName, receivedTier: received?.tier ?? null };
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
+  }
 }

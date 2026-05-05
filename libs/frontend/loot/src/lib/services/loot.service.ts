@@ -80,4 +80,10 @@ export class LootService {
   removeReceivedItem(id: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/raider/received-items/${id}`);
   }
+
+  getItemPeers(itemId: string): Observable<{ characterName: string; receivedTier: AssignmentStatus | null }[]> {
+    return this.http.get<{ characterName: string; receivedTier: AssignmentStatus | null }[]>(
+      `${this.base}/raider/item-peers/${itemId}`,
+    );
+  }
 }

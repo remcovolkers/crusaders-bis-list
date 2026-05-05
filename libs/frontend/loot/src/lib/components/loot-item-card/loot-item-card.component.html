@@ -16,7 +16,56 @@
   @if (item().isReserved && getReservedTiers().length) {
     <div class="tier-corner-badges">
       @for (tier of getReservedTiers(); track tier) {
-        <span class="tier-corner-badge" [ngClass]="'tier-' + tier">{{ tierLabels[tier] }}</span>
+        <button
+          class="tier-corner-badge"
+          [ngClass]="'tier-' + tier"
+          [class.active]="activePeerTier() === tier"
+          (click)="togglePeerTier(tier, $event)"
+        >
+          {{ tierLabels[tier] }}
+        </button>
+      }
+      @if (activePeerTier() !== null) {
+        <div
+          class="peers-backdrop"
+          role="button"
+          tabindex="-1"
+          aria-label="Sluit"
+          (click)="closePeers()"
+          (keydown.escape)="closePeers()"
+          (wheel)="triggerPeerShine()"
+        ></div>
+        <div
+          class="peers-popover"
+          [class.peers-popover--up]="peerDirection() === 'up'"
+          [class.peers-popover--shine]="peerShine()"
+          (click)="$event.stopPropagation()"
+          (keydown)="$event.stopPropagation()"
+          tabindex="0"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div class="peers-popover-header">
+            <span class="peers-popover-title">{{ tierLabels[activePeerTier()!] }} — mede-reserveerders</span>
+            <button class="peers-popover-close" aria-label="Sluit" (click)="closePeers()">✕</button>
+          </div>
+          @if (loadingPeers()) {
+            <div class="peers-loading">Laden…</div>
+          } @else {
+            @let eligibles = peersEligibleFor(activePeerTier()!);
+            @if (eligibles.length === 0) {
+              <div class="peers-empty">
+                Niemand anders heeft dit item gereserveerd voor {{ tierLabels[activePeerTier()!] }}.
+              </div>
+            } @else {
+              <ul class="peers-list" (wheel)="$event.stopPropagation()">
+                @for (name of eligibles; track name) {
+                  <li class="peers-list-item">{{ name }}</li>
+                }
+              </ul>
+            }
+          }
+        </div>
       }
     </div>
   }

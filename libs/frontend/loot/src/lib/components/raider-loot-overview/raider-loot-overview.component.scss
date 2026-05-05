@@ -13,83 +13,6 @@
   overflow: hidden;
 }
 
-/* ── Sidebar ── */
-.boss-sidebar {
-  width: 220px;
-  flex-shrink: 0;
-  background: var(--bg-surface);
-  border-right: 1px solid var(--border-color);
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar-header {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.sidebar-title {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: var(--text-muted);
-}
-
-.raid-group {
-  margin-bottom: 4px;
-}
-
-.raid-group-header {
-  padding: 8px 16px 4px;
-  border-left: 3px solid var(--border-bright);
-}
-
-.raid-name {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-secondary);
-}
-
-.boss-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 16px;
-  font-size: 12px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition:
-    background 0.12s,
-    color 0.12s;
-  text-decoration: none;
-
-  &:hover {
-    background: var(--bg-elevated);
-    color: var(--text-primary);
-
-    .boss-dot {
-      background: var(--boss-color, var(--border-bright));
-    }
-  }
-}
-
-.boss-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--border-bright);
-  flex-shrink: 0;
-  transition: background 0.12s;
-}
-
-.boss-row-name {
-  font-size: 12px;
-}
-
 /* ── Main ── */
 .loot-main {
   flex: 1;
@@ -124,9 +47,7 @@
   background: var(--bg-elevated);
   font-size: 12px;
   cursor: pointer;
-  transition:
-    border-color 0.15s,
-    background 0.15s;
+  transition: border-color 0.15s, background 0.15s;
   white-space: nowrap;
 
   &:hover {
@@ -147,9 +68,7 @@
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition:
-    background 0.15s,
-    border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s;
 
   &:hover {
     background: rgba(0, 174, 255, 0.16);
@@ -157,15 +76,9 @@
   }
 }
 
-.profile-char {
-  font-weight: 600;
-}
-.profile-sep {
-  color: var(--text-muted);
-}
-.profile-spec {
-  color: var(--text-secondary);
-}
+.profile-char { font-weight: 600; }
+.profile-sep  { color: var(--text-muted); }
+.profile-spec { color: var(--text-secondary); }
 
 .reservation-counters {
   display: flex;
@@ -210,9 +123,7 @@
     min-width: 160px;
     flex-shrink: 0;
 
-    &::placeholder {
-      color: var(--text-muted, var(--text-secondary));
-    }
+    &::placeholder { color: var(--text-muted, var(--text-secondary)); }
 
     &:focus {
       outline: none;
@@ -228,9 +139,7 @@
   font-weight: 500;
   color: var(--text-secondary);
   background: transparent;
-  transition:
-    background 0.12s,
-    color 0.12s;
+  transition: background 0.12s, color 0.12s;
   white-space: nowrap;
 
   &:hover {
@@ -296,55 +205,8 @@
   gap: 10px;
 }
 
-/* ── Mobile sidebar controls ── */
-.sidebar-toggle-btn {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-elevated);
-  color: var(--text-primary);
-  font-size: 16px;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background 0.15s;
-
-  &:hover {
-    background: var(--bg-hover);
-  }
-}
-
-.sidebar-close-btn {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 16px;
-  cursor: pointer;
-  padding: 4px;
-  margin-left: auto;
-
-  &:hover {
-    color: var(--text-primary);
-  }
-}
-
-.sidebar-overlay {
-  display: none;
-}
-
+/* ── Mobile ── */
 @media (max-width: 768px) {
-  .boss-sidebar {
-    display: none;
-  }
-
-  .sidebar-toggle-btn {
-    display: none;
-  }
-
   .loot-topbar {
     flex-wrap: wrap;
     padding: 8px 12px;
@@ -391,24 +253,9 @@
 }
 
 @media (max-width: 480px) {
-  .loot-topbar {
-    padding: 8px;
-  }
-
-  .boss-sections {
-    padding: 10px 8px;
-  }
-
-  .tab-bar {
-    padding: 6px 8px;
-  }
-
-  .profile-badge {
-    font-size: 11px;
-    padding: 4px 8px;
-  }
-
-  .boss-section-name {
-    font-size: 13px;
-  }
+  .loot-topbar { padding: 8px; }
+  .boss-sections { padding: 10px 8px; }
+  .tab-bar { padding: 6px 8px; }
+  .profile-badge { font-size: 11px; padding: 4px 8px; }
+  .boss-section-name { font-size: 13px; }
 }

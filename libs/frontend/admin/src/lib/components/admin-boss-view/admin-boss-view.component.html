@@ -1,49 +1,61 @@
 ﻿@if (catalog()) {
   <div class="admin-layout">
-    <!-- Mobile overlay -->
-    @if (sidebarOpen()) {
-      <button class="sidebar-overlay" aria-label="Sluit sidebar" (click)="sidebarOpen.set(false)"></button>
-    }
-
-    <!-- Sidebar: boss list grouped by raid, click scrolls to boss section -->
-    <aside class="boss-sidebar" [class.open]="sidebarOpen()">
-      <div class="sidebar-header">
-        <span class="sidebar-label">{{ catalog()!.season.name }}</span>
-        <button class="sidebar-close-btn" aria-label="Sluit" (click)="sidebarOpen.set(false)">✕</button>
-      </div>
-      @for (group of raidGroups(); track group.raidName) {
-        <div class="raid-group">
-          <div class="raid-group-header" [style.border-left-color]="group.color">
-            <span class="raid-name">{{ group.raidName }}</span>
-          </div>
-          @for (boss of group.bosses; track boss.id) {
+    <!-- Left panel: raid attendance -->
+    @if (allRaiders().length > 0) {
+      <aside class="raid-panel">
+        <div class="raid-panel-header">
+          <span class="raid-panel-count"
+            >{{ allRaiders().length - excludedRaiders().size }} / {{ allRaiders().length }}</span
+          >
+          <span class="raid-panel-label">Aanwezig</span>
+          <button
+            class="raid-panel-reset"
+            title="Iedereen weer aanwezig zetten"
+            [disabled]="excludedRaiders().size === 0"
+            (click)="resetExcluded()"
+          >
+            Reset
+          </button>
+        </div>
+        <div class="raid-panel-list">
+          @for (raider of allRaiders(); track raider.raiderId; let i = $index) {
+            @if (i === 0 || raidRole(raider.spec) !== raidRole(allRaiders()[i - 1].spec)) {
+              <div class="raid-role-divider raid-role-divider--{{ raidRole(raider.spec) }}">
+                {{
+                  raidRole(raider.spec) === 'tank'
+                    ? '🛡 Tanks'
+                    : raidRole(raider.spec) === 'healer'
+                      ? '💚 Healers'
+                      : '⚔ DPS'
+                }}
+              </div>
+            }
+            @if (
+              i === 0 ||
+              raider.wowClass !== allRaiders()[i - 1].wowClass ||
+              raidRole(raider.spec) !== raidRole(allRaiders()[i - 1].spec)
+            ) {
+              <div class="raid-class-divider" [style.--class-color]="classColor(raider.wowClass)">
+                {{ raider.wowClass }}
+              </div>
+            }
             <button
-              class="boss-row"
-              [style.--boss-color]="getBossColor(boss)"
-              (click)="scrollToBoss(boss.id); sidebarOpen.set(false)"
+              class="raid-panel-row"
+              [class.excluded]="isExcluded(raider.raiderId)"
+              [style.--class-color]="classColor(raider.wowClass)"
+              [title]="isExcluded(raider.raiderId) ? 'Zet aanwezig' : 'Zet absent'"
+              (click)="toggleExclude(raider.raiderId)"
             >
-              <span class="boss-dot"></span>
-              <span class="boss-row-name">{{ boss.name }}</span>
+              <span class="raid-panel-name">{{ raider.characterName }}</span>
             </button>
           }
         </div>
-      }
-    </aside>
+      </aside>
+    }
 
     <!-- Main content -->
     <div class="admin-main">
-      <!-- Mobile topbar -->
-      <div class="mobile-topbar">
-        <button class="sidebar-toggle-btn" aria-label="Open boss sidebar" (click)="sidebarOpen.set(true)">
-          <span class="hamburger-line"></span>
-          <span class="hamburger-line"></span>
-          <span class="hamburger-line"></span>
-        </button>
-        <span class="mobile-topbar-title">Loot toewijzing</span>
-      </div>
-
       @if (!selectedDifficulty()) {
-        <!-- Landing: select difficulty before assigning gear -->
         <div class="landing-state">
           <p class="landing-title">Selecteer gear tier om toe te wijzen</p>
           <div class="difficulty-selector">
@@ -131,7 +143,7 @@
                           </div>
                         </div>
                       </div>
-                      @if (visibleRaiders(drop.eligibleRaiders).length > 1) {
+                      @if (spinCandidates(drop.eligibleRaiders).length > 1) {
                         <button
                           class="dice-btn"
                           title="Willekeurig toewijzen via Wheel of Fortune"
@@ -154,8 +166,10 @@
                           <button
                             class="raider-chip"
                             [class.has-reservation]="raider.hasReservation"
+                            [class.excluded]="isExcluded(raider.raiderId)"
                             [style.--class-color]="classColor(raider.wowClass)"
                             [title]="raider.wowClass + ' – ' + raider.spec"
+                            [disabled]="isExcluded(raider.raiderId)"
                             (click)="
                               assign(raider.raiderId, drop.item.id, view.boss.id, raider.characterName, drop.item)
                             "

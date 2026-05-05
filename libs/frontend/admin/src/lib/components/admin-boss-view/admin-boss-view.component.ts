@@ -4,10 +4,10 @@ import { forkJoin } from 'rxjs';
 import { AdminService } from '../../services/admin.service';
 import {
   IBossLootView,
-  IBoss,
   IEligibleRaider,
   AssignmentStatus,
   WowClass,
+  WowSpec,
   WOW_CLASS_REGISTRY,
   ITEM_CATEGORY_LABELS,
   WEAPON_TYPE_LABELS,
@@ -27,6 +27,53 @@ interface DiceModalInput {
   raiders: IEligibleRaider[];
 }
 
+type RaidRole = 'tank' | 'healer' | 'dps';
+
+const SPEC_ROLE: Record<WowSpec, RaidRole> = {
+  [WowSpec.PROTECTION_WARRIOR]: 'tank',
+  [WowSpec.PROTECTION_PALADIN]: 'tank',
+  [WowSpec.GUARDIAN]: 'tank',
+  [WowSpec.BLOOD]: 'tank',
+  [WowSpec.BREWMASTER]: 'tank',
+  [WowSpec.VENGEANCE]: 'tank',
+  [WowSpec.DEVOURER]: 'dps',
+  [WowSpec.HOLY_PALADIN]: 'healer',
+  [WowSpec.DISCIPLINE]: 'healer',
+  [WowSpec.HOLY_PRIEST]: 'healer',
+  [WowSpec.RESTORATION_SHAMAN]: 'healer',
+  [WowSpec.RESTORATION_DRUID]: 'healer',
+  [WowSpec.MISTWEAVER]: 'healer',
+  [WowSpec.PRESERVATION]: 'healer',
+  [WowSpec.ARMS]: 'dps',
+  [WowSpec.FURY]: 'dps',
+  [WowSpec.RETRIBUTION]: 'dps',
+  [WowSpec.BEAST_MASTERY]: 'dps',
+  [WowSpec.MARKSMANSHIP]: 'dps',
+  [WowSpec.SURVIVAL]: 'dps',
+  [WowSpec.ASSASSINATION]: 'dps',
+  [WowSpec.OUTLAW]: 'dps',
+  [WowSpec.SUBTLETY]: 'dps',
+  [WowSpec.SHADOW]: 'dps',
+  [WowSpec.ELEMENTAL]: 'dps',
+  [WowSpec.ENHANCEMENT]: 'dps',
+  [WowSpec.ARCANE]: 'dps',
+  [WowSpec.FIRE]: 'dps',
+  [WowSpec.FROST_MAGE]: 'dps',
+  [WowSpec.AFFLICTION]: 'dps',
+  [WowSpec.DEMONOLOGY]: 'dps',
+  [WowSpec.DESTRUCTION]: 'dps',
+  [WowSpec.BALANCE]: 'dps',
+  [WowSpec.FERAL]: 'dps',
+  [WowSpec.FROST_DK]: 'dps',
+  [WowSpec.UNHOLY]: 'dps',
+  [WowSpec.WINDWALKER]: 'dps',
+  [WowSpec.HAVOC]: 'dps',
+  [WowSpec.DEVASTATION]: 'dps',
+  [WowSpec.AUGMENTATION]: 'dps',
+};
+
+const ROLE_ORDER: Record<RaidRole, number> = { tank: 0, healer: 1, dps: 2 };
+
 @Component({
   selector: 'lib-admin-boss-view',
   imports: [NgClass, AdminAssignConfirmComponent, AdminDiceModalComponent],
@@ -39,7 +86,8 @@ export class AdminBossViewComponent implements OnInit {
   readonly loadingAll = signal(false);
   readonly pendingAssignment = signal<PendingAssignment | null>(null);
   readonly activeDiceModal = signal<DiceModalInput | null>(null);
-  readonly sidebarOpen = signal(false);
+  private readonly EXCLUDED_STORAGE_KEY = 'raid_excluded_raiders';
+  readonly excludedRaiders = signal<Set<string>>(this.loadExcluded());
 
   private readonly toast = inject(ToastService);
 
@@ -58,17 +106,31 @@ export class AdminBossViewComponent implements OnInit {
   readonly primaryStatLabels = PRIMARY_STAT_LABELS;
   readonly ItemCategory = ItemCategory;
 
-  readonly raidGroups = computed(() => {
-    const catalog = this.catalog();
-    if (!catalog) return [];
-    const groups = new Map<string, { color: string; bosses: IBoss[] }>();
-    for (const boss of catalog.bosses) {
-      const key = boss.raidName ?? 'Onbekende raid';
-      if (!groups.has(key)) groups.set(key, { color: boss.raidAccentColor ?? '#94a3b8', bosses: [] });
-      groups.get(key)?.bosses.push(boss);
+  readonly allRaiders = computed(() => {
+    const seen = new Set<string>();
+    const raiders: IEligibleRaider[] = [];
+    for (const view of this.bossLootViews()) {
+      for (const drop of view.drops) {
+        for (const raider of drop.eligibleRaiders) {
+          if (!seen.has(raider.raiderId) && !this.isUuid(raider.characterName)) {
+            seen.add(raider.raiderId);
+            raiders.push(raider);
+          }
+        }
+      }
     }
-    return Array.from(groups.entries()).map(([raidName, v]) => ({ raidName, ...v }));
+    return raiders.sort((a, b) => {
+      const roleA = ROLE_ORDER[SPEC_ROLE[a.spec] ?? 'dps'];
+      const roleB = ROLE_ORDER[SPEC_ROLE[b.spec] ?? 'dps'];
+      if (roleA !== roleB) return roleA - roleB;
+      if (a.wowClass !== b.wowClass) return a.wowClass.localeCompare(b.wowClass);
+      return a.characterName.localeCompare(b.characterName);
+    });
   });
+
+  raidRole(spec: WowSpec): RaidRole {
+    return SPEC_ROLE[spec] ?? 'dps';
+  }
 
   private readonly adminService = inject(AdminService);
 
@@ -95,14 +157,6 @@ export class AdminBossViewComponent implements OnInit {
         this.loadingAll.set(false);
       },
     });
-  }
-
-  scrollToBoss(bossId: string): void {
-    document.getElementById('boss-' + bossId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  getBossColor(boss: { raidAccentColor?: string }): string {
-    return boss.raidAccentColor ?? '#94a3b8';
   }
 
   assign(raiderId: string, itemId: string, bossId: string, raiderName: string, item: IItem): void {
@@ -184,14 +238,51 @@ export class AdminBossViewComponent implements OnInit {
     return WOW_CLASS_REGISTRY[wowClass]?.color ?? '#94a3b8';
   }
 
+  private loadExcluded(): Set<string> {
+    try {
+      const raw = localStorage.getItem(this.EXCLUDED_STORAGE_KEY);
+      return raw ? new Set<string>(JSON.parse(raw)) : new Set();
+    } catch {
+      return new Set();
+    }
+  }
+
+  private saveExcluded(set: Set<string>): void {
+    localStorage.setItem(this.EXCLUDED_STORAGE_KEY, JSON.stringify([...set]));
+  }
+
+  isExcluded(raiderId: string): boolean {
+    return this.excludedRaiders().has(raiderId);
+  }
+
+  toggleExclude(raiderId: string): void {
+    this.excludedRaiders.update((set) => {
+      const next = new Set(set);
+      if (next.has(raiderId)) next.delete(raiderId);
+      else next.add(raiderId);
+      this.saveExcluded(next);
+      return next;
+    });
+  }
+
+  resetExcluded(): void {
+    localStorage.removeItem(this.EXCLUDED_STORAGE_KEY);
+    this.excludedRaiders.set(new Set());
+  }
+
   difficultyLabel(status: AssignmentStatus): string {
     return this.difficulties.find((d) => d.value === status)?.label ?? status;
   }
 
   openDiceModal(drop: IBossLootView['drops'][number], bossId: string): void {
-    const raiders = this.visibleRaiders(drop.eligibleRaiders);
+    const raiders = this.spinCandidates(drop.eligibleRaiders);
     if (raiders.length < 2) return;
     this.activeDiceModal.set({ item: drop.item, bossId, raiders });
+  }
+
+  spinCandidates(raiders: IEligibleRaider[]): IEligibleRaider[] {
+    const excluded = this.excludedRaiders();
+    return this.visibleRaiders(raiders).filter((r) => !excluded.has(r.raiderId));
   }
 
   onDiceWinner(winner: IEligibleRaider): void {

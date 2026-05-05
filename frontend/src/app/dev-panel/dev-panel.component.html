@@ -90,9 +90,7 @@
         <button class="modal-close" (click)="showTokenModal.set(false)">✕</button>
       </div>
       <div class="modal-body">
-        <p class="modal-hint">
-          Plak dit token in Swagger UI via <strong>Authorize → Bearer &lt;token&gt;</strong>.
-        </p>
+        <p class="modal-hint">Plak dit token in Swagger UI via <strong>Authorize → Bearer &lt;token&gt;</strong>.</p>
         @if (swaggerToken()) {
           <textarea class="token-field" readonly [value]="swaggerToken()!" rows="6"></textarea>
           <button class="btn-dev btn-copy" (click)="copyToken()">

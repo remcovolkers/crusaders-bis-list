@@ -1,8 +1,6 @@
 ﻿/* ═══════════════════════════════════════════════════════
-   admin-boss-view — layout, sidebar, item panels, raider chips
+   admin-boss-view — layout, attendance panel, item panels, raider chips
    Badges, modals and item-icon-sm come from global styles.scss.
-   Dice-modal styles live in admin-dice-modal.component.scss.
-   Assign-confirm styles live in admin-assign-confirm.component.scss.
    ═══════════════════════════════════════════════════════ */
 
 :host {
@@ -20,137 +18,6 @@
   overflow: hidden;
 }
 
-/* ── Sidebar ── */
-.boss-sidebar {
-  width: 220px;
-  flex-shrink: 0;
-  background: var(--bg-surface);
-  border-right: 1px solid var(--border-color);
-  overflow-y: auto;
-}
-
-.sidebar-header {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.sidebar-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: var(--text-muted);
-}
-
-.raid-group {
-  margin-bottom: 4px;
-}
-
-.raid-group-header {
-  padding: 8px 16px 4px;
-  border-left: 3px solid var(--border-bright);
-}
-
-.raid-name {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-secondary);
-}
-
-.boss-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 8px 16px;
-  font-size: 12px;
-  color: var(--text-secondary);
-  background: transparent;
-  border: none;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    background 0.12s,
-    color 0.12s;
-
-  &:hover,
-  &.active {
-    background: var(--bg-elevated);
-    color: var(--text-primary);
-
-    .boss-dot {
-      background: var(--boss-color, var(--accent-gold));
-    }
-  }
-}
-
-.boss-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--border-bright);
-  flex-shrink: 0;
-  transition: background 0.12s;
-}
-
-.boss-row-name {
-  font-size: 12px;
-}
-
-/* ── Mobile sidebar controls (hidden on desktop) ── */
-.sidebar-close-btn {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 16px;
-  cursor: pointer;
-  margin-left: auto;
-
-  &:hover {
-    color: var(--text-primary);
-  }
-}
-
-.sidebar-overlay {
-  display: none;
-}
-
-.mobile-topbar {
-  display: none;
-}
-
-.hamburger-line {
-  display: block;
-  width: 18px;
-  height: 2px;
-  background: var(--text-secondary);
-  border-radius: 1px;
-}
-
-.sidebar-toggle-btn {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 6px 8px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
-  background: var(--bg-elevated);
-  cursor: pointer;
-
-  &:hover .hamburger-line {
-    background: var(--text-primary);
-  }
-}
-
-.mobile-topbar-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
 /* ── Main content area ── */
 .admin-main {
   flex: 1;
@@ -160,15 +27,6 @@
 }
 
 /* ── Empty / landing / no-reservations states ── */
-.empty-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
 .landing-state {
   display: flex;
   flex-direction: column;
@@ -353,7 +211,7 @@
   font-style: italic;
 }
 
-/* ── Dice (WoF) button inside item panel header ── */
+/* ── Dice (WoF) button ── */
 .dice-btn {
   background: var(--bg-elevated, rgba(148, 163, 184, 0.1));
   border: 1px solid var(--border-bright, rgba(148, 163, 184, 0.35));
@@ -417,6 +275,13 @@
   &.has-reservation {
     --class-color: #fbbf24;
   }
+
+  &.excluded {
+    opacity: 0.3;
+    filter: grayscale(1);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 }
 
 .chip-star {
@@ -424,13 +289,173 @@
   opacity: 0.85;
 }
 
-/* ── Mobile ── */
-@media (max-width: 768px) {
-  .boss-sidebar {
+/* ── Raid attendance panel (left sidebar) ── */
+.raid-panel {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
     display: none;
   }
+}
 
-  .mobile-topbar {
+.raid-panel-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  background: var(--bg-surface);
+  z-index: 1;
+}
+
+.raid-panel-label {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+}
+
+.raid-panel-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+.raid-panel-reset {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.08);
+  color: #fca5a5;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.1s,
+    border-color 0.1s,
+    opacity 0.15s;
+
+  &:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.6);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+}
+
+.raid-panel-list {
+  flex: 1;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.raid-role-divider {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  padding: 8px 8px 3px;
+  color: var(--text-muted);
+
+  &--tank {
+    color: #60a5fa;
+  }
+  &--healer {
+    color: #4ade80;
+  }
+  &--dps {
+    color: #f87171;
+  }
+
+  &:not(:first-child) {
+    margin-top: 4px;
+  }
+}
+
+.raid-class-divider {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  padding: 4px 8px 2px;
+  color: color-mix(in srgb, var(--class-color, var(--text-muted)) 70%, var(--text-muted));
+  margin-top: 2px;
+}
+
+.raid-panel-row {
+  display: flex;
+  align-items: center;
+  width: calc(100% - 12px);
+  margin: 0 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--class-color, var(--border-color)) 65%, transparent);
+  background: color-mix(in srgb, var(--class-color, transparent) 45%, var(--bg-elevated));
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    opacity 0.2s,
+    filter 0.2s,
+    box-shadow 0.15s;
+
+  .raid-panel-name {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--class-color, transparent) 62%, var(--bg-elevated));
+    border-color: color-mix(in srgb, var(--class-color, var(--border-color)) 90%, transparent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--class-color, transparent) 35%, transparent);
+  }
+
+  &.excluded {
+    opacity: 0.15;
+    filter: grayscale(1) brightness(0.5);
+
+    &:hover {
+      opacity: 0.38;
+      filter: grayscale(0.4) brightness(0.85);
+    }
+  }
+}
+
+.raid-panel-name {
+  font-size: 12px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .raid-panel {
     display: none;
   }
 

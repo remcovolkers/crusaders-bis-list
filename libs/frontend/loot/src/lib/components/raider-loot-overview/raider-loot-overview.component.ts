@@ -38,7 +38,6 @@ export class RaiderLootOverviewComponent implements OnInit {
   readonly showReserveModal = signal(false);
   readonly isEditingReservation = signal(false);
   readonly pendingReserveItem = signal<ItemWithReservation | null>(null);
-  readonly sidebarOpen = signal(false);
 
   readonly pendingReservedTier = (): AssignmentStatus | null => {
     const item = this.pendingReserveItem();
@@ -133,10 +132,6 @@ export class RaiderLootOverviewComponent implements OnInit {
         this.toast.show(msg, 'error');
       },
     });
-  }
-
-  scrollToBoss(bossId: string): void {
-    document.getElementById('boss-' + bossId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   getBossColor(boss: { raidAccentColor?: string }): string {
