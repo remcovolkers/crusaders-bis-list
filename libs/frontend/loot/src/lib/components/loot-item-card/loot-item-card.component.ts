@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import {
   AssignmentStatus,
@@ -25,7 +25,7 @@ const TIER_ORDER: Record<AssignmentStatus, number> = {
   templateUrl: './loot-item-card.component.html',
   styleUrls: ['./loot-item-card.component.scss'],
 })
-export class LootItemCardComponent implements OnInit {
+export class LootItemCardComponent {
   protected readonly state = inject(RaiderLootStateService);
   private readonly lootService = inject(LootService);
 
@@ -52,24 +52,6 @@ export class LootItemCardComponent implements OnInit {
   readonly peerDirection = signal<'up' | 'down'>('down');
   readonly peerShine = signal(false);
   private _shineTimer: ReturnType<typeof setTimeout> | null = null;
-
-  ngOnInit(): void {
-    const item = this.item();
-    if (item.isReserved && this.getReservedTiers().length > 0) {
-      this.loadingPeers.set(true);
-      this.lootService.getItemPeers(item.id).subscribe({
-        next: (data) => {
-          this.peers.set(data);
-          this.peersLoaded.set(true);
-          this.loadingPeers.set(false);
-        },
-        error: () => {
-          this.peersLoaded.set(true);
-          this.loadingPeers.set(false);
-        },
-      });
-    }
-  }
 
   getMergedSecondaryIconUrl(): string | null {
     const item = this.item();
@@ -125,13 +107,6 @@ export class LootItemCardComponent implements OnInit {
       this.peerShine.set(true);
       this._shineTimer = setTimeout(() => this.peerShine.set(false), 700);
     }, 0);
-  }
-
-  /** Number of OTHER raiders (excluding current user) competing for the given tier. */
-  peerCountFor(tier: AssignmentStatus): number {
-    const ownName = this.state.profile()?.characterName;
-    const eligibles = this.peersEligibleFor(tier);
-    return ownName ? eligibles.filter((n) => n !== ownName).length : eligibles.length;
   }
 
   /** Raiders eligible for the given tier: have a reservation + floor is below this tier. */

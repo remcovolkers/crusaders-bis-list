@@ -258,4 +258,60 @@ export class RaiderController {
       })
       .filter((x): x is NonNullable<typeof x> => x !== null);
   }
+
+  /**
+   * Returns per-tier competition counts for all items the current user has reserved.
+   * One batch call instead of N individual item-peers calls.
+   */
+  @Get('item-peer-counts')
+  async getItemPeerCounts(@Req() req: Request): Promise<Record<string, Record<string, number>>> {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider) return {};
+    const season = await this.catalogRepo.findActiveSeason();
+    if (!season) return {};
+
+    const [myReservations, allReservations] = await Promise.all([
+      this.reservationRepo.findByRaider(raider.id, season.id),
+      this.reservationRepo.findAllBySeason(season.id),
+    ]);
+    if (myReservations.length === 0) return {};
+
+    const myItemIds = new Set(myReservations.map((r) => r.itemId));
+
+    // Group other raiders' reservations by itemId
+    const itemRaiderMap = new Map<string, Set<string>>();
+    for (const res of allReservations) {
+      if (!myItemIds.has(res.itemId)) continue;
+      if (res.raiderId === raider.id) continue;
+      if (!itemRaiderMap.has(res.itemId)) itemRaiderMap.set(res.itemId, new Set());
+      itemRaiderMap.get(res.itemId)!.add(res.raiderId);
+    }
+
+    const uniqueRaiderIds = [...new Set([...itemRaiderMap.values()].flatMap((s) => [...s]))];
+    const receivedResults = await Promise.all(uniqueRaiderIds.map((id) => this.receivedItemRepo.findByRaider(id)));
+    const receivedByRaider = new Map<string, (typeof receivedResults)[0]>();
+    uniqueRaiderIds.forEach((id, i) => receivedByRaider.set(id, receivedResults[i]));
+
+    const TIER_ORDER: Record<string, number> = {
+      champion_tier: 0,
+      hero_tier: 1,
+      myth_tier: 2,
+    };
+    const tiers = ['champion_tier', 'hero_tier', 'myth_tier'];
+
+    const output: Record<string, Record<string, number>> = {};
+    for (const [itemId, raiderIds] of itemRaiderMap) {
+      const counts: Record<string, number> = { champion_tier: 0, hero_tier: 0, myth_tier: 0 };
+      for (const raiderId of raiderIds) {
+        const received = (receivedByRaider.get(raiderId) ?? []).find((r) => r.itemId === itemId);
+        const receivedIdx = received ? (TIER_ORDER[received.tier] ?? -1) : -1;
+        for (const tier of tiers) {
+          if (receivedIdx < TIER_ORDER[tier]) counts[tier]++;
+        }
+      }
+      output[itemId] = counts;
+    }
+    return output;
+  }
 }

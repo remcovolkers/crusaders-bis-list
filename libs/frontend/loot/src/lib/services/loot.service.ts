@@ -87,4 +87,8 @@ export class LootService {
       `${this.base}/raider/item-peers/${itemId}`,
     );
   }
+
+  getItemPeerCounts(): Observable<Record<string, Record<AssignmentStatus, number>>> {
+    return this.http.get<Record<string, Record<AssignmentStatus, number>>>(`${this.base}/raider/item-peer-counts`);
+  }
 }

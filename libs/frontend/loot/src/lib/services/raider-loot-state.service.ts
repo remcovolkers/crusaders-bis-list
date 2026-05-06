@@ -46,6 +46,7 @@ export class RaiderLootStateService {
   private readonly _reservationMap = signal(new Map<string, string>());
   private readonly _receivedItemsMap = signal(new Map<string, IReceivedItem>());
   private readonly _assignmentStatusMap = signal(new Map<string, AssignmentStatus>());
+  private readonly _peerCountsMap = signal(new Map<string, Record<AssignmentStatus, number>>());
 
   private readonly lootService = inject(LootService);
   private readonly toast = inject(ToastService);
@@ -205,6 +206,11 @@ export class RaiderLootStateService {
     return this._assignmentStatusMap().get(itemId) ?? null;
   }
 
+  /** Count of OTHER eligible raiders competing for the given tier on this item. */
+  peerCountFor(itemId: string, tier: AssignmentStatus): number {
+    return this._peerCountsMap().get(itemId)?.[tier] ?? 0;
+  }
+
   isReserved(itemId: string): boolean {
     return this._reservationMap().has(itemId);
   }
@@ -298,6 +304,15 @@ export class RaiderLootStateService {
             const map = new Map<string, IReceivedItem>();
             items.forEach((r) => map.set(r.itemId, r));
             this._receivedItemsMap.set(map);
+          },
+        });
+
+        // Batch-load competition counts for all reserved items.
+        this.lootService.getItemPeerCounts().subscribe({
+          next: (counts) => {
+            const map = new Map<string, Record<AssignmentStatus, number>>();
+            Object.entries(counts).forEach(([id, c]) => map.set(id, c as Record<AssignmentStatus, number>));
+            this._peerCountsMap.set(map);
           },
         });
       },

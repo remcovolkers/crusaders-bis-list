@@ -409,9 +409,24 @@
 }
 
 @keyframes peers-shine {
-  0%   { box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 0 rgba(250, 204, 21, 0.8); border-color: rgba(250, 204, 21, 0.9); }
-  40%  { box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 18px 6px rgba(250, 204, 21, 0.5); border-color: rgba(250, 204, 21, 0.9); }
-  100% { box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 0 rgba(250, 204, 21, 0); border-color: var(--border-color); }
+  0% {
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.4),
+      0 0 0 0 rgba(250, 204, 21, 0.8);
+    border-color: rgba(250, 204, 21, 0.9);
+  }
+  40% {
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.4),
+      0 0 18px 6px rgba(250, 204, 21, 0.5);
+    border-color: rgba(250, 204, 21, 0.9);
+  }
+  100% {
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.4),
+      0 0 0 0 rgba(250, 204, 21, 0);
+    border-color: var(--border-color);
+  }
 }
 
 .peers-popover-header {
