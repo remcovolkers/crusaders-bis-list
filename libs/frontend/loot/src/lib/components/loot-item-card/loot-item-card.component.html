@@ -22,7 +22,7 @@
           [class.active]="activePeerTier() === tier"
           (click)="togglePeerTier(tier, $event)"
         >
-          {{ tierLabels[tier] }}
+          {{ tierLabels[tier] }}@if (!loadingPeers() && peersLoaded() && peerCountFor(tier) > 0) {<span class="tier-peer-count">+{{ peerCountFor(tier) }}</span>}
         </button>
       }
       @if (activePeerTier() !== null) {
