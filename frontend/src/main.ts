@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS, HttpErrorResponse } from '@angular/common/http';
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
-import { inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { inject, provideAppInitializer, provideBrowserGlobalErrorListeners, isDevMode } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { App } from './app/app';
 import { appRoutes } from './app/app.routes';
@@ -18,6 +18,7 @@ import {
 import { environment } from './environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { provideServiceWorker } from '@angular/service-worker';
 
 bootstrapApplication(App, {
   providers: [
@@ -89,6 +90,9 @@ bootstrapApplication(App, {
         // No access token — attempt silent re-login via refresh token
         await tryRefresh();
       }
-    }),
+    }), provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          }),
   ],
 }).catch((err) => console.error(err));

@@ -13,6 +13,7 @@ import {
 } from '@crusaders-bis-list/frontend-auth';
 import { ToastComponent } from '@crusaders-bis-list/frontend-shared-ui';
 import { FeedbackButtonComponent } from './feedback-button/feedback-button.component';
+import { AppUpdateService } from './app-update.service';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +26,11 @@ export class App {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
+  private readonly appUpdateService = inject(AppUpdateService);
+
+  constructor() {
+    this.appUpdateService.init();
+  }
 
   readonly isOldDomain = signal(this.document.location.hostname === 'crusaders-bis-list.onrender.com');
 
