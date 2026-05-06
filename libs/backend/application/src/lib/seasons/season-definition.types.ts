@@ -1,4 +1,4 @@
-import { ArmorType } from '@crusaders-bis-list/shared-domain';
+import { ArmorType, WowClass } from '@crusaders-bis-list/shared-domain';
 
 /**
  * Generic types for describing a WoW raid season.
@@ -45,6 +45,17 @@ export interface TierArmorTypePrefix {
 }
 
 /**
+ * Maps a name prefix to the class group for that tier token variant.
+ * Tokens whose name matches no prefix are available to all classes.
+ * Example: /dreadful/i → [DEATH_KNIGHT, DEMON_HUNTER, WARLOCK]
+ */
+export interface TierClassGroupPrefix {
+  /** Regex matched against the full item name. */
+  match: RegExp;
+  allowedClasses: WowClass[];
+}
+
+/**
  * A group of Blizzard item IDs that represent the same physical in-game item
  * (e.g. a toggle trinket with multiple forms). The first ID is treated as the
  * primary (shown in the UI); all others are hidden and their reservations are
@@ -71,11 +82,18 @@ export interface SeasonDefinition {
    */
   tierTokenPatterns: TierTokenPattern[];
   /**
-   * Optional: maps name prefixes to armor types for class-restricted tier tokens.
+   * Optional: maps name prefixes to armor types for armor-restricted tier tokens.
    * Tokens not matching any prefix are treated as universal (ArmorType.NONE).
    * Omit this array for seasons where all tokens are universal.
    */
   tierArmorTypePrefixes?: TierArmorTypePrefix[];
+  /**
+   * Optional: maps name prefixes to WoW class groups for class-restricted tier tokens.
+   * Tokens not matching any prefix are available to all classes.
+   * Use this for seasons like T34 where tokens are split by class group
+   * (Dreadful / Mystic / Venerated / Zenith) rather than armor type.
+   */
+  tierClassGroupPrefixes?: TierClassGroupPrefix[];
   /**
    * Optional: pairs of Blizzard item IDs that represent the same in-game item
    * (e.g. a toggle trinket with two forms). The secondary item will be hidden in

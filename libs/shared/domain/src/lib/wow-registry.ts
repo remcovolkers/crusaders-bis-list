@@ -504,6 +504,9 @@ export function canSpecUseWeapon(spec: WowSpec, weaponType: WeaponType): boolean
  *     - empty primaryStats (proc-only): available to all.
  */
 export function canClassReserveItem(wowClass: WowClass, spec: WowSpec, item: IItem): boolean {
+  // Class-group tier tokens: explicit class whitelist overrides all other checks.
+  if (item.allowedClasses?.length) return item.allowedClasses.includes(wowClass);
+
   if (item.armorType === ArmorType.NONE) {
     if (item.weaponType) {
       if (!canSpecUseWeapon(spec, item.weaponType)) return false;

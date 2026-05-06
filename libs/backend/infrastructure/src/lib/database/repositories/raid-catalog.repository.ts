@@ -15,6 +15,7 @@ import {
   ItemCategory,
   PrimaryStat,
   WeaponType,
+  WowClass,
 } from '@crusaders-bis-list/shared-domain';
 import { RaidSeasonOrmEntity, BossOrmEntity, ItemOrmEntity } from '../entities/catalog.orm-entity';
 
@@ -47,6 +48,7 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
       isSuperRare: i.isSuperRare,
       mergedWithItemId: i.mergedWithItemId,
       mergedDisplayName: i.mergedDisplayName,
+      allowedClasses: i.allowedClasses?.length ? (i.allowedClasses as WowClass[]) : undefined,
     };
   }
 
@@ -113,6 +115,11 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
   }
 
   async upsertSeason(data: UpsertSeasonData): Promise<IRaidSeason> {
+    // Deactivate all other seasons first so there is always at most one active.
+    if (data.isActive) {
+      await this.seasonRepo.update({ isActive: true }, { isActive: false });
+    }
+
     let season = await this.seasonRepo.findOne({ where: { slug: data.slug } });
     if (season) {
       await this.seasonRepo.update(season.id, { name: data.name, isActive: data.isActive });
@@ -162,6 +169,7 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
         isPrioritizable: data.isPrioritizable,
         // Preserve admin-set isSuperRare — only update if not already true in DB
         isSuperRare: item.isSuperRare || (data.isSuperRare ?? false),
+        allowedClasses: data.allowedClasses,
       });
       return this.toIItem(await this.itemRepo.findOneOrFail({ where: { id: item.id } }), bossName);
     }

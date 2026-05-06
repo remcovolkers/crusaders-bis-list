@@ -6,19 +6,21 @@ import {
   IBlizzardApiService,
   BlizzardItem,
 } from '@crusaders-bis-list/backend-domain';
-import { ArmorType, ItemCategory, PrimaryStat, WeaponType } from '@crusaders-bis-list/shared-domain';
+import { ArmorType, ItemCategory, PrimaryStat, WeaponType, WowClass } from '@crusaders-bis-list/shared-domain';
 import { ACTIVE_SEASON } from '../seasons/active-season';
-import { TierArmorTypePrefix, TierTokenPattern } from '../seasons/season-definition.types';
+import { TierArmorTypePrefix, TierClassGroupPrefix, TierTokenPattern } from '../seasons/season-definition.types';
 
 function detectTierToken(
   name: string,
   patterns: TierTokenPattern[],
   armorPrefixes?: TierArmorTypePrefix[],
-): { slot: string; armorType: ArmorType } | null {
+  classGroupPrefixes?: TierClassGroupPrefix[],
+): { slot: string; armorType: ArmorType; allowedClasses?: WowClass[] } | null {
   const pattern = patterns.find((t) => t.match.test(name));
   if (!pattern) return null;
   const armorType = armorPrefixes?.find((p) => p.match.test(name))?.armorType ?? ArmorType.NONE;
-  return { slot: pattern.slot, armorType };
+  const allowedClasses = classGroupPrefixes?.find((p) => p.match.test(name))?.allowedClasses;
+  return { slot: pattern.slot, armorType, allowedClasses };
 }
 
 /**
@@ -52,6 +54,7 @@ function mapItemCategory(
   weaponType: WeaponType | undefined;
   slot: string;
   isPrioritizable: boolean;
+  allowedClasses?: WowClass[];
 } {
   const invType = item.inventory_type?.type ?? '';
   const itemClassId = item.item_class?.id ?? -1;
@@ -60,7 +63,12 @@ function mapItemCategory(
   const itemName = item.name ?? '';
 
   // Tier tokens — detected by name using season-specific patterns
-  const tierToken = detectTierToken(itemName, tierTokenPatterns, tierArmorTypePrefixes);
+  const tierToken = detectTierToken(
+    itemName,
+    tierTokenPatterns,
+    tierArmorTypePrefixes,
+    ACTIVE_SEASON.tierClassGroupPrefixes,
+  );
   if (tierToken) {
     return {
       category: ItemCategory.OTHER,
@@ -69,6 +77,7 @@ function mapItemCategory(
       weaponType: undefined,
       slot: tierToken.slot,
       isPrioritizable: true,
+      allowedClasses: tierToken.allowedClasses,
     };
   }
 
@@ -293,11 +302,8 @@ export class SyncRaidCatalogFromBlizzardUseCase {
             continue;
           }
 
-          const { category, armorType, primaryStats, weaponType, slot, isPrioritizable } = mapItemCategory(
-            blizzardItem,
-            ACTIVE_SEASON.tierTokenPatterns,
-            ACTIVE_SEASON.tierArmorTypePrefixes,
-          );
+          const { category, armorType, primaryStats, weaponType, slot, isPrioritizable, allowedClasses } =
+            mapItemCategory(blizzardItem, ACTIVE_SEASON.tierTokenPatterns, ACTIVE_SEASON.tierArmorTypePrefixes);
           // TODO: detect superrares from Blizzard API (e.g. blizzardItem.quality.type === 'LEGENDARY')
           const isSuperRare = false;
 
@@ -324,6 +330,7 @@ export class SyncRaidCatalogFromBlizzardUseCase {
               bossId: boss.id,
               isPrioritizable: false,
               isSuperRare: false,
+              allowedClasses,
             });
             continue;
           }
@@ -343,6 +350,7 @@ export class SyncRaidCatalogFromBlizzardUseCase {
             iconUrl,
             isPrioritizable,
             isSuperRare,
+            allowedClasses,
           });
           totalItems++;
         }

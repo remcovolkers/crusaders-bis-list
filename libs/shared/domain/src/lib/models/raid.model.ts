@@ -2,6 +2,7 @@ import { ArmorType } from '../enums/armor-type.enum';
 import { ItemCategory } from '../enums/item-category.enum';
 import { PrimaryStat } from '../enums/primary-stat.enum';
 import { WeaponType } from '../enums/weapon-type.enum';
+import { WowClass } from '../enums/wow-class.enum';
 
 export interface IRaidSeason {
   id: string;
@@ -55,4 +56,11 @@ export interface IItem {
    * (admin boss view) for split-icon rendering. Not stored in DB.
    */
   secondaryIconUrl?: string;
+  /**
+   * When set, only these WoW classes may reserve this item.
+   * Used for class-group tier tokens where the restriction isn't expressible
+   * via a single armor type (e.g. T34 Dreadful = DK + DH + Warlock).
+   * When absent, the normal armor-type / primary-stat eligibility applies.
+   */
+  allowedClasses?: WowClass[];
 }

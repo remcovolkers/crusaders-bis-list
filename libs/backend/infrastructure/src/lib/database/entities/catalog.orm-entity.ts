@@ -95,4 +95,7 @@ export class ItemOrmEntity {
 
   @Column({ name: 'merged_display_name', type: 'varchar', nullable: true })
   mergedDisplayName?: string;
+
+  @Column({ name: 'allowed_classes', type: 'simple-array', nullable: true })
+  allowedClasses?: string[];
 }
