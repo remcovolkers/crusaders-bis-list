@@ -175,6 +175,53 @@
     vertical-align: middle;
     color: var(--text-secondary);
   }
+
+  @media (max-width: 600px) {
+    thead {
+      display: none;
+    }
+
+    tbody tr {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-color);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+    }
+
+    td {
+      display: contents;
+      padding: 0;
+
+      &::before {
+        content: attr(data-label);
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        padding: 4px 10px 4px 0;
+        align-self: center;
+        white-space: nowrap;
+      }
+
+      & > * {
+        padding: 4px 0;
+        align-self: center;
+      }
+    }
+
+    .col-details {
+      max-width: none;
+    }
+  }
 }
 
 .col-time {
@@ -212,6 +259,8 @@
 .action-badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  align-self: center;
   font-size: 10px;
   font-weight: 600;
   padding: 2px 7px;

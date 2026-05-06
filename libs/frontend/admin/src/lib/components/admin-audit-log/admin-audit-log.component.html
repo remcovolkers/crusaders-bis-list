@@ -60,16 +60,16 @@
             <tbody>
               @for (entry of filteredEntries(); track entry.id) {
                 <tr>
-                  <td class="col-time">{{ entry.createdAt | date: 'd MMM y, HH:mm' }}</td>
-                  <td class="col-action">
+                  <td class="col-time" data-label="Tijdstip">{{ entry.createdAt | date: 'd MMM y, HH:mm' }}</td>
+                  <td class="col-action" data-label="Actie">
                     <span class="action-badge" [class]="actionClass(entry.action)">
                       {{ actionLabel(entry.action) }}
                     </span>
                   </td>
-                  <td class="col-actor">{{ entry.actorName }}</td>
-                  <td class="col-raider">{{ entry.raiderName ?? '—' }}</td>
-                  <td class="col-item">{{ entry.itemName ?? '—' }}</td>
-                  <td class="col-details">
+                  <td class="col-actor" data-label="Door">{{ entry.actorName }}</td>
+                  <td class="col-raider" data-label="Raider">{{ entry.raiderName ?? '—' }}</td>
+                  <td class="col-item" data-label="Item">{{ entry.itemName ?? '—' }}</td>
+                  <td class="col-details" data-label="Details">
                     @if (entry.details) {
                       <span class="details-text">{{ entry.details | json }}</span>
                     } @else {
