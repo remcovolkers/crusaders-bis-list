@@ -1,3 +1,62 @@
+// ── Pagina verhuisd ──────────────────────────────────────────
+.moved-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-base);
+  padding: 24px;
+}
+
+.moved-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg, 12px);
+  padding: 48px 40px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.moved-icon {
+  font-size: 48px;
+}
+
+.moved-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  margin: 0;
+}
+
+.moved-body {
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.moved-link {
+  display: inline-block;
+  background: var(--accent-gold);
+  color: #0a0e17;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 12px 28px;
+  border-radius: var(--radius-sm, 6px);
+  text-decoration: none;
+  margin-top: 8px;
+
+  &:hover {
+    opacity: 0.88;
+  }
+}
+// ─────────────────────────────────────────────────────────────
+
 .app-header {
   display: flex;
   align-items: center;

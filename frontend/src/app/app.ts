@@ -1,4 +1,5 @@
 ﻿import { Component, inject, computed, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -23,6 +24,9 @@ export class App {
   private readonly store = inject(Store);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly document = inject(DOCUMENT);
+
+  readonly isOldDomain = signal(this.document.location.hostname === 'crusaders-bis-list.onrender.com');
 
   readonly isAuthenticated = toSignal(this.store.select(selectIsAuthenticated), { initialValue: false });
   readonly currentUser = toSignal(this.store.select(selectCurrentUser), { initialValue: null });
