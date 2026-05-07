@@ -1,0 +1,39 @@
+<div class="rp-list-page">
+  <div class="rp-header">
+    <h1>⚔️ Raidplannen</h1>
+    <a routerLink="new" class="btn-primary">+ Nieuw raidplan</a>
+  </div>
+
+  @if (loading()) {
+    <p class="loading-text">Laden…</p>
+  } @else if (plans().length === 0) {
+    <div class="empty-state">
+      <p>Nog geen raidplannen aangemaakt.</p>
+      <a routerLink="new" class="btn-primary">Maak eerste plan</a>
+    </div>
+  } @else {
+    <div class="plan-grid">
+      @for (plan of plans(); track plan.id) {
+        <a [routerLink]="plan.id" class="plan-card">
+          <div class="plan-card-header">
+            <span class="plan-raid-name">{{ plan.raidName }}</span>
+            <span class="plan-difficulty difficulty-{{ plan.difficulty.toLowerCase() }}">{{ plan.difficulty }}</span>
+          </div>
+          <div class="plan-date">📅 {{ formatDate(plan.scheduledAt) }}</div>
+          <div class="plan-participants">
+            <span class="participant-count raider-count"
+              >🗡️ {{ plan.participants.filter(p => p.role === 'Raider').length }} mee</span
+            >
+            <span class="participant-count bench-count"
+              >🪑 {{ plan.participants.filter(p => p.role === 'Bench').length }} bank</span
+            >
+            <span class="participant-count absent-count"
+              >❌ {{ plan.participants.filter(p => p.role === 'Absent').length }} afgemeld</span
+            >
+          </div>
+          <button class="btn-danger btn-sm" (click)="delete(plan, $event)">Verwijder</button>
+        </a>
+      }
+    </div>
+  }
+</div>

@@ -23,6 +23,8 @@ import {
   RaiderReceivedItemOrmEntity,
   FeedbackOrmEntity,
   AuditLogOrmEntity,
+  RaidPlanOrmEntity,
+  RaidPlanParticipantOrmEntity,
   MIGRATIONS,
 } from '@crusaders-bis-list/backend-infrastructure';
 
@@ -46,6 +48,8 @@ import {
           RaiderReceivedItemOrmEntity,
           FeedbackOrmEntity,
           AuditLogOrmEntity,
+          RaidPlanOrmEntity,
+          RaidPlanParticipantOrmEntity,
         ],
         synchronize: config.get('NODE_ENV') !== 'production',
         migrations: MIGRATIONS,

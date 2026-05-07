@@ -1,5 +1,7 @@
 export * from './armor-type.enum';
 export * from './assignment-status.enum';
+export * from './raid-difficulty.enum';
+export * from './raid-participant-role.enum';
 export * from './item-category.enum';
 export * from './primary-stat.enum';
 export * from './raider-status.enum';

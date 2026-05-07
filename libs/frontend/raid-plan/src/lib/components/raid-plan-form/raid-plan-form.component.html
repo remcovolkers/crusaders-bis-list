@@ -1,0 +1,87 @@
+<div class="rp-form-page">
+  <div class="rp-form-header">
+    <h1>{{ isEdit() ? 'Raidplan bewerken' : 'Nieuw raidplan' }}</h1>
+  </div>
+
+  @if (loading()) {
+    <p class="loading-text">Laden…</p>
+  } @else {
+    <div class="form-card">
+      <div class="form-row">
+        <label>Raid seizoen *</label>
+        <select [ngModel]="selectedSeasonId()" (ngModelChange)="selectedSeasonId.set($event)">
+          <option value="">— Kies een seizoen —</option>
+          @for (season of seasons(); track season.id) {
+            <option [value]="season.id">{{ season.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label>Difficulty *</label>
+        <select [ngModel]="selectedDifficulty()" (ngModelChange)="selectedDifficulty.set($event)">
+          @for (d of difficulties; track d) {
+            <option [value]="d">{{ d }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label>Datum & tijd *</label>
+        <input type="datetime-local" [ngModel]="scheduledAt()" (ngModelChange)="scheduledAt.set($event)" />
+      </div>
+
+      <div class="form-row">
+        <label>Notities</label>
+        <textarea
+          rows="3"
+          [ngModel]="notes()"
+          (ngModelChange)="notes.set($event)"
+          placeholder="Optionele opmerkingen voor het raidplan…"
+        ></textarea>
+      </div>
+
+      <div class="participants-section">
+        <h3>Deelnemers</h3>
+
+        <div class="add-participant-row">
+          <select #addSelect (change)="addParticipant(addSelect.value); addSelect.value = ''">
+            <option value="">+ Raider toevoegen…</option>
+            @for (raider of availableUsers(); track raider.userId) {
+              <option [value]="raider.userId">{{ raider.characterName }}</option>
+            }
+          </select>
+        </div>
+
+        @if (participants().length === 0) {
+          <p class="empty-participants">Nog geen deelnemers toegevoegd.</p>
+        } @else {
+          <div class="participant-list">
+            @for (p of participants(); track p.userId) {
+              <div class="participant-row">
+                <span class="participant-name">{{ p.characterName }}</span>
+                <select
+                  [ngModel]="p.role"
+                  (ngModelChange)="setRole(p.userId, $event)"
+                  class="role-select role-{{ p.role.toLowerCase() }}"
+                >
+                  @for (role of roles; track role) {
+                    <option [value]="role">{{ role }}</option>
+                  }
+                </select>
+                <button class="btn-icon-danger" (click)="removeParticipant(p.userId)" title="Verwijder">✕</button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-secondary" (click)="cancel()" [disabled]="saving()">Annuleren</button>
+        <button class="btn-primary" (click)="save()" [disabled]="saving()">
+          {{ saving() ? 'Opslaan…' : isEdit() ? 'Bijwerken' : 'Aanmaken' }}
+        </button>
+      </div>
+    </div>
+  }
+</div>

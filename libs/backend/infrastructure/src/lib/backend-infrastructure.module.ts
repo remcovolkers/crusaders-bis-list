@@ -9,6 +9,7 @@ import { RaidSeasonOrmEntity, BossOrmEntity, ItemOrmEntity } from './database/en
 import { ReservationOrmEntity, AssignmentOrmEntity } from './database/entities/loot.orm-entity';
 import { SeasonConfigOrmEntity } from './database/entities/season-config.orm-entity';
 import { RaiderReceivedItemOrmEntity } from './database/entities/raider-received-item.orm-entity';
+import { RaidPlanOrmEntity, RaidPlanParticipantOrmEntity } from './database/entities/raid-plan.orm-entity';
 
 import { UserRepository } from './database/repositories/user.repository';
 import { RaiderRepository } from './database/repositories/raider.repository';
@@ -21,6 +22,8 @@ import { AuditLogService } from './database/repositories/audit-log.service';
 import { AuditLogOrmEntity } from './database/entities/audit-log.orm-entity';
 import { BlizzardApiService } from './blizzard/blizzard-api.service';
 import { EmailService } from './email/email.service';
+import { RaidPlanRepository } from './database/repositories/raid-plan.repository';
+import { DiscordWebhookService } from './discord/discord-webhook.service';
 
 import {
   USER_REPOSITORY,
@@ -32,6 +35,7 @@ import {
   SEASON_CONFIG_REPOSITORY,
   BLIZZARD_API_SERVICE,
   RECEIVED_ITEM_REPOSITORY,
+  RAID_PLAN_REPOSITORY,
 } from '@crusaders-bis-list/backend-domain';
 
 const ORM_ENTITIES = [
@@ -46,6 +50,8 @@ const ORM_ENTITIES = [
   RaiderReceivedItemOrmEntity,
   FeedbackOrmEntity,
   AuditLogOrmEntity,
+  RaidPlanOrmEntity,
+  RaidPlanParticipantOrmEntity,
 ];
 
 @Module({
@@ -60,9 +66,11 @@ const ORM_ENTITIES = [
     { provide: SEASON_CONFIG_REPOSITORY, useClass: SeasonConfigRepository },
     { provide: RECEIVED_ITEM_REPOSITORY, useClass: ReceivedItemRepository },
     { provide: BLIZZARD_API_SERVICE, useClass: BlizzardApiService },
+    { provide: RAID_PLAN_REPOSITORY, useClass: RaidPlanRepository },
     FeedbackRepository,
     EmailService,
     AuditLogService,
+    DiscordWebhookService,
   ],
   exports: [
     USER_REPOSITORY,
@@ -74,9 +82,11 @@ const ORM_ENTITIES = [
     SEASON_CONFIG_REPOSITORY,
     RECEIVED_ITEM_REPOSITORY,
     BLIZZARD_API_SERVICE,
+    RAID_PLAN_REPOSITORY,
     FeedbackRepository,
     EmailService,
     AuditLogService,
+    DiscordWebhookService,
   ],
 })
 export class BackendInfrastructureModule {}

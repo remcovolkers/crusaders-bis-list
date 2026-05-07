@@ -1,0 +1,83 @@
+@if (loading()) {
+  <p class="loading-text">Laden…</p>
+} @else if (!plan()) {
+  <p class="loading-text">Raidplan niet gevonden.</p>
+} @else {
+  <div class="rp-detail-page">
+    <div class="rp-detail-header">
+      <div class="back-link-row">
+        <a routerLink=".." class="back-link">← Overzicht</a>
+      </div>
+      <div class="header-main">
+        <div>
+          <h1>{{ plan()!.raidName }}</h1>
+          <div class="header-meta">
+            <span class="difficulty-badge difficulty-{{ plan()!.difficulty.toLowerCase() }}">{{
+              plan()!.difficulty
+            }}</span>
+            <span class="date-text">📅 {{ formatDate(plan()!.scheduledAt) }}</span>
+          </div>
+          @if (plan()!.notes) {
+            <p class="notes-text">📋 {{ plan()!.notes }}</p>
+          }
+        </div>
+        <div class="header-actions">
+          <a [routerLink]="['edit']" class="btn-secondary">✏️ Bewerken</a>
+          <button class="btn-discord" [disabled]="notifying()" (click)="sendToDiscord()">
+            {{ notifying() ? 'Versturen…' : '💬 Verstuur naar Discord' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="participant-columns">
+      <div class="participant-col">
+        <h2 class="col-title raider-title">⚔️ Mee-raiders ({{ raiders().length }})</h2>
+        @if (raiders().length === 0) {
+          <p class="empty-col">Geen raiders ingepland.</p>
+        } @else {
+          <ul class="participant-list">
+            @for (p of raiders(); track p.id) {
+              <li class="participant-item">
+                <span class="char-name">{{ p.characterName }}</span>
+                <span class="class-spec">{{ p.wowClass }} — {{ p.spec }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <div class="participant-col">
+        <h2 class="col-title bench-title">🪑 Bank ({{ bench().length }})</h2>
+        @if (bench().length === 0) {
+          <p class="empty-col">Niemand op de bank.</p>
+        } @else {
+          <ul class="participant-list">
+            @for (p of bench(); track p.id) {
+              <li class="participant-item">
+                <span class="char-name">{{ p.characterName }}</span>
+                <span class="class-spec">{{ p.wowClass }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <div class="participant-col">
+        <h2 class="col-title absent-title">❌ Afgemeld ({{ absent().length }})</h2>
+        @if (absent().length === 0) {
+          <p class="empty-col">Niemand afgemeld.</p>
+        } @else {
+          <ul class="participant-list">
+            @for (p of absent(); track p.id) {
+              <li class="participant-item">
+                <span class="char-name">{{ p.characterName }}</span>
+                <span class="class-spec">{{ p.wowClass }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  </div>
+}

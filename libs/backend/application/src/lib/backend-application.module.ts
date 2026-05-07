@@ -13,6 +13,14 @@ import {
 import { GetAllRaiderReservationsUseCase } from './use-cases/raider-reservations.use-case';
 import { ResetAllReservationsUseCase } from './use-cases/reset-all-reservations.use-case';
 import { RollSessionService } from './use-cases/roll-session.service';
+import {
+  GetRaidPlansUseCase,
+  GetRaidPlanUseCase,
+  CreateRaidPlanUseCase,
+  UpdateRaidPlanUseCase,
+  DeleteRaidPlanUseCase,
+  SendDiscordNotificationUseCase,
+} from './use-cases/raid-plan.use-case';
 import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrastructure';
 
 @Module({
@@ -35,6 +43,12 @@ import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrast
     GetAllRaiderReservationsUseCase,
     ResetAllReservationsUseCase,
     RollSessionService,
+    GetRaidPlansUseCase,
+    GetRaidPlanUseCase,
+    CreateRaidPlanUseCase,
+    UpdateRaidPlanUseCase,
+    DeleteRaidPlanUseCase,
+    SendDiscordNotificationUseCase,
   ],
   exports: [
     BackendInfrastructureModule,
@@ -55,6 +69,12 @@ import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrast
     GetAllRaiderReservationsUseCase,
     ResetAllReservationsUseCase,
     RollSessionService,
+    GetRaidPlansUseCase,
+    GetRaidPlanUseCase,
+    CreateRaidPlanUseCase,
+    UpdateRaidPlanUseCase,
+    DeleteRaidPlanUseCase,
+    SendDiscordNotificationUseCase,
   ],
 })
 export class BackendApplicationModule {}

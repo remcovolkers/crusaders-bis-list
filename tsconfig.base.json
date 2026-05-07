@@ -16,26 +16,15 @@
     "baseUrl": ".",
     "ignoreDeprecations": "6.0",
     "paths": {
-      "@crusaders-bis-list/backend-domain": [
-        "libs/backend/domain/src/index.ts"
-      ],
-      "@crusaders-bis-list/backend-application": [
-        "libs/backend/application/src/index.ts"
-      ],
-      "@crusaders-bis-list/backend-infrastructure": [
-        "libs/backend/infrastructure/src/index.ts"
-      ],
-      "@crusaders-bis-list/backend-adapters": [
-        "libs/backend/adapters/src/index.ts"
-      ],
+      "@crusaders-bis-list/backend-domain": ["libs/backend/domain/src/index.ts"],
+      "@crusaders-bis-list/backend-application": ["libs/backend/application/src/index.ts"],
+      "@crusaders-bis-list/backend-infrastructure": ["libs/backend/infrastructure/src/index.ts"],
+      "@crusaders-bis-list/backend-adapters": ["libs/backend/adapters/src/index.ts"],
       "@crusaders-bis-list/frontend-auth": ["libs/frontend/auth/src/index.ts"],
       "@crusaders-bis-list/frontend-loot": ["libs/frontend/loot/src/index.ts"],
-      "@crusaders-bis-list/frontend-admin": [
-        "libs/frontend/admin/src/index.ts"
-      ],
-      "@crusaders-bis-list/frontend-shared-ui": [
-        "libs/frontend/shared-ui/src/index.ts"
-      ],
+      "@crusaders-bis-list/frontend-admin": ["libs/frontend/admin/src/index.ts"],
+      "@crusaders-bis-list/frontend-raid-plan": ["libs/frontend/raid-plan/src/index.ts"],
+      "@crusaders-bis-list/frontend-shared-ui": ["libs/frontend/shared-ui/src/index.ts"],
       "@crusaders-bis-list/shared-domain": ["libs/shared/domain/src/index.ts"]
     }
   },

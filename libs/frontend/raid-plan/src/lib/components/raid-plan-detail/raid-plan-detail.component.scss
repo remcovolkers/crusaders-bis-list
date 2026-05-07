@@ -1,0 +1,186 @@
+.rp-detail-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.back-link-row {
+  margin-bottom: 12px;
+}
+
+.back-link {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.9rem;
+
+  &:hover {
+    color: #e2e8f0;
+  }
+}
+
+.rp-detail-header {
+  margin-bottom: 28px;
+}
+
+.header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  h1 {
+    margin: 0 0 8px;
+    font-size: 1.8rem;
+    color: #f0c040;
+  }
+}
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.difficulty-badge {
+  font-size: 0.8rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+
+  &.difficulty-normal {
+    background: #166534;
+    color: #86efac;
+  }
+  &.difficulty-heroic {
+    background: #1d4ed8;
+    color: #93c5fd;
+  }
+  &.difficulty-mythic {
+    background: #7e22ce;
+    color: #d8b4fe;
+  }
+}
+
+.date-text {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.notes-text {
+  margin-top: 8px;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.participant-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.participant-col {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.col-title {
+  font-size: 1rem;
+  margin: 0 0 12px;
+
+  &.raider-title {
+    color: #93c5fd;
+  }
+  &.bench-title {
+    color: #fcd34d;
+  }
+  &.absent-title {
+    color: #fca5a5;
+  }
+}
+
+.participant-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.participant-item {
+  display: flex;
+  flex-direction: column;
+  background: #0f172a;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.char-name {
+  font-weight: 600;
+  color: #e2e8f0;
+  font-size: 0.95rem;
+}
+
+.class-spec {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.empty-col {
+  color: #475569;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 12px 0;
+}
+
+.btn-secondary {
+  background: #334155;
+  color: #e2e8f0;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 16px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-block;
+
+  &:hover {
+    background: #475569;
+  }
+}
+
+.btn-discord {
+  background: #5865f2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+
+  &:hover {
+    background: #4752c4;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.loading-text {
+  color: #64748b;
+  text-align: center;
+  padding: 60px 0;
+}

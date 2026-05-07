@@ -44,6 +44,11 @@ export const appRoutes: Route[] = [
     component: AdminFeedbackComponent,
   },
   {
+    path: 'raid-plan',
+    canActivate: [SuperUserGuard],
+    loadChildren: () => import('@crusaders-bis-list/frontend-raid-plan').then((m) => m.FrontendRaidPlanModule),
+  },
+  {
     path: 'dev-panel',
     canActivate: [SuperUserGuard],
     component: DevPanelComponent,

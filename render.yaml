@@ -32,6 +32,30 @@ services:
         generateValue: true
       - key: FRONTEND_URL
         sync: false # e.g. https://crusaders-bis-list.onrender.com
+      - key: DISCORD_WEBHOOK_URL
+        sync: false # Discord webhook URL for raid plan notifications
+
+  # Discord Bot (Background Worker)
+  - type: worker
+    name: crusaders-bis-list-discord-bot
+    env: node
+    region: frankfurt
+    plan: starter
+    buildCommand: npm ci --include=dev && ./node_modules/.bin/nx build discord-bot --configuration=production
+    startCommand: node dist/apps/discord-bot/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false # Same DB as the API
+      - key: DATABASE_SSL
+        value: 'true'
+      - key: DISCORD_BOT_TOKEN
+        sync: false # Bot token from Discord Developer Portal
+      - key: DISCORD_CLIENT_ID
+        sync: false # Application ID from Discord Developer Portal
+      - key: DISCORD_GUILD_ID
+        sync: false # Your Discord server ID (right-click server → Copy Server ID)
 
   # Angular Frontend (Static Site)
   - type: web
@@ -47,9 +71,6 @@ services:
         name: Cache-Control
         value: no-cache
     routes:
-      - type: redirect
-        source: /discord
-        destination: https://discord.gg/7RaV9TArB
       - type: rewrite
         source: /*
         destination: /index.html

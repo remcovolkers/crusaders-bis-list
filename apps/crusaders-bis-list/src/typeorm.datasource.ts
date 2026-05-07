@@ -10,14 +10,26 @@
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
 
-import { UserOrmEntity } from '@crusaders-bis-list/backend-infrastructure';
-import { RaiderProfileOrmEntity } from '@crusaders-bis-list/backend-infrastructure';
-import { RaidSeasonOrmEntity, BossOrmEntity, ItemOrmEntity } from '@crusaders-bis-list/backend-infrastructure';
-import { ReservationOrmEntity, AssignmentOrmEntity } from '@crusaders-bis-list/backend-infrastructure';
-import { SeasonConfigOrmEntity } from '@crusaders-bis-list/backend-infrastructure';
-import { RaiderReceivedItemOrmEntity } from '@crusaders-bis-list/backend-infrastructure';
-import { AuditLogOrmEntity } from '@crusaders-bis-list/backend-infrastructure';
-import { MIGRATIONS } from '@crusaders-bis-list/backend-infrastructure';
+import { UserOrmEntity } from '../../../libs/backend/infrastructure/src/lib/database/entities/user.orm-entity';
+import { RaiderProfileOrmEntity } from '../../../libs/backend/infrastructure/src/lib/database/entities/raider-profile.orm-entity';
+import {
+  RaidSeasonOrmEntity,
+  BossOrmEntity,
+  ItemOrmEntity,
+} from '../../../libs/backend/infrastructure/src/lib/database/entities/catalog.orm-entity';
+import {
+  ReservationOrmEntity,
+  AssignmentOrmEntity,
+} from '../../../libs/backend/infrastructure/src/lib/database/entities/loot.orm-entity';
+import { SeasonConfigOrmEntity } from '../../../libs/backend/infrastructure/src/lib/database/entities/season-config.orm-entity';
+import { RaiderReceivedItemOrmEntity } from '../../../libs/backend/infrastructure/src/lib/database/entities/raider-received-item.orm-entity';
+import { AuditLogOrmEntity } from '../../../libs/backend/infrastructure/src/lib/database/entities/audit-log.orm-entity';
+import {
+  RaidPlanOrmEntity,
+  RaidPlanParticipantOrmEntity,
+} from '../../../libs/backend/infrastructure/src/lib/database/entities/raid-plan.orm-entity';
+import { AppSettingsOrmEntity } from '../../../libs/backend/infrastructure/src/lib/database/entities/app-settings.orm-entity';
+import { MIGRATIONS } from '../../../libs/backend/infrastructure/src/lib/database/migrations';
 
 export default new DataSource({
   type: 'postgres',
@@ -33,6 +45,9 @@ export default new DataSource({
     SeasonConfigOrmEntity,
     RaiderReceivedItemOrmEntity,
     AuditLogOrmEntity,
+    RaidPlanOrmEntity,
+    RaidPlanParticipantOrmEntity,
+    AppSettingsOrmEntity,
   ],
   migrations: MIGRATIONS,
   migrationsTableName: 'typeorm_migrations',

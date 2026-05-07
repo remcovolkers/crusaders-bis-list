@@ -4,6 +4,7 @@ import { RaiderController } from './controllers/raider.controller';
 import { AdminController } from './controllers/admin.controller';
 import { FeedbackController } from './controllers/feedback.controller';
 import { RollController } from './controllers/roll.controller';
+import { RaidPlanController } from './controllers/raid-plan.controller';
 import { RolesGuard } from './guards/auth.guard';
 import { GoogleStrategy } from './auth/google.strategy';
 import { BnetStrategy } from './auth/bnet.strategy';
@@ -19,6 +20,7 @@ import { BackendApplicationModule } from '@crusaders-bis-list/backend-applicatio
     AdminController,
     FeedbackController,
     RollController,
+    RaidPlanController,
   ],
   providers: [RolesGuard, GoogleStrategy, BnetStrategy, JwtStrategy],
   exports: [RolesGuard],
