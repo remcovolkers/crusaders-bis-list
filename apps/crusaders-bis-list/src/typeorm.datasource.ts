@@ -10,6 +10,7 @@
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
 
+/* eslint-disable @nx/enforce-module-boundaries */
 import { UserOrmEntity } from '../../../libs/backend/infrastructure/src/lib/database/entities/user.orm-entity';
 import { RaiderProfileOrmEntity } from '../../../libs/backend/infrastructure/src/lib/database/entities/raider-profile.orm-entity';
 import {
@@ -28,8 +29,8 @@ import {
   RaidPlanOrmEntity,
   RaidPlanParticipantOrmEntity,
 } from '../../../libs/backend/infrastructure/src/lib/database/entities/raid-plan.orm-entity';
-import { AppSettingsOrmEntity } from '../../../libs/backend/infrastructure/src/lib/database/entities/app-settings.orm-entity';
 import { MIGRATIONS } from '../../../libs/backend/infrastructure/src/lib/database/migrations';
+/* eslint-enable @nx/enforce-module-boundaries */
 
 export default new DataSource({
   type: 'postgres',
@@ -47,7 +48,6 @@ export default new DataSource({
     AuditLogOrmEntity,
     RaidPlanOrmEntity,
     RaidPlanParticipantOrmEntity,
-    AppSettingsOrmEntity,
   ],
   migrations: MIGRATIONS,
   migrationsTableName: 'typeorm_migrations',

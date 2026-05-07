@@ -9,6 +9,7 @@ import { AddMergedItemsAndCleanReservations1745400000000 } from './1745400000000
 import { CreateAuditLog1745500000000 } from './1745500000000-CreateAuditLog';
 import { AddItemAllowedClasses1745600000000 } from './1745600000000-AddItemAllowedClasses';
 import { RaidPlanFeature1746662400000 } from './1746662400000-RaidPlanFeature';
+import { DropAppSettings1746748800000 } from './1746748800000-DropAppSettings';
 
 export const MIGRATIONS: (new () => MigrationInterface)[] = [
   BeastMasterySpecFix1744761600000,
@@ -21,4 +22,5 @@ export const MIGRATIONS: (new () => MigrationInterface)[] = [
   CreateAuditLog1745500000000,
   AddItemAllowedClasses1745600000000,
   RaidPlanFeature1746662400000,
+  DropAppSettings1746748800000,
 ];

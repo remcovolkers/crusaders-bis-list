@@ -285,7 +285,7 @@ export class RaiderController {
       if (!myItemIds.has(res.itemId)) continue;
       if (res.raiderId === raider.id) continue;
       if (!itemRaiderMap.has(res.itemId)) itemRaiderMap.set(res.itemId, new Set());
-      itemRaiderMap.get(res.itemId)!.add(res.raiderId);
+      itemRaiderMap.get(res.itemId)?.add(res.raiderId);
     }
 
     const uniqueRaiderIds = [...new Set([...itemRaiderMap.values()].flatMap((s) => [...s]))];

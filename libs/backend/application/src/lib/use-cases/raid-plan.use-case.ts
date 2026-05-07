@@ -104,7 +104,7 @@ export class UpdateRaidPlanUseCase {
 
   private async resolveParticipants(participants: UpdateRaidPlanDto['participants']): Promise<ResolvedParticipant[]> {
     const resolved: ResolvedParticipant[] = [];
-    for (const p of participants!) {
+    for (const p of participants ?? []) {
       const user = await this.userRepo.findById(p.userId);
       if (!user) throw new NotFoundException(`User ${p.userId} not found`);
       const raider = await this.raiderRepo.findByUserId(p.userId);

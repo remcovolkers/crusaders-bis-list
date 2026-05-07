@@ -147,7 +147,7 @@
 
     <!-- Right panel: raid attendance -->
     @if (allRaiders().length > 0) {
-      <div class="raid-backdrop" [class.visible]="raidDrawerOpen()" (click)="raidDrawerOpen.set(false)"></div>
+      <div class="raid-backdrop" role="button" tabindex="0" aria-label="Sluiten" [class.visible]="raidDrawerOpen()" (click)="raidDrawerOpen.set(false)" (keydown.escape)="raidDrawerOpen.set(false)"></div>
       <aside class="raid-panel" [class.drawer-open]="raidDrawerOpen()">
         <div class="raid-panel-header">
           <span class="raid-panel-count"

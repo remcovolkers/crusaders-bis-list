@@ -27,18 +27,9 @@ export class RaidPlanFeature1746662400000 implements MigrationInterface {
         role VARCHAR NOT NULL
       )
     `);
-
-    await queryRunner.query(`
-      CREATE TABLE IF NOT EXISTS app_settings (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        discord_webhook_url TEXT,
-        updated_at TIMESTAMP NOT NULL DEFAULT now()
-      )
-    `);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP TABLE IF EXISTS app_settings`);
     await queryRunner.query(`DROP TABLE IF EXISTS raid_plan_participants`);
     await queryRunner.query(`DROP TABLE IF EXISTS raid_plans`);
   }

@@ -28,7 +28,8 @@ export class RaidPlanDetailComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id')!;
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) return;
     this.service.getById(id).subscribe({
       next: (plan) => {
         this.plan.set(plan);

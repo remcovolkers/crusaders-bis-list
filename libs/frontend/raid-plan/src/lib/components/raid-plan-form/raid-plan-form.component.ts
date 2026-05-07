@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   IRaidSeason,
-  IUser,
   RaidDifficulty,
   RaidParticipantRole,
   CreateRaidPlanParticipantDto,
@@ -73,8 +72,9 @@ export class RaidPlanFormComponent implements OnInit {
       },
     });
 
-    if (this.isEdit()) {
-      this.service.getById(this.planId()!).subscribe({
+    const editId = this.planId();
+    if (this.isEdit() && editId) {
+      this.service.getById(editId).subscribe({
         next: (plan) => {
           this.selectedSeasonId.set(plan.raidSeasonId);
           this.selectedDifficulty.set(plan.difficulty);
@@ -136,7 +136,8 @@ export class RaidPlanFormComponent implements OnInit {
       participants: this.participants().map((p): CreateRaidPlanParticipantDto => ({ userId: p.userId, role: p.role })),
     };
 
-    const request$ = this.isEdit() ? this.service.update(this.planId()!, dto) : this.service.create(dto);
+    const id = this.planId();
+    const request$ = this.isEdit() && id ? this.service.update(id, dto) : this.service.create(dto);
 
     request$.subscribe({
       next: (plan) => {
