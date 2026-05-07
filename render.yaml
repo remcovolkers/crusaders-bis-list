@@ -47,6 +47,9 @@ services:
         name: Cache-Control
         value: no-cache
     routes:
+      - type: redirect
+        source: /discord
+        destination: https://discord.gg/7RaV9TArB
       - type: rewrite
         source: /*
         destination: /index.html
