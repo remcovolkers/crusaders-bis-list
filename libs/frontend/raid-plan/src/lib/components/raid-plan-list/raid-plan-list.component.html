@@ -70,7 +70,13 @@
                   <a [routerLink]="[plan.id, 'edit']" class="btn btn--xs btn--ghost" (click)="$event.stopPropagation()"
                     >✏️ Bewerken</a
                   >
-                  <button class="btn btn--xs btn--danger" (click)="delete(plan, $event)">🗑️</button>
+                  @if (pendingDelete()?.id === plan.id) {
+                    <span class="confirm-text">Verwijderen?</span>
+                    <button class="btn btn--xs btn--danger" (click)="confirmDelete($event)">Ja</button>
+                    <button class="btn btn--xs btn--ghost" (click)="abortDelete($event)">Nee</button>
+                  } @else {
+                    <button class="btn btn--xs btn--danger" (click)="requestDelete(plan, $event)">🗑️</button>
+                  }
                 </div>
               </div>
             </a>
@@ -103,7 +109,13 @@
                   <span class="count-chip count-chip--raider">⚔️ {{ raiderCount(plan) }}</span>
                 </div>
                 <div class="plan-card__actions">
-                  <button class="btn btn--xs btn--danger" (click)="delete(plan, $event)">🗑️</button>
+                  @if (pendingDelete()?.id === plan.id) {
+                    <span class="confirm-text">Verwijderen?</span>
+                    <button class="btn btn--xs btn--danger" (click)="confirmDelete($event)">Ja</button>
+                    <button class="btn btn--xs btn--ghost" (click)="abortDelete($event)">Nee</button>
+                  } @else {
+                    <button class="btn btn--xs btn--danger" (click)="requestDelete(plan, $event)">🗑️</button>
+                  }
                 </div>
               </div>
             </a>

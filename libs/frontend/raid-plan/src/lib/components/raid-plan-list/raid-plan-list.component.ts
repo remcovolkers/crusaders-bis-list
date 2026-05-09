@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { IRaidPlan, RaidParticipantRole } from '@crusaders-bis-list/shared-domain';
@@ -39,10 +39,19 @@ export class RaidPlanListComponent {
       .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
   });
 
-  delete(plan: IRaidPlan, event: Event): void {
+  readonly pendingDelete = signal<IRaidPlan | null>(null);
+
+  requestDelete(plan: IRaidPlan, event: Event): void {
     event.stopPropagation();
     event.preventDefault();
-    if (!confirm(`Raidplan voor ${plan.raidName} verwijderen?`)) return;
+    this.pendingDelete.set(plan);
+  }
+
+  confirmDelete(event: Event): void {
+    event.stopPropagation();
+    const plan = this.pendingDelete();
+    if (!plan) return;
+    this.pendingDelete.set(null);
     this.service.delete(plan.id).subscribe({
       next: () => {
         this.plansResource.update((plans) => plans?.filter((p) => p.id !== plan.id));
@@ -50,6 +59,12 @@ export class RaidPlanListComponent {
       },
       error: () => this.toast.show('Verwijderen mislukt.', 'error'),
     });
+  }
+
+  abortDelete(event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
+    this.pendingDelete.set(null);
   }
 
   raiderCount(plan: IRaidPlan): number {

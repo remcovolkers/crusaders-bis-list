@@ -180,9 +180,15 @@
 
   &__actions {
     display: flex;
+    align-items: center;
     gap: 6px;
     margin-top: auto;
     padding-top: 4px;
+
+    .confirm-text {
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
   }
 }
 

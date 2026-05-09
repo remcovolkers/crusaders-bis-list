@@ -30,7 +30,7 @@ export class RaidPlanParticipantOrmEntity {
   @Column({ name: 'group_number', type: 'int', nullable: true })
   groupNumber?: number | null;
 
-  @ManyToOne(() => RaidPlanOrmEntity, (plan) => plan.participants)
+  @ManyToOne(() => RaidPlanOrmEntity, (plan) => plan.participants, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'raid_plan_id' })
   raidPlan?: RaidPlanOrmEntity;
 }
