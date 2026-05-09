@@ -1,6 +1,7 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { DatePipe, JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { AdminService, AuditLogEntry, AuditAction } from '../../services/admin.service';
 
 const ACTION_LABELS: Record<AuditAction, string> = {
@@ -27,10 +28,14 @@ const ACTION_CLASSES: Record<AuditAction, string> = {
   templateUrl: './admin-audit-log.component.html',
   styleUrls: ['./admin-audit-log.component.scss'],
 })
-export class AdminAuditLogComponent implements OnInit {
-  readonly entries = signal<AuditLogEntry[]>([]);
-  readonly loading = signal(true);
-  readonly error = signal(false);
+export class AdminAuditLogComponent {
+  private readonly adminService = inject(AdminService);
+
+  private readonly auditLogResource = rxResource({ stream: () => this.adminService.getAuditLog() });
+
+  readonly entries = computed(() => this.auditLogResource.value() ?? []);
+  readonly loading = this.auditLogResource.isLoading;
+  readonly error = computed(() => this.auditLogResource.status() === 'error');
 
   // Filters
   readonly filterAction = signal<AuditAction | ''>('');
@@ -58,23 +63,8 @@ export class AdminAuditLogComponent implements OnInit {
     () => !!this.filterAction() || !!this.filterActor() || !!this.filterRaider() || !!this.filterItem(),
   );
 
-  private readonly adminService = inject(AdminService);
-
   readonly actionLabel = (action: AuditAction) => ACTION_LABELS[action] ?? action;
   readonly actionClass = (action: AuditAction) => ACTION_CLASSES[action] ?? '';
-
-  ngOnInit(): void {
-    this.adminService.getAuditLog().subscribe({
-      next: (data) => {
-        this.entries.set(data);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.error.set(true);
-        this.loading.set(false);
-      },
-    });
-  }
 
   clearFilters(): void {
     this.filterAction.set('');

@@ -23,6 +23,12 @@ export class RaidPlanOrmEntity {
   @Column({ type: 'text', nullable: true })
   notes?: string;
 
+  @Column({ name: 'scheduled_discord_at', type: 'timestamp', nullable: true })
+  scheduledDiscordAt?: Date | null;
+
+  @Column({ name: 'discord_sent_at', type: 'timestamp', nullable: true })
+  discordSentAt?: Date | null;
+
   @OneToMany(() => RaidPlanParticipantOrmEntity, (p) => p.raidPlan, {
     cascade: true,
     eager: true,

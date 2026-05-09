@@ -1,0 +1,98 @@
+@for (group of groupedBosses(); track group.raidName) {
+  <div class="raid-group">
+    <h3 class="raid-group__title" [style.border-left-color]="group.color">{{ group.raidName }}</h3>
+
+    @for (boss of group.bosses; track boss.id) {
+      <div class="boss-card" [class.boss-card--collapsed]="isCollapsed(boss.id)">
+        <!-- Boss header -->
+        <div class="boss-card__header" (click)="toggleCollapse(boss.id)">
+          <div class="boss-card__header-left">
+            <span class="boss-card__toggle">{{ isCollapsed(boss.id) ? '▶' : '▼' }}</span>
+            <span class="boss-card__name">{{ boss.name }}</span>
+          </div>
+          <div class="boss-card__header-right">
+            <span class="status-badge status-badge--{{ getStatus(boss.id) }}">{{ getStatus(boss.id) }}</span>
+            @if ((getNote(boss.id)?.resources?.length ?? 0) > 0) {
+              <span class="resource-count">🔗 {{ getNote(boss.id)!.resources.length }}</span>
+            }
+          </div>
+        </div>
+
+        <!-- Boss body -->
+        @if (!isCollapsed(boss.id)) {
+          <div class="boss-card__body">
+            <!-- Status toggle -->
+            <div class="boss-field">
+              <label class="boss-field__label">Status</label>
+              <div class="status-toggle">
+                @for (s of statuses; track s) {
+                  <button
+                    class="status-btn status-btn--{{ s }}"
+                    [class.status-btn--active]="getStatus(boss.id) === s"
+                    (click)="onStatusChange(boss.id, s)"
+                  >
+                    {{ s }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="boss-field">
+              <label class="boss-field__label" [attr.for]="'notes-' + boss.id">Strategie-notities</label>
+              <textarea
+                [id]="'notes-' + boss.id"
+                class="boss-notes"
+                rows="3"
+                [value]="getNotes(boss.id)"
+                (input)="onNotesChange(boss.id, $any($event.target).value)"
+                placeholder="Bijv. tank-swaps, cooldown-gebruik, stack-punt…"
+              ></textarea>
+            </div>
+
+            <!-- Resources -->
+            <div class="boss-field">
+              <label class="boss-field__label">Resources</label>
+
+              <div class="resource-list">
+                @for (r of getNote(boss.id)?.resources ?? []; track r.id) {
+                  <div class="resource-card" [class.resource-card--youtube]="r.type === 'youtube'">
+                    @if (r.thumbnailUrl) {
+                      <img class="resource-card__thumb" [src]="r.thumbnailUrl" alt="" loading="lazy" />
+                    }
+                    <div class="resource-card__info">
+                      <a class="resource-card__title" [href]="r.url" target="_blank" rel="noopener">{{ r.title }}</a>
+                      <span class="resource-card__type">{{ r.type === 'youtube' ? '▶ YouTube' : '🔗 Link' }}</span>
+                    </div>
+                    <button class="resource-card__delete" (click)="deleteResource(boss.id, r.id)" title="Verwijderen">
+                      ✕
+                    </button>
+                  </div>
+                }
+              </div>
+
+              <!-- Add resource -->
+              <div class="resource-add">
+                <input
+                  type="url"
+                  class="resource-add__input"
+                  placeholder="Plak een YouTube of andere URL…"
+                  [value]="getPendingUrl(boss.id)"
+                  (input)="onUrlInput(boss.id, $any($event.target).value)"
+                  (keydown.enter)="addResource(boss.id)"
+                />
+                <button
+                  class="resource-add__btn"
+                  [disabled]="!getPendingUrl(boss.id) || isAdding(boss.id)"
+                  (click)="addResource(boss.id)"
+                >
+                  {{ isAdding(boss.id) ? '…' : '+ Toevoegen' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

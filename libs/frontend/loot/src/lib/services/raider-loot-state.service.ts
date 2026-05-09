@@ -1,10 +1,11 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { Observable, EMPTY, map, switchMap, tap } from 'rxjs';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { LootService } from './loot.service';
 import {
   IItem,
+  IBoss,
   IReceivedItem,
-  ISeasonConfig,
   IRaiderProfile,
   ItemCategory,
   AssignmentStatus,
@@ -22,7 +23,6 @@ import {
   RaidGroup,
   SESSION_ACTIVE_TAB_KEY,
 } from '../ui-types/loot-ui.types';
-import { CatalogResponse } from './loot.service';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 /**
@@ -34,22 +34,55 @@ import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
  */
 @Injectable()
 export class RaiderLootStateService {
+  private readonly lootService = inject(LootService);
+  private readonly toast = inject(ToastService);
+
+  // ── Resources (auto-load on service creation) ─────────────────────────────
+  private readonly profileResource = rxResource({ stream: () => this.lootService.getMyProfile() });
+  private readonly configResource = rxResource({ stream: () => this.lootService.getSeasonConfig() });
+  private readonly catalogResource = rxResource({ stream: () => this.lootService.getCatalog() });
+  private readonly receivedItemsResource = rxResource({ stream: () => this.lootService.getMyReceivedItems() });
+  private readonly reservationsResource = rxResource({
+    params: () => this.catalogResource.value()?.season.id,
+    stream: ({ params: seasonId }) => this.lootService.getMyReservations(seasonId),
+  });
+  private readonly peerCountsResource = rxResource({ stream: () => this.lootService.getItemPeerCounts() });
+
   // ── Public state ──────────────────────────────────────────────────────────
-  readonly catalog = signal<CatalogResponse | null>(null);
-  readonly profile = signal<IRaiderProfile | null>(null);
-  readonly config = signal<ISeasonConfig | null>(null);
-  readonly loading = signal(true);
+  readonly catalog = computed(() => this.catalogResource.value() ?? null);
+  readonly profile = computed(() => this.profileResource.value() ?? null);
+  readonly config = computed(() => this.configResource.value() ?? null);
+  readonly loading = computed(() => this.catalogResource.isLoading());
   readonly activeTab = signal<CategoryTab>('all');
   readonly searchQuery = signal('');
 
-  // ── Private state ─────────────────────────────────────────────────────────
-  private readonly _reservationMap = signal(new Map<string, string>());
-  private readonly _receivedItemsMap = signal(new Map<string, IReceivedItem>());
-  private readonly _assignmentStatusMap = signal(new Map<string, AssignmentStatus>());
-  private readonly _peerCountsMap = signal(new Map<string, Record<AssignmentStatus, number>>());
-
-  private readonly lootService = inject(LootService);
-  private readonly toast = inject(ToastService);
+  // ── Private derived maps ───────────────────────────────────────────────────
+  private readonly _receivedItemsMap = computed(() => {
+    const items = this.receivedItemsResource.value() ?? [];
+    const map = new Map<string, IReceivedItem>();
+    items.forEach((r) => map.set(r.itemId, r));
+    return map;
+  });
+  private readonly _reservationMap = computed(() => {
+    const reservations = this.reservationsResource.value() ?? [];
+    const map = new Map<string, string>();
+    reservations.forEach((r) => map.set(r.itemId, r.id));
+    return map;
+  });
+  private readonly _assignmentStatusMap = computed(() => {
+    const reservations = this.reservationsResource.value() ?? [];
+    const map = new Map<string, AssignmentStatus>();
+    reservations.forEach((r) => {
+      if (r.assignment?.status) map.set(r.itemId, r.assignment.status);
+    });
+    return map;
+  });
+  private readonly _peerCountsMap = computed(() => {
+    const counts = this.peerCountsResource.value() ?? {};
+    const map = new Map<string, Record<AssignmentStatus, number>>();
+    Object.entries(counts).forEach(([id, c]) => map.set(id, c as Record<AssignmentStatus, number>));
+    return map;
+  });
 
   // ── Limits (from config) ──────────────────────────────────────────────────
   readonly trinketLimit = computed(() => this.config()?.trinketLimit ?? 2);
@@ -110,33 +143,19 @@ export class RaiderLootStateService {
 
   // ── Data loading ──────────────────────────────────────────────────────────
 
-  /** Call once from the container component's ngOnInit. */
-  load(): void {
+  constructor() {
+    // Restore active tab from session storage
     const saved = sessionStorage.getItem(SESSION_ACTIVE_TAB_KEY) as CategoryTab | null;
-    this.activeTab.set(saved && LOOT_CATEGORY_TABS.some((t) => t.key === saved) ? saved : 'all');
-
-    this.lootService.getMyProfile().subscribe({ next: (p) => this.profile.set(p) });
-    this.lootService.getSeasonConfig().subscribe({ next: (c) => this.config.set(c) });
-    this.lootService.getMyReceivedItems().subscribe({
-      next: (items) => {
-        const map = new Map<string, IReceivedItem>();
-        items.forEach((r) => map.set(r.itemId, r));
-        this._receivedItemsMap.set(map);
-      },
-    });
-    this.lootService.getCatalog().subscribe({
-      next: (catalog) => {
-        this.catalog.set(catalog);
-        this.loading.set(false);
-        this._loadReservations(catalog.season.id);
-        if (!this.visibleTabs().some((t) => t.key === this.activeTab())) {
-          this.setActiveTab('all');
-        }
-      },
-      error: () => {
-        this.toast.show('Kon catalogus niet laden.', 'error');
-        this.loading.set(false);
-      },
+    if (saved && LOOT_CATEGORY_TABS.some((t) => t.key === saved)) {
+      this.activeTab.set(saved);
+    }
+    // Reset to 'all' if current tab is no longer visible after catalog loads
+    effect(() => {
+      const catalog = this.catalogResource.value();
+      if (!catalog) return;
+      if (!this.visibleTabs().some((t) => t.key === this.activeTab())) {
+        this.setActiveTab('all');
+      }
     });
   }
 
@@ -147,53 +166,43 @@ export class RaiderLootStateService {
     sessionStorage.setItem(SESSION_ACTIVE_TAB_KEY, tab);
   }
 
-  saveProfile(dto: ProfileSaveDto): Observable<IRaiderProfile> {
+  async saveProfile(dto: ProfileSaveDto): Promise<IRaiderProfile> {
     const req = this.profile() ? this.lootService.updateProfile(dto) : this.lootService.saveProfile(dto);
-    return req.pipe(tap((p) => this.profile.set(p)));
+    const p = await firstValueFrom(req);
+    this.profileResource.update(() => p);
+    return p;
   }
 
-  reserve(itemId: string, itemName?: string, receivedTier?: AssignmentStatus): Observable<void> {
+  async reserve(itemId: string, itemName?: string, receivedTier?: AssignmentStatus): Promise<void> {
     const seasonId = this.catalog()?.season.id;
-    if (!seasonId) return EMPTY;
-    return this.lootService.reserve(itemId, seasonId, itemName, receivedTier).pipe(
-      tap(() => this._loadReservations(seasonId)),
-      map(() => undefined),
-    );
+    if (!seasonId) return;
+    await firstValueFrom(this.lootService.reserve(itemId, seasonId, itemName, receivedTier));
+    this.reservationsResource.reload();
+    this.receivedItemsResource.reload();
+    this.peerCountsResource.reload();
   }
 
-  markItemReceived(itemId: string, tier: AssignmentStatus, itemName?: string): Observable<IReceivedItem> {
-    return this.lootService.markItemReceived(itemId, tier, itemName).pipe(
-      tap((received) => {
-        const map = new Map(this._receivedItemsMap());
-        map.set(itemId, received);
-        this._receivedItemsMap.set(map);
-      }),
-    );
+  async markItemReceived(itemId: string, tier: AssignmentStatus, itemName?: string): Promise<IReceivedItem> {
+    const received = await firstValueFrom(this.lootService.markItemReceived(itemId, tier, itemName));
+    this.receivedItemsResource.reload();
+    return received;
   }
 
   /**
    * Cancels a reservation and removes any floor-marker receivedItem.
    * A MYTH_TIER receivedItem (BiS) is intentionally kept.
    */
-  cancelReservationAndCleanup(reservationId: string, itemId: string): Observable<void> {
+  async cancelReservationAndCleanup(reservationId: string, itemId: string): Promise<void> {
     const seasonId = this.catalog()?.season.id;
-    if (!reservationId || !seasonId) return EMPTY;
+    if (!reservationId || !seasonId) return;
     const receivedItem = this.getReceivedItem(itemId);
-    const doCancel = this.lootService
-      .cancelReservation(reservationId)
-      .pipe(tap(() => this._loadReservations(seasonId)));
-    // Remove the received-item floor marker (but not a genuine BiS mark)
     if (receivedItem && receivedItem.tier !== AssignmentStatus.MYTH_TIER) {
-      return this.lootService.removeReceivedItem(receivedItem.id).pipe(
-        tap(() => {
-          const m = new Map(this._receivedItemsMap());
-          m.delete(itemId);
-          this._receivedItemsMap.set(m);
-        }),
-        switchMap(() => doCancel),
-      );
+      await firstValueFrom(this.lootService.removeReceivedItem(receivedItem.id));
+      this.receivedItemsResource.reload();
     }
-    return doCancel;
+    await firstValueFrom(this.lootService.cancelReservation(reservationId));
+    this.reservationsResource.reload();
+    this.peerCountsResource.reload();
   }
 
   // ── Queries ───────────────────────────────────────────────────────────────
@@ -285,40 +294,6 @@ export class RaiderLootStateService {
 
   // ── Private ───────────────────────────────────────────────────────────────
 
-  private _loadReservations(seasonId: string): void {
-    this.lootService.getMyReservations(seasonId).subscribe({
-      next: (reservations) => {
-        const resMap = new Map<string, string>();
-        const asnMap = new Map<string, AssignmentStatus>();
-        reservations.forEach((r) => {
-          resMap.set(r.itemId, r.id);
-          if (r.assignment?.status) asnMap.set(r.itemId, r.assignment.status);
-        });
-        this._reservationMap.set(resMap);
-        this._assignmentStatusMap.set(asnMap);
-
-        // Sync received items: the backend clears them when a reservation is
-        // cancelled, so reload to prevent stale "Gereserveerd voor Myth" labels.
-        this.lootService.getMyReceivedItems().subscribe({
-          next: (items) => {
-            const map = new Map<string, IReceivedItem>();
-            items.forEach((r) => map.set(r.itemId, r));
-            this._receivedItemsMap.set(map);
-          },
-        });
-
-        // Batch-load competition counts for all reserved items.
-        this.lootService.getItemPeerCounts().subscribe({
-          next: (counts) => {
-            const map = new Map<string, Record<AssignmentStatus, number>>();
-            Object.entries(counts).forEach(([id, c]) => map.set(id, c as Record<AssignmentStatus, number>));
-            this._peerCountsMap.set(map);
-          },
-        });
-      },
-    });
-  }
-
   private _countReserved(predicate: (cat: string) => boolean): number {
     return Array.from(this._reservationMap().keys()).filter((id) => {
       const item = this.findItem(id);
@@ -331,8 +306,6 @@ export class RaiderLootStateService {
 }
 
 // ── Pure domain helper (no class needed) ─────────────────────────────────────
-
-import { IBoss } from '@crusaders-bis-list/shared-domain';
 
 /**
  * Determine whether an item belongs to the given tab.

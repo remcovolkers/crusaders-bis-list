@@ -12,6 +12,7 @@ export interface IRaidPlanParticipant {
   wowClass: WowClass;
   spec: WowSpec;
   role: RaidParticipantRole;
+  groupNumber?: number | null;
 }
 
 export interface IRaidPlan {
@@ -22,13 +23,20 @@ export interface IRaidPlan {
   scheduledAt: Date;
   notes?: string;
   participants: IRaidPlanParticipant[];
+  scheduledDiscordAt?: Date | null;
+  discordSentAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ScheduleDiscordDto {
+  scheduledDiscordAt: string | null; // ISO string or null to clear
 }
 
 export interface CreateRaidPlanParticipantDto {
   userId: string;
   role: RaidParticipantRole;
+  groupNumber?: number | null;
 }
 
 export interface CreateRaidPlanDto {
@@ -40,3 +48,39 @@ export interface CreateRaidPlanDto {
 }
 
 export type UpdateRaidPlanDto = Partial<CreateRaidPlanDto>;
+
+// ── Boss notes ────────────────────────────────────────────────────────────────
+
+export type BossNoteStatus = 'progression' | 'farm' | 'skip';
+
+export interface IRaidPlanBossResource {
+  id: string;
+  bossNoteId: string;
+  url: string;
+  title: string;
+  thumbnailUrl?: string;
+  type: 'youtube' | 'link';
+}
+
+export interface IRaidPlanBossNote {
+  id: string;
+  raidPlanId: string;
+  bossId: string;
+  notes: string;
+  status: BossNoteStatus;
+  resources: IRaidPlanBossResource[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UpsertBossNoteDto {
+  notes?: string;
+  status?: BossNoteStatus;
+}
+
+export interface AddBossResourceDto {
+  url: string;
+  title: string;
+  thumbnailUrl?: string;
+  type: 'youtube' | 'link';
+}

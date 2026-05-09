@@ -8,6 +8,7 @@ export * from './lib/database/entities/raider-received-item.orm-entity';
 export * from './lib/database/entities/feedback.orm-entity';
 export * from './lib/database/entities/audit-log.orm-entity';
 export * from './lib/database/entities/raid-plan.orm-entity';
+export * from './lib/database/entities/raid-plan-boss-note.orm-entity';
 export * from './lib/database/repositories/feedback.repository';
 export * from './lib/database/repositories/audit-log.service';
 export * from './lib/blizzard/blizzard-api.service';

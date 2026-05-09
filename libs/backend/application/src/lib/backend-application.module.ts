@@ -20,7 +20,15 @@ import {
   UpdateRaidPlanUseCase,
   DeleteRaidPlanUseCase,
   SendDiscordNotificationUseCase,
+  ScheduleDiscordNotificationUseCase,
+  ScheduledDiscordService,
 } from './use-cases/raid-plan.use-case';
+import {
+  GetBossNotesUseCase,
+  UpsertBossNoteUseCase,
+  AddBossResourceUseCase,
+  DeleteBossResourceUseCase,
+} from './use-cases/boss-note.use-case';
 import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrastructure';
 import {
   SubmitFeedbackUseCase,
@@ -59,6 +67,12 @@ import {
     UpdateRaidPlanUseCase,
     DeleteRaidPlanUseCase,
     SendDiscordNotificationUseCase,
+    ScheduleDiscordNotificationUseCase,
+    ScheduledDiscordService,
+    GetBossNotesUseCase,
+    UpsertBossNoteUseCase,
+    AddBossResourceUseCase,
+    DeleteBossResourceUseCase,
   ],
   exports: [
     BackendInfrastructureModule,
@@ -89,6 +103,12 @@ import {
     UpdateRaidPlanUseCase,
     DeleteRaidPlanUseCase,
     SendDiscordNotificationUseCase,
+    ScheduleDiscordNotificationUseCase,
+    ScheduledDiscordService,
+    GetBossNotesUseCase,
+    UpsertBossNoteUseCase,
+    AddBossResourceUseCase,
+    DeleteBossResourceUseCase,
   ],
 })
 export class BackendApplicationModule {}

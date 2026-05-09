@@ -5,3 +5,4 @@ export * from './lib/toast/toast.component';
 export * from './lib/wheel-of-fortune/wheel-of-fortune.component';
 export * from './lib/feedback.service';
 export * from './lib/feedback-button/feedback-button.component';
+export * from './lib/raider-card/raider-card.component';

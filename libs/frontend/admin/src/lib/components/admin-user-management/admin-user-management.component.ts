@@ -1,5 +1,6 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { AdminService, RaiderReservationSummary, RaiderUser } from '../../services/admin.service';
 import { IUser, UserRole } from '@crusaders-bis-list/shared-domain';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
@@ -11,12 +12,27 @@ import { AdminUserDetailModalComponent } from '../admin-user-detail-modal/admin-
   templateUrl: './admin-user-management.component.html',
   styleUrls: ['./admin-user-management.component.scss'],
 })
-export class AdminUserManagementComponent implements OnInit {
-  readonly users = signal<IUser[]>([]);
+export class AdminUserManagementComponent {
+  private readonly toast = inject(ToastService);
+  private readonly adminService = inject(AdminService);
+
+  private readonly usersResource = rxResource({ stream: () => this.adminService.getAllUsers() });
+  private readonly reservationsResource = rxResource({ stream: () => this.adminService.getAllReservations() });
+  private readonly raidersResource = rxResource({ stream: () => this.adminService.getAllRaiders() });
+
+  readonly users = computed(() => this.usersResource.value() ?? []);
   readonly crusaders = computed(() => this.users().filter((u) => u.isCrusadersMember));
   readonly visitors = computed(() => this.users().filter((u) => !u.isCrusadersMember));
-  readonly reservationsByUserId = signal<Map<string, RaiderReservationSummary>>(new Map());
-  readonly profileByUserId = signal<Map<string, RaiderUser>>(new Map());
+  readonly reservationsByUserId = computed(() => {
+    const map = new Map<string, RaiderReservationSummary>();
+    for (const s of this.reservationsResource.value() ?? []) map.set(s.userId, s);
+    return map;
+  });
+  readonly profileByUserId = computed(() => {
+    const map = new Map<string, RaiderUser>();
+    for (const p of this.raidersResource.value() ?? []) map.set(p.userId, p);
+    return map;
+  });
   readonly expandedUserId = signal<string | null>(null);
   readonly selectedUser = computed(() => this.users().find((u) => u.id === this.expandedUserId()) ?? null);
   readonly confirmingResetAll = signal(false);
@@ -32,23 +48,6 @@ export class AdminUserManagementComponent implements OnInit {
     }
     return count;
   });
-
-  private readonly toast = inject(ToastService);
-  private readonly adminService = inject(AdminService);
-
-  ngOnInit(): void {
-    this.adminService.getAllUsers().subscribe((users) => this.users.set(users));
-    this.adminService.getAllReservations().subscribe((summaries) => {
-      const map = new Map<string, RaiderReservationSummary>();
-      for (const s of summaries) map.set(s.userId, s);
-      this.reservationsByUserId.set(map);
-    });
-    this.adminService.getAllRaiders().subscribe((profiles) => {
-      const map = new Map<string, RaiderUser>();
-      for (const p of profiles) map.set(p.userId, p);
-      this.profileByUserId.set(map);
-    });
-  }
 
   toggleUser(userId: string): void {
     this.expandedUserId.set(this.expandedUserId() === userId ? null : userId);
@@ -69,38 +68,22 @@ export class AdminUserManagementComponent implements OnInit {
   }
 
   onUserChanged(updated: IUser): void {
-    this.users.update((list) => list.map((u) => (u.id === updated.id ? updated : u)));
+    this.usersResource.update((list) => (list ?? []).map((u) => (u.id === updated.id ? updated : u)));
   }
 
   onProfileReset(userId: string): void {
-    this.reservationsByUserId.update((map) => {
-      const m = new Map(map);
-      m.delete(userId);
-      return m;
-    });
-    this.profileByUserId.update((map) => {
-      const m = new Map(map);
-      m.delete(userId);
-      return m;
-    });
+    this.reservationsResource.update((list) => (list ?? []).filter((s) => s.userId !== userId));
+    this.raidersResource.update((list) => (list ?? []).filter((p) => p.userId !== userId));
   }
 
   onUserDeleted(userId: string): void {
-    this.users.update((list) => list.filter((u) => u.id !== userId));
-    this.reservationsByUserId.update((map) => {
-      const m = new Map(map);
-      m.delete(userId);
-      return m;
-    });
+    this.usersResource.update((list) => (list ?? []).filter((u) => u.id !== userId));
+    this.reservationsResource.update((list) => (list ?? []).filter((s) => s.userId !== userId));
     this.expandedUserId.set(null);
   }
 
   onReservationCancelled(): void {
-    this.adminService.getAllReservations().subscribe((summaries) => {
-      const map = new Map<string, RaiderReservationSummary>();
-      for (const s of summaries) map.set(s.userId, s);
-      this.reservationsByUserId.set(map);
-    });
+    this.reservationsResource.reload();
   }
 
   requestResetAll(): void {
@@ -116,7 +99,7 @@ export class AdminUserManagementComponent implements OnInit {
     this.resettingAll.set(true);
     this.adminService.resetAllReservations(this.resetReason() || undefined).subscribe({
       next: () => {
-        this.reservationsByUserId.set(new Map());
+        this.reservationsResource.update(() => []);
         this.confirmingResetAll.set(false);
         this.resettingAll.set(false);
         this.toast.show('Alle reserveringen zijn gereset. Gebruikers ontvangen een e-mail.');

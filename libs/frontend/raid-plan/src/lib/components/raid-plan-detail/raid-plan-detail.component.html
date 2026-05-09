@@ -3,81 +3,186 @@
 } @else if (!plan()) {
   <p class="loading-text">Raidplan niet gevonden.</p>
 } @else {
-  <div class="rp-detail-page">
-    <div class="rp-detail-header">
-      <div class="back-link-row">
-        <a routerLink=".." class="back-link">← Overzicht</a>
-      </div>
-      <div class="header-main">
-        <div>
-          <h1>{{ plan()!.raidName }}</h1>
-          <div class="header-meta">
-            <span class="difficulty-badge difficulty-{{ plan()!.difficulty.toLowerCase() }}">{{
-              plan()!.difficulty
-            }}</span>
-            <span class="date-text">📅 {{ formatDate(plan()!.scheduledAt) }}</span>
+  <div class="workspace">
+    <!-- ── Header ── -->
+    <div class="workspace__header">
+      <a routerLink=".." class="back-link">← Overzicht</a>
+      <div class="workspace__header-main">
+        <div class="workspace__header-info">
+          <h1 class="workspace__title">{{ plan()!.raidName }}</h1>
+          <div class="workspace__meta">
+            @if (editMode()) {
+              <div class="inline-edit-bar">
+                <div class="inline-field">
+                  <label class="inline-field__label">Moeilijkheid</label>
+                  <div class="difficulty-toggle">
+                    @for (d of difficulties; track d) {
+                      <button
+                        class="difficulty-btn difficulty-btn--{{ d.toLowerCase() }}"
+                        [class.difficulty-btn--active]="editDifficulty() === d"
+                        (click)="editDifficulty.set(d)"
+                        type="button"
+                      >
+                        {{ d }}
+                      </button>
+                    }
+                  </div>
+                </div>
+                <div class="inline-field">
+                  <label class="inline-field__label">Datum</label>
+                  <input
+                    class="inline-input"
+                    type="date"
+                    [ngModel]="editDate()"
+                    (ngModelChange)="editDate.set($event)"
+                  />
+                </div>
+                <div class="inline-field">
+                  <label class="inline-field__label">Tijd</label>
+                  <select
+                    class="inline-input inline-input--sm"
+                    [ngModel]="editTime()"
+                    (ngModelChange)="editTime.set($event)"
+                  >
+                    @for (t of timeOptions; track t) {
+                      <option [value]="t">{{ t }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="inline-field inline-field--grow">
+                  <label class="inline-field__label">Notities</label>
+                  <input
+                    class="inline-input"
+                    type="text"
+                    [ngModel]="editNotes()"
+                    (ngModelChange)="editNotes.set($event)"
+                    placeholder="Optioneel"
+                  />
+                </div>
+              </div>
+            } @else {
+              <span class="difficulty-badge difficulty-{{ plan()!.difficulty.toLowerCase() }}">{{
+                plan()!.difficulty
+              }}</span>
+              <span class="meta-date">📅 {{ formatDate(plan()!.scheduledAt) }}</span>
+              <span class="meta-count"
+                >⚔️ {{ raiders().length }} raiders · 🪑 {{ bench().length }} bank · ❌
+                {{ absent().length }} afgemeld</span
+              >
+              @if (plan()!.notes) {
+                <span class="workspace__notes">{{ plan()!.notes }}</span>
+              }
+            }
+            @if (saving()) {
+              <span class="save-indicator">💾 Opslaan…</span>
+            }
           </div>
-          @if (plan()!.notes) {
-            <p class="notes-text">📋 {{ plan()!.notes }}</p>
-          }
         </div>
-        <div class="header-actions">
-          <a [routerLink]="['edit']" class="btn-secondary">✏️ Bewerken</a>
-          <button class="btn-discord" [disabled]="notifying()" (click)="sendToDiscord()">
-            {{ notifying() ? 'Versturen…' : '💬 Verstuur naar Discord' }}
-          </button>
+        <div class="workspace__header-actions">
+          @if (editMode()) {
+            <button class="btn-secondary" (click)="cancelEdit()" [disabled]="saving()">Annuleren</button>
+            <button class="btn-primary" (click)="saveEdit()" [disabled]="saving()">✅ Opslaan</button>
+          } @else {
+            <button class="btn-secondary" (click)="enterEdit()">✏️ Bewerken</button>
+          }
         </div>
       </div>
     </div>
 
-    <div class="participant-columns">
-      <div class="participant-col">
-        <h2 class="col-title raider-title">⚔️ Mee-raiders ({{ raiders().length }})</h2>
-        @if (raiders().length === 0) {
-          <p class="empty-col">Geen raiders ingepland.</p>
-        } @else {
-          <ul class="participant-list">
-            @for (p of raiders(); track p.id) {
-              <li class="participant-item">
-                <span class="char-name">{{ p.characterName }}</span>
-                <span class="class-spec">{{ p.wowClass }} — {{ p.spec }}</span>
-              </li>
-            }
-          </ul>
-        }
+    <!-- ── Workspace body ── -->
+    <div class="workspace__body" cdkDropListGroup>
+      <!-- Roster area -->
+      <div class="roster-area">
+        <!-- Groups grid -->
+        <div class="groups-grid">
+          @for (group of groups(); track $index) {
+            <div class="group-zone">
+              <h3 class="group-zone__title">
+                Groep {{ $index + 1 }} <span class="group-zone__count">{{ group.length }}/5</span>
+              </h3>
+              <div
+                class="drop-list"
+                cdkDropList
+                [id]="groupIds[$index]"
+                [cdkDropListData]="group"
+                [cdkDropListConnectedTo]="allListIds"
+                (cdkDropListDropped)="onGroupDrop($event, $index)"
+              >
+                @for (p of group; track p.id) {
+                  <lib-raider-card [participant]="p" cdkDrag [cdkDragData]="p" />
+                }
+                @if (group.length === 0) {
+                  <div class="drop-placeholder">Sleep een raider hierheen</div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Bench + Absent -->
+        <div class="extra-zones">
+          <div class="extra-zone extra-zone--bench">
+            <h3 class="extra-zone__title">
+              🪑 Bank <span class="group-zone__count">{{ bench().length }}</span>
+            </h3>
+            <div
+              class="drop-list drop-list--horizontal"
+              cdkDropList
+              id="bench-zone"
+              [cdkDropListData]="_bench"
+              [cdkDropListConnectedTo]="allListIds"
+              cdkDropListOrientation="horizontal"
+              (cdkDropListDropped)="onBenchDrop($event)"
+            >
+              @for (p of bench(); track p.id) {
+                <lib-raider-card [participant]="p" cdkDrag [cdkDragData]="p" />
+              }
+              @if (bench().length === 0) {
+                <div class="drop-placeholder">Sleep hier naartoe voor bank</div>
+              }
+            </div>
+          </div>
+
+          <div class="extra-zone extra-zone--absent">
+            <h3 class="extra-zone__title">
+              ❌ Afgemeld <span class="group-zone__count">{{ absent().length }}</span>
+            </h3>
+            <div
+              class="drop-list drop-list--horizontal"
+              cdkDropList
+              id="absent-zone"
+              [cdkDropListData]="_absent"
+              [cdkDropListConnectedTo]="allListIds"
+              cdkDropListOrientation="horizontal"
+              (cdkDropListDropped)="onAbsentDrop($event)"
+            >
+              @for (p of absent(); track p.id) {
+                <lib-raider-card [participant]="p" cdkDrag [cdkDragData]="p" />
+              }
+              @if (absent().length === 0) {
+                <div class="drop-placeholder">Sleep hier naartoe voor afgemeld</div>
+              }
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="participant-col">
-        <h2 class="col-title bench-title">🪑 Bank ({{ bench().length }})</h2>
-        @if (bench().length === 0) {
-          <p class="empty-col">Niemand op de bank.</p>
-        } @else {
-          <ul class="participant-list">
-            @for (p of bench(); track p.id) {
-              <li class="participant-item">
-                <span class="char-name">{{ p.characterName }}</span>
-                <span class="class-spec">{{ p.wowClass }}</span>
-              </li>
-            }
-          </ul>
-        }
-      </div>
+      <!-- Composition sidebar -->
+      <lib-composition-analysis [raiders]="raiders()" />
+    </div>
 
-      <div class="participant-col">
-        <h2 class="col-title absent-title">❌ Afgemeld ({{ absent().length }})</h2>
-        @if (absent().length === 0) {
-          <p class="empty-col">Niemand afgemeld.</p>
-        } @else {
-          <ul class="participant-list">
-            @for (p of absent(); track p.id) {
-              <li class="participant-item">
-                <span class="char-name">{{ p.characterName }}</span>
-                <span class="class-spec">{{ p.wowClass }}</span>
-              </li>
-            }
-          </ul>
-        }
+    <!-- ── Boss planning ── -->
+    @if (bosses().length > 0) {
+      <div class="boss-section">
+        <h2 class="boss-section__title">⚔️ Boss Planning</h2>
+        <lib-boss-planning [raidPlanId]="plan()!.id" [bosses]="bosses()" />
       </div>
+    }
+
+    <!-- ── Discord Composer ── -->
+    <div class="discord-section">
+      <h2 class="discord-section__title">💬 Discord</h2>
+      <lib-discord-composer [plan]="plan()!" (planUpdated)="onPlanUpdated($event)" />
     </div>
   </div>
 }

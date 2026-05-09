@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
 import { FeedbackService } from '../feedback.service';
 
 @Component({
@@ -45,7 +44,8 @@ export class FeedbackButtonComponent {
 
   constructor() {
     this.currentPage = this.router.url;
-    this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe((e) => {
+    this.router.events.subscribe((e) => {
+      if (!(e instanceof NavigationEnd)) return;
       this.currentPage = e.urlAfterRedirects;
 
       if (this.showTimer) clearTimeout(this.showTimer);

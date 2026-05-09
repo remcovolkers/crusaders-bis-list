@@ -1,4 +1,12 @@
-import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+  OnApplicationBootstrap,
+  OnApplicationShutdown,
+} from '@nestjs/common';
 import {
   RAID_PLAN_REPOSITORY,
   IRaidPlanRepository,
@@ -10,7 +18,14 @@ import {
   IUserRepository,
   ResolvedParticipant,
 } from '@crusaders-bis-list/backend-domain';
-import { IRaidPlan, CreateRaidPlanDto, UpdateRaidPlanDto, WowClass, WowSpec } from '@crusaders-bis-list/shared-domain';
+import {
+  IRaidPlan,
+  CreateRaidPlanDto,
+  UpdateRaidPlanDto,
+  WowClass,
+  WowSpec,
+  ScheduleDiscordDto,
+} from '@crusaders-bis-list/shared-domain';
 import { DiscordWebhookService } from '@crusaders-bis-list/backend-infrastructure';
 
 @Injectable()
@@ -73,6 +88,7 @@ export class CreateRaidPlanUseCase {
         wowClass: (raider?.wowClass as WowClass) ?? WowClass.WARRIOR,
         spec: (raider?.spec as WowSpec) ?? WowSpec.ARMS,
         role: p.role,
+        groupNumber: p.groupNumber ?? null,
       });
     }
     return resolved;
@@ -115,6 +131,7 @@ export class UpdateRaidPlanUseCase {
         wowClass: (raider?.wowClass as WowClass) ?? WowClass.WARRIOR,
         spec: (raider?.spec as WowSpec) ?? WowSpec.ARMS,
         role: p.role,
+        groupNumber: p.groupNumber ?? null,
       });
     }
     return resolved;
@@ -153,5 +170,65 @@ export class SendDiscordNotificationUseCase {
     if (!plan) throw new NotFoundException(`Raid plan ${raidPlanId} not found`);
 
     await this.discord.sendRaidPlanNotification(plan, webhookUrl);
+  }
+}
+
+@Injectable()
+export class ScheduleDiscordNotificationUseCase {
+  constructor(
+    @Inject(RAID_PLAN_REPOSITORY)
+    private readonly repo: IRaidPlanRepository,
+  ) {}
+
+  async execute(raidPlanId: string, dto: ScheduleDiscordDto): Promise<IRaidPlan> {
+    const plan = await this.repo.findById(raidPlanId);
+    if (!plan) throw new NotFoundException(`Raid plan ${raidPlanId} not found`);
+
+    const scheduledAt = dto.scheduledDiscordAt ? new Date(dto.scheduledDiscordAt) : null;
+    return this.repo.scheduleDiscord(raidPlanId, scheduledAt);
+  }
+}
+
+@Injectable()
+export class ScheduledDiscordService implements OnApplicationBootstrap, OnApplicationShutdown {
+  private readonly logger = new Logger(ScheduledDiscordService.name);
+  private intervalId?: ReturnType<typeof setInterval>;
+
+  constructor(
+    @Inject(RAID_PLAN_REPOSITORY)
+    private readonly repo: IRaidPlanRepository,
+    private readonly discord: DiscordWebhookService,
+  ) {}
+
+  onApplicationBootstrap(): void {
+    // Poll every 60 seconds for pending notifications
+    this.intervalId = setInterval(() => this.processPending(), 60_000);
+  }
+
+  onApplicationShutdown(): void {
+    if (this.intervalId !== undefined) clearInterval(this.intervalId);
+  }
+
+  private async processPending(): Promise<void> {
+    const webhookUrl = process.env['DISCORD_WEBHOOK_URL'];
+    if (!webhookUrl) return;
+
+    let pending: IRaidPlan[];
+    try {
+      pending = await this.repo.findPendingDiscordNotifications();
+    } catch (err) {
+      this.logger.error('Failed to fetch pending Discord notifications', err);
+      return;
+    }
+
+    for (const plan of pending) {
+      try {
+        await this.discord.sendRaidPlanNotification(plan, webhookUrl);
+        await this.repo.markDiscordSent(plan.id, new Date());
+        this.logger.log(`Discord notification sent for plan ${plan.id}`);
+      } catch (err) {
+        this.logger.error(`Failed to send Discord notification for plan ${plan.id}`, err);
+      }
+    }
   }
 }

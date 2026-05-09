@@ -1,0 +1,142 @@
+.comp {
+  background: #0f1923;
+  border: 1px solid #1e3a5a;
+  border-radius: 8px;
+  padding: 16px;
+  min-width: 220px;
+}
+
+.comp__title {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.comp__subtitle {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.comp__roles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.comp__role {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.comp__role-icon {
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+}
+
+.comp__role-label {
+  flex: 1;
+  color: #cbd5e1;
+}
+
+.comp__role-count {
+  font-weight: 700;
+  min-width: 24px;
+  text-align: center;
+  color: #94a3b8;
+
+  &--ok {
+    color: #4ade80;
+  }
+
+  &--warn {
+    color: #fb923c;
+  }
+}
+
+.comp__divider {
+  height: 1px;
+  background: #1e3a5a;
+  margin: 12px 0;
+}
+
+.comp__buffs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.comp__buff {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #1a2535;
+  border: 1px solid #1e3a5a;
+
+  &--present {
+    border-color: #166534;
+    background: #052e16;
+  }
+
+  &--missing {
+    border-color: #7f1d1d;
+    background: #1c0a0a;
+  }
+}
+
+.comp__buff-icon {
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+}
+
+.comp__buff-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+}
+
+.comp__buff-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.comp__buff-providers {
+  font-size: 0.7rem;
+  color: #86efac;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &--missing {
+    color: #f87171;
+  }
+}
+
+.comp__buff-status {
+  font-size: 0.9rem;
+  font-weight: 700;
+
+  .comp__buff--present & {
+    color: #4ade80;
+  }
+
+  .comp__buff--missing & {
+    color: #f87171;
+  }
+}

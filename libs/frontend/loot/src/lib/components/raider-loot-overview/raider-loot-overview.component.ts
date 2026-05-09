@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { AssignmentStatus } from '@crusaders-bis-list/shared-domain';
@@ -16,7 +16,7 @@ import { ReserveModalComponent } from '../reserve-modal/reserve-modal.component'
   templateUrl: './raider-loot-overview.component.html',
   styleUrls: ['./raider-loot-overview.component.scss'],
 })
-export class RaiderLootOverviewComponent implements OnInit {
+export class RaiderLootOverviewComponent {
   private readonly authState = inject(AuthStateService);
   private readonly toast = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
@@ -31,6 +31,12 @@ export class RaiderLootOverviewComponent implements OnInit {
 
   readonly state = inject(RaiderLootStateService);
 
+  constructor() {
+    if (this.route.snapshot.queryParamMap.get('bnet_linked')) {
+      this.toast.show('Battle.net account gekoppeld! 🎉');
+    }
+  }
+
   // UI-only modal state (not part of application state)
   readonly showReserveModal = signal(false);
   readonly isEditingReservation = signal(false);
@@ -41,13 +47,6 @@ export class RaiderLootOverviewComponent implements OnInit {
     if (!item) return null;
     return this.state.getReceivedItem(item.id)?.tier ?? null;
   };
-
-  ngOnInit(): void {
-    this.state.load();
-    if (this.route.snapshot.queryParamMap.get('bnet_linked')) {
-      this.toast.show('Battle.net account gekoppeld! ??');
-    }
-  }
 
   // Reserve modal
   openReserveModal(item: ItemWithReservation): void {
@@ -62,7 +61,7 @@ export class RaiderLootOverviewComponent implements OnInit {
     this.showReserveModal.set(true);
   }
 
-  onReserveConfirmed(tier: AssignmentStatus | null): void {
+  async onReserveConfirmed(tier: AssignmentStatus | null): Promise<void> {
     const item = this.pendingReserveItem();
     const isEditing = this.isEditingReservation();
     if (!item) return;
@@ -72,34 +71,38 @@ export class RaiderLootOverviewComponent implements OnInit {
     this.isEditingReservation.set(false);
 
     if (isEditing) {
-      // Edit mode: update the received-tier marker; reservation already exists
-      this.state
-        .markItemReceived(item.id, tier ?? AssignmentStatus.CHAMPION_TIER, item.mergedDisplayName ?? item.name)
-        .subscribe({
-          next: () => this.toast.show('Reservering bijgewerkt.'),
-          error: (e: unknown) => {
-            const msg = (e as { error?: { message?: string } }).error?.message ?? 'Bijwerken mislukt';
-            this.toast.show(msg, 'error');
-          },
-        });
+      try {
+        await this.state.markItemReceived(
+          item.id,
+          tier ?? AssignmentStatus.CHAMPION_TIER,
+          item.mergedDisplayName ?? item.name,
+        );
+        this.toast.show('Reservering bijgewerkt.');
+      } catch (e) {
+        const msg = (e as { error?: { message?: string } }).error?.message ?? 'Bijwerken mislukt';
+        this.toast.show(msg, 'error');
+      }
       return;
     }
 
-    const doReserve = (reservedTier?: typeof tier) => {
-      this.state.reserve(item.id, item.mergedDisplayName ?? item.name, reservedTier ?? undefined).subscribe({
-        error: (e: unknown) => {
-          const msg = (e as { error?: { message?: string } }).error?.message ?? 'Reservering mislukt';
-          this.toast.show(msg, 'error');
-        },
-      });
+    const doReserve = async (reservedTier?: typeof tier): Promise<void> => {
+      try {
+        await this.state.reserve(item.id, item.mergedDisplayName ?? item.name, reservedTier ?? undefined);
+      } catch (e) {
+        const msg = (e as { error?: { message?: string } }).error?.message ?? 'Reservering mislukt';
+        this.toast.show(msg, 'error');
+      }
     };
 
     if (tier) {
-      this.state
-        .markItemReceived(item.id, tier, item.mergedDisplayName ?? item.name)
-        .subscribe({ next: () => doReserve(tier), error: () => doReserve(tier) });
+      try {
+        await this.state.markItemReceived(item.id, tier, item.mergedDisplayName ?? item.name);
+      } catch {
+        // Even on error, still try to reserve
+      }
+      await doReserve(tier);
     } else {
-      doReserve();
+      await doReserve();
     }
   }
 
@@ -109,26 +112,24 @@ export class RaiderLootOverviewComponent implements OnInit {
     this.isEditingReservation.set(false);
   }
 
-  onReceivedAtMythTier(): void {
+  async onReceivedAtMythTier(): Promise<void> {
     const item = this.pendingReserveItem();
     if (!item) return;
     this.showReserveModal.set(false);
     this.pendingReserveItem.set(null);
-    this.state.markItemReceived(item.id, AssignmentStatus.MYTH_TIER, item.mergedDisplayName ?? item.name).subscribe({
-      next: () => {
-        this.state.reserve(item.id, item.mergedDisplayName ?? item.name, AssignmentStatus.MYTH_TIER).subscribe({
-          next: () => this.toast.show('BiS in bezit gemarkeerd en reservering aangemaakt! ??'),
-          error: (e: unknown) => {
-            const msg = (e as { error?: { message?: string } }).error?.message ?? 'Reservering mislukt';
-            this.toast.show(msg, 'error');
-          },
-        });
-      },
-      error: (e: unknown) => {
-        const msg = (e as { error?: { message?: string } }).error?.message ?? 'Markering mislukt';
+    try {
+      await this.state.markItemReceived(item.id, AssignmentStatus.MYTH_TIER, item.mergedDisplayName ?? item.name);
+      try {
+        await this.state.reserve(item.id, item.mergedDisplayName ?? item.name, AssignmentStatus.MYTH_TIER);
+        this.toast.show('BiS in bezit gemarkeerd en reservering aangemaakt! 🎉');
+      } catch (e) {
+        const msg = (e as { error?: { message?: string } }).error?.message ?? 'Reservering mislukt';
         this.toast.show(msg, 'error');
-      },
-    });
+      }
+    } catch (e) {
+      const msg = (e as { error?: { message?: string } }).error?.message ?? 'Markering mislukt';
+      this.toast.show(msg, 'error');
+    }
   }
 
   getBossColor(boss: { raidAccentColor?: string }): string {

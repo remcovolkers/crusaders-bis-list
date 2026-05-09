@@ -1,5 +1,6 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { AdminService } from '../../services/admin.service';
 import { IItem, ISeasonConfig } from '@crusaders-bis-list/shared-domain';
 import { CatalogResponse } from '@crusaders-bis-list/frontend-loot';
@@ -11,17 +12,24 @@ import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
   templateUrl: './admin-season-config.component.html',
   styleUrl: './admin-season-config.component.scss',
 })
-export class AdminSeasonConfigComponent implements OnInit {
-  readonly config = signal<ISeasonConfig | null>(null);
+export class AdminSeasonConfigComponent {
+  private readonly toast = inject(ToastService);
+  private readonly adminService = inject(AdminService);
+
+  private readonly configResource = rxResource({ stream: () => this.adminService.getSeasonConfig() });
+  private readonly catalogResource = rxResource({ stream: () => this.adminService.getCatalog() });
+
+  readonly config = computed(() => this.configResource.value() ?? null);
+  readonly catalog = computed(() => this.catalogResource.value() ?? null);
+  readonly loading = this.configResource.isLoading;
+  readonly saving = signal(false);
+
   readonly trinketLimit = signal(2);
   readonly weaponLimit = signal(2);
   readonly jewelryLimit = signal(1);
   readonly armorLimit = signal(1);
   readonly superrareLimit = signal(0);
-  readonly loading = signal(true);
-  readonly saving = signal(false);
 
-  readonly catalog = signal<CatalogResponse | null>(null);
   readonly selectedBossId = signal<string | null>(null);
   readonly selectedBossItems = computed(() => {
     const cat = this.catalog();
@@ -32,30 +40,19 @@ export class AdminSeasonConfigComponent implements OnInit {
   });
   readonly superRareUpdating = signal<Set<string>>(new Set());
 
-  private readonly toast = inject(ToastService);
-  private readonly adminService = inject(AdminService);
-
-  ngOnInit(): void {
-    this.adminService.getSeasonConfig().subscribe({
-      next: (c) => {
-        this.config.set(c);
-        this.trinketLimit.set(c.trinketLimit);
-        this.weaponLimit.set(c.weaponLimit);
-        this.jewelryLimit.set(c.jewelryLimit);
-        this.armorLimit.set(c.armorLimit);
-        this.superrareLimit.set(c.superrareLimit);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.toast.show('Kon configuratie niet laden.', 'error');
-        this.loading.set(false);
-      },
+  constructor() {
+    effect(() => {
+      const c = this.configResource.value();
+      if (!c) return;
+      this.trinketLimit.set(c.trinketLimit);
+      this.weaponLimit.set(c.weaponLimit);
+      this.jewelryLimit.set(c.jewelryLimit);
+      this.armorLimit.set(c.armorLimit);
+      this.superrareLimit.set(c.superrareLimit);
     });
-    this.adminService.getCatalog().subscribe({
-      next: (c) => {
-        this.catalog.set(c);
-        if (c.bosses.length) this.selectedBossId.set(c.bosses[0].id);
-      },
+    effect(() => {
+      const c = this.catalogResource.value();
+      if (c?.bosses.length) this.selectedBossId.set(c.bosses[0].id);
     });
   }
 
@@ -73,7 +70,7 @@ export class AdminSeasonConfigComponent implements OnInit {
       })
       .subscribe({
         next: (c) => {
-          this.config.set(c);
+          this.configResource.update(() => c);
           this.saving.set(false);
           this.toast.show('Configuratie opgeslagen!');
         },
@@ -91,17 +88,17 @@ export class AdminSeasonConfigComponent implements OnInit {
 
     this.adminService.updateItemSuperRare(item.id, !item.isSuperRare).subscribe({
       next: (updated) => {
-        // Patch item in catalog signal
-        const cat = this.catalog();
-        if (cat) {
-          this.catalog.set({
-            ...cat,
-            bosses: cat.bosses.map((b) => ({
-              ...b,
-              items: b.items.map((i) => (i.id === updated.id ? updated : i)),
-            })),
-          });
-        }
+        this.catalogResource.update((cat) =>
+          cat
+            ? {
+                ...cat,
+                bosses: cat.bosses.map((b) => ({
+                  ...b,
+                  items: b.items.map((i) => (i.id === updated.id ? updated : i)),
+                })),
+              }
+            : cat,
+        );
         const s = this.superRareUpdating();
         s.delete(item.id);
         this.superRareUpdating.set(new Set(s));

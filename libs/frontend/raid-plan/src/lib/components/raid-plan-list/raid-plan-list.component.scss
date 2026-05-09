@@ -1,178 +1,324 @@
-.rp-list-page {
-  max-width: 900px;
+// ── Dashboard shell ────────────────────────────────────────────────────────────
+
+.dashboard {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
 }
 
-.rp-header {
+.dashboard__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
 
   h1 {
     margin: 0;
-    font-size: 1.6rem;
+    font-size: 2rem;
     color: #f0c040;
   }
 }
 
-.webhook-card {
-  background: #1e293b;
-  border-radius: 8px;
-  padding: 16px 20px;
-  margin-bottom: 24px;
-
-  h3 {
-    margin: 0 0 12px;
-    font-size: 1rem;
-    color: #e2e8f0;
-  }
-}
-
-.webhook-row {
-  display: flex;
-  gap: 8px;
-}
-
-.webhook-input {
-  flex: 1;
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 6px;
-  padding: 8px 12px;
-  color: #e2e8f0;
+.dashboard__subtitle {
+  margin: 4px 0 0;
+  color: #64748b;
   font-size: 0.9rem;
+}
 
-  &::placeholder {
-    color: #64748b;
+// ── States ────────────────────────────────────────────────────────────────────
+
+.loading-state {
+  text-align: center;
+  color: #64748b;
+  padding: 60px 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  &__icon {
+    font-size: 3rem;
+  }
+
+  h2 {
+    margin: 0;
+    color: #94a3b8;
+  }
+  p {
+    margin: 0;
   }
 }
+
+// ── Section ───────────────────────────────────────────────────────────────────
+
+.plan-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  &--past {
+    opacity: 0.75;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #475569;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #1e3a5a;
+  }
+}
+
+// ── Grid ──────────────────────────────────────────────────────────────────────
 
 .plan-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
+
+  &--past {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
 }
+
+// ── Card ──────────────────────────────────────────────────────────────────────
 
 .plan-card {
-  display: block;
-  background: #1e293b;
-  border-radius: 8px;
-  padding: 16px;
+  display: flex;
   text-decoration: none;
-  color: #e2e8f0;
-  border: 1px solid #334155;
-  transition: border-color 0.15s;
-  cursor: pointer;
+  color: inherit;
+  background: #111827;
+  border: 1px solid #1e3a5a;
+  border-radius: 10px;
+  overflow: hidden;
+  transition:
+    border-color 0.15s,
+    transform 0.1s;
+  position: relative;
 
   &:hover {
-    border-color: #f0c040;
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+  }
+
+  &--past {
+    border-color: #1e293b;
+    &:hover {
+      border-color: #334155;
+      transform: none;
+    }
+  }
+
+  &__stripe {
+    width: 5px;
+    flex-shrink: 0;
+
+    &--normal {
+      background: #22c55e;
+    }
+    &--heroic {
+      background: #3b82f6;
+    }
+    &--mythic {
+      background: #a855f7;
+    }
+  }
+
+  &__body {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #f0c040;
+    line-height: 1.2;
+  }
+
+  &__date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__date-text {
+    font-size: 0.83rem;
+    color: #94a3b8;
+  }
+
+  &__counts {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 4px;
   }
 }
 
-.plan-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
+// ── Difficulty badge ──────────────────────────────────────────────────────────
 
-.plan-raid-name {
-  font-weight: 600;
-  font-size: 1rem;
-  color: #f0c040;
-}
-
-.plan-difficulty {
-  font-size: 0.75rem;
+.difficulty-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
   padding: 2px 8px;
   border-radius: 999px;
-  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 
-  &.difficulty-normal {
-    background: #166534;
+  &--normal {
+    background: #14532d;
     color: #86efac;
   }
-  &.difficulty-heroic {
-    background: #1d4ed8;
+  &--heroic {
+    background: #1e3a8a;
     color: #93c5fd;
   }
-  &.difficulty-mythic {
-    background: #7e22ce;
+  &--mythic {
+    background: #581c87;
     color: #d8b4fe;
   }
 }
 
-.plan-date {
-  font-size: 0.85rem;
-  color: #94a3b8;
-  margin-bottom: 10px;
+// ── Discord badge ─────────────────────────────────────────────────────────────
+
+.discord-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-left: auto;
+
+  &--sent {
+    background: #14532d;
+    color: #86efac;
+  }
+  &--scheduled {
+    background: #1e3a8a;
+    color: #93c5fd;
+  }
 }
 
-.plan-participants {
-  display: flex;
-  gap: 10px;
-  font-size: 0.85rem;
-  margin-bottom: 12px;
+// ── Days chip ─────────────────────────────────────────────────────────────────
+
+.days-chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #1e3a5a;
+  color: #60a5fa;
+
+  &--today {
+    background: #7c2d12;
+    color: #fb923c;
+  }
+  &--tomorrow {
+    background: #365314;
+    color: #86efac;
+  }
 }
 
-.btn-primary {
-  background: #f0c040;
-  color: #0f172a;
+// ── Count chips ───────────────────────────────────────────────────────────────
+
+.count-chip {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+
+  &--raider {
+    background: #1e293b;
+    color: #93c5fd;
+  }
+  &--bench {
+    background: #1c1400;
+    color: #fcd34d;
+  }
+  &--absent {
+    background: #130a0a;
+    color: #fca5a5;
+  }
+}
+
+// ── Buttons ───────────────────────────────────────────────────────────────────
+
+.btn {
   border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
+  border-radius: 7px;
+  padding: 10px 18px;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s;
 
-  &:hover {
-    background: #fcd34d;
-  }
-}
-
-.btn-secondary {
-  background: #334155;
-  color: #e2e8f0;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 14px;
-  cursor: pointer;
-  font-size: 0.9rem;
-
-  &:hover {
-    background: #475569;
-  }
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: not-allowed;
   }
-}
 
-.btn-danger {
-  background: #7f1d1d;
-  color: #fca5a5;
-  border: none;
-  border-radius: 6px;
-  padding: 5px 10px;
-  cursor: pointer;
-  font-size: 0.8rem;
-
-  &:hover {
-    background: #991b1b;
+  &--gold {
+    background: #f0c040;
+    color: #0f172a;
+    &:hover {
+      background: #fcd34d;
+    }
   }
-}
 
-.btn-sm {
-  padding: 4px 10px;
-  font-size: 0.8rem;
-}
+  &--ghost {
+    background: #1e293b;
+    color: #94a3b8;
+    border: 1px solid #334155;
+    &:hover {
+      background: #334155;
+      color: #e2e8f0;
+    }
+  }
 
-.loading-text,
-.empty-state {
-  text-align: center;
-  color: #64748b;
-  padding: 40px 0;
+  &--danger {
+    background: #3b0a0a;
+    color: #fca5a5;
+    &:hover {
+      background: #7f1d1d;
+    }
+  }
+
+  &--xs {
+    padding: 4px 10px;
+    font-size: 0.78rem;
+  }
 }

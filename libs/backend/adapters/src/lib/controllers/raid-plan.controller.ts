@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   HttpCode,
   HttpStatus,
   Req,
@@ -22,12 +23,23 @@ import {
   UpdateRaidPlanUseCase,
   DeleteRaidPlanUseCase,
   SendDiscordNotificationUseCase,
+  ScheduleDiscordNotificationUseCase,
+  GetBossNotesUseCase,
+  UpsertBossNoteUseCase,
+  AddBossResourceUseCase,
+  DeleteBossResourceUseCase,
 } from '@crusaders-bis-list/backend-application';
 import { RAID_CATALOG_REPOSITORY, IRaidCatalogRepository } from '@crusaders-bis-list/backend-domain';
 import { UserRole } from '@crusaders-bis-list/shared-domain';
 import { Request } from 'express';
 import { JwtPayload } from '../auth/jwt.strategy';
-import { CreateRaidPlanDto, UpdateRaidPlanDto } from './dto/raid-plan.dto';
+import {
+  CreateRaidPlanDto,
+  UpdateRaidPlanDto,
+  UpsertBossNoteDto,
+  AddBossResourceDto,
+  ScheduleDiscordDto,
+} from './dto/raid-plan.dto';
 
 function assertSuperAdmin(req: Request): void {
   const user = req.user as JwtPayload;
@@ -45,6 +57,11 @@ export class RaidPlanController {
     private readonly updatePlan: UpdateRaidPlanUseCase,
     private readonly deletePlan: DeleteRaidPlanUseCase,
     private readonly notifyDiscord: SendDiscordNotificationUseCase,
+    private readonly scheduleDiscord: ScheduleDiscordNotificationUseCase,
+    private readonly getBossNotes: GetBossNotesUseCase,
+    private readonly upsertBossNote: UpsertBossNoteUseCase,
+    private readonly addBossResource: AddBossResourceUseCase,
+    private readonly deleteBossResource: DeleteBossResourceUseCase,
     @Inject(RAID_CATALOG_REPOSITORY)
     private readonly catalogRepo: IRaidCatalogRepository,
   ) {}
@@ -53,6 +70,12 @@ export class RaidPlanController {
   async getSeasons(@Req() req: Request) {
     assertSuperAdmin(req);
     return this.catalogRepo.findAllSeasons();
+  }
+
+  @Get('seasons/:seasonId/bosses')
+  async getBossesBySeason(@Req() req: Request, @Param('seasonId') seasonId: string) {
+    assertSuperAdmin(req);
+    return this.catalogRepo.findBossesBySeason(seasonId);
   }
 
   @Get()
@@ -93,5 +116,54 @@ export class RaidPlanController {
     assertSuperAdmin(req);
     await this.notifyDiscord.execute(id);
     return { ok: true };
+  }
+
+  @Patch(':id/discord-schedule')
+  @HttpCode(HttpStatus.OK)
+  async discordSchedule(@Req() req: Request, @Param('id') id: string, @Body() dto: ScheduleDiscordDto) {
+    assertSuperAdmin(req);
+    return this.scheduleDiscord.execute(id, { scheduledDiscordAt: dto.scheduledDiscordAt ?? null });
+  }
+
+  // ── Boss notes ────────────────────────────────────────────────────────────
+
+  @Get(':id/bosses')
+  getBosses(@Req() req: Request, @Param('id') id: string) {
+    assertSuperAdmin(req);
+    return this.getBossNotes.execute(id);
+  }
+
+  @Patch(':id/bosses/:bossId')
+  upsertNote(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Param('bossId') bossId: string,
+    @Body() dto: UpsertBossNoteDto,
+  ) {
+    assertSuperAdmin(req);
+    return this.upsertBossNote.execute(id, bossId, dto);
+  }
+
+  @Post(':id/bosses/:bossId/resources')
+  addResource(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Param('bossId') bossId: string,
+    @Body() dto: AddBossResourceDto,
+  ) {
+    assertSuperAdmin(req);
+    return this.addBossResource.execute(id, bossId, dto);
+  }
+
+  @Delete(':id/bosses/:bossId/resources/:resourceId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteResource(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Param('bossId') bossId: string,
+    @Param('resourceId') resourceId: string,
+  ) {
+    assertSuperAdmin(req);
+    await this.deleteBossResource.execute(id, bossId, resourceId);
   }
 }

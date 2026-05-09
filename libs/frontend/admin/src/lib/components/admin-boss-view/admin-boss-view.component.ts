@@ -1,6 +1,7 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { forkJoin } from 'rxjs';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { AdminService } from '../../services/admin.service';
 import {
   IBossLootView,
@@ -80,17 +81,25 @@ const ROLE_ORDER: Record<RaidRole, number> = { tank: 0, healer: 1, dps: 2 };
   templateUrl: './admin-boss-view.component.html',
   styleUrls: ['./admin-boss-view.component.scss'],
 })
-export class AdminBossViewComponent implements OnInit {
-  readonly catalog = signal<CatalogResponse | null>(null);
-  readonly bossLootViews = signal<IBossLootView[]>([]);
-  readonly loadingAll = signal(false);
+export class AdminBossViewComponent {
+  private readonly toast = inject(ToastService);
+  private readonly adminService = inject(AdminService);
+
+  private readonly catalogResource = rxResource({ stream: () => this.adminService.getCatalog() });
+  private readonly bossLootResource = rxResource({
+    params: () => this.catalogResource.value(),
+    stream: ({ params: catalog }) =>
+      forkJoin(catalog.bosses.map((boss) => this.adminService.getBossLootView(boss.id, catalog.season.id))),
+  });
+
+  readonly catalog = computed(() => this.catalogResource.value() ?? null);
+  readonly bossLootViews = computed(() => this.bossLootResource.value() ?? []);
+  readonly loadingAll = computed(() => this.catalogResource.isLoading() || this.bossLootResource.isLoading());
   readonly pendingAssignment = signal<PendingAssignment | null>(null);
   readonly raidDrawerOpen = signal(false);
   readonly activeDiceModal = signal<DiceModalInput | null>(null);
   private readonly EXCLUDED_STORAGE_KEY = 'raid_excluded_raiders';
   readonly excludedRaiders = signal<Set<string>>(this.loadExcluded());
-
-  private readonly toast = inject(ToastService);
 
   readonly tierLabels = TIER_LABELS;
 
@@ -133,33 +142,6 @@ export class AdminBossViewComponent implements OnInit {
     return SPEC_ROLE[spec] ?? 'dps';
   }
 
-  private readonly adminService = inject(AdminService);
-
-  ngOnInit(): void {
-    this.loadingAll.set(true);
-    this.adminService.getCatalog().subscribe({
-      next: (catalog) => {
-        this.catalog.set(catalog);
-        forkJoin(catalog.bosses.map((boss) => this.adminService.getBossLootView(boss.id, catalog.season.id))).subscribe(
-          {
-            next: (views) => {
-              this.bossLootViews.set(views);
-              this.loadingAll.set(false);
-            },
-            error: () => {
-              this.toast.show('Kon boss loot niet laden.', 'error');
-              this.loadingAll.set(false);
-            },
-          },
-        );
-      },
-      error: () => {
-        this.toast.show('Kon catalogus niet laden.', 'error');
-        this.loadingAll.set(false);
-      },
-    });
-  }
-
   assign(raiderId: string, itemId: string, bossId: string, raiderName: string, item: IItem): void {
     this.pendingAssignment.set({ raiderId, itemId, bossId, raiderName, item });
   }
@@ -186,7 +168,8 @@ export class AdminBossViewComponent implements OnInit {
       next: () => {
         this.toast.show('Toewijzing opgeslagen!');
         this.adminService.getBossLootView(bossId, catalog.season.id).subscribe({
-          next: (view) => this.bossLootViews.update((views) => views.map((v) => (v.boss.id === bossId ? view : v))),
+          next: (view) =>
+            this.bossLootResource.update((views) => (views ?? []).map((v) => (v.boss.id === bossId ? view : v))),
         });
       },
       error: (e: unknown) => {

@@ -1,0 +1,58 @@
+<div class="comp">
+  <h3 class="comp__title">Compositie</h3>
+
+  <div class="comp__roles">
+    <div class="comp__role">
+      <span class="comp__role-icon">🛡️</span>
+      <span class="comp__role-label">Tanks</span>
+      <span
+        class="comp__role-count"
+        [class.comp__role-count--ok]="tanks().length >= 2"
+        [class.comp__role-count--warn]="tanks().length < 2"
+      >
+        {{ tanks().length }}
+      </span>
+    </div>
+    <div class="comp__role">
+      <span class="comp__role-icon">💚</span>
+      <span class="comp__role-label">Healers</span>
+      <span
+        class="comp__role-count"
+        [class.comp__role-count--ok]="healers().length >= 4"
+        [class.comp__role-count--warn]="healers().length < 4"
+      >
+        {{ healers().length }}
+      </span>
+    </div>
+    <div class="comp__role">
+      <span class="comp__role-icon">🏹</span>
+      <span class="comp__role-label">Ranged</span>
+      <span class="comp__role-count">{{ ranged().length }}</span>
+    </div>
+    <div class="comp__role">
+      <span class="comp__role-icon">⚔️</span>
+      <span class="comp__role-label">Melee</span>
+      <span class="comp__role-count">{{ melee().length }}</span>
+    </div>
+  </div>
+
+  <div class="comp__divider"></div>
+
+  <h4 class="comp__subtitle">Key Buffs</h4>
+  <div class="comp__buffs">
+    @for (buff of buffs(); track buff.label) {
+      <div class="comp__buff" [class.comp__buff--present]="buff.present" [class.comp__buff--missing]="!buff.present">
+        <span class="comp__buff-icon">{{ buff.icon }}</span>
+        <div class="comp__buff-info">
+          <span class="comp__buff-label">{{ buff.label }}</span>
+          @if (buff.present) {
+            <span class="comp__buff-providers">{{ buff.providers.join(', ') }}</span>
+          } @else {
+            <span class="comp__buff-providers comp__buff-providers--missing">Niet aanwezig</span>
+          }
+        </div>
+        <span class="comp__buff-status">{{ buff.present ? '✓' : '✗' }}</span>
+      </div>
+    }
+  </div>
+</div>

@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { API_URL } from '@crusaders-bis-list/frontend-auth';
 import {
   IBossLootView,
@@ -86,83 +85,83 @@ export class AdminService {
     return this.base;
   }
 
-  getCatalog(): Observable<CatalogResponse> {
+  getCatalog() {
     return this.http.get<CatalogResponse>(`${this.base}/admin/catalog`);
   }
 
-  getBossLootView(bossId: string, seasonId: string): Observable<IBossLootView> {
+  getBossLootView(bossId: string, seasonId: string) {
     return this.http.get<IBossLootView>(`${this.base}/admin/boss/${bossId}/loot/${seasonId}`);
   }
 
-  assignLoot(payload: AssignLootPayload): Observable<{ message: string }> {
+  assignLoot(payload: AssignLootPayload) {
     return this.http.post<{ message: string }>(`${this.base}/admin/assignments`, payload);
   }
 
-  updateAssignmentStatus(assignmentId: string, status: AssignmentStatus): Observable<void> {
+  updateAssignmentStatus(assignmentId: string, status: AssignmentStatus) {
     return this.http.post<void>(`${this.base}/admin/assignments/${assignmentId}/status`, { status });
   }
 
-  getAllRaiders(): Observable<RaiderUser[]> {
+  getAllRaiders() {
     return this.http.get<RaiderUser[]>(`${this.base}/admin/raiders`);
   }
 
-  getAllUsers(): Observable<IUser[]> {
+  getAllUsers() {
     return this.http.get<IUser[]>(`${this.base}/admin/users`);
   }
 
-  updateUserRoles(userId: string, roles: UserRole[]): Observable<void> {
+  updateUserRoles(userId: string, roles: UserRole[]) {
     return this.http.post<void>(`${this.base}/admin/users/${userId}/roles`, { roles });
   }
 
-  updateUserMembership(userId: string, isCrusadersMember: boolean): Observable<void> {
+  updateUserMembership(userId: string, isCrusadersMember: boolean) {
     return this.http.post<void>(`${this.base}/admin/users/${userId}/membership`, { isCrusadersMember });
   }
 
-  getAllReservations(): Observable<RaiderReservationSummary[]> {
+  getAllReservations() {
     return this.http.get<RaiderReservationSummary[]>(`${this.base}/admin/reservations`);
   }
 
-  cancelReservation(reservationId: string): Observable<void> {
+  cancelReservation(reservationId: string) {
     return this.http.delete<void>(`${this.base}/admin/reservations/${reservationId}`);
   }
 
-  deleteReceivedItem(raiderId: string, itemId: string): Observable<void> {
+  deleteReceivedItem(raiderId: string, itemId: string) {
     return this.http.delete<void>(`${this.base}/admin/raiders/${raiderId}/received-items/${itemId}`);
   }
 
-  resetAllReservations(reason?: string): Observable<void> {
+  resetAllReservations(reason?: string) {
     return this.http.post<void>(`${this.base}/admin/reservations/reset-all`, { reason });
   }
 
-  resetRaiderProfile(raiderId: string): Observable<void> {
+  resetRaiderProfile(raiderId: string) {
     return this.http.delete<void>(`${this.base}/admin/raiders/${raiderId}`);
   }
 
-  deleteUser(userId: string): Observable<void> {
+  deleteUser(userId: string) {
     return this.http.delete<void>(`${this.base}/admin/users/${userId}`);
   }
 
-  unlinkBnet(userId: string): Observable<void> {
+  unlinkBnet(userId: string) {
     return this.http.delete<void>(`${this.base}/admin/users/${userId}/bnet`);
   }
 
-  syncCatalog(): Observable<{ message: string }> {
+  syncCatalog() {
     return this.http.post<{ message: string }>(`${this.base}/admin/sync`, {});
   }
 
-  resetAndSyncCatalog(): Observable<{ message: string }> {
+  resetAndSyncCatalog() {
     return this.http.post<{ message: string }>(`${this.base}/admin/reset-and-sync`, {});
   }
 
-  getSeasonConfig(): Observable<ISeasonConfig> {
+  getSeasonConfig() {
     return this.http.get<ISeasonConfig>(`${this.base}/admin/season-config`);
   }
 
-  updateSeasonConfig(seasonId: string, dto: UpdateSeasonConfigDto): Observable<ISeasonConfig> {
+  updateSeasonConfig(seasonId: string, dto: UpdateSeasonConfigDto) {
     return this.http.put<ISeasonConfig>(`${this.base}/admin/season-config/${seasonId}`, dto);
   }
 
-  updateItemSuperRare(itemId: string, isSuperRare: boolean): Observable<IItem> {
+  updateItemSuperRare(itemId: string, isSuperRare: boolean) {
     return this.http.put<IItem>(`${this.base}/admin/items/${itemId}/super-rare`, { isSuperRare });
   }
 
@@ -173,7 +172,7 @@ export class AdminService {
     difficulty: string | undefined,
     bossId: string,
     raiders: { raiderId: string; name: string; color?: string }[],
-  ): Observable<{ sessionId: string }> {
+  ) {
     return this.http.post<{ sessionId: string }>(`${this.base}/roll-sessions`, {
       itemName,
       itemIconUrl,
@@ -184,15 +183,15 @@ export class AdminService {
     });
   }
 
-  startRoll(sessionId: string): Observable<void> {
+  startRoll(sessionId: string) {
     return this.http.post<void>(`${this.base}/roll-sessions/${sessionId}/start`, {});
   }
 
-  getRollSession(sessionId: string): Observable<RollSessionInfo> {
+  getRollSession(sessionId: string) {
     return this.http.get<RollSessionInfo>(`${this.base}/roll-sessions/${sessionId}`);
   }
 
-  getAuditLog(): Observable<AuditLogEntry[]> {
+  getAuditLog() {
     return this.http.get<AuditLogEntry[]>(`${this.base}/admin/audit-log`);
   }
 }

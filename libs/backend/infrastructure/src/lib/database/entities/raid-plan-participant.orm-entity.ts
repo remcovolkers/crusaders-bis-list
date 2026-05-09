@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { RaidPlanOrmEntity } from './raid-plan.orm-entity';
 
 @Entity('raid_plan_participants')
@@ -27,6 +27,10 @@ export class RaidPlanParticipantOrmEntity {
   @Column({ type: 'varchar' })
   role!: string;
 
+  @Column({ name: 'group_number', type: 'int', nullable: true })
+  groupNumber?: number | null;
+
   @ManyToOne(() => RaidPlanOrmEntity, (plan) => plan.participants)
+  @JoinColumn({ name: 'raid_plan_id' })
   raidPlan?: RaidPlanOrmEntity;
 }

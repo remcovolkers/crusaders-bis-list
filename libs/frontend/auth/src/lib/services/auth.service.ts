@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { API_URL } from '../tokens/api-url.token';
 import { AuthUser } from '../state/auth.state';
 
@@ -34,7 +33,7 @@ export class AuthService {
       });
   }
 
-  getMe(): Observable<AuthUser> {
+  getMe() {
     return this.http.get<AuthUser>(`${this.apiUrl}/auth/me`);
   }
 
@@ -62,7 +61,7 @@ export class AuthService {
     localStorage.removeItem(this.refreshTokenKey);
   }
 
-  refreshAccessToken(): Observable<{ token: string }> {
+  refreshAccessToken() {
     const refreshToken = this.getRefreshToken();
     return this.http.post<{ token: string }>(`${this.apiUrl}/auth/refresh`, { refreshToken });
   }

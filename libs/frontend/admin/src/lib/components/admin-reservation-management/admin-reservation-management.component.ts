@@ -1,5 +1,6 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { AdminService, RaiderReservationEntry, RaiderReservationSummary } from '../../services/admin.service';
 import { AssignmentStatus } from '@crusaders-bis-list/shared-domain';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
@@ -10,37 +11,21 @@ import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
   templateUrl: './admin-reservation-management.component.html',
   styleUrls: ['./admin-reservation-management.component.scss'],
 })
-export class AdminReservationManagementComponent implements OnInit {
-  readonly raiders = signal<RaiderReservationSummary[]>([]);
-  readonly loading = signal(true);
+export class AdminReservationManagementComponent {
+  private readonly toast = inject(ToastService);
+  private readonly adminService = inject(AdminService);
+
+  private readonly reservationsResource = rxResource({ stream: () => this.adminService.getAllReservations() });
+
+  readonly raiders = computed(() => this.reservationsResource.value() ?? []);
+  readonly loading = this.reservationsResource.isLoading;
   readonly confirmingId = signal<string | null>(null);
 
-  private readonly toast = inject(ToastService);
   private readonly UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   readonly normalRaiders = computed(() => this.raiders().filter((r) => !this.UUID_RE.test(r.characterName)));
   readonly orphanedRaiders = computed(() => this.raiders().filter((r) => this.UUID_RE.test(r.characterName)));
 
   readonly AssignmentStatus = AssignmentStatus;
-
-  private readonly adminService = inject(AdminService);
-
-  ngOnInit(): void {
-    this.load();
-  }
-
-  private load(): void {
-    this.loading.set(true);
-    this.adminService.getAllReservations().subscribe({
-      next: (data) => {
-        this.raiders.set(data);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.toast.show('Kon reserveringen niet laden.', 'error');
-        this.loading.set(false);
-      },
-    });
-  }
 
   isAcquired(entry: RaiderReservationEntry): boolean {
     const status = entry.assignment?.status;
@@ -108,7 +93,7 @@ export class AdminReservationManagementComponent implements OnInit {
           if (done + failed === ids.length) {
             this.wipingOrphaned.set(false);
             this.toast.show(`${done} wees-reservatie(s) verwijderd.`);
-            this.load();
+            this.reservationsResource.reload();
           }
         },
         error: () => {
@@ -116,7 +101,7 @@ export class AdminReservationManagementComponent implements OnInit {
           if (done + failed === ids.length) {
             this.wipingOrphaned.set(false);
             this.toast.show(`${failed} reservatie(s) konden niet worden verwijderd.`, 'error');
-            this.load();
+            this.reservationsResource.reload();
           }
         },
       });
@@ -132,7 +117,7 @@ export class AdminReservationManagementComponent implements OnInit {
       next: () => {
         this.toast.show('Reservering ingetrokken.');
         this.confirmingId.set(null);
-        this.load();
+        this.reservationsResource.reload();
       },
       error: () => {
         this.toast.show('Intrekken mislukt.', 'error');

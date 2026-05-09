@@ -15,7 +15,6 @@ import { superUserGuard } from '@crusaders-bis-list/frontend-auth';
           { path: '', component: RaidPlanListComponent },
           { path: 'new', component: RaidPlanFormComponent },
           { path: ':id', component: RaidPlanDetailComponent },
-          { path: ':id/edit', component: RaidPlanFormComponent },
         ],
       },
     ]),

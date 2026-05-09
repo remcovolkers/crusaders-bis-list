@@ -10,6 +10,10 @@ import { ReservationOrmEntity, AssignmentOrmEntity } from './database/entities/l
 import { SeasonConfigOrmEntity } from './database/entities/season-config.orm-entity';
 import { RaiderReceivedItemOrmEntity } from './database/entities/raider-received-item.orm-entity';
 import { RaidPlanOrmEntity, RaidPlanParticipantOrmEntity } from './database/entities/raid-plan.orm-entity';
+import {
+  RaidPlanBossNoteOrmEntity,
+  RaidPlanBossResourceOrmEntity,
+} from './database/entities/raid-plan-boss-note.orm-entity';
 
 import { UserRepository } from './database/repositories/user.repository';
 import { RaiderRepository } from './database/repositories/raider.repository';
@@ -23,6 +27,7 @@ import { AuditLogOrmEntity } from './database/entities/audit-log.orm-entity';
 import { BlizzardApiService } from './blizzard/blizzard-api.service';
 import { EmailService } from './email/email.service';
 import { RaidPlanRepository } from './database/repositories/raid-plan.repository';
+import { RaidPlanBossNoteRepository } from './database/repositories/raid-plan-boss-note.repository';
 import { DiscordWebhookService } from './discord/discord-webhook.service';
 
 import {
@@ -36,6 +41,7 @@ import {
   BLIZZARD_API_SERVICE,
   RECEIVED_ITEM_REPOSITORY,
   RAID_PLAN_REPOSITORY,
+  RAID_PLAN_BOSS_NOTE_REPOSITORY,
 } from '@crusaders-bis-list/backend-domain';
 
 const ORM_ENTITIES = [
@@ -52,6 +58,8 @@ const ORM_ENTITIES = [
   AuditLogOrmEntity,
   RaidPlanOrmEntity,
   RaidPlanParticipantOrmEntity,
+  RaidPlanBossNoteOrmEntity,
+  RaidPlanBossResourceOrmEntity,
 ];
 
 @Module({
@@ -67,6 +75,7 @@ const ORM_ENTITIES = [
     { provide: RECEIVED_ITEM_REPOSITORY, useClass: ReceivedItemRepository },
     { provide: BLIZZARD_API_SERVICE, useClass: BlizzardApiService },
     { provide: RAID_PLAN_REPOSITORY, useClass: RaidPlanRepository },
+    { provide: RAID_PLAN_BOSS_NOTE_REPOSITORY, useClass: RaidPlanBossNoteRepository },
     FeedbackRepository,
     EmailService,
     AuditLogService,
@@ -83,6 +92,7 @@ const ORM_ENTITIES = [
     RECEIVED_ITEM_REPOSITORY,
     BLIZZARD_API_SERVICE,
     RAID_PLAN_REPOSITORY,
+    RAID_PLAN_BOSS_NOTE_REPOSITORY,
     FeedbackRepository,
     EmailService,
     AuditLogService,

@@ -1,0 +1,49 @@
+.raider-card {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 10px;
+  border-left: 3px solid transparent;
+  border-radius: 4px;
+  background: #1e2a3a;
+  cursor: grab;
+  user-select: none;
+  transition: background 0.15s;
+  gap: 1px;
+
+  &:hover {
+    background: #243447;
+  }
+
+  &__name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__spec {
+    font-size: 0.7rem;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// CDK drag preview
+.cdk-drag-preview {
+  border-radius: 4px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  opacity: 0.95;
+}
+
+// CDK placeholder while dragging
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}

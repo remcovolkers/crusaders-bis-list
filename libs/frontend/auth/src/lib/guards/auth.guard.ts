@@ -1,6 +1,5 @@
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, map, of } from 'rxjs';
 import { AuthStateService } from '../state/auth-state.service';
 import { RaiderProfileService } from '../services/raider-profile.service';
 
@@ -44,21 +43,18 @@ export function superUserGuard(): boolean {
   return true;
 }
 
-export function profileGuard(): Observable<boolean> {
+export async function profileGuard(): Promise<boolean> {
   const authState = inject(AuthStateService);
   const router = inject(Router);
   const raiderProfileService = inject(RaiderProfileService);
   if (!authState.isAuthenticated()) {
     router.navigate(['/auth']);
-    return of(false);
+    return false;
   }
-  return raiderProfileService.hasProfile().pipe(
-    map((hasProfile) => {
-      if (!hasProfile) {
-        router.navigate(['/onboarding']);
-        return false;
-      }
-      return true;
-    }),
-  );
+  const has = await raiderProfileService.hasProfile();
+  if (!has) {
+    router.navigate(['/onboarding']);
+    return false;
+  }
+  return true;
 }

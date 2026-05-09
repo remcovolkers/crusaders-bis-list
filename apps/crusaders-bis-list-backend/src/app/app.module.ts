@@ -25,6 +25,8 @@ import {
   AuditLogOrmEntity,
   RaidPlanOrmEntity,
   RaidPlanParticipantOrmEntity,
+  RaidPlanBossNoteOrmEntity,
+  RaidPlanBossResourceOrmEntity,
   MIGRATIONS,
 } from '@crusaders-bis-list/backend-infrastructure';
 
@@ -50,6 +52,8 @@ import {
           AuditLogOrmEntity,
           RaidPlanOrmEntity,
           RaidPlanParticipantOrmEntity,
+          RaidPlanBossNoteOrmEntity,
+          RaidPlanBossResourceOrmEntity,
         ],
         synchronize: config.get('NODE_ENV') !== 'production',
         migrations: MIGRATIONS,

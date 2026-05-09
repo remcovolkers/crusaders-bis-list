@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -30,7 +30,7 @@ export interface WowCharacter {
   templateUrl: './onboarding.component.html',
   styleUrls: ['./onboarding.component.scss'],
 })
-export class OnboardingComponent implements OnInit {
+export class OnboardingComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
@@ -134,7 +134,7 @@ export class OnboardingComponent implements OnInit {
   readonly editMode = signal(false);
   private existingProfileId = signal<string | null>(null);
 
-  ngOnInit(): void {
+  constructor() {
     const isEdit = this.route.snapshot.queryParamMap.get('edit') === 'true';
     const justLinked = this.route.snapshot.queryParamMap.get('bnet_linked') === '1';
 

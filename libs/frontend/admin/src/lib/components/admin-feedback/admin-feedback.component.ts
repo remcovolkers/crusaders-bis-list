@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FeedbackService, FeedbackEntry } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
@@ -6,35 +7,24 @@ import { FeedbackService, FeedbackEntry } from '@crusaders-bis-list/frontend-sha
   templateUrl: './admin-feedback.component.html',
   styleUrl: './admin-feedback.component.scss',
 })
-export class AdminFeedbackComponent implements OnInit {
+export class AdminFeedbackComponent {
   private readonly feedbackService = inject(FeedbackService);
 
-  readonly entries = signal<FeedbackEntry[]>([]);
-  readonly loading = signal(true);
-  readonly error = signal('');
+  private readonly feedbackResource = rxResource({ stream: () => this.feedbackService.getAll() });
+
+  readonly entries = computed(() => this.feedbackResource.value() ?? []);
+  readonly loading = this.feedbackResource.isLoading;
+  readonly error = computed(() => (this.feedbackResource.error() !== undefined ? 'Kon feedback niet laden.' : ''));
 
   readonly openEntries = computed(() => this.entries().filter((e) => !e.resolved));
   readonly doneEntries = computed(() => this.entries().filter((e) => e.resolved));
-
-  ngOnInit(): void {
-    this.feedbackService.getAll().subscribe({
-      next: (data) => {
-        this.entries.set(data);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.error.set('Kon feedback niet laden.');
-        this.loading.set(false);
-      },
-    });
-  }
 
   toggleResolved(entry: FeedbackEntry): void {
     const action$ = entry.resolved ? this.feedbackService.unresolve(entry.id) : this.feedbackService.resolve(entry.id);
 
     action$.subscribe(() => {
-      this.entries.update((list) =>
-        list.map((e) =>
+      this.feedbackResource.update((list) =>
+        (list ?? []).map((e) =>
           e.id === entry.id
             ? { ...e, resolved: !e.resolved, resolvedAt: e.resolved ? null : new Date().toISOString() }
             : e,

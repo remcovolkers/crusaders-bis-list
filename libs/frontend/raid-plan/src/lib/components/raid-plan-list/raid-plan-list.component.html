@@ -1,39 +1,115 @@
-<div class="rp-list-page">
-  <div class="rp-header">
-    <h1>⚔️ Raidplannen</h1>
-    <a routerLink="new" class="btn-primary">+ Nieuw raidplan</a>
+<div class="dashboard">
+  <div class="dashboard__header">
+    <div class="dashboard__title">
+      <h1>⚔️ Raidplannen</h1>
+      <p class="dashboard__subtitle">Overzicht van alle geplande raids</p>
+    </div>
+    <a routerLink="new" class="btn btn--gold">+ Nieuw raidplan</a>
   </div>
 
   @if (loading()) {
-    <p class="loading-text">Laden…</p>
+    <div class="loading-state">Laden…</div>
   } @else if (plans().length === 0) {
     <div class="empty-state">
-      <p>Nog geen raidplannen aangemaakt.</p>
-      <a routerLink="new" class="btn-primary">Maak eerste plan</a>
+      <div class="empty-state__icon">⚔️</div>
+      <h2>Nog geen raidplannen</h2>
+      <p>Maak het eerste raidplan aan voor je guild.</p>
+      <a routerLink="new" class="btn btn--gold">Maak eerste plan</a>
     </div>
   } @else {
-    <div class="plan-grid">
-      @for (plan of plans(); track plan.id) {
-        <a [routerLink]="plan.id" class="plan-card">
-          <div class="plan-card-header">
-            <span class="plan-raid-name">{{ plan.raidName }}</span>
-            <span class="plan-difficulty difficulty-{{ plan.difficulty.toLowerCase() }}">{{ plan.difficulty }}</span>
-          </div>
-          <div class="plan-date">📅 {{ formatDate(plan.scheduledAt) }}</div>
-          <div class="plan-participants">
-            <span class="participant-count raider-count"
-              >🗡️ {{ plan.participants.filter(p => p.role === 'Raider').length }} mee</span
-            >
-            <span class="participant-count bench-count"
-              >🪑 {{ plan.participants.filter(p => p.role === 'Bench').length }} bank</span
-            >
-            <span class="participant-count absent-count"
-              >❌ {{ plan.participants.filter(p => p.role === 'Absent').length }} afgemeld</span
-            >
-          </div>
-          <button class="btn-danger btn-sm" (click)="delete(plan, $event)">Verwijder</button>
-        </a>
-      }
-    </div>
+    @if (upcoming().length > 0) {
+      <section class="plan-section">
+        <h2 class="plan-section__title">📅 Aankomend</h2>
+        <div class="plan-grid">
+          @for (plan of upcoming(); track plan.id) {
+            <a [routerLink]="plan.id" class="plan-card plan-card--upcoming">
+              <!-- Difficulty stripe -->
+              <div class="plan-card__stripe plan-card__stripe--{{ plan.difficulty.toLowerCase() }}"></div>
+
+              <div class="plan-card__body">
+                <!-- Header row -->
+                <div class="plan-card__header">
+                  <span class="difficulty-badge difficulty-badge--{{ plan.difficulty.toLowerCase() }}">{{
+                    plan.difficulty
+                  }}</span>
+                  @if (discordStatus(plan) === 'sent') {
+                    <span class="discord-badge discord-badge--sent" title="Discord verstuurd">💬 Verstuurd</span>
+                  } @else if (discordStatus(plan) === 'scheduled') {
+                    <span class="discord-badge discord-badge--scheduled" title="Discord ingepland">🕐 Gepland</span>
+                  }
+                </div>
+
+                <!-- Raid name -->
+                <h3 class="plan-card__name">{{ plan.raidName }}</h3>
+
+                <!-- Date -->
+                <div class="plan-card__date">
+                  <span class="plan-card__date-text">{{ formatDate(plan.scheduledAt) }}</span>
+                  @if (daysUntil(plan.scheduledAt) === 0) {
+                    <span class="days-chip days-chip--today">Vandaag!</span>
+                  } @else if (daysUntil(plan.scheduledAt) === 1) {
+                    <span class="days-chip days-chip--tomorrow">Morgen</span>
+                  } @else if (daysUntil(plan.scheduledAt) <= 7) {
+                    <span class="days-chip">{{ daysUntil(plan.scheduledAt) }} dagen</span>
+                  }
+                </div>
+
+                <!-- Participant counts -->
+                <div class="plan-card__counts">
+                  <span class="count-chip count-chip--raider">⚔️ {{ raiderCount(plan) }}</span>
+                  @if (benchCount(plan) > 0) {
+                    <span class="count-chip count-chip--bench">🪑 {{ benchCount(plan) }}</span>
+                  }
+                  @if (absentCount(plan) > 0) {
+                    <span class="count-chip count-chip--absent">❌ {{ absentCount(plan) }}</span>
+                  }
+                </div>
+
+                <!-- Actions -->
+                <div class="plan-card__actions">
+                  <a [routerLink]="[plan.id, 'edit']" class="btn btn--xs btn--ghost" (click)="$event.stopPropagation()"
+                    >✏️ Bewerken</a
+                  >
+                  <button class="btn btn--xs btn--danger" (click)="delete(plan, $event)">🗑️</button>
+                </div>
+              </div>
+            </a>
+          }
+        </div>
+      </section>
+    }
+
+    @if (past().length > 0) {
+      <section class="plan-section plan-section--past">
+        <h2 class="plan-section__title">🗓️ Verleden</h2>
+        <div class="plan-grid plan-grid--past">
+          @for (plan of past(); track plan.id) {
+            <a [routerLink]="plan.id" class="plan-card plan-card--past">
+              <div class="plan-card__stripe plan-card__stripe--{{ plan.difficulty.toLowerCase() }}"></div>
+              <div class="plan-card__body">
+                <div class="plan-card__header">
+                  <span class="difficulty-badge difficulty-badge--{{ plan.difficulty.toLowerCase() }}">{{
+                    plan.difficulty
+                  }}</span>
+                  @if (discordStatus(plan) === 'sent') {
+                    <span class="discord-badge discord-badge--sent">💬 Verstuurd</span>
+                  }
+                </div>
+                <h3 class="plan-card__name">{{ plan.raidName }}</h3>
+                <div class="plan-card__date">
+                  <span class="plan-card__date-text">{{ formatDate(plan.scheduledAt) }}</span>
+                </div>
+                <div class="plan-card__counts">
+                  <span class="count-chip count-chip--raider">⚔️ {{ raiderCount(plan) }}</span>
+                </div>
+                <div class="plan-card__actions">
+                  <button class="btn btn--xs btn--danger" (click)="delete(plan, $event)">🗑️</button>
+                </div>
+              </div>
+            </a>
+          }
+        </div>
+      </section>
+    }
   }
 </div>

@@ -1,14 +1,16 @@
-.rp-detail-page {
-  max-width: 900px;
+// ── Workspace layout ────────────────────────────────────────────────────────────
+
+.workspace {
+  padding: 20px 24px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 24px 16px;
 }
 
-.back-link-row {
-  margin-bottom: 12px;
-}
+// ── Header ─────────────────────────────────────────────────────────────────────
 
 .back-link {
+  display: inline-block;
+  margin-bottom: 10px;
   color: #94a3b8;
   text-decoration: none;
   font-size: 0.9rem;
@@ -18,33 +20,161 @@
   }
 }
 
-.rp-detail-header {
-  margin-bottom: 28px;
+.workspace__header {
+  margin-bottom: 24px;
 }
 
-.header-main {
+.workspace__header-main {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
   flex-wrap: wrap;
-
-  h1 {
-    margin: 0 0 8px;
-    font-size: 1.8rem;
-    color: #f0c040;
-  }
 }
 
-.header-meta {
+.workspace__title {
+  margin: 0 0 8px;
+  font-size: 1.7rem;
+  color: #f0c040;
+}
+
+.workspace__meta {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
 }
 
+.workspace__notes {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+// ── Inline edit bar ────────────────────────────────────────────────────────────
+
+.inline-edit-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 10px 0 4px;
+}
+
+.inline-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &--grow {
+    flex: 1 1 180px;
+  }
+
+  &__label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #475569;
+  }
+}
+
+.inline-input {
+  background: #0f172a;
+  border: 1px solid #1e3a5a;
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color-scheme: dark;
+
+  &--sm {
+    padding-right: 28px;
+    appearance: auto;
+    width: 90px;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+  }
+}
+
+.difficulty-toggle {
+  display: flex;
+  gap: 4px;
+}
+
+.difficulty-btn {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #1e293b;
+  color: #475569;
+  transition: all 0.15s;
+
+  &--normal.difficulty-btn--active {
+    background: #166534;
+    color: #86efac;
+    border-color: #166534;
+  }
+  &--heroic.difficulty-btn--active {
+    background: #1d4ed8;
+    color: #93c5fd;
+    border-color: #1d4ed8;
+  }
+  &--mythic.difficulty-btn--active {
+    background: #7e22ce;
+    color: #d8b4fe;
+    border-color: #7e22ce;
+  }
+
+  &:hover:not(.difficulty-btn--active) {
+    background: #334155;
+    color: #cbd5e1;
+  }
+}
+
+.meta-date {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.meta-count {
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.save-indicator {
+  color: #60a5fa;
+  font-size: 0.78rem;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.workspace__header-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+// ── Difficulty badge ────────────────────────────────────────────────────────────
+
 .difficulty-badge {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   padding: 3px 10px;
   border-radius: 999px;
   font-weight: 600;
@@ -63,85 +193,136 @@
   }
 }
 
-.date-text {
-  color: #94a3b8;
-  font-size: 0.9rem;
-}
+// ── Workspace body ──────────────────────────────────────────────────────────────
 
-.notes-text {
-  margin-top: 8px;
-  color: #cbd5e1;
-  font-size: 0.9rem;
-  font-style: italic;
-}
-
-.header-actions {
-  display: flex;
-  gap: 10px;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-}
-
-.participant-columns {
+.workspace__body {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: 1fr 240px;
   gap: 20px;
+  align-items: start;
 }
 
-.participant-col {
-  background: #1e293b;
+// ── Roster area ─────────────────────────────────────────────────────────────────
+
+.roster-area {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+// ── Group zone ──────────────────────────────────────────────────────────────────
+
+.group-zone {
+  background: #111827;
+  border: 1px solid #1e3a5a;
   border-radius: 8px;
-  padding: 16px;
+  padding: 12px;
 }
 
-.col-title {
-  font-size: 1rem;
-  margin: 0 0 12px;
-
-  &.raider-title {
-    color: #93c5fd;
-  }
-  &.bench-title {
-    color: #fcd34d;
-  }
-  &.absent-title {
-    color: #fca5a5;
-  }
-}
-
-.participant-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.participant-item {
-  display: flex;
-  flex-direction: column;
-  background: #0f172a;
-  border-radius: 6px;
-  padding: 8px 12px;
-}
-
-.char-name {
-  font-weight: 600;
-  color: #e2e8f0;
-  font-size: 0.95rem;
-}
-
-.class-spec {
+.group-zone__title {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: #64748b;
-  font-size: 0.8rem;
+  display: flex;
+  justify-content: space-between;
 }
 
-.empty-col {
+.group-zone__count {
   color: #475569;
-  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+// ── CDK drop list ───────────────────────────────────────────────────────────────
+
+.drop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 40px;
+
+  &--horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
+
+// Active drop target highlight
+.cdk-drop-list-dragging .drop-list:not(.cdk-drop-list-dragging),
+.drop-list.cdk-drop-list-receiving {
+  background: #172554;
+  border-radius: 6px;
+  outline: 2px dashed #3b82f6;
+}
+
+.drop-placeholder {
+  font-size: 0.75rem;
+  color: #334155;
   text-align: center;
-  padding: 12px 0;
+  padding: 8px 4px;
+  pointer-events: none;
+}
+
+// ── Extra zones (bench / absent) ────────────────────────────────────────────────
+
+.extra-zones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.extra-zone {
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid;
+
+  &--bench {
+    background: #1c1a08;
+    border-color: #713f12;
+  }
+  &--absent {
+    background: #1c0a0a;
+    border-color: #7f1d1d;
+  }
+}
+
+.extra-zone__title {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+// ── Buttons ─────────────────────────────────────────────────────────────────────
+
+.btn-primary {
+  background: #f0c040;
+  color: #0f172a;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.9rem;
+
+  &:hover:not(:disabled) {
+    background: #fcd34d;
+  }
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
 }
 
 .btn-secondary {
@@ -155,8 +336,12 @@
   text-decoration: none;
   display: inline-block;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: #475569;
+  }
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
   }
 }
 
@@ -183,4 +368,38 @@
   color: #64748b;
   text-align: center;
   padding: 60px 0;
+}
+
+// ── Boss planning section ─────────────────────────────────────────────────────
+
+.boss-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #1e3a5a;
+}
+
+.boss-section__title {
+  margin: 0 0 16px;
+  font-size: 1.1rem;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+// ── Discord section ──────────────────────────────────────────────────────────
+
+.discord-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #1e3a5a;
+}
+
+.discord-section__title {
+  margin: 0 0 16px;
+  font-size: 1.1rem;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }

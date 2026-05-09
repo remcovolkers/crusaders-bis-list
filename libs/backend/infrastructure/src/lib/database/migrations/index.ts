@@ -10,6 +10,9 @@ import { CreateAuditLog1745500000000 } from './1745500000000-CreateAuditLog';
 import { AddItemAllowedClasses1745600000000 } from './1745600000000-AddItemAllowedClasses';
 import { RaidPlanFeature1746662400000 } from './1746662400000-RaidPlanFeature';
 import { DropAppSettings1746748800000 } from './1746748800000-DropAppSettings';
+import { AddRaidPlanGroupNumber1778284800000 } from './1778284800000-AddRaidPlanGroupNumber';
+import { AddRaidPlanBossNotes1778371200000 } from './1778371200000-AddRaidPlanBossNotes';
+import { AddRaidPlanDiscordSchedule1778457600000 } from './1778457600000-AddRaidPlanDiscordSchedule';
 
 export const MIGRATIONS: (new () => MigrationInterface)[] = [
   BeastMasterySpecFix1744761600000,
@@ -23,4 +26,7 @@ export const MIGRATIONS: (new () => MigrationInterface)[] = [
   AddItemAllowedClasses1745600000000,
   RaidPlanFeature1746662400000,
   DropAppSettings1746748800000,
+  AddRaidPlanGroupNumber1778284800000,
+  AddRaidPlanBossNotes1778371200000,
+  AddRaidPlanDiscordSchedule1778457600000,
 ];

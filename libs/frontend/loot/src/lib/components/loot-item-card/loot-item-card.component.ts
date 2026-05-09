@@ -1,5 +1,6 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
+import { rxResource } from '@angular/core/rxjs-interop';
 import {
   AssignmentStatus,
   IItem,
@@ -44,11 +45,14 @@ export class LootItemCardComponent {
 
   readonly infoModal = signal<'res' | 'lim' | null>(null);
 
-  // Peers popover
+  // Peers popover — lazy loaded via rxResource when a tier popover opens
   readonly activePeerTier = signal<AssignmentStatus | null>(null);
-  readonly peers = signal<{ characterName: string; receivedTier: AssignmentStatus | null }[]>([]);
-  readonly loadingPeers = signal(false);
-  readonly peersLoaded = signal(false);
+  private readonly peersResource = rxResource({
+    params: () => (this.activePeerTier() !== null ? this.item().id : undefined),
+    stream: ({ params: itemId }) => this.lootService.getItemPeers(itemId),
+  });
+  readonly peers = this.peersResource.value;
+  readonly loadingPeers = this.peersResource.isLoading;
   readonly peerDirection = signal<'up' | 'down'>('down');
   readonly peerShine = signal(false);
   private _shineTimer: ReturnType<typeof setTimeout> | null = null;
@@ -79,20 +83,7 @@ export class LootItemCardComponent {
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     this.peerDirection.set(window.innerHeight - rect.bottom < 180 ? 'up' : 'down');
     this.activePeerTier.set(tier);
-    if (this.peersLoaded()) return;
-    this.loadingPeers.set(true);
-    this.lootService.getItemPeers(this.item().id).subscribe({
-      next: (data) => {
-        this.peers.set(data);
-        this.peersLoaded.set(true);
-        this.loadingPeers.set(false);
-      },
-      error: () => {
-        this.peers.set([]);
-        this.peersLoaded.set(true);
-        this.loadingPeers.set(false);
-      },
-    });
+    // rxResource automatically loads peers when activePeerTier() is non-null
   }
 
   closePeers(): void {
@@ -112,7 +103,7 @@ export class LootItemCardComponent {
   /** Raiders eligible for the given tier: have a reservation + floor is below this tier. */
   peersEligibleFor(tier: AssignmentStatus): string[] {
     const tierIdx = TIER_ORDER[tier];
-    return this.peers()
+    return (this.peers() ?? [])
       .filter((p) => p.receivedTier === null || TIER_ORDER[p.receivedTier] < tierIdx)
       .map((p) => p.characterName)
       .sort((a, b) => a.localeCompare(b));

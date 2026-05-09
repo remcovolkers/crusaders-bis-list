@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThanOrEqual, IsNull, Repository } from 'typeorm';
 import { IRaidPlanRepository, ResolvedParticipant } from '@crusaders-bis-list/backend-domain';
 import {
   IRaidPlan,
@@ -32,6 +32,8 @@ export class RaidPlanRepository implements IRaidPlanRepository {
       scheduledAt: entity.scheduledAt,
       notes: entity.notes,
       participants: (entity.participants ?? []).map((p) => this.toParticipantModel(p)),
+      scheduledDiscordAt: entity.scheduledDiscordAt ?? null,
+      discordSentAt: entity.discordSentAt ?? null,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };
@@ -47,6 +49,7 @@ export class RaidPlanRepository implements IRaidPlanRepository {
       wowClass: p.wowClass as WowClass,
       spec: p.spec as WowSpec,
       role: p.role as RaidParticipantRole,
+      groupNumber: p.groupNumber ?? null,
     };
   }
 
@@ -79,6 +82,7 @@ export class RaidPlanRepository implements IRaidPlanRepository {
           wowClass: p.wowClass,
           spec: p.spec,
           role: p.role,
+          groupNumber: p.groupNumber ?? null,
         }),
       ),
     });
@@ -105,6 +109,7 @@ export class RaidPlanRepository implements IRaidPlanRepository {
           wowClass: p.wowClass,
           spec: p.spec,
           role: p.role,
+          groupNumber: p.groupNumber ?? null,
         }),
       );
     }
@@ -115,5 +120,28 @@ export class RaidPlanRepository implements IRaidPlanRepository {
 
   async delete(id: string): Promise<void> {
     await this.planRepo.delete(id);
+  }
+
+  async findPendingDiscordNotifications(): Promise<IRaidPlan[]> {
+    const now = new Date();
+    const entities = await this.planRepo.find({
+      where: {
+        scheduledDiscordAt: LessThanOrEqual(now),
+        discordSentAt: IsNull(),
+      },
+    });
+    return entities.map((e) => this.toModel(e));
+  }
+
+  async scheduleDiscord(id: string, scheduledAt: Date | null): Promise<IRaidPlan> {
+    const existing = await this.planRepo.findOneOrFail({ where: { id } });
+    existing.scheduledDiscordAt = scheduledAt;
+    existing.discordSentAt = null;
+    const saved = await this.planRepo.save(existing);
+    return this.toModel(saved);
+  }
+
+  async markDiscordSent(id: string, sentAt: Date): Promise<void> {
+    await this.planRepo.update(id, { discordSentAt: sentAt });
   }
 }

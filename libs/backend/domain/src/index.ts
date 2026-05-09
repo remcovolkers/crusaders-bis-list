@@ -13,3 +13,4 @@ export * from './lib/ports/raid-catalog.repository';
 export * from './lib/ports/season-config.repository';
 export * from './lib/ports/blizzard-api.port';
 export * from './lib/ports/raid-plan.repository';
+export * from './lib/ports/raid-plan-boss-note.repository';

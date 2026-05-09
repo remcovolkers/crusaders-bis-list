@@ -1,6 +1,7 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { IRaidPlan } from '@crusaders-bis-list/shared-domain';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { IRaidPlan, RaidParticipantRole } from '@crusaders-bis-list/shared-domain';
 import { RaidPlanService } from '../../services/raid-plan.service';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
@@ -10,46 +11,78 @@ import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
   templateUrl: './raid-plan-list.component.html',
   styleUrls: ['./raid-plan-list.component.scss'],
 })
-export class RaidPlanListComponent implements OnInit {
+export class RaidPlanListComponent {
   private readonly service = inject(RaidPlanService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
 
-  readonly plans = signal<IRaidPlan[]>([]);
-  readonly loading = signal(true);
+  readonly plansResource = rxResource({
+    stream: () => this.service.getAll(),
+  });
 
-  ngOnInit(): void {
-    this.service.getAll().subscribe({
-      next: (plans) => {
-        this.plans.set(plans);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.toast.show('Kon raidplannen niet laden.', 'error');
-        this.loading.set(false);
-      },
-    });
-  }
+  readonly loading = this.plansResource.isLoading;
+
+  private readonly allPlans = computed(() => this.plansResource.value() ?? []);
+  readonly plans = this.allPlans;
+
+  readonly upcoming = computed(() => {
+    const now = new Date();
+    return this.allPlans()
+      .filter((p) => new Date(p.scheduledAt) >= now)
+      .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
+  });
+
+  readonly past = computed(() => {
+    const now = new Date();
+    return this.allPlans()
+      .filter((p) => new Date(p.scheduledAt) < now)
+      .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
+  });
 
   delete(plan: IRaidPlan, event: Event): void {
     event.stopPropagation();
+    event.preventDefault();
     if (!confirm(`Raidplan voor ${plan.raidName} verwijderen?`)) return;
     this.service.delete(plan.id).subscribe({
       next: () => {
-        this.plans.update((plans) => plans.filter((p) => p.id !== plan.id));
+        this.plansResource.update((plans) => plans?.filter((p) => p.id !== plan.id));
         this.toast.show('Raidplan verwijderd.');
       },
       error: () => this.toast.show('Verwijderen mislukt.', 'error'),
     });
   }
 
+  raiderCount(plan: IRaidPlan): number {
+    return plan.participants.filter((p) => p.role === RaidParticipantRole.RAIDER).length;
+  }
+
+  benchCount(plan: IRaidPlan): number {
+    return plan.participants.filter((p) => p.role === RaidParticipantRole.BENCH).length;
+  }
+
+  absentCount(plan: IRaidPlan): number {
+    return plan.participants.filter((p) => p.role === RaidParticipantRole.ABSENT).length;
+  }
+
+  discordStatus(plan: IRaidPlan): 'sent' | 'scheduled' | 'none' {
+    if (plan.discordSentAt) return 'sent';
+    if (plan.scheduledDiscordAt) return 'scheduled';
+    return 'none';
+  }
+
   formatDate(date: Date | string): string {
     return new Intl.DateTimeFormat('nl-NL', {
+      weekday: 'short',
       day: 'numeric',
-      month: 'short',
+      month: 'long',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
     }).format(new Date(date));
+  }
+
+  daysUntil(date: Date | string): number {
+    const diff = new Date(date).getTime() - Date.now();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
   }
 }

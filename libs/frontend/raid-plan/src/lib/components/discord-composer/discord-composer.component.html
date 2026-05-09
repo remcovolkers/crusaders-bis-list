@@ -1,0 +1,72 @@
+<div class="composer">
+  <!-- ── Status badge ───────────────────────────────────────────────────────── -->
+  @if (scheduleStatus(); as status) {
+    <div
+      class="status-banner"
+      [class.status-banner--sent]="status.type === 'sent'"
+      [class.status-banner--scheduled]="status.type === 'scheduled'"
+    >
+      {{ status.label }}
+      @if (status.type === 'scheduled') {
+        <button class="status-banner__clear" (click)="clearSchedule()" title="Planning verwijderen">✕</button>
+      }
+    </div>
+  }
+
+  <!-- ── Discord preview ───────────────────────────────────────────────────── -->
+  <div class="preview-panel">
+    <div class="preview-panel__header">
+      <span class="preview-panel__label">Voorbeeld Discord berichten</span>
+      <span class="preview-panel__count">{{ previewMessages().length }} bericht(en)</span>
+    </div>
+
+    <div class="discord-window">
+      @for (msg of previewMessages(); track $index) {
+        <div class="discord-message">
+          <img class="discord-avatar" src="assets/icons/icon-72x72.png" alt="bot" />
+          <div class="discord-message__body">
+            <div class="discord-message__author">Crusaders Bot <span class="discord-message__bot-tag">BOT</span></div>
+            <div class="discord-message__content" [innerHTML]="renderMarkdown(msg.content)"></div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── Actions ───────────────────────────────────────────────────────────── -->
+  <div class="actions">
+    <!-- Send now -->
+    <div class="action-card">
+      <div class="action-card__title">Verstuur nu</div>
+      <div class="action-card__desc">Stuur de bovenstaande berichten direct naar Discord.</div>
+      <button class="btn btn--discord" (click)="sendNow()" [disabled]="sending()">
+        @if (sending()) {
+          Versturen…
+        } @else {
+          📣 Verstuur naar Discord
+        }
+      </button>
+    </div>
+
+    <!-- Schedule -->
+    <div class="action-card">
+      <div class="action-card__title">Inplannen</div>
+      <div class="action-card__desc">De bot verstuurt de berichten automatisch op het gekozen tijdstip.</div>
+      <div class="schedule-row">
+        <input
+          class="schedule-input"
+          type="datetime-local"
+          [ngModel]="scheduleInput()"
+          (ngModelChange)="scheduleInput.set($event)"
+        />
+        <button class="btn btn--primary" (click)="saveSchedule()" [disabled]="scheduling() || !scheduleInput()">
+          @if (scheduling()) {
+            Opslaan…
+          } @else {
+            💾 Inplannen
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
