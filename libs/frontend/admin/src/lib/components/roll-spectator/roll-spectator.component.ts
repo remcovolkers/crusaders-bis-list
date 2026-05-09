@@ -1,14 +1,12 @@
 import { Component, inject, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Store } from '@ngrx/store';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { API_URL, selectCurrentUser } from '@crusaders-bis-list/frontend-auth';
+import { API_URL, AuthStateService } from '@crusaders-bis-list/frontend-auth';
 import { WheelOfFortuneComponent } from '@crusaders-bis-list/frontend-shared-ui';
 import { RollEvent, RollSessionInfo, SpectatorInfo } from '@crusaders-bis-list/shared-domain';
 
 @Component({
-  selector: 'app-roll-spectator',
+  selector: 'lib-roll-spectator',
   standalone: true,
   imports: [WheelOfFortuneComponent],
   templateUrl: './roll-spectator.component.html',
@@ -18,8 +16,7 @@ export class RollSpectatorComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
   private readonly apiBase = inject(API_URL);
-  private readonly store = inject(Store);
-  private readonly currentUser = toSignal(this.store.select(selectCurrentUser));
+  private readonly authState = inject(AuthStateService);
 
   readonly sessionInfo = signal<RollSessionInfo | null>(null);
   readonly displayName = signal('...');
@@ -65,7 +62,7 @@ export class RollSpectatorComponent implements OnInit, OnDestroy {
   }
 
   private connectSse(sessionId: string): void {
-    const myDisplayName = this.currentUser()?.displayName ?? 'Oningelogde gebruiker';
+    const myDisplayName = this.authState.user()?.displayName ?? 'Oningelogde gebruiker';
     const url = `${this.apiBase}/roll-sessions/${sessionId}/stream?displayName=${encodeURIComponent(myDisplayName)}`;
     this.sseSource = new EventSource(url);
 

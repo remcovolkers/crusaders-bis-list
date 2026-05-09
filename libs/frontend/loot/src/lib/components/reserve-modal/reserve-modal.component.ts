@@ -1,7 +1,7 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AssignmentStatus, RECEIVABLE_TIERS, TIER_LABELS } from '@crusaders-bis-list/shared-domain';
-import { ItemWithReservation } from '../../domain/loot-ui.types';
+import { ItemWithReservation } from '../../ui-types/loot-ui.types';
 
 @Component({
   selector: 'lib-reserve-modal',

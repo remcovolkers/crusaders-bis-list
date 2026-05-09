@@ -10,4 +10,8 @@ export const selectIsAdmin = createSelector(
   selectCurrentUser,
   (user) => user?.roles?.includes(UserRole.ADMIN) ?? false,
 );
+export const selectIsSuperAdmin = createSelector(
+  selectCurrentUser,
+  (user) => user?.roles?.includes(UserRole.SUPER_ADMIN) ?? false,
+);
 export const selectAuthLoading = createSelector(selectAuthState, (s) => s.loading);

@@ -4,7 +4,7 @@ import { filter } from 'rxjs/operators';
 import { FeedbackService } from '../feedback.service';
 
 @Component({
-  selector: 'app-feedback-button',
+  selector: 'lib-feedback-button',
   templateUrl: './feedback-button.component.html',
   styleUrl: './feedback-button.component.scss',
 })

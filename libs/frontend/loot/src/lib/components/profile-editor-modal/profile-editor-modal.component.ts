@@ -2,7 +2,7 @@ import { Component, input, OnInit, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IRaiderProfile, WowClass, WowSpec } from '@crusaders-bis-list/shared-domain';
 import { ClassSpecSelectorComponent, ClassSpecSelection } from '@crusaders-bis-list/frontend-shared-ui';
-import { ProfileSaveDto } from '../../domain/loot-ui.types';
+import { ProfileSaveDto } from '../../ui-types/loot-ui.types';
 
 @Component({
   selector: 'lib-profile-editor-modal',

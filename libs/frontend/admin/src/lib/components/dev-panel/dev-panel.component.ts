@@ -1,11 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { AdminService } from '@crusaders-bis-list/frontend-admin';
+import { AdminService } from '../../services/admin.service';
 import { API_URL, AuthService } from '@crusaders-bis-list/frontend-auth';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
-  selector: 'app-dev-panel',
+  selector: 'lib-dev-panel',
   templateUrl: './dev-panel.component.html',
   styleUrl: './dev-panel.component.scss',
 })

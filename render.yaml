@@ -5,8 +5,8 @@ services:
     env: node
     region: frankfurt
     plan: starter
-    buildCommand: npm ci --include=dev && ./node_modules/.bin/nx build crusaders-bis-list --configuration=production
-    startCommand: node dist/apps/crusaders-bis-list/main.js
+    buildCommand: npm ci --include=dev && ./node_modules/.bin/nx build crusaders-bis-list-backend --configuration=production
+    startCommand: node dist/apps/crusaders-bis-list-backend/main.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -61,8 +61,8 @@ services:
   - type: web
     name: crusaders-bis-list
     env: static
-    buildCommand: npm ci --include=dev && ./node_modules/.bin/nx build frontend --configuration=production
-    staticPublishPath: dist/frontend/browser
+    buildCommand: npm ci --include=dev && ./node_modules/.bin/nx build crusaders-bis-list-frontend --configuration=production
+    staticPublishPath: dist/apps/crusaders-bis-list-frontend/browser
     envVars:
       - key: NODE_ENV
         value: production

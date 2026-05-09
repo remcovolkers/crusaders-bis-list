@@ -36,7 +36,7 @@
             <img class="user-avatar" [src]="user.avatarUrl" [alt]="user.displayName" />
           }
           @if (showFeedbackButton()) {
-            <app-feedback-button />
+            <lib-feedback-button />
           }
           <span class="user-name">{{ user.displayName }}</span>
           @if (!isBnetLinked()) {
@@ -54,7 +54,7 @@
 
       <!-- Mobile: feedback + hamburger -->
       @if (showFeedbackButton()) {
-        <span class="mobile-feedback-btn"><app-feedback-button /></span>
+        <span class="mobile-feedback-btn"><lib-feedback-button /></span>
       }
       <button
         class="mobile-menu-btn"

@@ -10,3 +10,4 @@ export * from './lib/use-cases/raider-reservations.use-case';
 export * from './lib/use-cases/reset-all-reservations.use-case';
 export * from './lib/use-cases/roll-session.service';
 export * from './lib/use-cases/raid-plan.use-case';
+export * from './lib/use-cases/feedback.use-case';

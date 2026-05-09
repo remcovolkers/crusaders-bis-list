@@ -21,7 +21,7 @@ import {
   ProfileSaveDto,
   RaidGroup,
   SESSION_ACTIVE_TAB_KEY,
-} from '../domain/loot-ui.types';
+} from '../ui-types/loot-ui.types';
 import { CatalogResponse } from './loot.service';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 

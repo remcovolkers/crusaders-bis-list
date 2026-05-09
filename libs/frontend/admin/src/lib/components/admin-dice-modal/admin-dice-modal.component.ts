@@ -13,9 +13,7 @@ import {
 } from '@crusaders-bis-list/shared-domain';
 import { ToastService, WheelOfFortuneComponent } from '@crusaders-bis-list/frontend-shared-ui';
 import { AdminService } from '../../services/admin.service';
-import { Store } from '@ngrx/store';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { selectCurrentUser } from '@crusaders-bis-list/frontend-auth';
+import { AuthStateService } from '@crusaders-bis-list/frontend-auth';
 
 @Component({
   selector: 'lib-admin-dice-modal',
@@ -56,8 +54,7 @@ export class AdminDiceModalComponent implements OnInit, OnDestroy {
   private diceRollTimer: ReturnType<typeof setInterval> | null = null;
   private readonly toast = inject(ToastService);
   private readonly adminService = inject(AdminService);
-  private readonly store = inject(Store);
-  private readonly currentUser = toSignal(this.store.select(selectCurrentUser));
+  private readonly authState = inject(AuthStateService);
 
   ngOnInit(): void {
     const raiders = this.diceRaidersMapped();
@@ -131,7 +128,7 @@ export class AdminDiceModalComponent implements OnInit, OnDestroy {
   private connectSse(sessionId: string): void {
     this.teardownSse();
     const apiBase = this.adminService.getBase();
-    const myDisplayName = this.currentUser()?.displayName ?? 'Admin';
+    const myDisplayName = this.authState.user()?.displayName ?? 'Admin';
     const url = `${apiBase}/roll-sessions/${sessionId}/stream?displayName=${encodeURIComponent(myDisplayName)}`;
     this.sseSource = new EventSource(url);
 

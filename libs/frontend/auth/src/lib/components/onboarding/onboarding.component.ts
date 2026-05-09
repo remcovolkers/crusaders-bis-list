@@ -2,14 +2,11 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Store } from '@ngrx/store';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ClassSpecSelectorComponent, ClassSpecSelection } from '@crusaders-bis-list/frontend-shared-ui';
 import { WowClass, WowSpec, WOW_CLASS_REGISTRY } from '@crusaders-bis-list/shared-domain';
 import { API_URL } from '../../tokens/api-url.token';
 import { AuthService } from '../../services/auth.service';
-import * as AuthActions from '../../state/auth.actions';
-import { selectCurrentUser } from '../../state/auth.selectors';
+import { AuthStateService } from '../../state/auth-state.service';
 
 interface RaiderProfile {
   id: string;
@@ -38,7 +35,7 @@ export class OnboardingComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
   private readonly apiUrl = inject(API_URL);
-  private readonly store = inject(Store);
+  private readonly authState = inject(AuthStateService);
   private readonly authService = inject(AuthService);
 
   readonly characterName = signal('');
@@ -61,8 +58,7 @@ export class OnboardingComponent implements OnInit {
   readonly updateCharError = signal('');
   private readonly existingProfile = signal<RaiderProfile | null>(null);
 
-  private readonly currentUser = toSignal(this.store.select(selectCurrentUser));
-  readonly isBnetLinked = computed(() => this.currentUser()?.bnetLinked ?? false);
+  readonly isBnetLinked = computed(() => this.authState.user()?.bnetLinked ?? false);
 
   linkBnet(): void {
     this.authService.redirectToBnetLink();
@@ -105,9 +101,8 @@ export class OnboardingComponent implements OnInit {
           next: () => {
             this.authService.getMe().subscribe({
               next: (freshUser) => {
-                this.store.dispatch(
-                  AuthActions.loginSuccess({ user: freshUser, token: this.authService.getToken() ?? '' }),
-                );
+                const token = this.authService.getToken() ?? '';
+                this.authState.loginSuccess(freshUser, token);
                 this.router.navigate(['/loot']);
               },
               error: () => this.router.navigate(['/loot']),
@@ -155,12 +150,8 @@ export class OnboardingComponent implements OnInit {
             this.selectedClass.set(profile.wowClass);
             this.selectedSpec.set(profile.spec);
             // Pre-fill membership from current auth state
-            this.store
-              .select(selectCurrentUser)
-              .subscribe((u) => {
-                if (u) this.isCrusadersMember.set(u.isCrusadersMember);
-              })
-              .unsubscribe();
+            const u = this.authState.user();
+            if (u) this.isCrusadersMember.set(u.isCrusadersMember);
           } else if (justLinked) {
             // Just linked BNET with existing profile — show character picker to update name/realm
             this.existingProfile.set(profile);
@@ -170,12 +161,8 @@ export class OnboardingComponent implements OnInit {
             this.selectedSpec.set(profile.spec);
             this.characterName.set(profile.characterName);
             this.realm.set(profile.realm ?? '');
-            this.store
-              .select(selectCurrentUser)
-              .subscribe((u) => {
-                if (u) this.isCrusadersMember.set(u.isCrusadersMember);
-              })
-              .unsubscribe();
+            const u2 = this.authState.user();
+            if (u2) this.isCrusadersMember.set(u2.isCrusadersMember);
             this.loadWowCharacters();
           } else {
             // Already has a profile and not editing — go to loot
@@ -237,15 +224,11 @@ export class OnboardingComponent implements OnInit {
 
     request$.subscribe({
       next: () => {
-        // Refresh auth state so isCrusadersMember is up to date in the store
+        // Refresh auth state so isCrusadersMember is up to date
         this.authService.getMe().subscribe({
           next: (freshUser) => {
-            this.store.dispatch(
-              AuthActions.loginSuccess({
-                user: freshUser,
-                token: this.authService.getToken() ?? '',
-              }),
-            );
+            const token = this.authService.getToken() ?? '';
+            this.authState.loginSuccess(freshUser, token);
             this.router.navigate(['/loot']);
           },
           error: () => this.router.navigate(['/loot']),

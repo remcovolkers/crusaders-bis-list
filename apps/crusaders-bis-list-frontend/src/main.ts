@@ -1,20 +1,10 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS, HttpErrorResponse } from '@angular/common/http';
-import { provideStore } from '@ngrx/store';
-import { provideEffects } from '@ngrx/effects';
 import { inject, provideAppInitializer, provideBrowserGlobalErrorListeners, isDevMode } from '@angular/core';
-import { Store } from '@ngrx/store';
 import { App } from './app/app';
 import { appRoutes } from './app/app.routes';
-import {
-  API_URL,
-  AuthInterceptor,
-  authReducer,
-  AuthService,
-  AuthUser,
-  loginSuccess,
-} from '@crusaders-bis-list/frontend-auth';
+import { API_URL, AuthInterceptor, AuthStateService, AuthService, AuthUser } from '@crusaders-bis-list/frontend-auth';
 import { environment } from './environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -25,13 +15,11 @@ bootstrapApplication(App, {
     provideBrowserGlobalErrorListeners(),
     provideRouter(appRoutes),
     provideHttpClient(withInterceptorsFromDi()),
-    provideStore({ auth: authReducer }),
-    provideEffects([]),
     { provide: API_URL, useValue: environment.apiUrl },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     provideAppInitializer(async () => {
       const authService = inject(AuthService);
-      const store = inject(Store);
+      const authState = inject(AuthStateService);
       const http = inject(HttpClient);
 
       const tryRefresh = async (): Promise<boolean> => {
@@ -49,7 +37,7 @@ bootstrapApplication(App, {
             }),
           );
           const user = freshUser ?? authService.decodeToken(result.token);
-          if (user) store.dispatch(loginSuccess({ user, token: result.token }));
+          if (user) authState.loginSuccess(user, result.token);
           return !!user;
         } catch {
           authService.clearToken();
@@ -67,7 +55,7 @@ bootstrapApplication(App, {
             }),
           );
           if (user) {
-            store.dispatch(loginSuccess({ user, token }));
+            authState.loginSuccess(user, token);
           } else {
             await tryRefresh();
           }
@@ -79,7 +67,7 @@ bootstrapApplication(App, {
             // Network error / server unreachable — fall back to decoded JWT
             const user = authService.decodeToken(token);
             if (user) {
-              store.dispatch(loginSuccess({ user, token }));
+              authState.loginSuccess(user, token);
             } else {
               authService.clearToken();
               authService.clearRefreshToken();
@@ -90,9 +78,10 @@ bootstrapApplication(App, {
         // No access token — attempt silent re-login via refresh token
         await tryRefresh();
       }
-    }), provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-          }),
+    }),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 }).catch((err) => console.error(err));

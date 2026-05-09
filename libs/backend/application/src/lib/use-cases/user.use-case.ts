@@ -24,16 +24,41 @@ export class FindOrCreateUserUseCase {
   ) {}
 
   async execute(profile: GoogleProfile): Promise<User> {
-    const existing = await this.userRepo.findByGoogleId(profile.googleId);
-    if (existing) return existing;
-
     const adminEmails = (this.config.get<string>('ADMIN_EMAILS') ?? '')
       .split(',')
       .map((e) => e.trim().toLowerCase())
       .filter(Boolean);
 
+    const superAdminEmails = (this.config.get<string>('SUPER_ADMIN_EMAILS') ?? '')
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+
     const isAdmin = adminEmails.includes(profile.email.toLowerCase());
-    const roles = isAdmin ? [UserRole.RAIDER, UserRole.ADMIN] : [UserRole.RAIDER];
+    const isSuperAdmin = superAdminEmails.includes(profile.email.toLowerCase());
+
+    const existing = await this.userRepo.findByGoogleId(profile.googleId);
+    if (existing) {
+      // Ensure env-driven roles are always up to date
+      let changed = false;
+      if (isAdmin && !existing.roles.includes(UserRole.ADMIN)) {
+        existing.roles = [...existing.roles, UserRole.ADMIN];
+        changed = true;
+      }
+      if (isSuperAdmin && !existing.roles.includes(UserRole.SUPER_ADMIN)) {
+        existing.roles = [...existing.roles, UserRole.SUPER_ADMIN];
+        changed = true;
+      }
+      if (changed) {
+        existing.updatedAt = new Date();
+        return this.userRepo.save(existing);
+      }
+      return existing;
+    }
+
+    const roles: UserRole[] = [UserRole.RAIDER];
+    if (isAdmin) roles.push(UserRole.ADMIN);
+    if (isSuperAdmin) roles.push(UserRole.SUPER_ADMIN);
 
     const newUser = new User();
     newUser.googleId = profile.googleId;

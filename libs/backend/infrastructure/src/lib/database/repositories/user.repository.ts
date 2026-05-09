@@ -56,6 +56,7 @@ export class UserRepository implements IUserRepository {
 
   async save(user: User): Promise<User> {
     const orm = this.repo.create({
+      ...(user.id ? { id: user.id } : {}),
       googleId: user.googleId,
       bnetId: user.bnetId,
       email: user.email,

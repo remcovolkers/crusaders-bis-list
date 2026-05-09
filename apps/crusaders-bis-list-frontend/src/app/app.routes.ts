@@ -2,26 +2,24 @@ import { Route } from '@angular/router';
 import {
   authRoutes,
   unauthorizedRoute,
-  AuthGuard,
-  ProfileGuard,
-  SuperUserGuard,
-  GuestGuard,
+  authGuard,
+  profileGuard,
+  superUserGuard,
+  guestGuard,
   OnboardingComponent,
 } from '@crusaders-bis-list/frontend-auth';
-import { AdminFeedbackComponent } from './admin-feedback/admin-feedback.component';
-import { DevPanelComponent } from './dev-panel/dev-panel.component';
-import { RollSpectatorComponent } from './roll-spectator/roll-spectator.component';
+import { AdminFeedbackComponent, DevPanelComponent, RollSpectatorComponent } from '@crusaders-bis-list/frontend-admin';
 
 export const appRoutes: Route[] = [
   {
     path: 'auth',
-    canActivate: [GuestGuard],
+    canActivate: [guestGuard],
     children: authRoutes,
   },
   unauthorizedRoute,
   {
     path: 'onboarding',
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
     component: OnboardingComponent,
   },
   {
@@ -30,27 +28,27 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'loot',
-    canActivate: [ProfileGuard],
+    canActivate: [profileGuard],
     loadChildren: () => import('@crusaders-bis-list/frontend-loot').then((m) => m.FrontendLootModule),
   },
   {
     path: 'admin',
-    canActivate: [ProfileGuard],
+    canActivate: [profileGuard],
     loadChildren: () => import('@crusaders-bis-list/frontend-admin').then((m) => m.FrontendAdminModule),
   },
   {
     path: 'feedback-inbox',
-    canActivate: [SuperUserGuard],
+    canActivate: [superUserGuard],
     component: AdminFeedbackComponent,
   },
   {
     path: 'raid-plan',
-    canActivate: [SuperUserGuard],
+    canActivate: [superUserGuard],
     loadChildren: () => import('@crusaders-bis-list/frontend-raid-plan').then((m) => m.FrontendRaidPlanModule),
   },
   {
     path: 'dev-panel',
-    canActivate: [SuperUserGuard],
+    canActivate: [superUserGuard],
     component: DevPanelComponent,
   },
   { path: '', redirectTo: 'loot', pathMatch: 'full' },

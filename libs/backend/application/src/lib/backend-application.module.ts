@@ -22,6 +22,12 @@ import {
   SendDiscordNotificationUseCase,
 } from './use-cases/raid-plan.use-case';
 import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrastructure';
+import {
+  SubmitFeedbackUseCase,
+  GetAllFeedbackUseCase,
+  ResolveFeedbackUseCase,
+  UnresolveFeedbackUseCase,
+} from './use-cases/feedback.use-case';
 
 @Module({
   imports: [BackendInfrastructureModule],
@@ -43,6 +49,10 @@ import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrast
     GetAllRaiderReservationsUseCase,
     ResetAllReservationsUseCase,
     RollSessionService,
+    SubmitFeedbackUseCase,
+    GetAllFeedbackUseCase,
+    ResolveFeedbackUseCase,
+    UnresolveFeedbackUseCase,
     GetRaidPlansUseCase,
     GetRaidPlanUseCase,
     CreateRaidPlanUseCase,
@@ -69,6 +79,10 @@ import { BackendInfrastructureModule } from '@crusaders-bis-list/backend-infrast
     GetAllRaiderReservationsUseCase,
     ResetAllReservationsUseCase,
     RollSessionService,
+    SubmitFeedbackUseCase,
+    GetAllFeedbackUseCase,
+    ResolveFeedbackUseCase,
+    UnresolveFeedbackUseCase,
     GetRaidPlansUseCase,
     GetRaidPlanUseCase,
     CreateRaidPlanUseCase,

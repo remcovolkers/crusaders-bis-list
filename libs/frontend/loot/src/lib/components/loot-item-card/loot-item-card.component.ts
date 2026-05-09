@@ -10,7 +10,7 @@ import {
   WEAPON_TYPE_LABELS,
 } from '@crusaders-bis-list/shared-domain';
 import { RaiderLootStateService } from '../../services/raider-loot-state.service';
-import { ItemWithReservation } from '../../domain/loot-ui.types';
+import { ItemWithReservation } from '../../ui-types/loot-ui.types';
 import { LootService } from '../../services/loot.service';
 
 const TIER_ORDER: Record<AssignmentStatus, number> = {

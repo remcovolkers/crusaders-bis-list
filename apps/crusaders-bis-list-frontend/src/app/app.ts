@@ -1,18 +1,10 @@
 ﻿import { Component, inject, computed, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
-import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
-import {
-  selectIsAuthenticated,
-  selectCurrentUser,
-  selectIsAdmin,
-  logout,
-  AuthService,
-} from '@crusaders-bis-list/frontend-auth';
-import { ToastComponent } from '@crusaders-bis-list/frontend-shared-ui';
-import { FeedbackButtonComponent } from './feedback-button/feedback-button.component';
+import { AuthStateService, AuthService } from '@crusaders-bis-list/frontend-auth';
+import { ToastComponent, FeedbackButtonComponent } from '@crusaders-bis-list/frontend-shared-ui';
 import { AppUpdateService } from './app-update.service';
 
 @Component({
@@ -22,7 +14,7 @@ import { AppUpdateService } from './app-update.service';
   styleUrl: './app.scss',
 })
 export class App {
-  private readonly store = inject(Store);
+  private readonly authState = inject(AuthStateService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
@@ -34,10 +26,10 @@ export class App {
 
   readonly isOldDomain = signal(this.document.location.hostname === 'crusaders-bis-list.onrender.com');
 
-  readonly isAuthenticated = toSignal(this.store.select(selectIsAuthenticated), { initialValue: false });
-  readonly currentUser = toSignal(this.store.select(selectCurrentUser), { initialValue: null });
-  readonly isAdmin = toSignal(this.store.select(selectIsAdmin), { initialValue: false });
-  readonly isSuperUser = computed(() => this.currentUser()?.email === 'remco.volkers1@gmail.com');
+  readonly isAuthenticated = this.authState.isAuthenticated;
+  readonly currentUser = this.authState.user;
+  readonly isAdmin = this.authState.isAdmin;
+  readonly isSuperUser = this.authState.isSuperAdmin;
   readonly isBnetLinked = computed(() => this.currentUser()?.bnetLinked ?? false);
   readonly menuOpen = signal(false);
 
@@ -61,7 +53,7 @@ export class App {
   logout(): void {
     this.authService.clearToken();
     this.authService.clearRefreshToken();
-    this.store.dispatch(logout());
+    this.authState.logout();
     this.router.navigate(['/auth']);
   }
 }

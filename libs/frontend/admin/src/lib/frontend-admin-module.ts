@@ -5,14 +5,14 @@ import { AdminUserManagementComponent } from './components/admin-user-management
 import { AdminSeasonConfigComponent } from './components/admin-season-config/admin-season-config.component';
 import { AdminAuditLogComponent } from './components/admin-audit-log/admin-audit-log.component';
 import { AdminShellComponent } from './components/admin-shell/admin-shell.component';
-import { AdminGuard } from '@crusaders-bis-list/frontend-auth';
+import { adminGuard } from '@crusaders-bis-list/frontend-auth';
 
 @NgModule({
   imports: [
     RouterModule.forChild([
       {
         path: '',
-        canActivate: [AdminGuard],
+        canActivate: [adminGuard],
         component: AdminShellComponent,
         children: [
           { path: '', redirectTo: 'boss-view', pathMatch: 'full' },

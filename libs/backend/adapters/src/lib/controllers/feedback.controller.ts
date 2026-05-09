@@ -2,11 +2,21 @@ import { Controller, Post, Get, Patch, Param, Body, Req, UseGuards, ForbiddenExc
 import { IsString, MaxLength } from 'class-validator';
 import { JwtAuthGuard } from '../guards/auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { FeedbackRepository, FeedbackOrmEntity } from '@crusaders-bis-list/backend-infrastructure';
+import { FeedbackOrmEntity } from '@crusaders-bis-list/backend-infrastructure';
+import {
+  SubmitFeedbackUseCase,
+  GetAllFeedbackUseCase,
+  ResolveFeedbackUseCase,
+  UnresolveFeedbackUseCase,
+} from '@crusaders-bis-list/backend-application';
+import { UserRole } from '@crusaders-bis-list/shared-domain';
 import { Request } from 'express';
 import { JwtPayload } from '../auth/jwt.strategy';
 
-const SUPER_EMAIL = 'remco.volkers1@gmail.com';
+function assertSuperAdmin(req: Request): void {
+  const user = req.user as JwtPayload;
+  if (!user.roles?.includes(UserRole.SUPER_ADMIN)) throw new ForbiddenException();
+}
 
 export class SubmitFeedbackDto {
   @IsString()
@@ -22,12 +32,17 @@ export class SubmitFeedbackDto {
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class FeedbackController {
-  constructor(private readonly feedbackRepo: FeedbackRepository) {}
+  constructor(
+    private readonly submitFeedback: SubmitFeedbackUseCase,
+    private readonly getAllFeedback: GetAllFeedbackUseCase,
+    private readonly resolveFeedback: ResolveFeedbackUseCase,
+    private readonly unresolveFeedback: UnresolveFeedbackUseCase,
+  ) {}
 
   @Post()
   async submit(@Body() dto: SubmitFeedbackDto, @Req() req: Request): Promise<{ ok: boolean }> {
     const user = req.user as JwtPayload & { displayName?: string };
-    await this.feedbackRepo.create({
+    await this.submitFeedback.execute({
       userId: user.sub,
       userEmail: user.email,
       userName: user.displayName ?? user.email,
@@ -39,24 +54,21 @@ export class FeedbackController {
 
   @Get()
   async getAll(@Req() req: Request): Promise<FeedbackOrmEntity[]> {
-    const user = req.user as JwtPayload;
-    if (user.email !== SUPER_EMAIL) throw new ForbiddenException();
-    return this.feedbackRepo.findAll();
+    assertSuperAdmin(req);
+    return this.getAllFeedback.execute();
   }
 
   @Patch(':id/resolve')
   async resolve(@Param('id') id: string, @Req() req: Request): Promise<{ ok: boolean }> {
-    const user = req.user as JwtPayload;
-    if (user.email !== SUPER_EMAIL) throw new ForbiddenException();
-    await this.feedbackRepo.resolve(id);
+    assertSuperAdmin(req);
+    await this.resolveFeedback.execute(id);
     return { ok: true };
   }
 
   @Patch(':id/unresolve')
   async unresolve(@Param('id') id: string, @Req() req: Request): Promise<{ ok: boolean }> {
-    const user = req.user as JwtPayload;
-    if (user.email !== SUPER_EMAIL) throw new ForbiddenException();
-    await this.feedbackRepo.unresolve(id);
+    assertSuperAdmin(req);
+    await this.unresolveFeedback.execute(id);
     return { ok: true };
   }
 }

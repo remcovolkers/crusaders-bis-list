@@ -8,12 +8,16 @@
   "targets": {
     "build": {
       "executor": "@angular/build:application",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/crusaders-bis-list-frontend",
         "browser": "apps/crusaders-bis-list-frontend/src/main.ts",
         "tsConfig": "apps/crusaders-bis-list-frontend/tsconfig.app.json",
-        "polyfills": ["zone.js"],
+        "polyfills": [
+          "zone.js"
+        ],
         "inlineStyleLanguage": "scss",
         "assets": [
           {
@@ -21,7 +25,9 @@
             "input": "apps/crusaders-bis-list-frontend/public"
           }
         ],
-        "styles": ["apps/crusaders-bis-list-frontend/src/styles.scss"]
+        "styles": [
+          "apps/crusaders-bis-list-frontend/src/styles.scss"
+        ]
       },
       "configurations": {
         "production": {
@@ -73,7 +79,7 @@
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit -p apps/crusaders-bis-list-frontend/tsconfig.app.json",
+          "command": "tsc --noEmit -p apps/crusaders-bis-list-frontend/tsconfig.app.json",
         "cwd": "{workspaceRoot}"
       }
     },

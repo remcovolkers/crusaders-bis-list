@@ -1,8 +1,8 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { FeedbackService, FeedbackEntry } from '../feedback.service';
+import { FeedbackService, FeedbackEntry } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
-  selector: 'app-admin-feedback',
+  selector: 'lib-admin-feedback',
   templateUrl: './admin-feedback.component.html',
   styleUrl: './admin-feedback.component.scss',
 })

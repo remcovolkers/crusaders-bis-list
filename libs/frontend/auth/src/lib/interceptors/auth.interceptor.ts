@@ -2,16 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
-import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { loginSuccess } from '../state/auth.actions';
-import * as AuthActions from '../state/auth.actions';
+import { AuthStateService } from '../state/auth-state.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   private readonly authService = inject(AuthService);
-  private readonly store = inject(Store);
+  private readonly authState = inject(AuthStateService);
   private readonly router = inject(Router);
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
@@ -45,7 +43,7 @@ export class AuthInterceptor implements HttpInterceptor {
       switchMap(({ token }) => {
         this.authService.saveToken(token);
         const user = this.authService.decodeToken(token);
-        if (user) this.store.dispatch(loginSuccess({ user, token }));
+        if (user) this.authState.loginSuccess(user, token);
         const retried = req.clone({
           setHeaders: { Authorization: `Bearer ${token}`, 'X-Retry': 'true' },
         });
@@ -61,7 +59,7 @@ export class AuthInterceptor implements HttpInterceptor {
   private clearAndRedirect(): void {
     this.authService.clearToken();
     this.authService.clearRefreshToken();
-    this.store.dispatch(AuthActions.logout());
+    this.authState.logout();
     this.router.navigate(['/auth']);
   }
 }

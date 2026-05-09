@@ -24,15 +24,14 @@ import {
   SendDiscordNotificationUseCase,
 } from '@crusaders-bis-list/backend-application';
 import { RAID_CATALOG_REPOSITORY, IRaidCatalogRepository } from '@crusaders-bis-list/backend-domain';
+import { UserRole } from '@crusaders-bis-list/shared-domain';
 import { Request } from 'express';
 import { JwtPayload } from '../auth/jwt.strategy';
 import { CreateRaidPlanDto, UpdateRaidPlanDto } from './dto/raid-plan.dto';
 
-const SUPER_EMAIL = 'remco.volkers1@gmail.com';
-
-function assertSuperUser(req: Request): void {
+function assertSuperAdmin(req: Request): void {
   const user = req.user as JwtPayload;
-  if (user.email !== SUPER_EMAIL) throw new ForbiddenException();
+  if (!user.roles?.includes(UserRole.SUPER_ADMIN)) throw new ForbiddenException();
 }
 
 @Controller('raid-plans')
@@ -52,46 +51,46 @@ export class RaidPlanController {
 
   @Get('seasons')
   async getSeasons(@Req() req: Request) {
-    assertSuperUser(req);
+    assertSuperAdmin(req);
     return this.catalogRepo.findAllSeasons();
   }
 
   @Get()
   list(@Req() req: Request) {
-    assertSuperUser(req);
+    assertSuperAdmin(req);
     return this.getPlans.execute();
   }
 
   @Get(':id')
   get(@Req() req: Request, @Param('id') id: string) {
-    assertSuperUser(req);
+    assertSuperAdmin(req);
     return this.getPlan.execute(id);
   }
 
   @Post()
   create(@Req() req: Request, @Body() dto: CreateRaidPlanDto) {
-    assertSuperUser(req);
+    assertSuperAdmin(req);
     return this.createPlan.execute(dto);
   }
 
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   update(@Req() req: Request, @Param('id') id: string, @Body() dto: UpdateRaidPlanDto) {
-    assertSuperUser(req);
+    assertSuperAdmin(req);
     return this.updatePlan.execute(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Req() req: Request, @Param('id') id: string) {
-    assertSuperUser(req);
+    assertSuperAdmin(req);
     await this.deletePlan.execute(id);
   }
 
   @Post(':id/notify')
   @HttpCode(HttpStatus.OK)
   async notify(@Req() req: Request, @Param('id') id: string) {
-    assertSuperUser(req);
+    assertSuperAdmin(req);
     await this.notifyDiscord.execute(id);
     return { ok: true };
   }
