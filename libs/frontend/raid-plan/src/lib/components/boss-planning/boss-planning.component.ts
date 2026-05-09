@@ -22,6 +22,7 @@ export class BossPlanningComponent {
 
   readonly raidPlanId = input.required<string>();
   readonly bosses = input.required<IBoss[]>();
+  readonly readonly = input(false);
 
   private readonly bossNotesResource = rxResource({
     params: () => this.raidPlanId(),
@@ -144,8 +145,21 @@ export class BossPlanningComponent {
           return next;
         });
       },
-      error: () => {
-        this.toast.show('Resource toevoegen mislukt.', 'error');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      error: (err: any) => {
+        const status: number | undefined = err?.status;
+        const serverMsg: string | undefined = err?.error?.message;
+        let msg = 'Resource toevoegen mislukt.';
+        if (serverMsg) {
+          msg = serverMsg;
+        } else if (status === 403) {
+          msg = 'Je hebt geen rechten om resources toe te voegen.';
+        } else if (status === 404) {
+          msg = 'Raidplan of boss niet gevonden. Ververs de pagina.';
+        } else if (status === 0) {
+          msg = 'Geen verbinding met de server. Controleer je internet.';
+        }
+        this.toast.show(msg, 'error');
         this.addingResource.update((s) => {
           const next = new Set(s);
           next.delete(bossId);

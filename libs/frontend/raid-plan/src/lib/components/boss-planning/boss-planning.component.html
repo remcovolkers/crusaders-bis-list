@@ -21,33 +21,45 @@
         <!-- Boss body -->
         @if (!isCollapsed(boss.id)) {
           <div class="boss-card__body">
-            <!-- Status toggle -->
+            <!-- Status -->
             <div class="boss-field">
               <label class="boss-field__label">Status</label>
-              <div class="status-toggle">
-                @for (s of statuses; track s) {
-                  <button
-                    class="status-btn status-btn--{{ s }}"
-                    [class.status-btn--active]="getStatus(boss.id) === s"
-                    (click)="onStatusChange(boss.id, s)"
-                  >
-                    {{ s }}
-                  </button>
-                }
-              </div>
+              @if (readonly()) {
+                <span class="status-badge status-badge--{{ getStatus(boss.id) }}">{{ getStatus(boss.id) }}</span>
+              } @else {
+                <div class="status-toggle">
+                  @for (s of statuses; track s) {
+                    <button
+                      class="status-btn status-btn--{{ s }}"
+                      [class.status-btn--active]="getStatus(boss.id) === s"
+                      (click)="onStatusChange(boss.id, s)"
+                    >
+                      {{ s }}
+                    </button>
+                  }
+                </div>
+              }
             </div>
 
             <!-- Notes -->
             <div class="boss-field">
               <label class="boss-field__label" [attr.for]="'notes-' + boss.id">Strategie-notities</label>
-              <textarea
-                [id]="'notes-' + boss.id"
-                class="boss-notes"
-                rows="3"
-                [value]="getNotes(boss.id)"
-                (input)="onNotesChange(boss.id, $any($event.target).value)"
-                placeholder="Bijv. tank-swaps, cooldown-gebruik, stack-punt…"
-              ></textarea>
+              @if (readonly()) {
+                @if (getNotes(boss.id)) {
+                  <p class="boss-notes-readonly">{{ getNotes(boss.id) }}</p>
+                } @else {
+                  <p class="boss-notes-empty">Geen notities.</p>
+                }
+              } @else {
+                <textarea
+                  [id]="'notes-' + boss.id"
+                  class="boss-notes"
+                  rows="3"
+                  [value]="getNotes(boss.id)"
+                  (input)="onNotesChange(boss.id, $any($event.target).value)"
+                  placeholder="Bijv. tank-swaps, cooldown-gebruik, stack-punt…"
+                ></textarea>
+              }
             </div>
 
             <!-- Resources -->
@@ -64,31 +76,35 @@
                       <a class="resource-card__title" [href]="r.url" target="_blank" rel="noopener">{{ r.title }}</a>
                       <span class="resource-card__type">{{ r.type === 'youtube' ? '▶ YouTube' : '🔗 Link' }}</span>
                     </div>
-                    <button class="resource-card__delete" (click)="deleteResource(boss.id, r.id)" title="Verwijderen">
-                      ✕
-                    </button>
+                    @if (!readonly()) {
+                      <button class="resource-card__delete" (click)="deleteResource(boss.id, r.id)" title="Verwijderen">
+                        ✕
+                      </button>
+                    }
                   </div>
                 }
               </div>
 
-              <!-- Add resource -->
-              <div class="resource-add">
-                <input
-                  type="url"
-                  class="resource-add__input"
-                  placeholder="Plak een YouTube of andere URL…"
-                  [value]="getPendingUrl(boss.id)"
-                  (input)="onUrlInput(boss.id, $any($event.target).value)"
-                  (keydown.enter)="addResource(boss.id)"
-                />
-                <button
-                  class="resource-add__btn"
-                  [disabled]="!getPendingUrl(boss.id) || isAdding(boss.id)"
-                  (click)="addResource(boss.id)"
-                >
-                  {{ isAdding(boss.id) ? '…' : '+ Toevoegen' }}
-                </button>
-              </div>
+              <!-- Add resource (edit mode only) -->
+              @if (!readonly()) {
+                <div class="resource-add">
+                  <input
+                    type="url"
+                    class="resource-add__input"
+                    placeholder="Plak een YouTube of andere URL…"
+                    [value]="getPendingUrl(boss.id)"
+                    (input)="onUrlInput(boss.id, $any($event.target).value)"
+                    (keydown.enter)="addResource(boss.id)"
+                  />
+                  <button
+                    class="resource-add__btn"
+                    [disabled]="!getPendingUrl(boss.id) || isAdding(boss.id)"
+                    (click)="addResource(boss.id)"
+                  >
+                    {{ isAdding(boss.id) ? '…' : '+ Toevoegen' }}
+                  </button>
+                </div>
+              }
             </div>
           </div>
         }

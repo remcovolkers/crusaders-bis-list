@@ -4,6 +4,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { IRaidPlan, RaidParticipantRole } from '@crusaders-bis-list/shared-domain';
 import { RaidPlanService } from '../../services/raid-plan.service';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
+import { AuthStateService } from '@crusaders-bis-list/frontend-auth';
 
 @Component({
   selector: 'lib-raid-plan-list',
@@ -15,6 +16,9 @@ export class RaidPlanListComponent {
   private readonly service = inject(RaidPlanService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly authState = inject(AuthStateService);
+
+  readonly isAdmin = this.authState.isAdmin;
 
   readonly plansResource = rxResource({
     stream: () => this.service.getAll(),

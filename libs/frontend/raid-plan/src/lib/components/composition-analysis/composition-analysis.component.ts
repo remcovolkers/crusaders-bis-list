@@ -8,7 +8,6 @@ const TANK_SPECS = new Set<WowSpec>([
   WowSpec.PROTECTION_PALADIN,
   WowSpec.BLOOD,
   WowSpec.VENGEANCE,
-  WowSpec.DEVOURER,
   WowSpec.GUARDIAN,
   WowSpec.BREWMASTER,
 ]);

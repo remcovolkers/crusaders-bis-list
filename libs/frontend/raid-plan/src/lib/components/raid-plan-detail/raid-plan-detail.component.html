@@ -82,8 +82,15 @@
           @if (editMode()) {
             <button class="btn-secondary" (click)="cancelEdit()" [disabled]="saving()">Annuleren</button>
             <button class="btn-primary" (click)="saveEdit()" [disabled]="saving()">✅ Opslaan</button>
-          } @else {
-            <button class="btn-secondary" (click)="enterEdit()">✏️ Bewerken</button>
+          } @else if (isAdmin()) {
+            @if (pendingDelete()) {
+              <span class="confirm-text">Raidplan verwijderen?</span>
+              <button class="btn-danger" (click)="confirmDelete()">Ja, verwijder</button>
+              <button class="btn-secondary" (click)="abortDelete()">Annuleer</button>
+            } @else {
+              <button class="btn-secondary" (click)="enterEdit()">✏️ Bewerken</button>
+              <button class="btn-danger" (click)="requestDelete()">🗑️ Verwijder</button>
+            }
           }
         </div>
       </div>
@@ -109,7 +116,7 @@
                 (cdkDropListDropped)="onGroupDrop($event, $index)"
               >
                 @for (p of group; track p.id) {
-                  <lib-raider-card [participant]="p" cdkDrag [cdkDragData]="p" />
+                  <lib-raider-card [participant]="p" cdkDrag [cdkDragData]="p" [cdkDragDisabled]="!isAdmin()" />
                 }
                 @if (group.length === 0) {
                   <div class="drop-placeholder">Sleep een raider hierheen</div>
@@ -135,7 +142,7 @@
               (cdkDropListDropped)="onBenchDrop($event)"
             >
               @for (p of bench(); track p.id) {
-                <lib-raider-card [participant]="p" cdkDrag [cdkDragData]="p" />
+                <lib-raider-card [participant]="p" cdkDrag [cdkDragData]="p" [cdkDragDisabled]="!isAdmin()" />
               }
               @if (bench().length === 0) {
                 <div class="drop-placeholder">Sleep hier naartoe voor bank</div>
@@ -157,7 +164,7 @@
               (cdkDropListDropped)="onAbsentDrop($event)"
             >
               @for (p of absent(); track p.id) {
-                <lib-raider-card [participant]="p" cdkDrag [cdkDragData]="p" />
+                <lib-raider-card [participant]="p" cdkDrag [cdkDragData]="p" [cdkDragDisabled]="!isAdmin()" />
               }
               @if (absent().length === 0) {
                 <div class="drop-placeholder">Sleep hier naartoe voor afgemeld</div>
@@ -175,7 +182,7 @@
     @if (bosses().length > 0) {
       <div class="boss-section">
         <h2 class="boss-section__title">⚔️ Boss Planning</h2>
-        <lib-boss-planning [raidPlanId]="plan()!.id" [bosses]="bosses()" />
+        <lib-boss-planning [raidPlanId]="plan()!.id" [bosses]="bosses()" [readonly]="!editMode()" />
       </div>
     }
 

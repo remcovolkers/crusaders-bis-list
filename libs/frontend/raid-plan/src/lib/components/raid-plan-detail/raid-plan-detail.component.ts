@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, effect, signal, computed } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { rxResource } from '@angular/core/rxjs-interop';
 import {
@@ -15,10 +15,21 @@ import {
 import { RaidPlanService } from '../../services/raid-plan.service';
 import { ToastService, RaiderCardComponent } from '@crusaders-bis-list/frontend-shared-ui';
 import { AdminService } from '@crusaders-bis-list/frontend-admin';
+import { AuthStateService } from '@crusaders-bis-list/frontend-auth';
 import { CompositionAnalysisComponent } from '../composition-analysis/composition-analysis.component';
 import { BossPlanningComponent } from '../boss-planning/boss-planning.component';
 import { DiscordComposerComponent } from '../discord-composer/discord-composer.component';
 import { CdkDropList, CdkDrag, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+
+// ── Spec sets for auto-distribution ─────────────────────────────────────────
+const TANK_SPECS = new Set<WowSpec>([
+  WowSpec.PROTECTION_WARRIOR, WowSpec.PROTECTION_PALADIN, WowSpec.BLOOD,
+  WowSpec.VENGEANCE, WowSpec.GUARDIAN, WowSpec.BREWMASTER,
+]);
+const HEALER_SPECS = new Set<WowSpec>([
+  WowSpec.HOLY_PALADIN, WowSpec.DISCIPLINE, WowSpec.HOLY_PRIEST,
+  WowSpec.RESTORATION_SHAMAN, WowSpec.RESTORATION_DRUID, WowSpec.MISTWEAVER, WowSpec.PRESERVATION,
+]);
 
 const GROUP_COUNT = 4;
 
@@ -39,10 +50,13 @@ const GROUP_COUNT = 4;
 })
 export class RaidPlanDetailComponent implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly service = inject(RaidPlanService);
   private readonly adminService = inject(AdminService);
   private readonly toast = inject(ToastService);
+  private readonly authState = inject(AuthStateService);
 
+  readonly isAdmin = this.authState.isAdmin;
   private readonly planId = this.route.snapshot.paramMap.get('id') ?? '';
 
   // ── Remote data ──────────────────────────────────────────────────────────────
@@ -120,23 +134,46 @@ export class RaidPlanDetailComponent implements OnDestroy {
     if (!plan || !allRaiders) return;
 
     this._rosterInitialized = true;
-    const roleMap = new Map(plan.participants.map((p) => [p.userId, p]));
-    const merged: IRaidPlanParticipant[] = allRaiders.map((r) => {
-      const existing = roleMap.get(r.userId);
-      return (
-        existing ?? {
-          id: `unsaved-${r.userId}`,
-          raidPlanId: plan.id,
-          userId: r.userId,
-          displayName: r.characterName,
-          characterName: r.characterName,
-          wowClass: r.wowClass as WowClass,
-          spec: r.spec as WowSpec,
-          role: RaidParticipantRole.RAIDER,
-          groupNumber: null,
-        }
-      );
-    });
+    const raiderProfileMap = new Map(allRaiders.map((r) => [r.userId, r]));
+
+    // Start with plan participants (preserve saved role/group), then add
+    // guild raiders who are not yet in the plan. Deduplicate on userId.
+    const seenUserIds = new Set<string>();
+    const merged: IRaidPlanParticipant[] = [];
+
+    // 1. Plan participants first (so saved assignments are preserved)
+    for (const p of plan.participants) {
+      if (seenUserIds.has(p.userId)) continue;
+      seenUserIds.add(p.userId);
+      merged.push(p);
+    }
+
+    // 2. Guild raiders not yet in the plan
+    for (const r of allRaiders) {
+      if (seenUserIds.has(r.userId)) continue;
+      seenUserIds.add(r.userId);
+      merged.push({
+        id: `unsaved-${r.userId}`,
+        raidPlanId: plan.id,
+        userId: r.userId,
+        displayName: r.characterName,
+        characterName: r.characterName,
+        wowClass: r.wowClass as WowClass,
+        spec: r.spec as WowSpec,
+        role: RaidParticipantRole.RAIDER,
+        groupNumber: null,
+      });
+    }
+
+    // 3. Update wowClass/spec for plan participants based on current raider profile
+    for (const p of merged) {
+      const profile = raiderProfileMap.get(p.userId);
+      if (profile) {
+        p.wowClass = profile.wowClass as WowClass;
+        p.spec = profile.spec as WowSpec;
+      }
+    }
+
     this.distributeParticipants(merged);
   });
 
@@ -152,16 +189,47 @@ export class RaidPlanDetailComponent implements OnDestroy {
     this._groups = Array.from({ length: GROUP_COUNT }, () => []);
     this._bench = [];
     this._absent = [];
+
+    // Separate saved (have explicit role/group) from unassigned
+    const savedRaiders: IRaidPlanParticipant[] = [];
+    const unassigned: IRaidPlanParticipant[] = [];
+
     for (const p of participants) {
       if (p.role === RaidParticipantRole.BENCH) {
         this._bench.push(p);
       } else if (p.role === RaidParticipantRole.ABSENT) {
         this._absent.push(p);
+      } else if (p.groupNumber != null) {
+        savedRaiders.push(p);
       } else {
-        const idx = p.groupNumber != null ? Math.min(p.groupNumber - 1, GROUP_COUNT - 1) : 0;
-        this._groups[idx].push(p);
+        unassigned.push(p);
       }
     }
+
+    // Place saved raiders in their saved groups
+    for (const p of savedRaiders) {
+      const idx = Math.min((p.groupNumber as number) - 1, GROUP_COUNT - 1);
+      this._groups[idx].push(p);
+    }
+
+    // Auto-distribute unassigned raiders: tanks → healers → dps → bench
+    if (unassigned.length > 0) {
+      const tanks = unassigned.filter((p) => TANK_SPECS.has(p.spec));
+      const healers = unassigned.filter((p) => HEALER_SPECS.has(p.spec));
+      const dps = unassigned.filter((p) => !TANK_SPECS.has(p.spec) && !HEALER_SPECS.has(p.spec));
+      const GROUP_SIZE = 5;
+
+      for (const p of [...tanks, ...healers, ...dps]) {
+        const targetGroup = this._groups.find((g) => g.length < GROUP_SIZE);
+        if (targetGroup) {
+          targetGroup.push(p);
+        } else {
+          // Only DPS goes to bench when groups are full
+          this._bench.push(p);
+        }
+      }
+    }
+
     this._rosterVersion.update((v) => v + 1);
   }
 
@@ -171,6 +239,11 @@ export class RaidPlanDetailComponent implements OnDestroy {
     if (event.previousContainer === event.container) {
       moveItemInArray(this._groups[groupIndex], event.previousIndex, event.currentIndex);
     } else {
+      // Enforce max 5 per group
+      if (this._groups[groupIndex].length >= 5) {
+        this.toast.show('Groep is vol (max 5).', 'error');
+        return;
+      }
       transferArrayItem(
         event.previousContainer.data,
         this._groups[groupIndex],
@@ -249,6 +322,30 @@ export class RaidPlanDetailComponent implements OnDestroy {
 
   cancelEdit(): void {
     this.editMode.set(false);
+  }
+
+  // ── Delete ───────────────────────────────────────────────────────────────────
+
+  readonly pendingDelete = signal(false);
+
+  requestDelete(): void {
+    this.pendingDelete.set(true);
+  }
+
+  abortDelete(): void {
+    this.pendingDelete.set(false);
+  }
+
+  confirmDelete(): void {
+    const plan = this.plan();
+    if (!plan) return;
+    this.service.delete(plan.id).subscribe({
+      next: () => {
+        this.toast.show('Raidplan verwijderd.');
+        this.router.navigate(['..'], { relativeTo: this.route });
+      },
+      error: () => this.toast.show('Verwijderen mislukt.', 'error'),
+    });
   }
 
   saveEdit(): void {

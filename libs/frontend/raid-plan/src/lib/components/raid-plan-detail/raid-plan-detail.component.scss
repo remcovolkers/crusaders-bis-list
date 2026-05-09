@@ -169,6 +169,8 @@
   display: flex;
   gap: 10px;
   flex-shrink: 0;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 // ── Difficulty badge ────────────────────────────────────────────────────────────
@@ -223,6 +225,8 @@
   border: 1px solid #1e3a5a;
   border-radius: 8px;
   padding: 12px;
+  display: flex;
+  flex-direction: column;
 }
 
 .group-zone__title {
@@ -248,11 +252,13 @@
   flex-direction: column;
   gap: 4px;
   min-height: 40px;
+  flex: 1;
 
   &--horizontal {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 6px;
+    flex: unset;
   }
 }
 
@@ -325,8 +331,31 @@
   }
 }
 
+.btn-danger {
+  background: #7f1d1d;
+  color: #fca5a5;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 16px;
+  cursor: pointer;
+  font-size: 0.9rem;
+
+  &:hover:not(:disabled) {
+    background: #991b1b;
+  }
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.confirm-text {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  align-self: center;
+}
+
 .btn-secondary {
-  background: #334155;
   color: #e2e8f0;
   border: none;
   border-radius: 6px;
