@@ -72,6 +72,14 @@ export class RaidPlanController {
     return this.catalogRepo.findAllSeasons();
   }
 
+  @Get('seasons/active/bosses')
+  async getBossesForActiveSeason(@Req() req: Request) {
+    assertSuperAdmin(req);
+    const season = await this.catalogRepo.findActiveSeason();
+    if (!season) return [];
+    return this.catalogRepo.findBossesBySeason(season.id);
+  }
+
   @Get('seasons/:seasonId/bosses')
   async getBossesBySeason(@Req() req: Request, @Param('seasonId') seasonId: string) {
     assertSuperAdmin(req);

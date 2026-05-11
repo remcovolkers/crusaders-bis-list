@@ -68,7 +68,10 @@
                 <!-- Actions -->
                 @if (isAdmin()) {
                   <div class="plan-card__actions">
-                    <a [routerLink]="[plan.id, 'edit']" class="btn btn--xs btn--ghost" (click)="$event.stopPropagation()"
+                    <a
+                      [routerLink]="[plan.id, 'edit']"
+                      class="btn btn--xs btn--ghost"
+                      (click)="$event.stopPropagation()"
                       >✏️ Bewerken</a
                     >
                     @if (pendingDelete()?.id === plan.id) {

@@ -94,6 +94,7 @@ export class RaidPlanRepository implements IRaidPlanRepository {
     const existing = await this.planRepo.findOneOrFail({ where: { id } });
 
     if (dto.raidSeasonId !== undefined) existing.raidSeasonId = dto.raidSeasonId;
+    if (dto.raidName !== undefined) existing.raidName = dto.raidName;
     if (dto.difficulty !== undefined) existing.difficulty = dto.difficulty;
     if (dto.scheduledAt !== undefined) existing.scheduledAt = new Date(dto.scheduledAt);
     if (dto.notes !== undefined) existing.notes = dto.notes;

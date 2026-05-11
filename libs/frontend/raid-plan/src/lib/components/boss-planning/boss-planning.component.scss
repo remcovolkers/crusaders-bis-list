@@ -188,6 +188,98 @@
 
 // ── Resource cards ────────────────────────────────────────────────────────────
 
+// View mode: preview grid
+.resource-preview-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.resource-preview-card {
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #1e3a5a;
+  background: #1a2535;
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    transform 0.1s;
+
+  &:hover {
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+  }
+
+  &--youtube {
+    border-color: #7f1d1d;
+    background: #1c0a0a;
+
+    &:hover {
+      border-color: #ef4444;
+    }
+  }
+
+  &__thumb-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #0f172a;
+    overflow: hidden;
+  }
+
+  &__thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    transition: opacity 0.15s;
+
+    .resource-preview-card:hover & {
+      opacity: 1;
+    }
+  }
+
+  &__info {
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__type {
+    font-size: 0.68rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  &__title {
+    font-size: 0.78rem;
+    color: #e2e8f0;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+// Edit mode: compact list
 .resource-list {
   display: flex;
   flex-direction: column;
@@ -258,6 +350,18 @@
 }
 
 // ── Add resource ──────────────────────────────────────────────────────────────
+
+.resource-preview-loading {
+  font-size: 0.78rem;
+  color: #475569;
+  font-style: italic;
+  padding: 4px 2px;
+}
+
+.resource-preview-pending {
+  opacity: 0.75;
+  pointer-events: none;
+}
 
 .resource-add {
   display: flex;

@@ -21,12 +21,10 @@
         <!-- Boss body -->
         @if (!isCollapsed(boss.id)) {
           <div class="boss-card__body">
-            <!-- Status -->
-            <div class="boss-field">
-              <label class="boss-field__label">Status</label>
-              @if (readonly()) {
-                <span class="status-badge status-badge--{{ getStatus(boss.id) }}">{{ getStatus(boss.id) }}</span>
-              } @else {
+            <!-- Status (edit only) -->
+            @if (!readonly()) {
+              <div class="boss-field">
+                <label class="boss-field__label">Status</label>
                 <div class="status-toggle">
                   @for (s of statuses; track s) {
                     <button
@@ -38,8 +36,8 @@
                     </button>
                   }
                 </div>
-              }
-            </div>
+              </div>
+            }
 
             <!-- Notes -->
             <div class="boss-field">
@@ -66,24 +64,56 @@
             <div class="boss-field">
               <label class="boss-field__label">Resources</label>
 
-              <div class="resource-list">
-                @for (r of getNote(boss.id)?.resources ?? []; track r.id) {
-                  <div class="resource-card" [class.resource-card--youtube]="r.type === 'youtube'">
-                    @if (r.thumbnailUrl) {
-                      <img class="resource-card__thumb" [src]="r.thumbnailUrl" alt="" loading="lazy" />
-                    }
-                    <div class="resource-card__info">
-                      <a class="resource-card__title" [href]="r.url" target="_blank" rel="noopener">{{ r.title }}</a>
-                      <span class="resource-card__type">{{ r.type === 'youtube' ? '▶ YouTube' : '🔗 Link' }}</span>
-                    </div>
-                    @if (!readonly()) {
+              @if (readonly()) {
+                <div class="resource-preview-grid">
+                  @for (r of getNote(boss.id)?.resources ?? []; track r.id) {
+                    <a
+                      class="resource-preview-card"
+                      [class.resource-preview-card--youtube]="r.type === 'youtube'"
+                      [href]="r.url"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      @if (r.thumbnailUrl) {
+                        <div class="resource-preview-card__thumb-wrap">
+                          <img
+                            class="resource-preview-card__thumb"
+                            [src]="r.thumbnailUrl"
+                            [alt]="r.title"
+                            loading="lazy"
+                          />
+                          @if (r.type === 'youtube') {
+                            <span class="resource-preview-card__play">▶</span>
+                          }
+                        </div>
+                      }
+                      <div class="resource-preview-card__info">
+                        <span class="resource-preview-card__type">{{
+                          r.type === 'youtube' ? '▶ YouTube' : '🔗 Link'
+                        }}</span>
+                        <span class="resource-preview-card__title">{{ r.title }}</span>
+                      </div>
+                    </a>
+                  }
+                </div>
+              } @else {
+                <div class="resource-list">
+                  @for (r of getNote(boss.id)?.resources ?? []; track r.id) {
+                    <div class="resource-card" [class.resource-card--youtube]="r.type === 'youtube'">
+                      @if (r.thumbnailUrl) {
+                        <img class="resource-card__thumb" [src]="r.thumbnailUrl" alt="" loading="lazy" />
+                      }
+                      <div class="resource-card__info">
+                        <a class="resource-card__title" [href]="r.url" target="_blank" rel="noopener">{{ r.title }}</a>
+                        <span class="resource-card__type">{{ r.type === 'youtube' ? '▶ YouTube' : '🔗 Link' }}</span>
+                      </div>
                       <button class="resource-card__delete" (click)="deleteResource(boss.id, r.id)" title="Verwijderen">
                         ✕
                       </button>
-                    }
-                  </div>
-                }
-              </div>
+                    </div>
+                  }
+                </div>
+              }
 
               <!-- Add resource (edit mode only) -->
               @if (!readonly()) {
@@ -104,6 +134,27 @@
                     {{ isAdding(boss.id) ? '…' : '+ Toevoegen' }}
                   </button>
                 </div>
+
+                <!-- Live preview -->
+                @if (getPendingUrl(boss.id)) {
+                  @if (getPendingPreview(boss.id) === null) {
+                    <div class="resource-preview-loading">Voorbeeld laden…</div>
+                  } @else if (getPendingPreview(boss.id); as preview) {
+                    <div class="resource-preview-pending">
+                      <div class="resource-card" [class.resource-card--youtube]="preview.type === 'youtube'">
+                        @if (preview.thumbnailUrl) {
+                          <img class="resource-card__thumb" [src]="preview.thumbnailUrl" alt="" loading="lazy" />
+                        }
+                        <div class="resource-card__info">
+                          <span class="resource-card__title">{{ preview.title }}</span>
+                          <span class="resource-card__type">{{
+                            preview.type === 'youtube' ? '▶ YouTube' : '🔗 Link'
+                          }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                }
               }
             </div>
           </div>

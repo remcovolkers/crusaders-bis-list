@@ -68,11 +68,13 @@ export class CreateRaidPlanUseCase {
   ) {}
 
   async execute(dto: CreateRaidPlanDto): Promise<IRaidPlan> {
-    const season = await this.catalogRepo.findSeasonById(dto.raidSeasonId);
-    if (!season) throw new NotFoundException(`Raid season ${dto.raidSeasonId} not found`);
+    const season = dto.raidSeasonId
+      ? await this.catalogRepo.findSeasonById(dto.raidSeasonId)
+      : await this.catalogRepo.findActiveSeason();
+    if (!season) throw new NotFoundException(`No active raid season found`);
 
     const resolved = await this.resolveParticipants(dto);
-    return this.repo.create(dto, resolved, season.name);
+    return this.repo.create({ ...dto, raidSeasonId: season.id }, resolved, dto.raidName ?? season.name);
   }
 
   private async resolveParticipants(dto: CreateRaidPlanDto): Promise<ResolvedParticipant[]> {

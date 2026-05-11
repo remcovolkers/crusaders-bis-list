@@ -44,6 +44,10 @@ export class RaidPlanBossNoteRepository implements IRaidPlanBossNoteRepository {
     };
   }
 
+  private async withResources(id: string): Promise<RaidPlanBossNoteOrmEntity | null> {
+    return this.noteRepo.findOne({ where: { id } });
+  }
+
   async findAllByPlan(raidPlanId: string): Promise<IRaidPlanBossNote[]> {
     const entities = await this.noteRepo.find({ where: { raidPlanId } });
     return entities.map((e) => this.toModel(e));
@@ -62,19 +66,17 @@ export class RaidPlanBossNoteRepository implements IRaidPlanBossNoteRepository {
     if (dto.notes !== undefined) entity.notes = dto.notes;
     if (dto.status !== undefined) entity.status = dto.status;
     const saved = await this.noteRepo.save(entity);
-    return this.toModel(saved);
+    return this.toModel((await this.withResources(saved.id))!);
   }
 
   async addResource(bossNoteId: string, dto: AddBossResourceDto): Promise<IRaidPlanBossNote> {
     const resource = this.resourceRepo.create({ ...dto, bossNoteId });
     await this.resourceRepo.save(resource);
-    const entity = await this.noteRepo.findOneOrFail({ where: { id: bossNoteId } });
-    return this.toModel(entity);
+    return this.toModel((await this.withResources(bossNoteId))!);
   }
 
   async deleteResource(bossNoteId: string, resourceId: string): Promise<IRaidPlanBossNote> {
     await this.resourceRepo.delete({ id: resourceId, bossNoteId });
-    const entity = await this.noteRepo.findOneOrFail({ where: { id: bossNoteId } });
-    return this.toModel(entity);
+    return this.toModel((await this.withResources(bossNoteId))!);
   }
 }

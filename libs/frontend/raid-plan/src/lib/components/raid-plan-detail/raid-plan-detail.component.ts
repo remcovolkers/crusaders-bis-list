@@ -23,12 +23,21 @@ import { CdkDropList, CdkDrag, CdkDragDrop, moveItemInArray, transferArrayItem }
 
 // ── Spec sets for auto-distribution ─────────────────────────────────────────
 const TANK_SPECS = new Set<WowSpec>([
-  WowSpec.PROTECTION_WARRIOR, WowSpec.PROTECTION_PALADIN, WowSpec.BLOOD,
-  WowSpec.VENGEANCE, WowSpec.GUARDIAN, WowSpec.BREWMASTER,
+  WowSpec.PROTECTION_WARRIOR,
+  WowSpec.PROTECTION_PALADIN,
+  WowSpec.BLOOD,
+  WowSpec.VENGEANCE,
+  WowSpec.GUARDIAN,
+  WowSpec.BREWMASTER,
 ]);
 const HEALER_SPECS = new Set<WowSpec>([
-  WowSpec.HOLY_PALADIN, WowSpec.DISCIPLINE, WowSpec.HOLY_PRIEST,
-  WowSpec.RESTORATION_SHAMAN, WowSpec.RESTORATION_DRUID, WowSpec.MISTWEAVER, WowSpec.PRESERVATION,
+  WowSpec.HOLY_PALADIN,
+  WowSpec.DISCIPLINE,
+  WowSpec.HOLY_PRIEST,
+  WowSpec.RESTORATION_SHAMAN,
+  WowSpec.RESTORATION_DRUID,
+  WowSpec.MISTWEAVER,
+  WowSpec.PRESERVATION,
 ]);
 
 const GROUP_COUNT = 4;
@@ -88,6 +97,22 @@ export class RaidPlanDetailComponent implements OnDestroy {
   readonly editTime = signal('20:00');
   readonly editDifficulty = signal<RaidDifficulty>(RaidDifficulty.HEROIC);
   readonly editNotes = signal('');
+  readonly editRaids = signal<Set<string>>(new Set());
+
+  /** Unique raid names derived from bosses in the current season */
+  readonly raidNames = computed((): string[] => {
+    const seen = new Set<string>();
+    const result: string[] = [];
+    for (const b of this.bosses()) {
+      if (b.raidName && !seen.has(b.raidName)) {
+        seen.add(b.raidName);
+        result.push(b.raidName);
+      }
+    }
+    return result;
+  });
+
+  readonly editDerivedRaidName = computed(() => [...this.editRaids()].join(' + '));
 
   readonly difficulties = Object.values(RaidDifficulty);
 
@@ -317,7 +342,22 @@ export class RaidPlanDetailComponent implements OnDestroy {
     this.editTime.set(dtLocal.split('T')[1].substring(0, 5));
     this.editDifficulty.set(p.difficulty);
     this.editNotes.set(p.notes ?? '');
+    // Derive selected raids from current raidName (may be "A + B")
+    const parts = p.raidName
+      .split(' + ')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    this.editRaids.set(new Set(parts));
     this.editMode.set(true);
+  }
+
+  toggleEditRaid(name: string): void {
+    this.editRaids.update((s) => {
+      const next = new Set(s);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
   }
 
   cancelEdit(): void {
@@ -352,8 +392,10 @@ export class RaidPlanDetailComponent implements OnDestroy {
     const plan = this.plan();
     if (!plan) return;
     this.saving.set(true);
+    const raidName = this.editRaids().size > 0 ? this.editDerivedRaidName() : undefined;
     this.service
       .update(plan.id, {
+        raidName,
         difficulty: this.editDifficulty(),
         scheduledAt: new Date(`${this.editDate()}T${this.editTime()}`).toISOString(),
         notes: this.editNotes() || undefined,

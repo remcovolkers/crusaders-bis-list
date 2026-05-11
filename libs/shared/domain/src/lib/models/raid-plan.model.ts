@@ -40,7 +40,8 @@ export interface CreateRaidPlanParticipantDto {
 }
 
 export interface CreateRaidPlanDto {
-  raidSeasonId: string;
+  raidSeasonId?: string; // omit to let backend use the active season
+  raidName?: string; // optional override; if absent backend falls back to season name
   difficulty: RaidDifficulty;
   scheduledAt: string; // ISO string
   notes?: string;

@@ -35,8 +35,13 @@ export class RaidPlanParticipantDto {
 }
 
 export class CreateRaidPlanDto {
+  @IsOptional()
   @IsUUID()
-  raidSeasonId!: string;
+  raidSeasonId?: string;
+
+  @IsOptional()
+  @IsString()
+  raidName?: string;
 
   @IsEnum(RaidDifficulty)
   difficulty!: RaidDifficulty;
@@ -58,6 +63,10 @@ export class UpdateRaidPlanDto {
   @IsOptional()
   @IsUUID()
   raidSeasonId?: string;
+
+  @IsOptional()
+  @IsString()
+  raidName?: string;
 
   @IsOptional()
   @IsEnum(RaidDifficulty)

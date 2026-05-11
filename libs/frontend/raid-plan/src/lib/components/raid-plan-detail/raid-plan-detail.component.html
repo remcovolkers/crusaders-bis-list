@@ -49,6 +49,23 @@
                     }
                   </select>
                 </div>
+                @if (raidNames().length > 0) {
+                  <div class="inline-field inline-field--raids">
+                    <label class="inline-field__label">Raids</label>
+                    <div class="edit-raid-chips">
+                      @for (name of raidNames(); track name) {
+                        <button
+                          type="button"
+                          class="raid-chip"
+                          [class.raid-chip--active]="editRaids().has(name)"
+                          (click)="toggleEditRaid(name)"
+                        >
+                          {{ name }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
                 <div class="inline-field inline-field--grow">
                   <label class="inline-field__label">Notities</label>
                   <input

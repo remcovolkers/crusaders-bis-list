@@ -26,6 +26,10 @@ export class RaidPlanService {
     return this.http.get<IRaidSeason[]>(`${this.base}/raid-plans/seasons`);
   }
 
+  getBossesForActiveSeason() {
+    return this.http.get<IBoss[]>(`${this.base}/raid-plans/seasons/active/bosses`);
+  }
+
   getBossesForSeason(seasonId: string) {
     return this.http.get<IBoss[]>(`${this.base}/raid-plans/seasons/${seasonId}/bosses`);
   }

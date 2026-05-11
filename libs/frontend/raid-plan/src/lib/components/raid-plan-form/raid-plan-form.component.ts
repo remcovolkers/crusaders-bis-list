@@ -2,7 +2,7 @@
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { RaidDifficulty, CreateRaidPlanParticipantDto, IRaidSeason } from '@crusaders-bis-list/shared-domain';
+import { RaidDifficulty, CreateRaidPlanParticipantDto } from '@crusaders-bis-list/shared-domain';
 import { RaidPlanService } from '../../services/raid-plan.service';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
@@ -20,20 +20,47 @@ export class RaidPlanFormComponent {
 
   readonly saving = signal(false);
 
-  readonly seasonsResource = rxResource({
-    stream: () => this.service.getRaidSeasons(),
+  // Load bosses for the active season (no season selection needed)
+  readonly bossesResource = rxResource({
+    stream: () => this.service.getBossesForActiveSeason(),
   });
-  readonly seasons = computed((): IRaidSeason[] => this.seasonsResource.value() ?? []);
 
-  // Form fields
-  readonly selectedSeasonId = signal('');
+  /** Unique raid names within the active season, in encounter order */
+  readonly raidNames = computed((): string[] => {
+    const seen = new Set<string>();
+    const result: string[] = [];
+    for (const b of this.bossesResource.value() ?? []) {
+      if (b.raidName && !seen.has(b.raidName)) {
+        seen.add(b.raidName);
+        result.push(b.raidName);
+      }
+    }
+    return result;
+  });
+
+  /** Selected raid names (multi-select chips) */
+  readonly selectedRaids = signal<Set<string>>(new Set());
+
+  /** Derived raidName sent to backend */
+  readonly derivedRaidName = computed(() => [...this.selectedRaids()].join(' + '));
+
+  toggleRaid(name: string): void {
+    this.selectedRaids.update((s) => {
+      const next = new Set(s);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  }
+
+  isRaidSelected(name: string): boolean {
+    return this.selectedRaids().has(name);
+  }
+
+  // ── Other form fields ─────────────────────────────────────────────────────
   readonly selectedDifficulty = signal<RaidDifficulty>(RaidDifficulty.HEROIC);
   readonly scheduledDate = signal('');
   readonly scheduledTime = signal('20:00');
-  readonly scheduledAt = computed(() => {
-    if (!this.scheduledDate()) return '';
-    return `${this.scheduledDate()}T${this.scheduledTime() || '00:00'}`;
-  });
   readonly notes = signal('');
 
   readonly difficulties = Object.values(RaidDifficulty);
@@ -47,14 +74,17 @@ export class RaidPlanFormComponent {
     return times;
   })();
 
+  readonly canSave = computed(() => this.selectedRaids().size > 0 && !!this.scheduledDate());
+
   save(): void {
-    if (!this.selectedSeasonId() || !this.scheduledAt()) {
-      this.toast.show('Vul seizoen en datum in.', 'error');
+    if (!this.canSave()) {
+      this.toast.show('Selecteer minstens één raid en een datum.', 'error');
       return;
     }
     this.saving.set(true);
     const dto = {
-      raidSeasonId: this.selectedSeasonId(),
+      // raidSeasonId omitted — backend uses active season
+      raidName: this.derivedRaidName(),
       difficulty: this.selectedDifficulty(),
       scheduledAt: new Date(`${this.scheduledDate()}T${this.scheduledTime()}`).toISOString(),
       notes: this.notes() || undefined,

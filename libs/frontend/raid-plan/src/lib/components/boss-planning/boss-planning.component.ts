@@ -39,6 +39,8 @@ export class BossPlanningComponent {
   readonly collapsed = signal<Set<string>>(new Set([]));
   /** bossId → new resource URL being typed */
   readonly pendingUrl = signal<Map<string, string>>(new Map());
+  /** bossId → resolved preview (null while loading) */
+  readonly pendingPreview = signal<Map<string, AddBossResourceDto | null>>(new Map());
   /** bossId → loading indicator for resource add */
   readonly addingResource = signal<Set<string>>(new Set());
 
@@ -106,6 +108,43 @@ export class BossPlanningComponent {
 
   onUrlInput(bossId: string, url: string): void {
     this.pendingUrl.update((m) => new Map(m).set(bossId, url));
+    this.schedulePreview(bossId, url.trim());
+  }
+
+  getPendingPreview(bossId: string): AddBossResourceDto | null | undefined {
+    return this.pendingPreview().get(bossId);
+  }
+
+  private previewTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+  private schedulePreview(bossId: string, url: string): void {
+    const existing = this.previewTimers.get(bossId);
+    if (existing) clearTimeout(existing);
+    if (!url) {
+      this.pendingPreview.update((m) => {
+        const n = new Map(m);
+        n.delete(bossId);
+        return n;
+      });
+      return;
+    }
+    // set null = loading indicator
+    this.pendingPreview.update((m) => new Map(m).set(bossId, null));
+    const timer = setTimeout(async () => {
+      let preview: AddBossResourceDto;
+      if (this.isYoutube(url)) {
+        try {
+          const oembed = await this.fetchOEmbed(url);
+          preview = { url, title: oembed.title, thumbnailUrl: oembed.thumbnail_url, type: 'youtube' };
+        } catch {
+          preview = { url, title: url, type: 'youtube' };
+        }
+      } else {
+        preview = { url, title: url, type: 'link' };
+      }
+      this.pendingPreview.update((m) => new Map(m).set(bossId, preview));
+    }, 600);
+    this.previewTimers.set(bossId, timer);
   }
 
   async addResource(bossId: string): Promise<void> {
@@ -131,13 +170,22 @@ export class BossPlanningComponent {
       dto = { url, title: url, type: 'link' };
     }
 
+    // Use already-resolved preview if available to avoid double oEmbed fetch
+    const preview = this.pendingPreview().get(bossId);
+    if (preview) dto = preview;
+
     this.service.addBossResource(this.raidPlanId(), bossId, dto).subscribe({
-      next: (updated) => {
-        this.patchNoteMap(updated);
+      next: () => {
+        this.bossNotesResource.reload();
         this.pendingUrl.update((m) => {
-          const next = new Map(m);
-          next.delete(bossId);
-          return next;
+          const n = new Map(m);
+          n.delete(bossId);
+          return n;
+        });
+        this.pendingPreview.update((m) => {
+          const n = new Map(m);
+          n.delete(bossId);
+          return n;
         });
         this.addingResource.update((s) => {
           const next = new Set(s);
@@ -173,13 +221,7 @@ export class BossPlanningComponent {
     const note = this.getNote(bossId);
     if (!note) return;
     this.service.deleteBossResource(this.raidPlanId(), bossId, resourceId).subscribe({
-      next: () => {
-        this.bossNotesResource.update((notes) =>
-          (notes ?? []).map((n) =>
-            n.bossId === bossId ? { ...n, resources: n.resources.filter((r) => r.id !== resourceId) } : n,
-          ),
-        );
-      },
+      next: () => this.bossNotesResource.reload(),
       error: () => this.toast.show('Verwijderen mislukt.', 'error'),
     });
   }

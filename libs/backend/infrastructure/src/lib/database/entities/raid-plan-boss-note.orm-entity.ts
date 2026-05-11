@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('raid_plan_boss_resources')
@@ -28,7 +29,8 @@ export class RaidPlanBossResourceOrmEntity {
   @Column({ type: 'varchar' })
   type!: string;
 
-  @ManyToOne('RaidPlanBossNoteOrmEntity', 'resources', { onDelete: 'CASCADE' })
+  @ManyToOne(() => RaidPlanBossNoteOrmEntity, (note) => note.resources, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'boss_note_id' })
   bossNote?: unknown;
 }
 

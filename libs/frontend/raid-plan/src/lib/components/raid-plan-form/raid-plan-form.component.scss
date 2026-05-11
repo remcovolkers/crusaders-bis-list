@@ -158,6 +158,55 @@
   gap: 6px;
 }
 
+// ── Raid chips ────────────────────────────────────────────────────────────────
+
+.raid-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.raid-chip {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid #1e3a5a;
+  background: #0f172a;
+  color: #64748b;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: #3b82f6;
+    color: #93c5fd;
+  }
+
+  &--active {
+    background: #1e3a8a;
+    border-color: #3b82f6;
+    color: #93c5fd;
+    font-weight: 600;
+  }
+}
+
+.raid-preview {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 4px 0 0;
+
+  strong {
+    color: #f0c040;
+    margin-left: 4px;
+  }
+}
+
+.field__hint {
+  font-size: 0.82rem;
+  color: #475569;
+  margin: 4px 0 0;
+  font-style: italic;
+}
+
 .difficulty-btn {
   flex: 1;
   padding: 8px 4px;
