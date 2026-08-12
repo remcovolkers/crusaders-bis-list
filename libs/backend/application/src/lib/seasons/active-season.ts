@@ -1,5 +1,5 @@
 import { SeasonDefinition } from './season-definition.types';
-import { MIDNIGHT_T35_SEASON } from './midnight-t35.season';
+import { MIDNIGHT_T36_SEASON } from './midnight-t36.season';
 
 /**
  * The season that will be synced when the admin triggers a Blizzard sync.
@@ -12,4 +12,5 @@ import { MIDNIGHT_T35_SEASON } from './midnight-t35.season';
  */
 
 // export const ACTIVE_SEASON: SeasonDefinition = MANAFORGE_T34_SEASON; // see manaforge-t34.season.ts
-export const ACTIVE_SEASON: SeasonDefinition = MIDNIGHT_T35_SEASON;
+// export const ACTIVE_SEASON: SeasonDefinition = MIDNIGHT_T35_SEASON; // see midnight-t35.season.ts
+export const ACTIVE_SEASON: SeasonDefinition = MIDNIGHT_T36_SEASON;
