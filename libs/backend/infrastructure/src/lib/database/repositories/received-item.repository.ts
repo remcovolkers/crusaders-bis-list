@@ -51,4 +51,12 @@ export class ReceivedItemRepository implements IReceivedItemRepository {
   async deleteByRaiderAndItem(raiderId: string, itemId: string): Promise<void> {
     await this.repo.delete({ raiderId, itemId });
   }
+
+  async deleteAll(): Promise<void> {
+    await this.repo.clear();
+  }
+
+  async deleteByRaider(raiderId: string): Promise<void> {
+    await this.repo.delete({ raiderId });
+  }
 }

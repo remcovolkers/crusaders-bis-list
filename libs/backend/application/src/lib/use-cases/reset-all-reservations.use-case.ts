@@ -6,6 +6,8 @@ import {
   IUserRepository,
   RAIDER_REPOSITORY,
   IRaiderRepository,
+  RECEIVED_ITEM_REPOSITORY,
+  IReceivedItemRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { EmailService, emailShell, emailButton, EMAIL_BASE_URL } from '@crusaders-bis-list/backend-infrastructure';
 import { ConfigService } from '@nestjs/config';
@@ -18,6 +20,8 @@ export class ResetAllReservationsUseCase {
   constructor(
     @Inject(RESERVATION_REPOSITORY)
     private readonly reservationRepo: IReservationRepository,
+    @Inject(RECEIVED_ITEM_REPOSITORY)
+    private readonly receivedItemRepo: IReceivedItemRepository,
     @Inject(USER_REPOSITORY)
     private readonly userRepo: IUserRepository,
     @Inject(RAIDER_REPOSITORY)
@@ -34,10 +38,14 @@ export class ResetAllReservationsUseCase {
       const devUser = await this.userRepo.findByEmail(this.devEmail);
       if (devUser) {
         const raider = await this.raiderRepo.findByUserId(devUser.id);
-        if (raider) await this.reservationRepo.deleteByRaider(raider.id);
+        if (raider) {
+          await this.reservationRepo.deleteByRaider(raider.id);
+          await this.receivedItemRepo.deleteByRaider(raider.id);
+        }
       }
     } else {
       await this.reservationRepo.deleteAll();
+      await this.receivedItemRepo.deleteAll();
     }
 
     const users = await this.userRepo.findAll();

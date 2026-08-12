@@ -20,6 +20,8 @@ export interface IReceivedItemRepository {
   save(dto: CreateReceivedItemDto): Promise<IReceivedItem>;
   delete(id: string): Promise<void>;
   deleteByRaiderAndItem(raiderId: string, itemId: string): Promise<void>;
+  deleteAll(): Promise<void>;
+  deleteByRaider(raiderId: string): Promise<void>;
 }
 
 export const RECEIVED_ITEM_REPOSITORY = Symbol('IReceivedItemRepository');
