@@ -410,25 +410,13 @@ export const WOW_SPEC_REGISTRY: Record<WowSpec, IWowSpecData> = {
     id: WowSpec.HAVOC,
     class: WowClass.DEMON_HUNTER,
     primaryStat: PrimaryStat.AGILITY,
-    usableWeaponTypes: [
-      WeaponType.WARGLAIVE,
-      WeaponType.SWORD_1H,
-      WeaponType.AXE_1H,
-      WeaponType.DAGGER,
-      WeaponType.FIST,
-    ],
+    usableWeaponTypes: [WeaponType.WARGLAIVE, WeaponType.SWORD_1H, WeaponType.AXE_1H, WeaponType.FIST],
   },
   [WowSpec.VENGEANCE]: {
     id: WowSpec.VENGEANCE,
     class: WowClass.DEMON_HUNTER,
     primaryStat: PrimaryStat.AGILITY,
-    usableWeaponTypes: [
-      WeaponType.WARGLAIVE,
-      WeaponType.SWORD_1H,
-      WeaponType.AXE_1H,
-      WeaponType.DAGGER,
-      WeaponType.FIST,
-    ],
+    usableWeaponTypes: [WeaponType.WARGLAIVE, WeaponType.SWORD_1H, WeaponType.AXE_1H, WeaponType.FIST],
   },
   [WowSpec.DEVOURER]: {
     id: WowSpec.DEVOURER,
