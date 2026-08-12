@@ -434,7 +434,13 @@ export const WOW_SPEC_REGISTRY: Record<WowSpec, IWowSpecData> = {
     id: WowSpec.DEVOURER,
     class: WowClass.DEMON_HUNTER,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.WARGLAIVE, WeaponType.SWORD_1H, WeaponType.AXE_1H],
+    usableWeaponTypes: [
+      WeaponType.WARGLAIVE,
+      WeaponType.SWORD_1H,
+      WeaponType.AXE_1H,
+      WeaponType.DAGGER,
+      WeaponType.FIST,
+    ],
   },
   // ── Evoker ──
   [WowSpec.DEVASTATION]: {
