@@ -390,7 +390,14 @@ export const WOW_SPEC_REGISTRY: Record<WowSpec, IWowSpecData> = {
     id: WowSpec.MISTWEAVER,
     class: WowClass.MONK,
     primaryStat: PrimaryStat.INTELLECT,
-    usableWeaponTypes: [WeaponType.STAFF, WeaponType.MACE_1H, WeaponType.AXE_1H, WeaponType.FIST, WeaponType.OFFHAND],
+    usableWeaponTypes: [
+      WeaponType.STAFF,
+      WeaponType.MACE_1H,
+      WeaponType.AXE_1H,
+      WeaponType.FIST,
+      WeaponType.SWORD_1H,
+      WeaponType.OFFHAND,
+    ],
   },
   [WowSpec.WINDWALKER]: {
     id: WowSpec.WINDWALKER,
