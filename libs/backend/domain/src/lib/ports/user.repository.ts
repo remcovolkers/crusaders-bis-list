@@ -1,4 +1,5 @@
 import { User } from '../entities/user.entity';
+import { Team } from '@crusaders-bis-list/shared-domain';
 
 export interface IUserRepository {
   findById(id: string): Promise<User | null>;
@@ -8,7 +9,7 @@ export interface IUserRepository {
   findAll(): Promise<User[]>;
   save(user: User): Promise<User>;
   updateRoles(userId: string, roles: import('@crusaders-bis-list/shared-domain').UserRole[]): Promise<User>;
-  updateMembership(userId: string, isCrusadersMember: boolean): Promise<User>;
+  updateTeam(userId: string, team: Team): Promise<User>;
   updateBnetAccount(
     userId: string,
     bnetId: string | null,

@@ -88,6 +88,10 @@
   overflow: hidden;
   padding-bottom: 24px;
 
+  &.single-column {
+    grid-template-columns: minmax(0, 480px);
+  }
+
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     overflow-y: auto;

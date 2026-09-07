@@ -14,10 +14,12 @@ import {
   IRaidSeason,
   ItemCategory,
   PrimaryStat,
+  Team,
   WeaponType,
   WowClass,
 } from '@crusaders-bis-list/shared-domain';
 import { RaidSeasonOrmEntity, BossOrmEntity, ItemOrmEntity } from '../entities/catalog.orm-entity';
+import { ItemSuperRareOverrideOrmEntity } from '../entities/item-super-rare-override.orm-entity';
 
 @Injectable()
 export class RaidCatalogRepository implements IRaidCatalogRepository {
@@ -28,6 +30,8 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
     private readonly bossRepo: Repository<BossOrmEntity>,
     @InjectRepository(ItemOrmEntity)
     private readonly itemRepo: Repository<ItemOrmEntity>,
+    @InjectRepository(ItemSuperRareOverrideOrmEntity)
+    private readonly superRareOverrideRepo: Repository<ItemSuperRareOverrideOrmEntity>,
   ) {}
 
   private toIItem(i: ItemOrmEntity, bossName: string): IItem {
@@ -178,11 +182,21 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
     return this.toIItem(await this.itemRepo.save(item), bossName);
   }
 
-  async updateItemSuperRare(itemId: string, isSuperRare: boolean): Promise<IItem> {
-    await this.itemRepo.update(itemId, { isSuperRare });
+  async updateItemSuperRare(itemId: string, team: Team, isSuperRare: boolean): Promise<IItem> {
+    const existing = await this.superRareOverrideRepo.findOne({ where: { itemId, team } });
+    if (existing) {
+      await this.superRareOverrideRepo.update(existing.id, { isSuperRare });
+    } else {
+      await this.superRareOverrideRepo.save(this.superRareOverrideRepo.create({ itemId, team, isSuperRare }));
+    }
     const item = await this.itemRepo.findOneOrFail({ where: { id: itemId } });
     const bossName = (await this.bossRepo.findOne({ where: { id: item.bossId } }))?.name ?? '';
-    return this.toIItem(item, bossName);
+    return { ...this.toIItem(item, bossName), isSuperRare };
+  }
+
+  async getSuperRareOverrides(team: Team): Promise<Record<string, boolean>> {
+    const overrides = await this.superRareOverrideRepo.find({ where: { team } });
+    return Object.fromEntries(overrides.map((o) => [o.itemId, o.isSuperRare]));
   }
 
   async findItemByWowId(wowItemId: number): Promise<IItem | null> {

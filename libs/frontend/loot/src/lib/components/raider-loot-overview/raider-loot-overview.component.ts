@@ -27,7 +27,6 @@ export class RaiderLootOverviewComponent {
   linkBnet(): void {
     this.authService.redirectToBnetLink();
   }
-  readonly isCrusadersMember = computed(() => this.authState.user()?.isCrusadersMember ?? false);
 
   readonly state = inject(RaiderLootStateService);
 

@@ -2,7 +2,9 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { AdminService } from '../../services/admin.service';
-import { IItem, ISeasonConfig } from '@crusaders-bis-list/shared-domain';
+import { AdminTeamContextService } from '../../services/admin-team-context.service';
+import { AuthStateService } from '@crusaders-bis-list/frontend-auth';
+import { IItem, ISeasonConfig, Team } from '@crusaders-bis-list/shared-domain';
 import { CatalogResponse } from '@crusaders-bis-list/frontend-loot';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
@@ -15,9 +17,21 @@ import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 export class AdminSeasonConfigComponent {
   private readonly toast = inject(ToastService);
   private readonly adminService = inject(AdminService);
+  private readonly authState = inject(AuthStateService);
+  readonly teamContext = inject(AdminTeamContextService);
 
-  private readonly configResource = rxResource({ stream: () => this.adminService.getSeasonConfig() });
-  private readonly catalogResource = rxResource({ stream: () => this.adminService.getCatalog() });
+  readonly viewedTeam = computed(
+    () => this.teamContext.selectedTeam() ?? this.authState.user()?.team ?? Team.CRUSADERS,
+  );
+
+  private readonly configResource = rxResource({
+    params: () => this.viewedTeam(),
+    stream: ({ params: team }) => this.adminService.getSeasonConfig(team),
+  });
+  private readonly catalogResource = rxResource({
+    params: () => this.viewedTeam(),
+    stream: ({ params: team }) => this.adminService.getCatalog(team),
+  });
 
   readonly config = computed(() => this.configResource.value() ?? null);
   readonly catalog = computed(() => this.catalogResource.value() ?? null);
@@ -61,13 +75,17 @@ export class AdminSeasonConfigComponent {
     if (!config) return;
     this.saving.set(true);
     this.adminService
-      .updateSeasonConfig(config.raidSeasonId, {
-        trinketLimit: this.trinketLimit(),
-        weaponLimit: this.weaponLimit(),
-        jewelryLimit: this.jewelryLimit(),
-        armorLimit: this.armorLimit(),
-        superrareLimit: this.superrareLimit(),
-      })
+      .updateSeasonConfig(
+        config.raidSeasonId,
+        {
+          trinketLimit: this.trinketLimit(),
+          weaponLimit: this.weaponLimit(),
+          jewelryLimit: this.jewelryLimit(),
+          armorLimit: this.armorLimit(),
+          superrareLimit: this.superrareLimit(),
+        },
+        this.viewedTeam(),
+      )
       .subscribe({
         next: (c) => {
           this.configResource.update(() => c);
@@ -86,7 +104,7 @@ export class AdminSeasonConfigComponent {
     current.add(item.id);
     this.superRareUpdating.set(new Set(current));
 
-    this.adminService.updateItemSuperRare(item.id, !item.isSuperRare).subscribe({
+    this.adminService.updateItemSuperRare(item.id, !item.isSuperRare, this.viewedTeam()).subscribe({
       next: (updated) => {
         this.catalogResource.update((cat) =>
           cat

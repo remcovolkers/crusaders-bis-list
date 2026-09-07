@@ -4,7 +4,7 @@
       <span class="sidenav-brand-icon">⚔️</span>
       <div class="sidenav-brand-text">
         <span class="sidenav-brand-name">Admin</span>
-        <span class="sidenav-brand-sub">Crusaders BIS</span>
+        <span class="sidenav-brand-sub">RoyalTeam BIS</span>
       </div>
     </div>
 
@@ -18,6 +18,28 @@
         </li>
       }
     </ul>
+
+    @if (isSuperUser()) {
+      <div class="team-switcher">
+        <span class="team-switcher-label">Team</span>
+        <div class="team-switcher-tabs">
+          <button
+            class="team-switcher-tab"
+            [class.active]="viewedTeam() === Team.CRUSADERS"
+            (click)="selectTeam(Team.CRUSADERS)"
+          >
+            Crusaders
+          </button>
+          <button
+            class="team-switcher-tab"
+            [class.active]="viewedTeam() === Team.TEMPLARS"
+            (click)="selectTeam(Team.TEMPLARS)"
+          >
+            Templars
+          </button>
+        </div>
+      </div>
+    }
   </nav>
 
   <main class="admin-content">

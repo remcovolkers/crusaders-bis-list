@@ -2,6 +2,7 @@ import { UserRole } from '../enums/user-role.enum';
 import { WowClass } from '../enums/wow-class.enum';
 import { WowSpec } from '../enums/wow-spec.enum';
 import { RaiderStatus } from '../enums/raider-status.enum';
+import { Team } from '../enums/team.enum';
 import { IReservation, IReceivedItem } from './loot.model';
 
 export interface IRaiderProfile {
@@ -23,7 +24,7 @@ export interface IUser {
   displayName: string;
   avatarUrl?: string;
   roles: UserRole[];
-  isCrusadersMember: boolean;
+  team: Team;
   battletag?: string | null;
   createdAt: Date;
   updatedAt: Date;

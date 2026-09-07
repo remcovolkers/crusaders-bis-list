@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ISeasonConfigRepository } from '@crusaders-bis-list/backend-domain';
-import { ISeasonConfig, UpdateSeasonConfigDto } from '@crusaders-bis-list/shared-domain';
+import { ISeasonConfig, Team, UpdateSeasonConfigDto } from '@crusaders-bis-list/shared-domain';
 import { SeasonConfigOrmEntity } from '../entities/season-config.orm-entity';
 
 @Injectable()
@@ -16,6 +16,7 @@ export class SeasonConfigRepository implements ISeasonConfigRepository {
     return {
       id: e.id,
       raidSeasonId: e.raidSeasonId,
+      team: e.team,
       trinketLimit: e.trinketLimit,
       weaponLimit: e.weaponLimit,
       jewelryLimit: e.jewelryLimit,
@@ -24,16 +25,17 @@ export class SeasonConfigRepository implements ISeasonConfigRepository {
     };
   }
 
-  async findBySeasonId(seasonId: string): Promise<ISeasonConfig | null> {
-    const e = await this.repo.findOne({ where: { raidSeasonId: seasonId } });
+  async findBySeasonId(seasonId: string, team: Team): Promise<ISeasonConfig | null> {
+    const e = await this.repo.findOne({ where: { raidSeasonId: seasonId, team } });
     return e ? this.toModel(e) : null;
   }
 
-  async findOrCreateDefault(seasonId: string): Promise<ISeasonConfig> {
-    let e = await this.repo.findOne({ where: { raidSeasonId: seasonId } });
+  async findOrCreateDefault(seasonId: string, team: Team): Promise<ISeasonConfig> {
+    let e = await this.repo.findOne({ where: { raidSeasonId: seasonId, team } });
     if (!e) {
       e = this.repo.create({
         raidSeasonId: seasonId,
+        team,
         trinketLimit: 2,
         weaponLimit: 2,
         jewelryLimit: 1,

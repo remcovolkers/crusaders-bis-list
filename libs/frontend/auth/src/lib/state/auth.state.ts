@@ -1,4 +1,4 @@
-import { UserRole } from '@crusaders-bis-list/shared-domain';
+import { UserRole, Team } from '@crusaders-bis-list/shared-domain';
 
 export interface AuthUser {
   id: string;
@@ -6,7 +6,7 @@ export interface AuthUser {
   displayName: string;
   avatarUrl?: string;
   roles: UserRole[];
-  isCrusadersMember: boolean;
+  team: Team;
   bnetLinked?: boolean;
   battletag?: string | null;
 }

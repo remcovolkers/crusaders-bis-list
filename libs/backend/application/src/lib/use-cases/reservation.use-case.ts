@@ -11,6 +11,7 @@ import {
   IAssignmentRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { RAID_CATALOG_REPOSITORY, IRaidCatalogRepository } from '@crusaders-bis-list/backend-domain';
+import { Team } from '@crusaders-bis-list/shared-domain';
 
 @Injectable()
 export class ReserveItemUseCase {
@@ -23,18 +24,20 @@ export class ReserveItemUseCase {
     private readonly configRepo: ISeasonConfigRepository,
   ) {}
 
-  async execute(raiderId: string, itemId: string, raidSeasonId: string): Promise<void> {
+  async execute(raiderId: string, itemId: string, raidSeasonId: string, team: Team): Promise<void> {
     const item = await this.catalogRepo.findItemById(itemId);
     if (!item) throw new NotFoundException(`Item ${itemId} not found`);
 
     const existing = await this.reservationRepo.findExisting(raiderId, itemId, raidSeasonId);
     if (existing) throw new ConflictException('You already reserved this item for this season.');
 
-    const [config, categoryReservations, superRareReservations] = await Promise.all([
-      this.configRepo.findOrCreateDefault(raidSeasonId),
+    const [config, categoryReservations, superRareReservations, superRareOverrides] = await Promise.all([
+      this.configRepo.findOrCreateDefault(raidSeasonId, team),
       this.reservationRepo.findByRaiderAndCategory(raiderId, raidSeasonId, item.category),
       this.reservationRepo.findSuperRareByRaider(raiderId, raidSeasonId),
+      this.catalogRepo.getSuperRareOverrides(team),
     ]);
+    const isSuperRareForTeam = superRareOverrides[item.id] ?? false;
 
     const limits = {
       trinketLimit: config.trinketLimit,
@@ -48,7 +51,7 @@ export class ReserveItemUseCase {
       item.category,
       categoryReservations.length,
       limits,
-      item.isSuperRare ?? false,
+      isSuperRareForTeam,
       superRareReservations.length,
     );
 
@@ -61,7 +64,7 @@ export class ReserveItemUseCase {
       itemId,
       itemCategory: item.category,
       raidSeasonId,
-      isSuperRare: item.isSuperRare ?? false,
+      isSuperRare: isSuperRareForTeam,
     });
   }
 }

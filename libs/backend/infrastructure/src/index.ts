@@ -5,6 +5,7 @@ export * from './lib/database/entities/catalog.orm-entity';
 export * from './lib/database/entities/loot.orm-entity';
 export * from './lib/database/entities/season-config.orm-entity';
 export * from './lib/database/entities/raider-received-item.orm-entity';
+export * from './lib/database/entities/item-super-rare-override.orm-entity';
 export * from './lib/database/entities/feedback.orm-entity';
 export * from './lib/database/entities/audit-log.orm-entity';
 export * from './lib/database/entities/raid-plan.orm-entity';

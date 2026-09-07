@@ -3,7 +3,7 @@
     <div class="onboarding-header">
       <h1 class="onboarding-title">
         {{
-          updateCharMode() ? 'Karakter bijwerken' : editMode() ? 'Profiel bewerken' : 'Welkom bij Crusaders BiS List'
+          updateCharMode() ? 'Karakter bijwerken' : editMode() ? 'Profiel bewerken' : 'Welkom bij RoyalTeam BiS List'
         }}
       </h1>
       <p class="onboarding-subtitle">
@@ -173,18 +173,22 @@
         />
 
         <div class="form-group membership-group">
-          <label class="membership-label">
-            <input
-              type="checkbox"
-              class="membership-checkbox"
-              [ngModel]="isCrusadersMember()"
-              (ngModelChange)="isCrusadersMember.set($event)"
-            />
-            <span class="membership-text">
-              Ik zit in Crusaders
-              <span class="membership-hint">(als je alleen rondkijkt, vink dit dan niet aan)</span>
-            </span>
-          </label>
+          <span class="membership-label">Kies je team</span>
+          <div class="team-choice">
+            <label class="team-option">
+              <input
+                type="radio"
+                name="team"
+                [checked]="team() === Team.CRUSADERS"
+                (change)="team.set(Team.CRUSADERS)"
+              />
+              <span class="membership-text">Crusaders</span>
+            </label>
+            <label class="team-option">
+              <input type="radio" name="team" [checked]="team() === Team.TEMPLARS" (change)="team.set(Team.TEMPLARS)" />
+              <span class="membership-text">Templars</span>
+            </label>
+          </div>
         </div>
 
         @if (error()) {

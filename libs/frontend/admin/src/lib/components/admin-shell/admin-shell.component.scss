@@ -71,6 +71,53 @@
   gap: 2px;
 }
 
+.team-switcher {
+  margin: auto 8px 12px;
+  padding: 10px 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.team-switcher-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.team-switcher-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.team-switcher-tab {
+  flex: 1;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    color 0.12s,
+    background 0.12s,
+    border-color 0.12s;
+
+  &.active {
+    color: var(--accent, #7c3aed);
+    border-color: var(--accent, #7c3aed);
+    background: color-mix(in srgb, var(--accent, #7c3aed) 8%, transparent);
+  }
+
+  &:hover:not(.active) {
+    color: var(--text-primary);
+  }
+}
+
 .sidenav-item {
   display: flex;
   align-items: center;

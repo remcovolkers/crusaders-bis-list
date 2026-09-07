@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Index } from 'typeorm';
+import { Team } from '@crusaders-bis-list/shared-domain';
 
 export type AuditAction =
   | 'reservation_created'
@@ -22,6 +23,10 @@ export class AuditLogOrmEntity {
 
   @Column({ name: 'actor_name' })
   actorName!: string;
+
+  @Column({ type: 'varchar', default: Team.CRUSADERS })
+  @Index()
+  team!: Team;
 
   @Column({ name: 'raider_name', nullable: true, type: 'varchar' })
   raiderName!: string | null;

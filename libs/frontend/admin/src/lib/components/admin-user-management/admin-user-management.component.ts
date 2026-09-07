@@ -2,7 +2,8 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { AdminService, RaiderReservationSummary, RaiderUser } from '../../services/admin.service';
-import { IUser, UserRole } from '@crusaders-bis-list/shared-domain';
+import { AuthStateService } from '@crusaders-bis-list/frontend-auth';
+import { IUser, SUPER_USER_EMAIL, Team, UserRole } from '@crusaders-bis-list/shared-domain';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 import { AdminUserDetailModalComponent } from '../admin-user-detail-modal/admin-user-detail-modal.component';
 
@@ -15,22 +16,55 @@ import { AdminUserDetailModalComponent } from '../admin-user-detail-modal/admin-
 export class AdminUserManagementComponent {
   private readonly toast = inject(ToastService);
   private readonly adminService = inject(AdminService);
+  private readonly authState = inject(AuthStateService);
 
-  private readonly usersResource = rxResource({ stream: () => this.adminService.getAllUsers() });
-  private readonly reservationsResource = rxResource({ stream: () => this.adminService.getAllReservations() });
-  private readonly raidersResource = rxResource({ stream: () => this.adminService.getAllRaiders() });
+  readonly Team = Team;
+  readonly isSuperUser = computed(() => this.authState.user()?.email === SUPER_USER_EMAIL);
+  readonly ownTeam = computed(() => this.authState.user()?.team ?? Team.CRUSADERS);
 
-  readonly users = computed(() => this.usersResource.value() ?? []);
-  readonly crusaders = computed(() => this.users().filter((u) => u.isCrusadersMember));
-  readonly visitors = computed(() => this.users().filter((u) => !u.isCrusadersMember));
+  /** A regular admin only ever sees their own team's column; the super user sees both, side by side. */
+  readonly showCrusadersColumn = computed(() => this.isSuperUser() || this.ownTeam() === Team.CRUSADERS);
+  readonly showTemplarsColumn = computed(() => this.isSuperUser() || this.ownTeam() === Team.TEMPLARS);
+
+  private readonly crusadersUsersResource = rxResource({
+    params: () => (this.showCrusadersColumn() ? Team.CRUSADERS : undefined),
+    stream: ({ params: team }) => this.adminService.getAllUsers(team),
+  });
+  private readonly templarsUsersResource = rxResource({
+    params: () => (this.showTemplarsColumn() ? Team.TEMPLARS : undefined),
+    stream: ({ params: team }) => this.adminService.getAllUsers(team),
+  });
+  private readonly crusadersReservationsResource = rxResource({
+    params: () => (this.showCrusadersColumn() ? Team.CRUSADERS : undefined),
+    stream: ({ params: team }) => this.adminService.getAllReservations(team),
+  });
+  private readonly templarsReservationsResource = rxResource({
+    params: () => (this.showTemplarsColumn() ? Team.TEMPLARS : undefined),
+    stream: ({ params: team }) => this.adminService.getAllReservations(team),
+  });
+  private readonly crusadersRaidersResource = rxResource({
+    params: () => (this.showCrusadersColumn() ? Team.CRUSADERS : undefined),
+    stream: ({ params: team }) => this.adminService.getAllRaiders(team),
+  });
+  private readonly templarsRaidersResource = rxResource({
+    params: () => (this.showTemplarsColumn() ? Team.TEMPLARS : undefined),
+    stream: ({ params: team }) => this.adminService.getAllRaiders(team),
+  });
+
+  readonly crusadersUsers = computed(() => this.crusadersUsersResource.value() ?? []);
+  readonly templarsUsers = computed(() => this.templarsUsersResource.value() ?? []);
+  readonly users = computed(() => [...this.crusadersUsers(), ...this.templarsUsers()]);
+
   readonly reservationsByUserId = computed(() => {
     const map = new Map<string, RaiderReservationSummary>();
-    for (const s of this.reservationsResource.value() ?? []) map.set(s.userId, s);
+    for (const s of this.crusadersReservationsResource.value() ?? []) map.set(s.userId, s);
+    for (const s of this.templarsReservationsResource.value() ?? []) map.set(s.userId, s);
     return map;
   });
   readonly profileByUserId = computed(() => {
     const map = new Map<string, RaiderUser>();
-    for (const p of this.raidersResource.value() ?? []) map.set(p.userId, p);
+    for (const p of this.crusadersRaidersResource.value() ?? []) map.set(p.userId, p);
+    for (const p of this.templarsRaidersResource.value() ?? []) map.set(p.userId, p);
     return map;
   });
   readonly expandedUserId = signal<string | null>(null);
@@ -61,6 +95,10 @@ export class AdminUserManagementComponent {
     return this.profileByUserId().get(userId);
   }
 
+  private usersResourceFor(team: Team) {
+    return team === Team.CRUSADERS ? this.crusadersUsersResource : this.templarsUsersResource;
+  }
+
   // ── Modal output handlers ────────────────────────────────
 
   onModalClosed(): void {
@@ -68,22 +106,30 @@ export class AdminUserManagementComponent {
   }
 
   onUserChanged(updated: IUser): void {
-    this.usersResource.update((list) => (list ?? []).map((u) => (u.id === updated.id ? updated : u)));
+    // The super user may have switched the user's team — drop it from both columns, then re-add to the right one.
+    this.crusadersUsersResource.update((list) => (list ?? []).filter((u) => u.id !== updated.id));
+    this.templarsUsersResource.update((list) => (list ?? []).filter((u) => u.id !== updated.id));
+    this.usersResourceFor(updated.team).update((list) => [...(list ?? []), updated]);
   }
 
   onProfileReset(userId: string): void {
-    this.reservationsResource.update((list) => (list ?? []).filter((s) => s.userId !== userId));
-    this.raidersResource.update((list) => (list ?? []).filter((p) => p.userId !== userId));
+    this.crusadersReservationsResource.update((list) => (list ?? []).filter((s) => s.userId !== userId));
+    this.templarsReservationsResource.update((list) => (list ?? []).filter((s) => s.userId !== userId));
+    this.crusadersRaidersResource.update((list) => (list ?? []).filter((p) => p.userId !== userId));
+    this.templarsRaidersResource.update((list) => (list ?? []).filter((p) => p.userId !== userId));
   }
 
   onUserDeleted(userId: string): void {
-    this.usersResource.update((list) => (list ?? []).filter((u) => u.id !== userId));
-    this.reservationsResource.update((list) => (list ?? []).filter((s) => s.userId !== userId));
+    this.crusadersUsersResource.update((list) => (list ?? []).filter((u) => u.id !== userId));
+    this.templarsUsersResource.update((list) => (list ?? []).filter((u) => u.id !== userId));
+    this.crusadersReservationsResource.update((list) => (list ?? []).filter((s) => s.userId !== userId));
+    this.templarsReservationsResource.update((list) => (list ?? []).filter((s) => s.userId !== userId));
     this.expandedUserId.set(null);
   }
 
   onReservationCancelled(): void {
-    this.reservationsResource.reload();
+    this.crusadersReservationsResource.reload();
+    this.templarsReservationsResource.reload();
   }
 
   requestResetAll(): void {
@@ -99,7 +145,8 @@ export class AdminUserManagementComponent {
     this.resettingAll.set(true);
     this.adminService.resetAllReservations(this.resetReason() || undefined).subscribe({
       next: () => {
-        this.reservationsResource.update(() => []);
+        this.crusadersReservationsResource.update(() => []);
+        this.templarsReservationsResource.update(() => []);
         this.confirmingResetAll.set(false);
         this.resettingAll.set(false);
         this.toast.show('Alle reserveringen zijn gereset. Gebruikers ontvangen een e-mail.');

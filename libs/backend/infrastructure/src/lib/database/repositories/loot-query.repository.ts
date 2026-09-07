@@ -9,11 +9,13 @@ import {
   ArmorType,
   PrimaryStat,
   AssignmentStatus,
+  Team,
 } from '@crusaders-bis-list/shared-domain';
 import { BossOrmEntity, ItemOrmEntity } from '../entities/catalog.orm-entity';
 import { RaiderProfileOrmEntity } from '../entities/raider-profile.orm-entity';
 import { ReservationOrmEntity, AssignmentOrmEntity } from '../entities/loot.orm-entity';
 import { RaiderReceivedItemOrmEntity } from '../entities/raider-received-item.orm-entity';
+import { ItemSuperRareOverrideOrmEntity } from '../entities/item-super-rare-override.orm-entity';
 import { RaiderStatus } from '@crusaders-bis-list/shared-domain';
 
 @Injectable()
@@ -31,12 +33,20 @@ export class LootQueryRepository implements ILootQueryRepository {
     private readonly assignmentRepo: Repository<AssignmentOrmEntity>,
     @InjectRepository(RaiderReceivedItemOrmEntity)
     private readonly receivedItemRepo: Repository<RaiderReceivedItemOrmEntity>,
+    @InjectRepository(ItemSuperRareOverrideOrmEntity)
+    private readonly superRareOverrideRepo: Repository<ItemSuperRareOverrideOrmEntity>,
   ) {}
 
-  async getEligibleRaiders(itemId: string, raidSeasonId: string): Promise<IEligibleRaider[]> {
-    const raiders = await this.raiderRepo.find({
-      where: [{ status: RaiderStatus.ACTIVE }, { status: RaiderStatus.TRIAL }],
-    });
+  async getEligibleRaiders(itemId: string, raidSeasonId: string, team: Team): Promise<IEligibleRaider[]> {
+    const raiders = await this.raiderRepo
+      .createQueryBuilder('r')
+      .leftJoin('r.user', 'u')
+      .where('u.team = :team', { team })
+      .andWhere('(r.status = :active OR r.status = :trial)', {
+        active: RaiderStatus.ACTIVE,
+        trial: RaiderStatus.TRIAL,
+      })
+      .getMany();
 
     const assignments = await this.assignmentRepo.find({ where: { itemId } });
     const assignedRaiderIds = new Set(assignments.map((a) => a.raiderId));
@@ -65,36 +75,50 @@ export class LootQueryRepository implements ILootQueryRepository {
       });
   }
 
-  async getBossLootView(bossId: string, raidSeasonId: string): Promise<IBossLootView> {
+  async getBossLootView(bossId: string, raidSeasonId: string, team: Team): Promise<IBossLootView> {
     const boss = await this.bossRepo.findOne({ where: { id: bossId } });
     if (!boss) throw new Error(`Boss ${bossId} not found`);
 
     const items = await this.itemRepo.find({ where: { bossId } });
+    const superRareOverrides = await this.superRareOverrideRepo.find({ where: { team } });
+    const superRareByItemId = new Map(superRareOverrides.map((o) => [o.itemId, o.isSuperRare]));
+
+    // Team-scoped raider ids — every reservation/assignment/received-item query below is filtered to these
+    const teamRaiders = await this.raiderRepo
+      .createQueryBuilder('r')
+      .leftJoin('r.user', 'u')
+      .where('u.team = :team', { team })
+      .getMany();
+    const teamRaiderIds = teamRaiders.map((r) => r.id);
+    const raiderMap = new Map(teamRaiders.map((r) => [r.id, r]));
 
     // Build a map of all reservations and assignments for this boss/season up-front
     const itemIds = items.map((i) => i.id);
     const allReservations =
-      itemIds.length > 0
+      itemIds.length > 0 && teamRaiderIds.length > 0
         ? await this.reservationRepo
             .createQueryBuilder('res')
             .where('res.item_id IN (:...itemIds)', { itemIds })
             .andWhere('res.raid_season_id = :raidSeasonId', { raidSeasonId })
+            .andWhere('res.raider_id IN (:...raiderIds)', { raiderIds: teamRaiderIds })
             .getMany()
         : [];
 
     const allAssignments =
-      itemIds.length > 0
+      itemIds.length > 0 && teamRaiderIds.length > 0
         ? await this.assignmentRepo
             .createQueryBuilder('ass')
             .where('ass.item_id IN (:...itemIds)', { itemIds })
+            .andWhere('ass.raider_id IN (:...raiderIds)', { raiderIds: teamRaiderIds })
             .getMany()
         : [];
 
     const allReceivedItems =
-      itemIds.length > 0
+      itemIds.length > 0 && teamRaiderIds.length > 0
         ? await this.receivedItemRepo
             .createQueryBuilder('rec')
             .where('rec.item_id IN (:...itemIds)', { itemIds })
+            .andWhere('rec.raider_id IN (:...raiderIds)', { raiderIds: teamRaiderIds })
             .getMany()
         : [];
 
@@ -113,14 +137,6 @@ export class LootQueryRepository implements ILootQueryRepository {
     for (const rec of allReceivedItems) {
       receivedByRaiderItem.set(`${rec.raiderId}:${rec.itemId}`, rec.tier);
     }
-
-    // Collect raider IDs we actually need, then fetch in one query
-    const raiderIds = [...new Set(allReservations.map((r) => r.raiderId))];
-    const raiders =
-      raiderIds.length > 0
-        ? await this.raiderRepo.createQueryBuilder('r').where('r.id IN (:...raiderIds)', { raiderIds }).getMany()
-        : [];
-    const raiderMap = new Map(raiders.map((r) => [r.id, r]));
 
     // Only include items that have at least one reservation.
     // Merged secondary items (mergedWithItemId set) are folded into their primary:
@@ -211,7 +227,7 @@ export class LootQueryRepository implements ILootQueryRepository {
             bossName: boss.name,
             iconUrl: item.iconUrl,
             isPrioritizable: item.isPrioritizable,
-            isSuperRare: item.isSuperRare,
+            isSuperRare: superRareByItemId.get(item.id) ?? false,
             mergedDisplayName: item.mergedDisplayName,
             secondaryIconUrl,
           },

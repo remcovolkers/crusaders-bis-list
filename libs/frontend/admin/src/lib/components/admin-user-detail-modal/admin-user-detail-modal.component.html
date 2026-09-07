@@ -50,10 +50,12 @@
             <button class="action-btn danger" (click)="removeAdmin(user())">Verwijder Admin rol</button>
           }
 
-          @if (!user().isCrusadersMember) {
-            <button class="action-btn" (click)="makeCrusader(user())">Maak Crusader</button>
-          } @else {
-            <button class="action-btn danger" (click)="kickFromCrusaders(user())">Kick van Crusaders</button>
+          @if (canSwitchTeam()) {
+            @if (user().team !== Team.CRUSADERS) {
+              <button class="action-btn" (click)="makeCrusader(user())">Zet in Crusaders</button>
+            } @else {
+              <button class="action-btn" (click)="makeTemplar(user())">Zet in Templars</button>
+            }
           }
 
           @if (user().battletag) {

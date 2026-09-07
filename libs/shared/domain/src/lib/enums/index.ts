@@ -5,6 +5,7 @@ export * from './raid-participant-role.enum';
 export * from './item-category.enum';
 export * from './primary-stat.enum';
 export * from './raider-status.enum';
+export * from './team.enum';
 export * from './user-role.enum';
 export * from './weapon-type.enum';
 export * from './wow-class.enum';

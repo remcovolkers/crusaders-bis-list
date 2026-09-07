@@ -9,6 +9,7 @@ import { RaidSeasonOrmEntity, BossOrmEntity, ItemOrmEntity } from './database/en
 import { ReservationOrmEntity, AssignmentOrmEntity } from './database/entities/loot.orm-entity';
 import { SeasonConfigOrmEntity } from './database/entities/season-config.orm-entity';
 import { RaiderReceivedItemOrmEntity } from './database/entities/raider-received-item.orm-entity';
+import { ItemSuperRareOverrideOrmEntity } from './database/entities/item-super-rare-override.orm-entity';
 import { RaidPlanOrmEntity, RaidPlanParticipantOrmEntity } from './database/entities/raid-plan.orm-entity';
 import {
   RaidPlanBossNoteOrmEntity,
@@ -54,6 +55,7 @@ const ORM_ENTITIES = [
   AssignmentOrmEntity,
   SeasonConfigOrmEntity,
   RaiderReceivedItemOrmEntity,
+  ItemSuperRareOverrideOrmEntity,
   FeedbackOrmEntity,
   AuditLogOrmEntity,
   RaidPlanOrmEntity,

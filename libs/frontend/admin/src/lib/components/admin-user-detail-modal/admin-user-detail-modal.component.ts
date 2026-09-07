@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import {
   AdminService,
@@ -6,8 +6,9 @@ import {
   RaiderReservationSummary,
   RaiderUser,
 } from '../../services/admin.service';
-import { IUser, UserRole, AssignmentStatus } from '@crusaders-bis-list/shared-domain';
+import { IUser, UserRole, AssignmentStatus, SUPER_USER_EMAIL, Team } from '@crusaders-bis-list/shared-domain';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
+import { AuthStateService } from '@crusaders-bis-list/frontend-auth';
 
 @Component({
   selector: 'lib-admin-user-detail-modal',
@@ -41,6 +42,11 @@ export class AdminUserDetailModalComponent {
 
   readonly adminRole = UserRole.ADMIN;
   readonly AssignmentStatus = AssignmentStatus;
+  readonly Team = Team;
+
+  private readonly authState = inject(AuthStateService);
+  /** Only the hardcoded super user is allowed to move a raider between teams. */
+  readonly canSwitchTeam = computed(() => this.authState.user()?.email === SUPER_USER_EMAIL);
 
   private readonly toast = inject(ToastService);
   private readonly adminService = inject(AdminService);
@@ -165,19 +171,19 @@ export class AdminUserDetailModalComponent {
   }
 
   makeCrusader(user: IUser): void {
-    this.adminService.updateUserMembership(user.id, true).subscribe({
+    this.adminService.updateUserTeam(user.id, Team.CRUSADERS).subscribe({
       next: () => {
         this.toast.show(`${user.displayName} is nu Crusader.`);
-        this.userChanged.emit({ ...user, isCrusadersMember: true });
+        this.userChanged.emit({ ...user, team: Team.CRUSADERS });
       },
     });
   }
 
-  kickFromCrusaders(user: IUser): void {
-    this.adminService.updateUserMembership(user.id, false).subscribe({
+  makeTemplar(user: IUser): void {
+    this.adminService.updateUserTeam(user.id, Team.TEMPLARS).subscribe({
       next: () => {
-        this.toast.show(`${user.displayName} is geen Crusader meer.`);
-        this.userChanged.emit({ ...user, isCrusadersMember: false });
+        this.toast.show(`${user.displayName} is nu Templar.`);
+        this.userChanged.emit({ ...user, team: Team.TEMPLARS });
       },
     });
   }

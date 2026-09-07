@@ -12,8 +12,10 @@ import {
   ISeasonConfigRepository,
   RECEIVED_ITEM_REPOSITORY,
   IReceivedItemRepository,
+  USER_REPOSITORY,
+  IUserRepository,
 } from '@crusaders-bis-list/backend-domain';
-import { AssignmentStatus, IItem } from '@crusaders-bis-list/shared-domain';
+import { AssignmentStatus, IItem, Team } from '@crusaders-bis-list/shared-domain';
 
 export interface RaiderReservationEntry {
   /** Reservation ID, or null when the entry represents a received-only item (no reservation). */
@@ -49,17 +51,23 @@ export class GetAllRaiderReservationsUseCase {
     @Inject(RAID_CATALOG_REPOSITORY) private readonly catalogRepo: IRaidCatalogRepository,
     @Inject(SEASON_CONFIG_REPOSITORY) private readonly configRepo: ISeasonConfigRepository,
     @Inject(RECEIVED_ITEM_REPOSITORY) private readonly receivedItemRepo: IReceivedItemRepository,
+    @Inject(USER_REPOSITORY) private readonly userRepo: IUserRepository,
   ) {}
 
-  async execute(): Promise<RaiderReservationSummary[]> {
+  async execute(team: Team): Promise<RaiderReservationSummary[]> {
     const season = await this.catalogRepo.findActiveSeason();
     if (!season) return [];
 
-    const [allReservations, allAssignments, allRaiders] = await Promise.all([
+    const [allReservations, allAssignments, allRaidersUnfiltered, allUsers] = await Promise.all([
       this.reservationRepo.findAllBySeason(season.id),
       this.assignmentRepo.findAllBySeason(season.id),
       this.raiderRepo.findAll(),
+      this.userRepo.findAll(),
     ]);
+
+    // Team-scope the raiders up-front — everything downstream is derived from this list
+    const teamUserIds = new Set(allUsers.filter((u) => u.team === team).map((u) => u.id));
+    const allRaiders = allRaidersUnfiltered.filter((r) => teamUserIds.has(r.userId));
 
     // Build assignment lookup: raiderId:itemId -> assignment
     const assignMap = new Map<string, { id: string; status: AssignmentStatus; assignedAt: Date }>();
@@ -90,15 +98,15 @@ export class GetAllRaiderReservationsUseCase {
     // Build bossId -> sort index map so reservations can be ordered by boss order
     const bossOrderMap = new Map(bosses.map((b, idx) => [b.id, idx]));
 
-    // Group reservations by raiderId
+    // Group reservations by raiderId — skip raiders outside the requested team
+    const raiderMap = new Map(allRaiders.map((r) => [r.id, r]));
     const byRaider = new Map<string, typeof allReservations>();
     for (const res of allReservations) {
+      if (!raiderMap.has(res.raiderId)) continue;
       const list = byRaider.get(res.raiderId) ?? [];
       list.push(res);
       byRaider.set(res.raiderId, list);
     }
-
-    const raiderMap = new Map(allRaiders.map((r) => [r.id, r]));
 
     // Fetch received items for ALL active raiders (not only those with reservations)
     const allActiveRaiderIds = allRaiders.map((r) => r.id);

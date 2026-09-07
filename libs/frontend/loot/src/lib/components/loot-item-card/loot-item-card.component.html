@@ -1,5 +1,5 @@
 <div class="item-card" [class.reserved]="item().isReserved">
-  @if (!item().isReserved && state.isAtLimit(item()) && item().isPrioritizable && isCrusadersMember()) {
+  @if (!item().isReserved && state.isAtLimit(item()) && item().isPrioritizable) {
     <button
       class="card-info-corner"
       aria-label="Info over limiet"
@@ -7,8 +7,8 @@
     >
       ℹ
       <span class="card-info-tooltip"
-        >Wil je liever dit item reserveren? Dan moet je eerst een andere reservering annuleren. Neem hiervoor contact op
-        met Melvin | Laforgèz op Discord.</span
+        >Wil je liever dit item reserveren? Dan moet je eerst een andere reservering annuleren. Neem contact op met je
+        lootmeister.</span
       >
     </button>
   }
@@ -91,8 +91,8 @@
     >
       <button class="info-modal-close" aria-label="Sluit" (click)="infoModal.set(null)">✕</button>
       <p class="info-modal-text">
-        Wil je liever dit item reserveren? Dan moet je eerst een andere reservering annuleren. Neem hiervoor contact op
-        met Melvin | Laforgèz op Discord.
+        Wil je liever dit item reserveren? Dan moet je eerst een andere reservering annuleren. Neem contact op met je
+        lootmeister.
       </p>
     </div>
   }
@@ -131,7 +131,7 @@
     </div>
   </div>
 
-  @if (item().isPrioritizable && isCrusadersMember()) {
+  @if (item().isPrioritizable) {
     <div class="item-actions">
       @if (
         state.getReceivedItem(item().id)?.tier === AssignmentStatus.MYTH_TIER ||

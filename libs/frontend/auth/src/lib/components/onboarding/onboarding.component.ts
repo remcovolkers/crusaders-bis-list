@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ClassSpecSelectorComponent, ClassSpecSelection } from '@crusaders-bis-list/frontend-shared-ui';
-import { WowClass, WowSpec, WOW_CLASS_REGISTRY } from '@crusaders-bis-list/shared-domain';
+import { WowClass, WowSpec, WOW_CLASS_REGISTRY, Team } from '@crusaders-bis-list/shared-domain';
 import { API_URL } from '../../tokens/api-url.token';
 import { AuthService } from '../../services/auth.service';
 import { AuthStateService } from '../../state/auth-state.service';
@@ -40,7 +40,8 @@ export class OnboardingComponent {
 
   readonly characterName = signal('');
   readonly realm = signal('');
-  readonly isCrusadersMember = signal(false);
+  readonly team = signal<Team | null>(null);
+  readonly Team = Team;
   readonly selectedClass = signal<WowClass | null>(null);
   readonly selectedSpec = signal<WowSpec | null>(null);
   readonly saving = signal(false);
@@ -95,7 +96,7 @@ export class OnboardingComponent {
           realm: char.realm,
           wowClass: existingClass,
           spec: this.existingProfile()?.spec,
-          isCrusadersMember: this.isCrusadersMember(),
+          team: this.team(),
         })
         .subscribe({
           next: () => {
@@ -149,9 +150,9 @@ export class OnboardingComponent {
             this.realm.set(profile.realm ?? '');
             this.selectedClass.set(profile.wowClass);
             this.selectedSpec.set(profile.spec);
-            // Pre-fill membership from current auth state
+            // Pre-fill team from current auth state
             const u = this.authState.user();
-            if (u) this.isCrusadersMember.set(u.isCrusadersMember);
+            if (u) this.team.set(u.team);
           } else if (justLinked) {
             // Just linked BNET with existing profile — show character picker to update name/realm
             this.existingProfile.set(profile);
@@ -162,7 +163,7 @@ export class OnboardingComponent {
             this.characterName.set(profile.characterName);
             this.realm.set(profile.realm ?? '');
             const u2 = this.authState.user();
-            if (u2) this.isCrusadersMember.set(u2.isCrusadersMember);
+            if (u2) this.team.set(u2.team);
             this.loadWowCharacters();
           } else {
             // Already has a profile and not editing — go to loot
@@ -194,7 +195,7 @@ export class OnboardingComponent {
   }
 
   get canSubmit(): boolean {
-    return this.canProceedStep1 && !!this.selectedClass() && !!this.selectedSpec();
+    return this.canProceedStep1 && !!this.selectedClass() && !!this.selectedSpec() && !!this.team();
   }
 
   goToStep2(): void {
@@ -215,7 +216,7 @@ export class OnboardingComponent {
       realm: this.realm().trim(),
       wowClass: this.selectedClass(),
       spec: this.selectedSpec(),
-      isCrusadersMember: this.isCrusadersMember(),
+      team: this.team(),
     };
 
     const request$ = this.editMode()
@@ -224,7 +225,7 @@ export class OnboardingComponent {
 
     request$.subscribe({
       next: () => {
-        // Refresh auth state so isCrusadersMember is up to date
+        // Refresh auth state so team is up to date
         this.authService.getMe().subscribe({
           next: (freshUser) => {
             const token = this.authService.getToken() ?? '';

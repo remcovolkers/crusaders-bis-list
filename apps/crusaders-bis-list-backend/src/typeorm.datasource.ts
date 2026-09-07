@@ -24,6 +24,7 @@ import {
 } from '../../../libs/backend/infrastructure/src/lib/database/entities/loot.orm-entity';
 import { SeasonConfigOrmEntity } from '../../../libs/backend/infrastructure/src/lib/database/entities/season-config.orm-entity';
 import { RaiderReceivedItemOrmEntity } from '../../../libs/backend/infrastructure/src/lib/database/entities/raider-received-item.orm-entity';
+import { ItemSuperRareOverrideOrmEntity } from '../../../libs/backend/infrastructure/src/lib/database/entities/item-super-rare-override.orm-entity';
 import { AuditLogOrmEntity } from '../../../libs/backend/infrastructure/src/lib/database/entities/audit-log.orm-entity';
 import {
   RaidPlanOrmEntity,
@@ -45,6 +46,7 @@ export default new DataSource({
     AssignmentOrmEntity,
     SeasonConfigOrmEntity,
     RaiderReceivedItemOrmEntity,
+    ItemSuperRareOverrideOrmEntity,
     AuditLogOrmEntity,
     RaidPlanOrmEntity,
     RaidPlanParticipantOrmEntity,

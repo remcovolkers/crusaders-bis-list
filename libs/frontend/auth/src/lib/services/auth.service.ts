@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Team } from '@crusaders-bis-list/shared-domain';
 import { API_URL } from '../tokens/api-url.token';
 import { AuthUser } from '../state/auth.state';
 
@@ -75,7 +76,7 @@ export class AuthService {
         email: payload.email,
         displayName: payload.displayName ?? payload.email,
         roles: payload.roles ?? [],
-        isCrusadersMember: payload.isCrusadersMember ?? false,
+        team: payload.team ?? Team.CRUSADERS,
       };
     } catch {
       return null;

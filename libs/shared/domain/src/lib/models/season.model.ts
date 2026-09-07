@@ -1,6 +1,9 @@
+import { Team } from '../enums/team.enum';
+
 export interface ISeasonConfig {
   id: string;
   raidSeasonId: string;
+  team: Team;
   trinketLimit: number;
   weaponLimit: number;
   jewelryLimit: number;

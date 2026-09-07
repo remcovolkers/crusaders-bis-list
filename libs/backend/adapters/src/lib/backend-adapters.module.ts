@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AuthController, UserManagementController } from './controllers/auth.controller';
+import { AuthController } from './controllers/auth.controller';
 import { RaiderController } from './controllers/raider.controller';
 import { AdminController } from './controllers/admin.controller';
 import { FeedbackController } from './controllers/feedback.controller';
@@ -15,7 +15,6 @@ import { BackendApplicationModule } from '@crusaders-bis-list/backend-applicatio
   imports: [BackendApplicationModule],
   controllers: [
     AuthController,
-    UserManagementController,
     RaiderController,
     AdminController,
     FeedbackController,

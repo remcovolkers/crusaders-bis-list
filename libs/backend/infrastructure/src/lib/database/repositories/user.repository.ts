@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IUserRepository, User } from '@crusaders-bis-list/backend-domain';
-import { UserRole } from '@crusaders-bis-list/shared-domain';
+import { UserRole, Team } from '@crusaders-bis-list/shared-domain';
 import { UserOrmEntity } from '../entities/user.orm-entity';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class UserRepository implements IUserRepository {
     user.displayName = orm.displayName;
     user.avatarUrl = orm.avatarUrl;
     user.roles = orm.roles;
-    user.isCrusadersMember = orm.isCrusadersMember ?? false;
+    user.team = orm.team ?? Team.CRUSADERS;
     user.createdAt = orm.createdAt;
     user.updatedAt = orm.updatedAt;
     return user;
@@ -74,8 +74,8 @@ export class UserRepository implements IUserRepository {
     return this.toModel(updated);
   }
 
-  async updateMembership(userId: string, isCrusadersMember: boolean): Promise<User> {
-    await this.repo.update(userId, { isCrusadersMember });
+  async updateTeam(userId: string, team: Team): Promise<User> {
+    await this.repo.update(userId, { team });
     const updated = await this.repo.findOneOrFail({ where: { id: userId } });
     return this.toModel(updated);
   }

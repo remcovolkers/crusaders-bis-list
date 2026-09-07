@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Body,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -42,7 +43,7 @@ import {
   IReceivedItemRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { Request } from 'express';
-import { UserRole } from '@crusaders-bis-list/shared-domain';
+import { UserRole, Team, SUPER_USER_EMAIL } from '@crusaders-bis-list/shared-domain';
 import { AuditLogService } from '@crusaders-bis-list/backend-infrastructure';
 import { AssignLootDto, UpdateAssignmentStatusDto, UpdateSeasonConfigDto } from './dto/admin.dto';
 import { JwtPayload } from '../auth/jwt.strategy';
@@ -74,14 +75,30 @@ export class AdminController {
     @Inject(RECEIVED_ITEM_REPOSITORY) private readonly receivedItemRepo: IReceivedItemRepository,
   ) {}
 
+  /**
+   * Team every admin is scoped to, unless they are the hardcoded super user AND explicitly
+   * requested a different team via `?team=`. Never trust a client-supplied team otherwise.
+   */
+  private async resolveEffectiveTeam(req: Request, requestedTeam?: Team): Promise<Team> {
+    const requesterId = (req.user as JwtPayload).sub;
+    const requester = await this.userRepo.findById(requesterId);
+    if (requester?.email === SUPER_USER_EMAIL && requestedTeam) return requestedTeam;
+    return requester?.team ?? Team.CRUSADERS;
+  }
+
   @Get('raiders')
-  getAllRaiders() {
-    return this.raiderRepo.findAll();
+  async getAllRaiders(@Req() req: Request, @Query('team') teamQuery?: Team) {
+    const team = await this.resolveEffectiveTeam(req, teamQuery);
+    const [raiders, users] = await Promise.all([this.raiderRepo.findAll(), this.userRepo.findAll()]);
+    const teamUserIds = new Set(users.filter((u) => u.team === team).map((u) => u.id));
+    return raiders.filter((r) => teamUserIds.has(r.userId));
   }
 
   @Get('users')
-  getAllUsers() {
-    return this.userRepo.findAll();
+  async getAllUsers(@Req() req: Request, @Query('team') teamQuery?: Team) {
+    const team = await this.resolveEffectiveTeam(req, teamQuery);
+    const users = await this.userRepo.findAll();
+    return users.filter((u) => u.team === team);
   }
 
   @Post('users/:userId/roles')
@@ -90,10 +107,10 @@ export class AdminController {
     return this.userRepo.updateRoles(userId, dto.roles);
   }
 
-  @Post('users/:userId/membership')
+  @Post('users/:userId/team')
   @HttpCode(HttpStatus.OK)
-  async updateUserMembership(@Param('userId') userId: string, @Body() dto: { isCrusadersMember: boolean }) {
-    return this.userRepo.updateMembership(userId, dto.isCrusadersMember);
+  async updateUserTeam(@Param('userId') userId: string, @Body() dto: { team: Team }) {
+    return this.userRepo.updateTeam(userId, dto.team);
   }
 
   @Delete('users/:userId')
@@ -120,21 +137,32 @@ export class AdminController {
   }
 
   @Get('catalog')
-  getCatalogView() {
-    return this.getCatalog.getActiveSeasonWithBossesAndItems();
+  async getCatalogView(@Req() req: Request, @Query('team') teamQuery?: Team) {
+    const team = await this.resolveEffectiveTeam(req, teamQuery);
+    return this.getCatalog.getActiveSeasonWithBossesAndItems(team);
   }
 
   @Get('boss/:bossId/loot/:seasonId')
-  getBossLoot(@Param('bossId') bossId: string, @Param('seasonId') seasonId: string) {
-    return this.getBossView.execute(bossId, seasonId);
+  async getBossLoot(
+    @Req() req: Request,
+    @Param('bossId') bossId: string,
+    @Param('seasonId') seasonId: string,
+    @Query('team') teamQuery?: Team,
+  ) {
+    const team = await this.resolveEffectiveTeam(req, teamQuery);
+    return this.getBossView.execute(bossId, seasonId, team);
   }
 
   @Post('assignments')
   @HttpCode(HttpStatus.CREATED)
   async assignLootToRaider(@Req() req: Request, @Body() dto: AssignLootDto) {
     const adminId = (req.user as JwtPayload).sub;
-    const admin = await this.userRepo.findById(adminId);
+    const [admin, raider] = await Promise.all([
+      this.userRepo.findById(adminId),
+      this.raiderRepo.findById(dto.raiderId),
+    ]);
     const actorName = admin?.displayName ?? adminId;
+    const raiderUser = raider ? await this.userRepo.findById(raider.userId) : null;
     await this.assignLoot.execute({
       raiderId: dto.raiderId,
       itemId: dto.itemId,
@@ -147,6 +175,7 @@ export class AdminController {
       action: 'loot_assigned',
       actorId: adminId,
       actorName,
+      team: raiderUser?.team ?? admin?.team ?? Team.CRUSADERS,
       raiderName: dto.raiderName ?? null,
       itemName: dto.itemName ?? null,
       details: { status: dto.status },
@@ -161,8 +190,9 @@ export class AdminController {
   }
 
   @Get('reservations')
-  getAllRaiderReservations() {
-    return this.getAllReservations.execute();
+  async getAllRaiderReservations(@Req() req: Request, @Query('team') teamQuery?: Team) {
+    const team = await this.resolveEffectiveTeam(req, teamQuery);
+    return this.getAllReservations.execute(team);
   }
 
   @Delete('reservations/:id')
@@ -177,11 +207,13 @@ export class AdminController {
       reservation ? this.raiderRepo.findById(reservation.raiderId) : Promise.resolve(null),
       reservation ? this.catalogRepo.findItemById(reservation.itemId) : Promise.resolve(null),
     ]);
+    const raiderUser = raider ? await this.userRepo.findById(raider.userId) : null;
     await this.cancelReservation.execute(reservationId);
     this.auditLog.log({
       action: 'reservation_cancelled',
       actorId: adminId,
       actorName: admin?.displayName ?? adminId,
+      team: raiderUser?.team ?? admin?.team ?? Team.CRUSADERS,
       raiderName: raider?.characterName ?? null,
       itemName: item?.mergedDisplayName ?? item?.name ?? null,
     });
@@ -200,11 +232,13 @@ export class AdminController {
       this.raiderRepo.findById(raiderId),
       this.catalogRepo.findItemById(itemId),
     ]);
+    const raiderUser = raider ? await this.userRepo.findById(raider.userId) : null;
     await this.receivedItemRepo.deleteByRaiderAndItem(raiderId, itemId);
     this.auditLog.log({
       action: 'reservation_cancelled',
       actorId: adminId,
       actorName: admin?.displayName ?? adminId,
+      team: raiderUser?.team ?? admin?.team ?? Team.CRUSADERS,
       raiderName: raider?.characterName ?? null,
       itemName: item?.mergedDisplayName ?? item?.name ?? null,
     });
@@ -221,23 +255,32 @@ export class AdminController {
       action: 'reservation_reset_all',
       actorId: adminId,
       actorName,
+      team: admin?.team ?? Team.CRUSADERS,
       details: dto.reason ? { reason: dto.reason } : null,
     });
   }
 
   @Get('audit-log')
-  getAuditLog() {
-    return this.auditLog.getRecent(200);
+  async getAuditLog(@Req() req: Request, @Query('team') teamQuery?: Team) {
+    const team = await this.resolveEffectiveTeam(req, teamQuery);
+    return this.auditLog.getRecent(200, team);
   }
 
   @Get('season-config')
-  getConfig() {
-    return this.getSeasonConfig.execute();
+  async getConfig(@Req() req: Request, @Query('team') teamQuery?: Team) {
+    const team = await this.resolveEffectiveTeam(req, teamQuery);
+    return this.getSeasonConfig.execute(team);
   }
 
   @Put('season-config/:seasonId')
-  updateConfig(@Param('seasonId') seasonId: string, @Body() dto: UpdateSeasonConfigDto) {
-    return this.updateSeasonConfig.execute(seasonId, dto);
+  async updateConfig(
+    @Req() req: Request,
+    @Param('seasonId') seasonId: string,
+    @Body() dto: UpdateSeasonConfigDto,
+    @Query('team') teamQuery?: Team,
+  ) {
+    const team = await this.resolveEffectiveTeam(req, teamQuery);
+    return this.updateSeasonConfig.execute(seasonId, dto, team);
   }
 
   @Post('sync')
@@ -256,7 +299,13 @@ export class AdminController {
 
   @Put('items/:itemId/super-rare')
   @HttpCode(HttpStatus.OK)
-  updateSuperRare(@Param('itemId') itemId: string, @Body() body: { isSuperRare: boolean }) {
-    return this.updateItemSuperRare.execute(itemId, body.isSuperRare);
+  async updateSuperRare(
+    @Req() req: Request,
+    @Param('itemId') itemId: string,
+    @Body() body: { isSuperRare: boolean },
+    @Query('team') teamQuery?: Team,
+  ) {
+    const team = await this.resolveEffectiveTeam(req, teamQuery);
+    return this.updateItemSuperRare.execute(itemId, team, body.isSuperRare);
   }
 }

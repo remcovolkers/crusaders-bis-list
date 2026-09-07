@@ -3,6 +3,9 @@ import { DatePipe, JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { AdminService, AuditLogEntry, AuditAction } from '../../services/admin.service';
+import { AdminTeamContextService } from '../../services/admin-team-context.service';
+import { AuthStateService } from '@crusaders-bis-list/frontend-auth';
+import { Team } from '@crusaders-bis-list/shared-domain';
 
 const ACTION_LABELS: Record<AuditAction, string> = {
   reservation_created: 'Reservering aangemaakt',
@@ -30,8 +33,17 @@ const ACTION_CLASSES: Record<AuditAction, string> = {
 })
 export class AdminAuditLogComponent {
   private readonly adminService = inject(AdminService);
+  private readonly authState = inject(AuthStateService);
+  readonly teamContext = inject(AdminTeamContextService);
 
-  private readonly auditLogResource = rxResource({ stream: () => this.adminService.getAuditLog() });
+  readonly viewedTeam = computed(
+    () => this.teamContext.selectedTeam() ?? this.authState.user()?.team ?? Team.CRUSADERS,
+  );
+
+  private readonly auditLogResource = rxResource({
+    params: () => this.viewedTeam(),
+    stream: ({ params: team }) => this.adminService.getAuditLog(team),
+  });
 
   readonly entries = computed(() => this.auditLogResource.value() ?? []);
   readonly loading = this.auditLogResource.isLoading;

@@ -32,7 +32,6 @@ export class LootItemCardComponent {
 
   readonly item = input.required<ItemWithReservation>();
   readonly allBossItems = input.required<IItem[]>();
-  readonly isCrusadersMember = input.required<boolean>();
   readonly reserveClicked = output<void>();
   readonly editReservationClicked = output<void>();
 

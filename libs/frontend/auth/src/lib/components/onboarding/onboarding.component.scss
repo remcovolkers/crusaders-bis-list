@@ -425,6 +425,28 @@
   align-items: flex-start;
   gap: 10px;
   cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.team-choice {
+  display: flex;
+  gap: 16px;
+}
+
+.team-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+
+  input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent-gold);
+    cursor: pointer;
+  }
 }
 
 .membership-checkbox {
@@ -448,7 +470,6 @@
   color: var(--text-muted);
   margin-top: 2px;
 }
-
 
 @media (max-width: 640px) {
   .onboarding-wrapper {

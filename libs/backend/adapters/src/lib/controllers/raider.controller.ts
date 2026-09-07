@@ -40,7 +40,7 @@ import {
 } from '@crusaders-bis-list/backend-domain';
 import { Inject } from '@nestjs/common';
 import { ReserveItemDto, CreateRaiderProfileDto, UpdateRaiderProfileDto, MarkReceivedDto } from './dto/raider.dto';
-import { WowClass, WowSpec } from '@crusaders-bis-list/shared-domain';
+import { WowClass, WowSpec, Team } from '@crusaders-bis-list/shared-domain';
 import { blizzardClassToWowClass } from '../mappers/blizzard-class.mapper';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
@@ -111,7 +111,7 @@ export class RaiderController {
   @Post('profile')
   async createProfile(@Req() req: Request, @Body() dto: CreateRaiderProfileDto) {
     const userId = (req.user as JwtPayload).sub;
-    await this.userRepo.updateMembership(userId, dto.isCrusadersMember);
+    await this.userRepo.updateTeam(userId, dto.team);
     return this.raiderRepo.save({
       userId,
       characterName: dto.characterName,
@@ -126,7 +126,7 @@ export class RaiderController {
     const userId = (req.user as JwtPayload).sub;
     const raider = await this.raiderRepo.findByUserId(userId);
     if (!raider) throw new NotFoundException('Raider profile not found.');
-    await this.userRepo.updateMembership(userId, dto.isCrusadersMember);
+    await this.userRepo.updateTeam(userId, dto.team);
     return this.raiderRepo.update(raider.id, {
       characterName: dto.characterName,
       realm: dto.realm,
@@ -136,13 +136,17 @@ export class RaiderController {
   }
 
   @Get('season-config')
-  async getActiveSeasonConfig() {
-    return this.getSeasonConfig.execute();
+  async getActiveSeasonConfig(@Req() req: Request) {
+    const userId = (req.user as JwtPayload).sub;
+    const user = await this.userRepo.findById(userId);
+    return this.getSeasonConfig.execute(user?.team ?? Team.CRUSADERS);
   }
 
   @Get('catalog')
-  async getCatalog() {
-    return this.getRaidCatalog.getActiveSeasonWithBossesAndItems();
+  async getCatalog(@Req() req: Request) {
+    const userId = (req.user as JwtPayload).sub;
+    const user = await this.userRepo.findById(userId);
+    return this.getRaidCatalog.getActiveSeasonWithBossesAndItems(user?.team ?? Team.CRUSADERS);
   }
 
   @Get('reservations')
@@ -166,11 +170,12 @@ export class RaiderController {
     const actorName = user?.displayName ?? userId;
     const raider = await this.raiderRepo.findByUserId(userId);
     if (!raider) throw new NotFoundException('Raider profile not found. Please create your profile first.');
-    await this.reserveItem.execute(raider.id, dto.itemId, dto.raidSeasonId);
+    await this.reserveItem.execute(raider.id, dto.itemId, dto.raidSeasonId, user?.team ?? Team.CRUSADERS);
     this.auditLog.log({
       action: 'reservation_created',
       actorId: userId,
       actorName,
+      team: user?.team ?? Team.CRUSADERS,
       raiderName: raider.characterName,
       itemName: dto.itemName ?? null,
       details: dto.receivedTier ? { tier: dto.receivedTier } : null,
@@ -194,6 +199,7 @@ export class RaiderController {
       action: 'reservation_cancelled',
       actorId: userId,
       actorName: user?.displayName ?? userId,
+      team: user?.team ?? Team.CRUSADERS,
       raiderName: raider.characterName,
       itemName: item?.mergedDisplayName ?? item?.name ?? null,
     });
@@ -220,6 +226,7 @@ export class RaiderController {
       action: 'received_item_marked',
       actorId: userId,
       actorName,
+      team: user?.team ?? Team.CRUSADERS,
       raiderName: raider.characterName,
       itemName: dto.itemName ?? null,
       details: { tier: dto.tier },
@@ -236,15 +243,27 @@ export class RaiderController {
     await this.receivedItemRepo.delete(receivedId);
   }
 
+  /** Raider IDs belonging to the same team as the given user — used to keep peer data team-scoped. */
+  private async getSameTeamRaiderIds(userId: string): Promise<Set<string>> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) return new Set();
+    const [raiders, users] = await Promise.all([this.raiderRepo.findAll(), this.userRepo.findAll()]);
+    const teamUserIds = new Set(users.filter((u) => u.team === user.team).map((u) => u.id));
+    return new Set(raiders.filter((r) => teamUserIds.has(r.userId)).map((r) => r.id));
+  }
+
   @Get('item-peers/:itemId')
   async getItemPeers(
+    @Req() req: Request,
     @Param('itemId') itemId: string,
   ): Promise<{ characterName: string; receivedTier: string | null }[]> {
+    const userId = (req.user as JwtPayload).sub;
     const season = await this.catalogRepo.findActiveSeason();
     if (!season) return [];
+    const teamRaiderIds = await this.getSameTeamRaiderIds(userId);
     const reservations = await this.reservationRepo.findByItem(itemId, season.id);
     if (reservations.length === 0) return [];
-    const raiderIds = [...new Set(reservations.map((r) => r.raiderId))];
+    const raiderIds = [...new Set(reservations.map((r) => r.raiderId))].filter((id) => teamRaiderIds.has(id));
     const [raiders, receivedPerRaider] = await Promise.all([
       Promise.all(raiderIds.map((id) => this.raiderRepo.findById(id))),
       Promise.all(raiderIds.map((id) => this.receivedItemRepo.findByRaider(id))),
@@ -270,6 +289,7 @@ export class RaiderController {
     if (!raider) return {};
     const season = await this.catalogRepo.findActiveSeason();
     if (!season) return {};
+    const teamRaiderIds = await this.getSameTeamRaiderIds(userId);
 
     const [myReservations, allReservations] = await Promise.all([
       this.reservationRepo.findByRaider(raider.id, season.id),
@@ -279,11 +299,12 @@ export class RaiderController {
 
     const myItemIds = new Set(myReservations.map((r) => r.itemId));
 
-    // Group other raiders' reservations by itemId
+    // Group other raiders' reservations by itemId — only peers within the same team count
     const itemRaiderMap = new Map<string, Set<string>>();
     for (const res of allReservations) {
       if (!myItemIds.has(res.itemId)) continue;
       if (res.raiderId === raider.id) continue;
+      if (!teamRaiderIds.has(res.raiderId)) continue;
       if (!itemRaiderMap.has(res.itemId)) itemRaiderMap.set(res.itemId, new Set());
       itemRaiderMap.get(res.itemId)?.add(res.raiderId);
     }

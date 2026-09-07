@@ -13,6 +13,10 @@ import { DropAppSettings1746748800000 } from './1746748800000-DropAppSettings';
 import { AddRaidPlanGroupNumber1778284800000 } from './1778284800000-AddRaidPlanGroupNumber';
 import { AddRaidPlanBossNotes1778371200000 } from './1778371200000-AddRaidPlanBossNotes';
 import { AddRaidPlanDiscordSchedule1778457600000 } from './1778457600000-AddRaidPlanDiscordSchedule';
+import { AddTeamColumn1778544000000 } from './1778544000000-AddTeamColumn';
+import { AddSeasonConfigTeam1778630400000 } from './1778630400000-AddSeasonConfigTeam';
+import { AddItemSuperRareOverrides1778716800000 } from './1778716800000-AddItemSuperRareOverrides';
+import { AddAuditLogTeam1778803200000 } from './1778803200000-AddAuditLogTeam';
 
 export const MIGRATIONS: (new () => MigrationInterface)[] = [
   BeastMasterySpecFix1744761600000,
@@ -29,4 +33,8 @@ export const MIGRATIONS: (new () => MigrationInterface)[] = [
   AddRaidPlanGroupNumber1778284800000,
   AddRaidPlanBossNotes1778371200000,
   AddRaidPlanDiscordSchedule1778457600000,
+  AddTeamColumn1778544000000,
+  AddSeasonConfigTeam1778630400000,
+  AddItemSuperRareOverrides1778716800000,
+  AddAuditLogTeam1778803200000,
 ];

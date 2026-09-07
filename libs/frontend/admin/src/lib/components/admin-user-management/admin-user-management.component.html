@@ -56,64 +56,67 @@
     }
   </div>
 
-  @if (users().length) {
-    <div class="user-columns">
-      <!-- Crusaders column -->
-      <div class="user-column">
-        <div class="section-heading">
-          <h3>
-            Crusaders
-            <span class="column-count">{{ crusaders().length }}</span>
-          </h3>
-        </div>
-        <div class="card user-list-card">
-          <div class="user-list">
-            @for (user of crusaders(); track user.id) {
-              <button class="user-row" [class.active]="expandedUserId() === user.id" (click)="toggleUser(user.id)">
-                <span class="user-name">{{ profileFor(user.id)?.characterName ?? user.displayName }}</span>
-                <div class="user-badges">
-                  @if (user.roles.includes(adminRole)) {
-                    <span class="badge-admin">Admin</span>
-                  }
-                  <span class="badge-res">{{ reservationsFor(user.id)?.reservations?.length ?? 0 }} res.</span>
-                </div>
-                <span class="chevron-right">›</span>
-              </button>
-            }
-            @if (crusaders().length === 0) {
-              <p class="empty-column">Geen Crusaders gevonden.</p>
-            }
+  @if (showCrusadersColumn() || showTemplarsColumn()) {
+    <div class="user-columns" [class.single-column]="!(showCrusadersColumn() && showTemplarsColumn())">
+      @if (showCrusadersColumn()) {
+        <div class="user-column">
+          <div class="section-heading">
+            <h3>
+              Crusaders
+              <span class="column-count">{{ crusadersUsers().length }}</span>
+            </h3>
+          </div>
+          <div class="card user-list-card">
+            <div class="user-list">
+              @for (user of crusadersUsers(); track user.id) {
+                <button class="user-row" [class.active]="expandedUserId() === user.id" (click)="toggleUser(user.id)">
+                  <span class="user-name">{{ profileFor(user.id)?.characterName ?? user.displayName }}</span>
+                  <div class="user-badges">
+                    @if (user.roles.includes(adminRole)) {
+                      <span class="badge-admin">Admin</span>
+                    }
+                    <span class="badge-res">{{ reservationsFor(user.id)?.reservations?.length ?? 0 }} res.</span>
+                  </div>
+                  <span class="chevron-right">›</span>
+                </button>
+              }
+              @if (crusadersUsers().length === 0) {
+                <p class="empty-column">Geen leden gevonden.</p>
+              }
+            </div>
           </div>
         </div>
-      </div>
+      }
 
-      <!-- Niet Crusaders column -->
-      <div class="user-column">
-        <div class="section-heading">
-          <h3>
-            Niet Crusaders
-            <span class="column-count">{{ visitors().length }}</span>
-          </h3>
-        </div>
-        <div class="card user-list-card">
-          <div class="user-list">
-            @for (user of visitors(); track user.id) {
-              <button class="user-row" [class.active]="expandedUserId() === user.id" (click)="toggleUser(user.id)">
-                <span class="user-name">{{ profileFor(user.id)?.characterName ?? user.displayName }}</span>
-                <div class="user-badges">
-                  @if (user.roles.includes(adminRole)) {
-                    <span class="badge-admin">Admin</span>
-                  }
-                </div>
-                <span class="chevron-right">›</span>
-              </button>
-            }
-            @if (visitors().length === 0) {
-              <p class="empty-column">Geen niet-Crusaders gevonden.</p>
-            }
+      @if (showTemplarsColumn()) {
+        <div class="user-column">
+          <div class="section-heading">
+            <h3>
+              Templars
+              <span class="column-count">{{ templarsUsers().length }}</span>
+            </h3>
+          </div>
+          <div class="card user-list-card">
+            <div class="user-list">
+              @for (user of templarsUsers(); track user.id) {
+                <button class="user-row" [class.active]="expandedUserId() === user.id" (click)="toggleUser(user.id)">
+                  <span class="user-name">{{ profileFor(user.id)?.characterName ?? user.displayName }}</span>
+                  <div class="user-badges">
+                    @if (user.roles.includes(adminRole)) {
+                      <span class="badge-admin">Admin</span>
+                    }
+                    <span class="badge-res">{{ reservationsFor(user.id)?.reservations?.length ?? 0 }} res.</span>
+                  </div>
+                  <span class="chevron-right">›</span>
+                </button>
+              }
+              @if (templarsUsers().length === 0) {
+                <p class="empty-column">Geen leden gevonden.</p>
+              }
+            </div>
           </div>
         </div>
-      </div>
+      }
     </div>
   }
 

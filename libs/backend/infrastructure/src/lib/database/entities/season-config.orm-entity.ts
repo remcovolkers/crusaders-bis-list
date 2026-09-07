@@ -1,12 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Unique } from 'typeorm';
+import { Team } from '@crusaders-bis-list/shared-domain';
 
 @Entity('season_configs')
+@Unique(['raidSeasonId', 'team'])
 export class SeasonConfigOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ name: 'raid_season_id', unique: true })
+  @Column({ name: 'raid_season_id' })
   raidSeasonId!: string;
+
+  @Column({ type: 'varchar', default: Team.CRUSADERS })
+  team!: Team;
 
   @Column({ name: 'trinket_limit', type: 'int', default: 2 })
   trinketLimit!: number;

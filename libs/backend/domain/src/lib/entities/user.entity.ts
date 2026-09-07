@@ -1,4 +1,5 @@
 import { UserRole } from '@crusaders-bis-list/shared-domain';
+import { Team } from '@crusaders-bis-list/shared-domain';
 
 export class User {
   id!: string;
@@ -10,7 +11,7 @@ export class User {
   displayName!: string;
   avatarUrl?: string;
   roles!: UserRole[];
-  isCrusadersMember!: boolean;
+  team!: Team;
   createdAt!: Date;
   updatedAt!: Date;
 

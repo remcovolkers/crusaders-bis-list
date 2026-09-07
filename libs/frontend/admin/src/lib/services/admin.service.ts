@@ -6,6 +6,7 @@ import {
   AssignmentStatus,
   IUser,
   UserRole,
+  Team,
   IItem,
   ISeasonConfig,
   UpdateSeasonConfigDto,
@@ -70,6 +71,7 @@ export interface AuditLogEntry {
   action: AuditAction;
   actorId: string;
   actorName: string;
+  team: Team;
   raiderName: string | null;
   itemName: string | null;
   details: Record<string, unknown> | null;
@@ -85,12 +87,14 @@ export class AdminService {
     return this.base;
   }
 
-  getCatalog() {
-    return this.http.get<CatalogResponse>(`${this.base}/admin/catalog`);
+  getCatalog(team?: Team) {
+    const suffix = team ? `?team=${team}` : '';
+    return this.http.get<CatalogResponse>(`${this.base}/admin/catalog${suffix}`);
   }
 
-  getBossLootView(bossId: string, seasonId: string) {
-    return this.http.get<IBossLootView>(`${this.base}/admin/boss/${bossId}/loot/${seasonId}`);
+  getBossLootView(bossId: string, seasonId: string, team?: Team) {
+    const suffix = team ? `?team=${team}` : '';
+    return this.http.get<IBossLootView>(`${this.base}/admin/boss/${bossId}/loot/${seasonId}${suffix}`);
   }
 
   assignLoot(payload: AssignLootPayload) {
@@ -101,24 +105,27 @@ export class AdminService {
     return this.http.post<void>(`${this.base}/admin/assignments/${assignmentId}/status`, { status });
   }
 
-  getAllRaiders() {
-    return this.http.get<RaiderUser[]>(`${this.base}/admin/raiders`);
+  getAllRaiders(team?: Team) {
+    const suffix = team ? `?team=${team}` : '';
+    return this.http.get<RaiderUser[]>(`${this.base}/admin/raiders${suffix}`);
   }
 
-  getAllUsers() {
-    return this.http.get<IUser[]>(`${this.base}/admin/users`);
+  getAllUsers(team?: Team) {
+    const suffix = team ? `?team=${team}` : '';
+    return this.http.get<IUser[]>(`${this.base}/admin/users${suffix}`);
   }
 
   updateUserRoles(userId: string, roles: UserRole[]) {
     return this.http.post<void>(`${this.base}/admin/users/${userId}/roles`, { roles });
   }
 
-  updateUserMembership(userId: string, isCrusadersMember: boolean) {
-    return this.http.post<void>(`${this.base}/admin/users/${userId}/membership`, { isCrusadersMember });
+  updateUserTeam(userId: string, team: Team) {
+    return this.http.post<void>(`${this.base}/admin/users/${userId}/team`, { team });
   }
 
-  getAllReservations() {
-    return this.http.get<RaiderReservationSummary[]>(`${this.base}/admin/reservations`);
+  getAllReservations(team?: Team) {
+    const suffix = team ? `?team=${team}` : '';
+    return this.http.get<RaiderReservationSummary[]>(`${this.base}/admin/reservations${suffix}`);
   }
 
   cancelReservation(reservationId: string) {
@@ -153,16 +160,19 @@ export class AdminService {
     return this.http.post<{ message: string }>(`${this.base}/admin/reset-and-sync`, {});
   }
 
-  getSeasonConfig() {
-    return this.http.get<ISeasonConfig>(`${this.base}/admin/season-config`);
+  getSeasonConfig(team?: Team) {
+    const suffix = team ? `?team=${team}` : '';
+    return this.http.get<ISeasonConfig>(`${this.base}/admin/season-config${suffix}`);
   }
 
-  updateSeasonConfig(seasonId: string, dto: UpdateSeasonConfigDto) {
-    return this.http.put<ISeasonConfig>(`${this.base}/admin/season-config/${seasonId}`, dto);
+  updateSeasonConfig(seasonId: string, dto: UpdateSeasonConfigDto, team?: Team) {
+    const suffix = team ? `?team=${team}` : '';
+    return this.http.put<ISeasonConfig>(`${this.base}/admin/season-config/${seasonId}${suffix}`, dto);
   }
 
-  updateItemSuperRare(itemId: string, isSuperRare: boolean) {
-    return this.http.put<IItem>(`${this.base}/admin/items/${itemId}/super-rare`, { isSuperRare });
+  updateItemSuperRare(itemId: string, isSuperRare: boolean, team?: Team) {
+    const suffix = team ? `?team=${team}` : '';
+    return this.http.put<IItem>(`${this.base}/admin/items/${itemId}/super-rare${suffix}`, { isSuperRare });
   }
 
   createRollSession(
@@ -191,7 +201,8 @@ export class AdminService {
     return this.http.get<RollSessionInfo>(`${this.base}/roll-sessions/${sessionId}`);
   }
 
-  getAuditLog() {
-    return this.http.get<AuditLogEntry[]>(`${this.base}/admin/audit-log`);
+  getAuditLog(team?: Team) {
+    const suffix = team ? `?team=${team}` : '';
+    return this.http.get<AuditLogEntry[]>(`${this.base}/admin/audit-log${suffix}`);
   }
 }

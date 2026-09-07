@@ -1,8 +1,8 @@
-import { ISeasonConfig, UpdateSeasonConfigDto } from '@crusaders-bis-list/shared-domain';
+import { ISeasonConfig, Team, UpdateSeasonConfigDto } from '@crusaders-bis-list/shared-domain';
 
 export interface ISeasonConfigRepository {
-  findBySeasonId(seasonId: string): Promise<ISeasonConfig | null>;
-  findOrCreateDefault(seasonId: string): Promise<ISeasonConfig>;
+  findBySeasonId(seasonId: string, team: Team): Promise<ISeasonConfig | null>;
+  findOrCreateDefault(seasonId: string, team: Team): Promise<ISeasonConfig>;
   update(id: string, dto: UpdateSeasonConfigDto): Promise<ISeasonConfig>;
 }
 

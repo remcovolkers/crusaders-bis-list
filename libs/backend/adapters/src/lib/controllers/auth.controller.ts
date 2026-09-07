@@ -7,7 +7,6 @@ import {
   Next,
   UseGuards,
   Body,
-  Param,
   HttpCode,
   HttpStatus,
   Inject,
@@ -20,18 +19,9 @@ import { Request, Response, NextFunction } from 'express';
 import * as passportLib from 'passport';
 const passport = (passportLib as { default?: typeof passportLib }).default ?? passportLib;
 import { JwtAuthGuard } from '../guards/auth.guard';
-import { ManageUserRolesUseCase } from '@crusaders-bis-list/backend-application';
-import { Roles } from '../guards/roles.decorator';
-import { UserRole } from '@crusaders-bis-list/shared-domain';
 import { User, IUserRepository, USER_REPOSITORY } from '@crusaders-bis-list/backend-domain';
-import { IsArray, IsEnum, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 import { ApiBearerAuth } from '@nestjs/swagger';
-
-export class UpdateRolesDto {
-  @IsArray()
-  @IsEnum(UserRole, { each: true })
-  roles!: UserRole[];
-}
 
 export class RefreshDto {
   @IsString()
@@ -62,7 +52,7 @@ export class AuthController {
         email: user.email,
         displayName: user.displayName,
         roles: user.roles,
-        isCrusadersMember: user.isCrusadersMember,
+        team: user.team,
       },
       { expiresIn: '1h' },
     );
@@ -85,7 +75,7 @@ export class AuthController {
           email: user.email,
           displayName: user.displayName,
           roles: user.roles,
-          isCrusadersMember: user.isCrusadersMember,
+          team: user.team,
         },
         { expiresIn: '1h' },
       );
@@ -144,27 +134,9 @@ export class AuthController {
       displayName: user.displayName,
       avatarUrl: user.avatarUrl,
       roles: user.roles,
-      isCrusadersMember: user.isCrusadersMember,
+      team: user.team,
       bnetLinked: !!user.bnetId,
       battletag: user.battletag ?? null,
     };
-  }
-}
-
-@Controller('admin/users')
-@UseGuards(JwtAuthGuard)
-@Roles(UserRole.ADMIN)
-export class UserManagementController {
-  constructor(private readonly manageRoles: ManageUserRolesUseCase) {}
-
-  @Get()
-  getAll() {
-    return this.manageRoles.getAllUsers();
-  }
-
-  @Post(':id/roles')
-  @HttpCode(HttpStatus.OK)
-  updateRoles(@Param('id') id: string, @Body() dto: UpdateRolesDto) {
-    return this.manageRoles.setRoles(id, dto.roles);
   }
 }

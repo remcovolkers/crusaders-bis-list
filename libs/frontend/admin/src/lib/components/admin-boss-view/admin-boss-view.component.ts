@@ -3,6 +3,8 @@ import { NgClass } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { AdminService } from '../../services/admin.service';
+import { AdminTeamContextService } from '../../services/admin-team-context.service';
+import { AuthStateService } from '@crusaders-bis-list/frontend-auth';
 import {
   IBossLootView,
   IEligibleRaider,
@@ -16,6 +18,7 @@ import {
   TIER_LABELS,
   ItemCategory,
   IItem,
+  Team,
 } from '@crusaders-bis-list/shared-domain';
 import { CatalogResponse } from '@crusaders-bis-list/frontend-loot';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
@@ -84,12 +87,21 @@ const ROLE_ORDER: Record<RaidRole, number> = { tank: 0, healer: 1, dps: 2 };
 export class AdminBossViewComponent {
   private readonly toast = inject(ToastService);
   private readonly adminService = inject(AdminService);
+  private readonly authState = inject(AuthStateService);
+  readonly teamContext = inject(AdminTeamContextService);
+
+  readonly viewedTeam = computed(
+    () => this.teamContext.selectedTeam() ?? this.authState.user()?.team ?? Team.CRUSADERS,
+  );
 
   private readonly catalogResource = rxResource({ stream: () => this.adminService.getCatalog() });
   private readonly bossLootResource = rxResource({
-    params: () => this.catalogResource.value(),
-    stream: ({ params: catalog }) =>
-      forkJoin(catalog.bosses.map((boss) => this.adminService.getBossLootView(boss.id, catalog.season.id))),
+    params: () => {
+      const catalog = this.catalogResource.value();
+      return catalog ? { catalog, team: this.viewedTeam() } : undefined;
+    },
+    stream: ({ params: { catalog, team } }) =>
+      forkJoin(catalog.bosses.map((boss) => this.adminService.getBossLootView(boss.id, catalog.season.id, team))),
   });
 
   readonly catalog = computed(() => this.catalogResource.value() ?? null);
@@ -167,7 +179,7 @@ export class AdminBossViewComponent {
     this.adminService.assignLoot(payload).subscribe({
       next: () => {
         this.toast.show('Toewijzing opgeslagen!');
-        this.adminService.getBossLootView(bossId, catalog.season.id).subscribe({
+        this.adminService.getBossLootView(bossId, catalog.season.id, this.viewedTeam()).subscribe({
           next: (view) =>
             this.bossLootResource.update((views) => (views ?? []).map((v) => (v.boss.id === bossId ? view : v))),
         });
