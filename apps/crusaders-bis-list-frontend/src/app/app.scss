@@ -207,6 +207,17 @@
   }
 }
 
+.tip-info-mobile {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .app-main {
   flex: 1;
   overflow-y: auto;

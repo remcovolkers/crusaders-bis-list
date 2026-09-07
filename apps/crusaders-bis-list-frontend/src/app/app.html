@@ -45,7 +45,13 @@
               Link BNET
             </button>
           }
-          <a class="btn-tip" [href]="tipLink" target="_blank" rel="noopener" title="Trakteer me op een kopje koffie">
+          <a
+            class="btn-tip"
+            [href]="tipLink"
+            target="_blank"
+            rel="noopener"
+            title="Het runnen en bouwen van deze site kost tijd en geld. Wil je een steentje bijdragen aan het voortbestaan ervan? Elke tip wordt superwaardeerd!"
+          >
             ☕ Tip
           </a>
           @if (isAdmin()) {
@@ -101,6 +107,10 @@
             </button>
           }
           <a class="btn-tip" [href]="tipLink" target="_blank" rel="noopener" (click)="menuOpen.set(false)"> ☕ Tip </a>
+          <p class="tip-info-mobile">
+            Het runnen en bouwen van deze site kost tijd en geld. Wil je bijdragen aan het voortbestaan ervan? Elke tip
+            wordt superwaardeerd! ☕
+          </p>
           <button class="btn-ghost logout-btn" (click)="logout()">Uitloggen</button>
         </div>
       </div>
