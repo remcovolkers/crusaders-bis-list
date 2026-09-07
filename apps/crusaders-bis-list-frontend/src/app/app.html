@@ -45,6 +45,9 @@
               Link BNET
             </button>
           }
+          <a class="btn-tip" [href]="tipLink" target="_blank" rel="noopener" title="Trakteer me op een kopje koffie">
+            ☕ Tip
+          </a>
           @if (isAdmin()) {
             <span class="badge badge-gold">Admin</span>
           }
@@ -97,6 +100,9 @@
               Link Battle.net
             </button>
           }
+          <a class="btn-tip" [href]="tipLink" target="_blank" rel="noopener" (click)="menuOpen.set(false)">
+            ☕ Tip
+          </a>
           <button class="btn-ghost logout-btn" (click)="logout()">Uitloggen</button>
         </div>
       </div>

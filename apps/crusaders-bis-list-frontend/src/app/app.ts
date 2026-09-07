@@ -20,6 +20,8 @@ export class App {
   private readonly document = inject(DOCUMENT);
   private readonly appUpdateService = inject(AppUpdateService);
 
+  readonly tipLink = 'https://paypal.me/v0lky1';
+
   constructor() {
     this.appUpdateService.init();
   }
