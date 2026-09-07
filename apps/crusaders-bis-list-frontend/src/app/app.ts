@@ -24,7 +24,9 @@ export class App {
     this.appUpdateService.init();
   }
 
-  readonly isOldDomain = signal(this.document.location.hostname === 'crusaders-bis-list.onrender.com');
+  // Old hostnames that must redirect users to the current lootlijst.royal-team.nl address.
+  private readonly OLD_HOSTNAMES = ['crusaders-bis-list.onrender.com', 'crusaders.royal-team.nl'];
+  readonly isOldDomain = signal(this.OLD_HOSTNAMES.includes(this.document.location.hostname));
 
   readonly isAuthenticated = this.authState.isAuthenticated;
   readonly currentUser = this.authState.user;
