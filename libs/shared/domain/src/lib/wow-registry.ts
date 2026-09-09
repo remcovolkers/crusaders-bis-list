@@ -188,7 +188,17 @@ export const WOW_SPEC_REGISTRY: Record<WowSpec, IWowSpecData> = {
     id: WowSpec.SURVIVAL,
     class: WowClass.HUNTER,
     primaryStat: PrimaryStat.AGILITY,
-    usableWeaponTypes: [WeaponType.POLEARM, WeaponType.STAFF],
+    usableWeaponTypes: [
+      WeaponType.POLEARM,
+      WeaponType.STAFF,
+      WeaponType.AXE_1H,
+      WeaponType.MACE_1H,
+      WeaponType.SWORD_1H,
+      WeaponType.SWORD_2H,
+      WeaponType.AXE_2H,
+      WeaponType.MACE_2H,
+      WeaponType.DAGGER,
+    ],
   },
   // ── Rogue ──
   [WowSpec.ASSASSINATION]: {
