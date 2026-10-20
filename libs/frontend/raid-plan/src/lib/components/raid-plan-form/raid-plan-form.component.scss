@@ -1,443 +1,50 @@
-// ── Page shell ────────────────────────────────────────────────────────────────
+:host {
+  display: block;
+}
 
 .form-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px 20px;
-}
-
-.form-page__header {
-  margin-bottom: 28px;
-
-  h1 {
-    margin: 8px 0 0;
-    font-size: 1.7rem;
-    color: #f0c040;
-  }
-}
-
-.back-link {
-  color: #64748b;
-  font-size: 0.88rem;
-  cursor: pointer;
-  text-decoration: none;
-
-  &:hover {
-    color: #e2e8f0;
-  }
-}
-
-.loading-state {
-  text-align: center;
-  color: #64748b;
-  padding: 60px 0;
-}
-
-// ── Two-column layout ─────────────────────────────────────────────────────────
-
-.form-layout {
-  display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 24px;
-  align-items: start;
-
-  &--single {
-    grid-template-columns: 360px;
-    justify-content: center;
-  }
-
-  @media (max-width: 860px) {
-    grid-template-columns: 1fr;
-
-    &--single {
-      grid-template-columns: 1fr;
-    }
-  }
-}
-
-// ── Settings panel ────────────────────────────────────────────────────────────
-
-.settings-panel {
-  background: #111827;
-  border: 1px solid #1e3a5a;
-  border-radius: 10px;
-  padding: 22px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  position: sticky;
-  top: 20px;
-}
+  gap: var(--gutter);
 
-.settings-section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.settings-section__title {
-  margin: 0 0 4px;
-  font-size: 0.88rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #475569;
-}
-
-// ── Fields ────────────────────────────────────────────────────────────────────
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  &__label {
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: #94a3b8;
-  }
-
-  &__input {
-    background: #0f172a;
-    border: 1px solid #1e3a5a;
-    border-radius: 7px;
-    padding: 9px 12px;
-    color: #e2e8f0;
-    font-size: 0.88rem;
-    font-family: inherit;
-    width: 100%;
-    box-sizing: border-box;
-    color-scheme: dark;
-
-    &:is(select) {
-      padding-right: 32px;
-      appearance: auto;
-    }
-
-    &:focus {
-      outline: none;
-      border-color: #3b82f6;
-    }
-
-    &::placeholder {
-      color: #334155;
-    }
-  }
-
-  textarea.field__input {
-    resize: vertical;
-    line-height: 1.5;
+  @media (min-width: 1025px) {
+    gap: var(--gutter-desktop);
   }
 }
 
-.optional {
-  font-weight: 400;
-  color: #334155;
-  font-size: 0.78rem;
+.form-page__back {
+  margin-left: calc(-1 * var(--space-sm));
+  color: var(--text-secondary);
 }
 
-// ── Date / time row ──────────────────────────────────────────────────────────
-
-.date-time-row {
-  display: flex;
-  gap: 10px;
-
-  .field {
-    flex: 1;
-
-    &--time {
-      flex: 0 0 110px;
-    }
-  }
-}
-
-// ── Difficulty toggle ────────────────────────────────────────────────────────
-
-.difficulty-toggle {
-  display: flex;
-  gap: 6px;
-}
-
-// ── Raid chips ────────────────────────────────────────────────────────────────
-
-.raid-chips {
+.form-page__chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-sm);
 }
 
-.raid-chip {
-  padding: 7px 14px;
-  border-radius: 999px;
-  border: 1px solid #1e3a5a;
-  background: #0f172a;
-  color: #64748b;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover {
-    border-color: #3b82f6;
-    color: #93c5fd;
-  }
-
-  &--active {
-    background: #1e3a8a;
-    border-color: #3b82f6;
-    color: #93c5fd;
-    font-weight: 600;
-  }
-}
-
-.raid-preview {
-  font-size: 0.85rem;
-  color: #64748b;
-  margin: 4px 0 0;
-
-  strong {
-    color: #f0c040;
-    margin-left: 4px;
-  }
-}
-
-.field__hint {
-  font-size: 0.82rem;
-  color: #475569;
-  margin: 4px 0 0;
-  font-style: italic;
-}
-
-.difficulty-btn {
-  flex: 1;
-  padding: 8px 4px;
-  border-radius: 7px;
-  border: 1px solid transparent;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  background: #1e293b;
-  color: #475569;
-  transition: all 0.15s;
-
-  &--normal {
-    &.difficulty-btn--active {
-      background: #166534;
-      color: #86efac;
-      border-color: #166534;
-    }
-  }
-  &--heroic {
-    &.difficulty-btn--active {
-      background: #1d4ed8;
-      color: #93c5fd;
-      border-color: #1d4ed8;
-    }
-  }
-  &--mythic {
-    &.difficulty-btn--active {
-      background: #7e22ce;
-      color: #d8b4fe;
-      border-color: #7e22ce;
-    }
-  }
-
-  &:hover:not(.difficulty-btn--active) {
-    background: #334155;
-    color: #cbd5e1;
-  }
-}
-
-// ── Form actions ──────────────────────────────────────────────────────────────
-
-.form-actions {
-  display: flex;
-  gap: 10px;
-  padding-top: 4px;
-}
-
-// ── Buttons ───────────────────────────────────────────────────────────────────
-
-.btn {
-  border: none;
-  border-radius: 7px;
-  padding: 10px 18px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-
-  &--gold {
-    flex: 1;
-    background: #f0c040;
-    color: #0f172a;
-    &:hover:not(:disabled) {
-      background: #fcd34d;
-    }
-  }
-
-  &--ghost {
-    background: #1e293b;
-    color: #94a3b8;
-    border: 1px solid #334155;
-    &:hover:not(:disabled) {
-      background: #334155;
-      color: #e2e8f0;
-    }
-  }
-
-  &--xs {
-    padding: 4px 10px;
-    font-size: 0.78rem;
-  }
-}
-
-// ── Roster panel ──────────────────────────────────────────────────────────────
-
-.roster-panel {
-  background: #111827;
-  border: 1px solid #1e3a5a;
-  border-radius: 10px;
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-
-  &__header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-
-    .settings-section__title {
-      flex: 1;
-      margin: 0;
-    }
-  }
-}
-
-.roster-hint {
-  margin: 0;
-  font-size: 0.8rem;
-  color: #475569;
-  line-height: 1.4;
-}
-
-// ── Summary chips ─────────────────────────────────────────────────────────────
-
-.roster-summary {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.summary-chip {
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 999px;
-
-  &--raider {
-    background: #1e3a5a;
-    color: #93c5fd;
-  }
-  &--bench {
-    background: #422006;
-    color: #fcd34d;
-  }
-  &--absent {
-    background: #3b0a0a;
-    color: #fca5a5;
-  }
-}
-
-// ── Raid groups ───────────────────────────────────────────────────────────────
-
-.raid-groups {
+// derived session name, shown as an inset strip below the raid picker
+.form-page__session {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  align-items: baseline;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-tier-2);
+  border-radius: var(--radius-xs);
 }
 
-.raid-group {
+.form-page__actions {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 160px;
-  flex: 1 1 160px;
+  justify-content: flex-end;
+  gap: var(--space-sm);
 
-  &__label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #334155;
-    margin-bottom: 2px;
-  }
-}
+  @media (max-width: 640px) {
+    flex-direction: column-reverse;
 
-.raider-chip {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  padding: 10px 12px;
-  background: #0f172a;
-  border: 1px solid var(--class-color, #1e3a5a);
-  border-left: 4px solid var(--class-color, #3b82f6);
-  border-radius: 7px;
-  cursor: pointer;
-  text-align: left;
-  transition:
-    opacity 0.15s,
-    background 0.15s;
-
-  &:hover {
-    background: #1a2535;
-  }
-
-  // Bank → muted yellow tint
-  &--bench {
-    border-color: #92400e;
-    border-left-color: #f59e0b;
-    background: #1c1400;
-    opacity: 0.85;
-  }
-
-  // Afgemeld → muted red tint
-  &--absent {
-    border-color: #7f1d1d;
-    border-left-color: #ef4444;
-    background: #130a0a;
-    opacity: 0.7;
-  }
-
-  &__icon {
-    font-size: 0.75rem;
-    margin-bottom: 2px;
-    opacity: 0.7;
-  }
-
-  &__name {
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: var(--class-color, #e2e8f0);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-  }
-
-  &__spec {
-    font-size: 0.72rem;
-    color: #64748b;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
+    > * {
+      width: 100%;
+    }
   }
 }

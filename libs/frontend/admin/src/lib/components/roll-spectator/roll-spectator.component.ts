@@ -35,6 +35,18 @@ export class RollSpectatorComponent implements OnDestroy {
 
   readonly wheelRaiders = computed(() => this.sessionInfo()?.raiders ?? []);
 
+  /** Set when the wheel has finished decelerating, so the winner is not spoiled while it still spins. */
+  readonly spinFinished = signal(false);
+  readonly winnerRevealed = computed(() => {
+    const w = this.winner();
+    if (!w) return false;
+    return (
+      this.spinFinished() ||
+      this.sessionInfo()?.status === 'done' ||
+      !this.wheelRaiders().some((r) => r.raiderId === w.raiderId)
+    );
+  });
+
   private sseSource: EventSource | null = null;
   private _sseStarted = false;
 

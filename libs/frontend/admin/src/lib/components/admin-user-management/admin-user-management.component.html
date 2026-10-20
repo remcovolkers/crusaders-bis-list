@@ -1,131 +1,383 @@
-﻿<div class="user-mgmt">
+﻿<div class="page user-mgmt">
   <!-- Page header -->
-  <div class="page-header">
-    <div class="page-header-main">
-      <div>
-        <h2>Gebruikersbeheer</h2>
-        <p class="page-subtitle">
-          Bekijk alle geregistreerde gebruikers, pas adminrollen aan, reset raider-profielen en beheer reservaties per
-          gebruiker.
-        </p>
+  <header class="page-head">
+    <div class="page-head__main">
+      <div class="page-head__eyebrow">
+        <span class="badge badge-gold">Admin</span>
+        @if (orphanedReservationCount() > 0) {
+          <span
+            class="badge badge-warning badge--sentence"
+            title="Reserveringen zonder gekoppeld gebruikersaccount. Remco moet deze handmatig opruimen via de database."
+          >
+            <span class="material-symbols-outlined icon-14">warning</span>
+            {{ orphanedReservationCount() }} wees-reservering(en)
+          </span>
+        } @else {
+          <span class="badge badge-success badge--sentence">
+            <span class="material-symbols-outlined icon-14">check_circle</span>
+            Geen wees-reserveringen
+          </span>
+        }
       </div>
+      <h1 class="page-head__title">Gebruikersbeheer</h1>
+      <p class="page-head__subtitle">
+        Bekijk alle geregistreerde gebruikers, pas adminrollen aan, reset raider-profielen en beheer reservaties per
+        gebruiker.
+      </p>
+    </div>
+    <div class="page-head__actions">
+      <button type="button" class="btn" (click)="exportCsv()" [disabled]="filteredRows().length === 0">
+        <span class="material-symbols-outlined icon-16">file_download</span>
+        Export CSV
+      </button>
       @if (!confirmingResetAll()) {
         <button
-          class="btn-danger-outline"
+          type="button"
+          class="btn-danger"
           (click)="requestResetAll()"
           title="Verwijder alle reserveringen en mail alle gebruikers"
         >
-          &#x1F5D1; Reset alle reserveringen
+          <span class="material-symbols-outlined icon-16">delete_sweep</span>
+          Reset alle reserveringen
         </button>
       }
     </div>
-    @if (confirmingResetAll()) {
-      <div class="reset-all-confirm">
-        <p class="reset-all-confirm-label">
-          Weet je het zeker? Dit verwijdert <strong>alle</strong> reserveringen en mailt alle gebruikers.
-        </p>
+  </header>
+
+  @if (confirmingResetAll()) {
+    <div class="banner banner-danger reset-confirm">
+      <span class="material-symbols-outlined">warning</span>
+      <div class="stack reset-confirm__body">
+        <p>Weet je het zeker? Dit verwijdert <strong>alle</strong> reserveringen en mailt alle gebruikers.</p>
         <textarea
-          class="reset-reason-input"
+          class="form-textarea"
           placeholder="Reden (optioneel) — wordt meegestuurd in de mail..."
           rows="2"
+          aria-label="Reden"
           [ngModel]="resetReason()"
           (ngModelChange)="resetReason.set($event)"
         ></textarea>
-        <div class="reset-all-confirm-actions">
-          <button class="btn-danger" [disabled]="resettingAll()" (click)="confirmResetAll()">
+        <div class="row gap-sm">
+          <button type="button" class="btn-danger" [disabled]="resettingAll()" (click)="confirmResetAll()">
             {{ resettingAll() ? 'Bezig...' : 'Ja, reset alles' }}
           </button>
-          <button class="btn-ghost" [disabled]="resettingAll()" (click)="abortResetAll()">Annuleer</button>
+          <button type="button" class="btn" [disabled]="resettingAll()" (click)="abortResetAll()">Annuleer</button>
         </div>
       </div>
-    }
-
-    @if (orphanedReservationCount() > 0) {
-      <div class="orphaned-indicator">
-        <span class="orphaned-badge">⚠ {{ orphanedReservationCount() }} wees-reservering(en)</span>
-        <span
-          class="orphaned-info"
-          title="Reserveringen zonder gekoppeld gebruikersaccount. Remco moet deze handmatig opruimen via de database."
-          >ℹ</span
-        >
-      </div>
-    } @else {
-      <div class="orphaned-indicator">
-        <span class="orphaned-badge orphaned-badge--ok">✓ Geen wees-reserveringen</span>
-      </div>
-    }
-  </div>
-
-  @if (showCrusadersColumn() || showTemplarsColumn()) {
-    <div class="user-columns" [class.single-column]="!(showCrusadersColumn() && showTemplarsColumn())">
-      @if (showCrusadersColumn()) {
-        <div class="user-column">
-          <div class="section-heading">
-            <h3>
-              Crusaders
-              <span class="column-count">{{ crusadersUsers().length }}</span>
-            </h3>
-          </div>
-          <div class="card user-list-card">
-            <div class="user-list">
-              @for (user of crusadersUsers(); track user.id) {
-                <button class="user-row" [class.active]="expandedUserId() === user.id" (click)="toggleUser(user.id)">
-                  <span class="user-name">{{ profileFor(user.id)?.characterName ?? user.displayName }}</span>
-                  <div class="user-badges">
-                    @if (user.roles.includes(adminRole)) {
-                      <span class="badge-admin">Admin</span>
-                    }
-                    <span class="badge-res">{{ reservationsFor(user.id)?.reservations?.length ?? 0 }} res.</span>
-                  </div>
-                  <span class="chevron-right">›</span>
-                </button>
-              }
-              @if (crusadersUsers().length === 0) {
-                <p class="empty-column">Geen leden gevonden.</p>
-              }
-            </div>
-          </div>
-        </div>
-      }
-
-      @if (showTemplarsColumn()) {
-        <div class="user-column">
-          <div class="section-heading">
-            <h3>
-              Templars
-              <span class="column-count">{{ templarsUsers().length }}</span>
-            </h3>
-          </div>
-          <div class="card user-list-card">
-            <div class="user-list">
-              @for (user of templarsUsers(); track user.id) {
-                <button class="user-row" [class.active]="expandedUserId() === user.id" (click)="toggleUser(user.id)">
-                  <span class="user-name">{{ profileFor(user.id)?.characterName ?? user.displayName }}</span>
-                  <div class="user-badges">
-                    @if (user.roles.includes(adminRole)) {
-                      <span class="badge-admin">Admin</span>
-                    }
-                    <span class="badge-res">{{ reservationsFor(user.id)?.reservations?.length ?? 0 }} res.</span>
-                  </div>
-                  <span class="chevron-right">›</span>
-                </button>
-              }
-              @if (templarsUsers().length === 0) {
-                <p class="empty-column">Geen leden gevonden.</p>
-              }
-            </div>
-          </div>
-        </div>
-      }
     </div>
   }
 
-  <!-- User detail modal -->
+  <!-- Roster governance -->
+  <section class="card roster">
+    <div class="roster__toolbar row-between">
+      <label class="search-field roster__search">
+        <span class="material-symbols-outlined icon-16">manage_search</span>
+        <input
+          type="search"
+          placeholder="Zoek op karakter, speler, Battle.net of e-mail..."
+          aria-label="Zoek gebruiker"
+          [ngModel]="search()"
+          (ngModelChange)="setSearch($event)"
+        />
+      </label>
+      <div class="roster__filters scroll-x scroll-hidden">
+        @if (showCrusadersColumn() && showTemplarsColumn()) {
+          <div class="segmented" role="group" aria-label="Team">
+            <button
+              type="button"
+              class="segmented__item"
+              [class.is-active]="teamFilter() === 'all'"
+              (click)="setTeamFilter('all')"
+            >
+              Alle teams
+            </button>
+            <button
+              type="button"
+              class="segmented__item"
+              style="--item-color: var(--team-crusaders)"
+              [class.is-active]="teamFilter() === Team.CRUSADERS"
+              (click)="setTeamFilter(Team.CRUSADERS)"
+            >
+              Crusaders
+            </button>
+            <button
+              type="button"
+              class="segmented__item"
+              style="--item-color: var(--team-templars)"
+              [class.is-active]="teamFilter() === Team.TEMPLARS"
+              (click)="setTeamFilter(Team.TEMPLARS)"
+            >
+              Templars
+            </button>
+          </div>
+        }
+        <div class="segmented" role="group" aria-label="Rol">
+          <button
+            type="button"
+            class="segmented__item"
+            title="Alle rollen"
+            aria-label="Alle rollen"
+            [class.is-active]="roleFilter() === 'all'"
+            (click)="setRoleFilter('all')"
+          >
+            <span class="material-symbols-outlined icon-16">all_inclusive</span>
+          </button>
+          @for (role of roles; track role) {
+            <button
+              type="button"
+              class="segmented__item"
+              [class]="'role-' + role"
+              [attr.title]="roleMeta[role].label"
+              [attr.aria-label]="roleMeta[role].label"
+              [class.is-active]="roleFilter() === role"
+              (click)="setRoleFilter(role)"
+            >
+              <span class="material-symbols-outlined icon-16">{{ roleMeta[role].icon }}</span>
+            </button>
+          }
+        </div>
+        <select
+          class="form-select form-input--sm roster__status"
+          aria-label="Status"
+          [ngModel]="statusFilter()"
+          (ngModelChange)="setStatusFilter($event)"
+        >
+          <option value="all">Alle statussen</option>
+          <option [value]="RaiderStatus.ACTIVE">Actief</option>
+          <option [value]="RaiderStatus.TRIAL">Trial</option>
+          <option [value]="RaiderStatus.INACTIVE">Inactief</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="roster__classes">
+      <span class="t-label-caps c-muted">Klasse</span>
+      <div class="roster__class-chips">
+        @for (cls of classes; track cls.name) {
+          <button
+            type="button"
+            class="chip chip-class"
+            [class]="'class-' + cls.slug"
+            [class.is-active]="classFilter() === cls.name"
+            [attr.aria-pressed]="classFilter() === cls.name"
+            (click)="toggleClassFilter(cls.name)"
+          >
+            {{ cls.name }}
+          </button>
+        }
+      </div>
+      <span class="t-label-caps c-muted roster__showing">
+        {{ filteredRows().length }} van {{ rows().length }} gebruikers
+        @if (hasActiveFilters()) {
+          <button type="button" class="btn-text btn-sm" (click)="resetFilters()">Wis filters</button>
+        }
+      </span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table table--clickable table--fade-actions roster__table">
+        <thead>
+          <tr>
+            <th>Raider</th>
+            <th class="hide-mobile roster__hide-tablet">Battle.net</th>
+            <th>{{ showCrusadersColumn() && showTemplarsColumn() ? 'Team / rol' : 'Rol' }}</th>
+            <th class="cell-center" title="Reserveringen / beschikbare plekken">Res.</th>
+            <th class="hide-mobile">Super rare</th>
+            <th>Status</th>
+            <th class="cell-actions hide-mobile"><span class="sr-only">Acties</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of pagedRows(); track row.user.id) {
+            <tr
+              class="user-row"
+              tabindex="0"
+              [class.is-selected]="expandedUserId() === row.user.id"
+              (click)="toggleUser(row.user.id)"
+              (keydown.enter)="toggleUser(row.user.id)"
+            >
+              <td>
+                <div class="cell-id">
+                  <span class="class-tile" [class]="'class-' + row.classSlug">
+                    {{ row.name.charAt(0).toUpperCase() }}
+                  </span>
+                  <div class="roster__name">
+                    <span class="roster__name-line">
+                      <span class="t-body-medium fw-semibold truncate" [class]="'class-' + row.classSlug">
+                        {{ row.name }}
+                      </span>
+                      @if (row.isAdmin) {
+                        <span class="badge badge-gold">Admin</span>
+                      }
+                    </span>
+                    <span class="t-label-caps c-muted truncate">
+                      @if (row.realm) {
+                        {{ row.realm }} · {{ row.player }}
+                      } @else if (row.spec && row.wowClass) {
+                        {{ row.spec }} · {{ row.wowClass }}
+                      } @else {
+                        Geen raider-profiel
+                      }
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="hide-mobile roster__hide-tablet">
+                @if (row.battletag) {
+                  <span class="roster__bnet t-body-code c-secondary">
+                    <span class="material-symbols-outlined icon-14 c-success">check_circle</span>
+                    {{ row.battletag }}
+                  </span>
+                } @else {
+                  <span class="roster__bnet t-body-code c-muted">
+                    <span class="material-symbols-outlined icon-14">link_off</span>
+                    Niet gekoppeld
+                  </span>
+                }
+              </td>
+              <td>
+                <div class="row gap-xs">
+                  @if (showCrusadersColumn() && showTemplarsColumn()) {
+                    <span
+                      class="badge"
+                      [class]="row.team === Team.CRUSADERS ? 'badge-crusaders' : 'badge-templars'"
+                      [attr.title]="row.team === Team.CRUSADERS ? 'Crusaders' : 'Templars'"
+                    >
+                      <span class="roster__team-full">{{
+                        row.team === Team.CRUSADERS ? 'Crusaders' : 'Templars'
+                      }}</span>
+                      <span class="roster__team-short">{{ row.team === Team.CRUSADERS ? 'C' : 'T' }}</span>
+                    </span>
+                  }
+                  @if (row.role) {
+                    <span
+                      class="material-symbols-outlined icon-16"
+                      [class]="'role-' + row.role"
+                      [attr.title]="roleMeta[row.role].label"
+                      >{{ roleMeta[row.role].icon }}</span
+                    >
+                  }
+                </div>
+              </td>
+              <td class="cell-center">
+                <span
+                  class="roster__res t-stat-mono"
+                  [class.roster__res--empty]="row.reserved === 0"
+                  [class.roster__res--full]="row.slotLimit !== null && row.reserved >= row.slotLimit"
+                >
+                  {{ row.reserved }}
+                  @if (row.slotLimit !== null) {
+                    / {{ row.slotLimit }}
+                  }
+                </span>
+              </td>
+              <td class="hide-mobile">
+                @if (row.superRare.length) {
+                  <span class="badge badge-super-rare roster__sr" [attr.title]="row.superRare.join(', ')">
+                    <span class="material-symbols-outlined icon-14 icon-fill">star</span>
+                    <span class="truncate">{{ row.superRare[0] }}</span>
+                    @if (row.superRare.length > 1) {
+                      <span>+{{ row.superRare.length - 1 }}</span>
+                    }
+                  </span>
+                } @else {
+                  <span class="t-body-code c-muted">—</span>
+                }
+              </td>
+              <td>
+                @switch (row.status) {
+                  @case (RaiderStatus.ACTIVE) {
+                    <span class="badge badge-champion badge--dot" title="Actief"
+                      ><span class="roster__status-label">Actief</span></span
+                    >
+                  }
+                  @case (RaiderStatus.TRIAL) {
+                    <span class="badge badge-hero badge--dot" title="Trial"
+                      ><span class="roster__status-label">Trial</span></span
+                    >
+                  }
+                  @case (RaiderStatus.INACTIVE) {
+                    <span class="badge badge-neutral badge--dot" title="Inactief"
+                      ><span class="roster__status-label">Inactief</span></span
+                    >
+                  }
+                  @default {
+                    <span class="t-body-code c-muted">—</span>
+                  }
+                }
+              </td>
+              <td class="cell-actions hide-mobile">
+                <button
+                  type="button"
+                  class="icon-btn icon-btn--sm"
+                  [class.icon-btn--gold]="expandedUserId() === row.user.id"
+                  aria-label="Gebruiker openen"
+                  title="Gebruiker openen"
+                  (click)="$event.stopPropagation(); toggleUser(row.user.id)"
+                >
+                  <span class="material-symbols-outlined icon-16">edit</span>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7">
+                <div class="empty-box">
+                  <span class="material-symbols-outlined">person_search</span>
+                  <p class="empty-box__title">Geen leden gevonden.</p>
+                  @if (hasActiveFilters()) {
+                    <button type="button" class="btn btn-sm" (click)="resetFilters()">Wis filters</button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <div class="roster__counts">
+        <span>{{ rangeStart() }}-{{ rangeEnd() }} van {{ filteredRows().length }}</span>
+        @if (showCrusadersColumn()) {
+          <span class="c-crusaders">{{ teamCounts().crusaders }} Crusaders</span>
+        }
+        @if (showTemplarsColumn()) {
+          <span class="c-templars">{{ teamCounts().templars }} Templars</span>
+        }
+        <span class="c-hero">{{ teamCounts().benchTrial }} Trial/Inactief</span>
+      </div>
+      <div class="row gap-xs">
+        <button
+          type="button"
+          class="icon-btn icon-btn--sm"
+          aria-label="Vorige pagina"
+          [disabled]="currentPage() === 0"
+          (click)="goToPage(currentPage() - 1)"
+        >
+          <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <span class="pagination__page">{{ currentPage() + 1 }} / {{ pageCount() }}</span>
+        <button
+          type="button"
+          class="icon-btn icon-btn--sm"
+          aria-label="Volgende pagina"
+          [disabled]="currentPage() >= pageCount() - 1"
+          (click)="goToPage(currentPage() + 1)"
+        >
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- User drawer -->
   @if (selectedUser(); as user) {
     <lib-admin-user-detail-modal
       [user]="user"
       [summary]="reservationsFor(user.id)"
       [profile]="profileFor(user.id)"
+      [slotLimit]="selectedSlotLimit()"
       (closed)="onModalClosed()"
       (userChanged)="onUserChanged($event)"
       (profileReset)="onProfileReset($event)"

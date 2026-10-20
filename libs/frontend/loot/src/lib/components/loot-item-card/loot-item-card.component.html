@@ -1,117 +1,24 @@
-<div class="item-card" [class.reserved]="item().isReserved">
-  @if (!item().isReserved && state.isAtLimit(item()) && item().isPrioritizable) {
-    <button
-      class="card-info-corner"
-      aria-label="Info over limiet"
-      (click)="infoModal.set(infoModal() === 'lim' ? null : 'lim')"
-    >
-      ℹ
-      <span class="card-info-tooltip"
-        >Wil je liever dit item reserveren? Dan moet je eerst een andere reservering annuleren. Neem contact op met je
-        lootmeister.</span
-      >
-    </button>
-  }
-
-  @if (item().isReserved && getReservedTiers().length) {
-    <div class="tier-corner-badges">
-      @for (tier of getReservedTiers(); track tier) {
-        <button
-          class="tier-corner-badge"
-          [ngClass]="'tier-' + tier"
-          [class.active]="activePeerTier() === tier"
-          (click)="togglePeerTier(tier, $event)"
-        >
-          {{ tierLabels[tier] }}
-          @if (state.peerCountFor(item().id, tier) > 0) {
-            <span class="tier-peer-count">+{{ state.peerCountFor(item().id, tier) }}</span>
-          }
-        </button>
-      }
-      @if (activePeerTier() !== null) {
-        <div
-          class="peers-backdrop"
-          role="button"
-          tabindex="-1"
-          aria-label="Sluit"
-          (click)="closePeers()"
-          (keydown.escape)="closePeers()"
-          (wheel)="triggerPeerShine()"
-        ></div>
-        <div
-          class="peers-popover"
-          [class.peers-popover--up]="peerDirection() === 'up'"
-          [class.peers-popover--shine]="peerShine()"
-          (click)="$event.stopPropagation()"
-          (keydown)="$event.stopPropagation()"
-          tabindex="0"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div class="peers-popover-header">
-            <span class="peers-popover-title">{{ tierLabels[activePeerTier()!] }} — mede-reserveerders</span>
-            <button class="peers-popover-close" aria-label="Sluit" (click)="closePeers()">✕</button>
-          </div>
-          @if (loadingPeers()) {
-            <div class="peers-loading">Laden…</div>
-          } @else {
-            @let eligibles = peersEligibleFor(activePeerTier()!);
-            @if (eligibles.length === 0) {
-              <div class="peers-empty">
-                Niemand anders heeft dit item gereserveerd voor {{ tierLabels[activePeerTier()!] }}.
-              </div>
-            } @else {
-              <ul class="peers-list" (wheel)="$event.stopPropagation()">
-                @for (name of eligibles; track name) {
-                  <li class="peers-list-item">{{ name }}</li>
-                }
-              </ul>
-            }
-          }
-        </div>
-      }
-    </div>
-  }
-
-  @if (infoModal()) {
-    <div
-      class="info-tap-backdrop"
-      role="button"
-      tabindex="0"
-      aria-label="Sluit info"
-      (click)="infoModal.set(null)"
-      (keydown.escape)="infoModal.set(null)"
-    ></div>
-    <div
-      class="info-modal-overlay"
-      role="dialog"
-      aria-modal="true"
-      (click)="$event.stopPropagation()"
-      (keydown)="$event.stopPropagation()"
-    >
-      <button class="info-modal-close" aria-label="Sluit" (click)="infoModal.set(null)">✕</button>
-      <p class="info-modal-text">
-        Wil je liever dit item reserveren? Dan moet je eerst een andere reservering annuleren. Neem contact op met je
-        lootmeister.
-      </p>
-    </div>
-  }
-
+<div
+  class="item-card"
+  [class.reserved]="item().isReserved"
+  [class.is-locked]="!item().isReserved && state.isAtLimit(item())"
+  [class.is-super-rare]="item().isSuperRare"
+>
   <div class="item-top">
     @let secondaryIcon = getMergedSecondaryIconUrl();
     @if (item().iconUrl && secondaryIcon) {
-      <div class="item-icon item-icon--split" [attr.aria-label]="item().name">
-        <img class="split-primary" [src]="item().iconUrl" alt="" />
-        <img class="split-secondary" [src]="secondaryIcon" alt="" />
+      <div class="item-icon-sm item-icon-sm--split item-icon--lg" [attr.aria-label]="item().name" title="Samengevoegd item (2 items, 1 reservering)">
+        <img class="split-primary" [src]="item().iconUrl" alt="" loading="lazy" />
+        <img class="split-secondary" [src]="secondaryIcon" alt="" loading="lazy" />
         <div class="split-divider"></div>
       </div>
     } @else if (item().iconUrl) {
-      <img class="item-icon" [src]="item().iconUrl" [alt]="item().name" />
+      <img class="item-icon-sm item-icon--lg" [src]="item().iconUrl" [alt]="item().name" loading="lazy" />
     } @else {
-      <div class="item-icon-placeholder"></div>
+      <div class="item-icon-sm item-icon--lg"></div>
     }
     <div class="item-info">
-      <span class="item-name">{{ item().name }}</span>
+      <span class="item-name" [title]="item().name">{{ item().name }}</span>
       <div class="item-meta">
         <span class="cat-badge" [ngClass]="'cat-' + item().category">
           {{ categoryLabels[item().category] }}
@@ -127,26 +34,143 @@
         @if (item().category === ItemCategory.WEAPON && item().weaponType) {
           <span class="weapon-badge">{{ weaponTypeLabels[item().weaponType!] }}</span>
         }
+        @if (item().isSuperRare) {
+          <span class="badge badge-super-rare"><span class="material-symbols-outlined icon-fill">star</span>Super rare</span>
+        }
       </div>
     </div>
   </div>
 
   @if (item().isPrioritizable) {
-    <div class="item-actions">
+    <div class="item-foot">
+      @if (item().isReserved && getReservedTiers().length) {
+        <div class="tier-chips" role="group" aria-label="Gereserveerde tiers">
+          @for (tier of getReservedTiers(); track tier) {
+            <button
+              type="button"
+              class="tier-chip"
+              [ngClass]="'tier-' + tier"
+              [class.active]="activePeerTier() === tier"
+              [attr.aria-expanded]="activePeerTier() === tier"
+              title="Toon mede-reserveerders"
+              (click)="togglePeerTier(tier, $event)"
+            >
+              {{ tierLabels[tier] }}
+              @if (state.peerCountFor(item().id, tier) > 0) {
+                <span class="tier-chip__count">+{{ state.peerCountFor(item().id, tier) }}</span>
+              }
+            </button>
+          }
+          @if (activePeerTier() !== null) {
+            <div
+              class="peers-backdrop"
+              role="button"
+              tabindex="-1"
+              aria-label="Sluit"
+              (click)="closePeers()"
+              (keydown.escape)="closePeers()"
+              (wheel)="triggerPeerShine()"
+            ></div>
+            <div
+              class="peers-popover"
+              [class.peers-popover--up]="peerDirection() === 'up'"
+              [class.peers-popover--shine]="peerShine()"
+              (click)="$event.stopPropagation()"
+              (keydown)="$event.stopPropagation()"
+              tabindex="0"
+              role="dialog"
+              aria-modal="true"
+            >
+              <div class="peers-popover-header">
+                <span class="t-label-caps c-muted">{{ tierLabels[activePeerTier()!] }} — mede-reserveerders</span>
+                <button class="icon-btn icon-btn--sm" aria-label="Sluit" (click)="closePeers()">
+                  <span class="material-symbols-outlined icon-14">close</span>
+                </button>
+              </div>
+              @if (loadingPeers()) {
+                <div class="peers-note">Laden…</div>
+              } @else {
+                @let eligibles = peersEligibleFor(activePeerTier()!);
+                @if (eligibles.length === 0) {
+                  <div class="peers-note">
+                    Niemand anders heeft dit item gereserveerd voor {{ tierLabels[activePeerTier()!] }}.
+                  </div>
+                } @else {
+                  <ul class="peers-list" (wheel)="$event.stopPropagation()">
+                    @for (name of eligibles; track name) {
+                      <li class="peers-list-item">{{ name }}</li>
+                    }
+                  </ul>
+                }
+              }
+            </div>
+          }
+        </div>
+      }
+
       @if (
         state.getReceivedItem(item().id)?.tier === AssignmentStatus.MYTH_TIER ||
         state.getAssignmentStatus(item().id) === AssignmentStatus.MYTH_TIER
       ) {
-        <span class="bis-badge">&#11088; BiS in bezit! Gefeliciteerd!</span>
+        <span class="badge badge-gold badge--lg bis-state"
+          ><span class="material-symbols-outlined icon-fill">star</span>BiS in bezit! Gefeliciteerd!</span
+        >
       } @else if (!item().isReserved) {
-        <button class="btn-primary" [disabled]="state.isAtLimit(item())" (click)="reserveClicked.emit()">
-          {{ state.isAtLimit(item()) ? 'Limiet bereikt' : 'Reserveer' }}
-        </button>
+        @if (state.isAtLimit(item())) {
+          <span class="limit-state"><span class="material-symbols-outlined icon-14">lock</span>Limiet bereikt</span>
+          @if (item().isPrioritizable) {
+            <button
+              type="button"
+              class="icon-btn icon-btn--sm"
+              aria-label="Info over limiet"
+              [attr.aria-expanded]="infoModal() === 'lim'"
+              (click)="infoModal.set(infoModal() === 'lim' ? null : 'lim')"
+            >
+              <span class="material-symbols-outlined icon-16">info</span>
+            </button>
+          }
+        } @else {
+          <button type="button" class="btn-primary btn-sm btn-block" (click)="reserveClicked.emit()">
+            <span class="material-symbols-outlined icon-16">add</span>Reserveer
+          </button>
+        }
       } @else {
-        <button class="btn-ghost btn-edit-reservation" (click)="editReservationClicked.emit()">
-          Pas reservering aan
+        <button
+          type="button"
+          class="btn btn-sm btn-tint btn-edit"
+          aria-label="Pas reservering aan"
+          (click)="editReservationClicked.emit()"
+        >
+          Pas aan
         </button>
       }
+    </div>
+  }
+
+  @if (infoModal()) {
+    <div
+      class="info-tap-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Sluit info"
+      (click)="infoModal.set(null)"
+      (keydown.escape)="infoModal.set(null)"
+    ></div>
+    <div
+      class="info-popover"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+    >
+      <span class="material-symbols-outlined icon-16 c-gold">info</span>
+      <p>
+        Wil je liever dit item reserveren? Dan moet je eerst een andere reservering annuleren. Neem contact op met je
+        lootmeister.
+      </p>
+      <button type="button" class="icon-btn icon-btn--sm" aria-label="Sluit" (click)="infoModal.set(null)">
+        <span class="material-symbols-outlined icon-14">close</span>
+      </button>
     </div>
   }
 </div>

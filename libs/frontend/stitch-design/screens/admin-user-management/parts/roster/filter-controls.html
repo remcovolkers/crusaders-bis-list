@@ -1,0 +1,23 @@
+<div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-space-sm">
+<!-- Search -->
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-2.5 top-2 text-[16px] text-text-muted">manage_search</span>
+<input class="w-full h-8 pl-8 pr-space-md bg-surface-tier-2 rounded text-text-primary font-body-default text-body-default placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-primary" placeholder="Filter by character name, realm, or Discord tag..." type="text" value=""/>
+</div>
+<!-- Group Filter Selectors -->
+<div class="flex items-center gap-space-xs overflow-x-auto pb-1 md:pb-0">
+<div class="flex items-center bg-surface-tier-2 p-0.5 rounded">
+<button class="px-space-sm py-1 rounded bg-surface-hover text-primary font-label-caps text-label-caps" type="button">All Teams</button>
+<button class="px-space-sm py-1 rounded text-team-crusaders hover:bg-surface-hover transition-colors font-label-caps text-label-caps" type="button">Crusaders</button>
+<button class="px-space-sm py-1 rounded text-team-templars hover:bg-surface-hover transition-colors font-label-caps text-label-caps" type="button">Templars</button>
+<button class="px-space-sm py-1 rounded text-text-secondary hover:bg-surface-hover transition-colors font-label-caps text-label-caps" type="button">Trial / Bench</button>
+</div>
+<!-- Role Selector -->
+<div class="flex items-center bg-surface-tier-2 p-0.5 rounded">
+<button class="p-1 rounded bg-surface-hover text-on-surface" title="All Roles" type="button"><span class="material-symbols-outlined text-[16px]">all_inclusive</span></button>
+<button class="p-1 rounded text-text-muted hover:text-tier-myth hover:bg-surface-hover" title="Tanks" type="button"><span class="material-symbols-outlined text-[16px]">shield</span></button>
+<button class="p-1 rounded text-text-muted hover:text-class-monk hover:bg-surface-hover" title="Healers" type="button"><span class="material-symbols-outlined text-[16px]">local_hospital</span></button>
+<button class="p-1 rounded text-text-muted hover:text-class-death-knight hover:bg-surface-hover" title="DPS" type="button"><span class="material-symbols-outlined text-[16px]">swords</span></button>
+</div>
+</div>
+</div>

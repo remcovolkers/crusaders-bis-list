@@ -1,330 +1,169 @@
-// ── Dashboard shell ────────────────────────────────────────────────────────────
+:host {
+  display: block;
+}
 
-.dashboard {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 28px 20px;
+.page {
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  gap: var(--space-xl);
 }
 
-.dashboard__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-
-  h1 {
-    margin: 0;
-    font-size: 2rem;
-    color: #f0c040;
-  }
-}
-
-.dashboard__subtitle {
-  margin: 4px 0 0;
-  color: #64748b;
-  font-size: 0.9rem;
-}
-
-// ── States ────────────────────────────────────────────────────────────────────
-
-.loading-state {
-  text-align: center;
-  color: #64748b;
-  padding: 60px 0;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 80px 20px;
-  color: #64748b;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-
-  &__icon {
-    font-size: 3rem;
-  }
-
-  h2 {
-    margin: 0;
-    color: #94a3b8;
-  }
-  p {
-    margin: 0;
-  }
-}
-
-// ── Section ───────────────────────────────────────────────────────────────────
+// ── Sections ─────────────────────────────────────────────────────────────────
 
 .plan-section {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-
-  &--past {
-    opacity: 0.75;
-  }
-
-  &__title {
-    margin: 0;
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #475569;
-    padding-bottom: 4px;
-    border-bottom: 1px solid #1e3a5a;
-  }
+  gap: var(--space-md);
 }
 
-// ── Grid ──────────────────────────────────────────────────────────────────────
+.plan-section__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: 0;
+  font-size: var(--t-headline-md-size);
+  line-height: var(--t-headline-md-lh);
+  font-weight: var(--t-headline-md-weight);
+  color: var(--text-primary);
+}
+
+.plan-section__count {
+  padding: 0 var(--space-sm);
+  font-size: var(--t-label-caps-size);
+  line-height: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  background: var(--surface-tier-2);
+  border-radius: var(--radius-xs);
+}
 
 .plan-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
+  gap: var(--gutter);
 
-  &--past {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  @media (min-width: 1025px) {
+    gap: var(--gutter-desktop);
+  }
+
+  @media (max-width: 360px) {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-// ── Card ──────────────────────────────────────────────────────────────────────
+// ── Plan card ────────────────────────────────────────────────────────────────
 
+// difficulty colour bar on the left edge: global `.card-accent`, `--tone` comes from the global `[data-tone]` hook
 .plan-card {
+  --accent-color: var(--tone);
+  --accent-w: 4px;
+
   display: flex;
-  text-decoration: none;
-  color: inherit;
-  background: #111827;
-  border: 1px solid #1e3a5a;
-  border-radius: 10px;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-width: 0;
   overflow: hidden;
-  transition:
-    border-color 0.15s,
-    transform 0.1s;
-  position: relative;
+}
+
+.plan-card--past {
+  .plan-card__name,
+  &::before {
+    opacity: 0.7;
+  }
+}
+
+.plan-card__top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.plan-card__discord {
+  margin-left: auto;
+}
+
+.plan-card__name {
+  margin: 0;
+  font-size: var(--t-headline-md-size);
+  line-height: var(--t-headline-md-lh);
+  font-weight: var(--t-headline-md-weight);
+  overflow-wrap: anywhere;
+}
+
+// stretched link: the whole card is clickable, the action row sits above it
+.plan-card__link {
+  color: var(--text-primary);
+  text-decoration: none;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
 
   &:hover {
-    border-color: #3b82f6;
-    transform: translateY(-2px);
+    color: var(--primary);
   }
 
-  &--past {
-    border-color: #1e293b;
-    &:hover {
-      border-color: #334155;
-      transform: none;
-    }
-  }
-
-  &__stripe {
-    width: 5px;
-    flex-shrink: 0;
-
-    &--normal {
-      background: #22c55e;
-    }
-    &--heroic {
-      background: #3b82f6;
-    }
-    &--mythic {
-      background: #a855f7;
-    }
-  }
-
-  &__body {
-    flex: 1;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  &__header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  &__name {
-    margin: 0;
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #f0c040;
-    line-height: 1.2;
-  }
-
-  &__date {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  &__date-text {
-    font-size: 0.83rem;
-    color: #94a3b8;
-  }
-
-  &__counts {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: auto;
-    padding-top: 4px;
-
-    .confirm-text {
-      font-size: 0.78rem;
-      color: #94a3b8;
-    }
+  &:focus-visible {
+    outline-offset: -2px;
   }
 }
 
-// ── Difficulty badge ──────────────────────────────────────────────────────────
-
-.difficulty-badge {
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 999px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-
-  &--normal {
-    background: #14532d;
-    color: #86efac;
-  }
-  &--heroic {
-    background: #1e3a8a;
-    color: #93c5fd;
-  }
-  &--mythic {
-    background: #581c87;
-    color: #d8b4fe;
-  }
+.plan-card__date {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
 }
 
-// ── Discord badge ─────────────────────────────────────────────────────────────
-
-.discord-badge {
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 999px;
-  margin-left: auto;
-
-  &--sent {
-    background: #14532d;
-    color: #86efac;
-  }
-  &--scheduled {
-    background: #1e3a8a;
-    color: #93c5fd;
-  }
+.plan-card__roster {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  background: var(--surface-tier-2);
+  border-radius: var(--radius-xs);
 }
 
-// ── Days chip ─────────────────────────────────────────────────────────────────
-
-.days-chip {
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: #1e3a5a;
-  color: #60a5fa;
-
-  &--today {
-    background: #7c2d12;
-    color: #fb923c;
-  }
-  &--tomorrow {
-    background: #365314;
-    color: #86efac;
-  }
+.plan-card__counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
 }
 
-// ── Count chips ───────────────────────────────────────────────────────────────
-
-.count-chip {
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 2px 9px;
-  border-radius: 999px;
-
-  &--raider {
-    background: #1e293b;
-    color: #93c5fd;
-  }
-  &--bench {
-    background: #1c1400;
-    color: #fcd34d;
-  }
-  &--absent {
-    background: #130a0a;
-    color: #fca5a5;
-  }
-}
-
-// ── Buttons ───────────────────────────────────────────────────────────────────
-
-.btn {
-  border: none;
-  border-radius: 7px;
-  padding: 10px 18px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
+.plan-card__count {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  transition: background 0.15s;
+  gap: var(--space-xs);
+}
 
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
+.plan-card__roles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  .ratio-bar {
+    background: var(--surface-base);
   }
+}
 
-  &--gold {
-    background: #f0c040;
-    color: #0f172a;
-    &:hover {
-      background: #fcd34d;
-    }
-  }
+.plan-card__role-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+}
 
-  &--ghost {
-    background: #1e293b;
-    color: #94a3b8;
-    border: 1px solid #334155;
-    &:hover {
-      background: #334155;
-      color: #e2e8f0;
-    }
-  }
+.plan-card__actions {
+  position: relative; // above the stretched link
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-xs);
+  margin-top: auto;
 
-  &--danger {
-    background: #3b0a0a;
-    color: #fca5a5;
-    &:hover {
-      background: #7f1d1d;
-    }
-  }
-
-  &--xs {
-    padding: 4px 10px;
-    font-size: 0.78rem;
+  a.btn {
+    margin-right: auto;
   }
 }

@@ -1,0 +1,231 @@
+            <!-- 5. ITEM UPGRADE TIERS & SUPER RARE MARKER -->
+            <section class="flex flex-col gap-space-md" id="item-tiers">
+              <div class="flex items-center justify-between pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="w-2 h-5 bg-tier-hero rounded-sm"></span>
+                  <h2 class="font-headline-lg text-headline-lg text-text-primary">
+                    04. Item Upgrade Tiers & Rarity Taxonomy
+                  </h2>
+                </div>
+                <span class="font-stat-mono text-body-code text-text-muted">DRAGONFLIGHT_S4_TIERS</span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
+                <!-- Champion Tier Card -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between gap-space-md cursor-pointer hover:bg-surface-hover transition-all"
+                  onclick="window.copyToken('#60a5fa', 'tier-champion')"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex flex-col">
+                      <span class="font-label-caps text-label-caps text-text-muted uppercase">Normal Raid / M+6</span>
+                      <h3 class="font-headline-md text-headline-md text-tier-champion">Champion Tier</h3>
+                    </div>
+                    <span
+                      class="px-space-xs py-0.5 rounded bg-tier-champion/15 text-tier-champion font-label-caps text-label-caps uppercase"
+                      >Tier 02</span
+                    >
+                  </div>
+                  <div class="p-space-sm rounded bg-surface-tier-2 flex flex-col gap-1">
+                    <div class="flex items-center justify-between">
+                      <span class="font-body-medium text-text-secondary">Item Level Range</span>
+                      <span class="font-stat-mono text-stat-mono text-tier-champion">489 - 502</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-text-muted font-stat-mono">
+                      <span>Crests: Drake / Wyrm</span>
+                      <span>Hex: #60a5fa</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Hero Tier Card -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between gap-space-md cursor-pointer hover:bg-surface-hover transition-all"
+                  onclick="window.copyToken('#c084fc', 'tier-hero')"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex flex-col">
+                      <span class="font-label-caps text-label-caps text-text-muted uppercase">Heroic Raid / M+12</span>
+                      <h3 class="font-headline-md text-headline-md text-tier-hero">Hero Tier</h3>
+                    </div>
+                    <span
+                      class="px-space-xs py-0.5 rounded bg-tier-hero/15 text-tier-hero font-label-caps text-label-caps uppercase"
+                      >Tier 03</span
+                    >
+                  </div>
+                  <div class="p-space-sm rounded bg-surface-tier-2 flex flex-col gap-1">
+                    <div class="flex items-center justify-between">
+                      <span class="font-body-medium text-text-secondary">Item Level Range</span>
+                      <span class="font-stat-mono text-stat-mono text-tier-hero">506 - 519</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-text-muted font-stat-mono">
+                      <span>Crests: Heroic Wyrm</span>
+                      <span>Hex: #c084fc</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Myth Tier Card -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between gap-space-md cursor-pointer hover:bg-surface-hover transition-all"
+                  onclick="window.copyToken('#fb923c', 'tier-myth')"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex flex-col">
+                      <span class="font-label-caps text-label-caps text-text-muted uppercase"
+                        >Mythic Raid / Great Vault</span
+                      >
+                      <h3 class="font-headline-md text-headline-md text-tier-myth">Mythic Tier</h3>
+                    </div>
+                    <span
+                      class="px-space-xs py-0.5 rounded bg-tier-myth/15 text-tier-myth font-label-caps text-label-caps uppercase"
+                      >Pinnacle</span
+                    >
+                  </div>
+                  <div class="p-space-sm rounded bg-surface-tier-2 flex flex-col gap-1">
+                    <div class="flex items-center justify-between">
+                      <span class="font-body-medium text-text-secondary">Item Level Range</span>
+                      <span class="font-stat-mono text-stat-mono text-tier-myth">522 - 535</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-text-muted font-stat-mono">
+                      <span>Crests: Aspect Crest</span>
+                      <span>Hex: #fb923c</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Super Rare Item Marker Card (Interactive Pulse) -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between gap-space-md cursor-pointer hover:bg-surface-hover transition-all relative overflow-hidden"
+                  onclick="window.copyToken('#f59e0b', 'tier-super-rare')"
+                >
+                  <div
+                    class="absolute -right-8 -bottom-8 w-28 h-28 bg-team-crusaders/10 rounded-full blur-xl pointer-events-none"
+                  ></div>
+                  <div class="flex items-start justify-between">
+                    <div class="flex flex-col">
+                      <span
+                        class="font-label-caps text-label-caps text-team-crusaders uppercase flex items-center gap-1"
+                      >
+                        <span class="material-symbols-outlined text-[13px] text-team-crusaders animate-spin"
+                          >auto_mode</span
+                        >Very Rare Drop
+                      </span>
+                      <h3 class="font-headline-md text-headline-md text-team-crusaders">Super Rare</h3>
+                    </div>
+                    <!-- Glowing Pulsating Badge -->
+                    <span
+                      class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-team-crusaders/20 text-team-crusaders font-label-caps text-label-caps uppercase"
+                    >
+                      <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1"
+                        >star</span
+                      >Curio +7 ilvl
+                    </span>
+                  </div>
+                  <div class="p-space-sm rounded bg-surface-tier-2 flex flex-col gap-1">
+                    <div class="flex items-center justify-between">
+                      <span class="font-body-medium text-text-secondary">Example Item</span>
+                      <span class="font-stat-mono text-stat-mono text-team-crusaders truncate"
+                        >Vakash, Shadowflame</span
+                      >
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-text-muted font-stat-mono">
+                      <span>Bonus: +7 Ilvl Offset</span>
+                      <span>Hex: #f59e0b</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Live Loot Priority Table Row Preview -->
+              <div class="bg-surface-tier-1 rounded-lg p-space-md shadow-lg flex flex-col gap-space-sm">
+                <div class="flex items-center justify-between">
+                  <span class="font-label-caps text-label-caps text-text-muted uppercase"
+                    >Interactive Micro-Component: Live Loot Drop Matrix Row</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-primary">DENSITY_OPTIMIZED</span>
+                </div>
+                <div class="overflow-x-auto">
+                  <div class="min-w-[700px] flex flex-col gap-1">
+                    <div
+                      class="grid grid-cols-12 py-1 px-space-sm bg-surface-tier-2/50 rounded font-label-caps text-label-caps uppercase text-text-muted"
+                    >
+                      <span class="col-span-4">Item & Specification</span>
+                      <span class="col-span-2">Upgrade Tier</span>
+                      <span class="col-span-2">Item Level</span>
+                      <span class="col-span-2">Highest Priority</span>
+                      <span class="col-span-2 text-right">RC Loot Council</span>
+                    </div>
+                    <!-- Sample Item 1 -->
+                    <div
+                      class="grid grid-cols-12 items-center py-2 px-space-sm bg-surface-tier-2 rounded hover:bg-surface-hover transition-colors"
+                    >
+                      <div class="col-span-4 flex items-center gap-space-sm">
+                        <div class="w-7 h-7 rounded bg-surface-base flex items-center justify-center text-tier-myth">
+                          <span class="material-symbols-outlined text-[16px]">shield</span>
+                        </div>
+                        <div class="flex flex-col">
+                          <span class="font-body-medium text-body-medium text-text-primary font-semibold"
+                            >Rashok's Molten Heart</span
+                          >
+                          <span class="font-stat-mono text-[11px] text-text-muted">Trinket • BiS for 6 raiders</span>
+                        </div>
+                      </div>
+                      <div class="col-span-2">
+                        <span
+                          class="inline-flex items-center px-1.5 py-0.5 rounded bg-tier-myth/15 text-tier-myth font-label-caps text-label-caps uppercase font-bold"
+                          >Mythic 4/4</span
+                        >
+                      </div>
+                      <div class="col-span-2 font-stat-mono text-stat-mono text-tier-myth">
+                        528 <span class="text-text-muted text-[11px] font-normal">[+14 ilvl]</span>
+                      </div>
+                      <div class="col-span-2 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-class-paladin"></span>
+                        <span class="font-body-medium text-body-medium text-class-paladin">Aegisheart</span>
+                      </div>
+                      <div class="col-span-2 flex justify-end">
+                        <button
+                          class="px-space-sm py-1 rounded bg-primary text-surface-base font-body-medium text-[11px] font-bold hover:bg-gold-hover transition-colors"
+                          type="button"
+                        >
+                          Award Loot
+                        </button>
+                      </div>
+                    </div>
+                    <!-- Sample Item 2 -->
+                    <div
+                      class="grid grid-cols-12 items-center py-2 px-space-sm bg-surface-tier-2/70 rounded hover:bg-surface-hover transition-colors"
+                    >
+                      <div class="col-span-4 flex items-center gap-space-sm">
+                        <div class="w-7 h-7 rounded bg-surface-base flex items-center justify-center text-tier-hero">
+                          <span class="material-symbols-outlined text-[16px]">swords</span>
+                        </div>
+                        <div class="flex flex-col">
+                          <span class="font-body-medium text-body-medium text-text-primary font-semibold"
+                            >Dreambinder, Loom of the Great Cycle</span
+                          >
+                          <span class="font-stat-mono text-[11px] text-team-crusaders">Super Rare Drop</span>
+                        </div>
+                      </div>
+                      <div class="col-span-2">
+                        <span
+                          class="inline-flex items-center px-1.5 py-0.5 rounded bg-tier-hero/15 text-tier-hero font-label-caps text-label-caps uppercase font-bold"
+                          >Hero 4/4</span
+                        >
+                      </div>
+                      <div class="col-span-2 font-stat-mono text-stat-mono text-tier-hero">
+                        522 <span class="text-text-muted text-[11px] font-normal">[Curio]</span>
+                      </div>
+                      <div class="col-span-2 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-class-druid"></span>
+                        <span class="font-body-medium text-body-medium text-class-druid">Malorne</span>
+                      </div>
+                      <div class="col-span-2 flex justify-end">
+                        <button
+                          class="px-space-sm py-1 rounded bg-surface-tier-1 text-text-primary font-body-medium text-[11px] hover:bg-surface-hover transition-colors"
+                          type="button"
+                        >
+                          Inspect SR
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>

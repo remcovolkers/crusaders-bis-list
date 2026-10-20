@@ -1,38 +1,36 @@
 <div class="admin-shell">
-  <nav class="admin-sidenav">
-    <div class="sidenav-brand">
-      <span class="sidenav-brand-icon">⚔️</span>
-      <div class="sidenav-brand-text">
-        <span class="sidenav-brand-name">Admin</span>
-        <span class="sidenav-brand-sub">RoyalTeam BIS</span>
-      </div>
-    </div>
+  <aside class="sidebar admin-sidebar" aria-label="Beheer">
+    <div class="sidebar__label">Beheer</div>
 
-    <ul class="sidenav-list">
+    <nav class="sidebar__nav">
       @for (item of navItems; track item.path) {
-        <li>
-          <a class="sidenav-item" [routerLink]="item.path" routerLinkActive="active">
-            <span class="sidenav-icon">{{ item.icon }}</span>
-            <span class="sidenav-label">{{ item.label }}</span>
-          </a>
-        </li>
+        <a class="nav-item" [routerLink]="item.path" routerLinkActive="active">
+          <span class="material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
+          {{ item.label }}
+        </a>
       }
-    </ul>
+    </nav>
 
     @if (isSuperUser()) {
-      <div class="team-switcher">
-        <span class="team-switcher-label">Team</span>
-        <div class="team-switcher-tabs">
+      <div class="admin-sidebar__team">
+        <span class="t-label-caps c-muted">Team</span>
+        <div class="segmented segmented--block" role="group" aria-label="Team">
           <button
-            class="team-switcher-tab"
-            [class.active]="viewedTeam() === Team.CRUSADERS"
+            type="button"
+            class="segmented__item"
+            style="--item-color: var(--team-crusaders)"
+            [class.is-active]="viewedTeam() === Team.CRUSADERS"
+            [attr.aria-pressed]="viewedTeam() === Team.CRUSADERS"
             (click)="selectTeam(Team.CRUSADERS)"
           >
             Crusaders
           </button>
           <button
-            class="team-switcher-tab"
-            [class.active]="viewedTeam() === Team.TEMPLARS"
+            type="button"
+            class="segmented__item"
+            style="--item-color: var(--team-templars)"
+            [class.is-active]="viewedTeam() === Team.TEMPLARS"
+            [attr.aria-pressed]="viewedTeam() === Team.TEMPLARS"
             (click)="selectTeam(Team.TEMPLARS)"
           >
             Templars
@@ -40,18 +38,57 @@
         </div>
       </div>
     }
-  </nav>
+
+    @if (season(); as s) {
+      <div class="sidebar__footer admin-sidebar__season">
+        <div class="admin-sidebar__season-head">
+          <span class="t-label-caps c-muted">Seizoen</span>
+          @if (s.isActive) {
+            <span class="badge badge-success badge--dot">Actief</span>
+          }
+        </div>
+        <span class="t-title-sm">{{ s.name }}</span>
+      </div>
+    }
+  </aside>
+
+  @if (isSuperUser()) {
+    <div class="admin-mobile-team show-mobile">
+      <div class="segmented segmented--block" role="group" aria-label="Team">
+        <button
+          type="button"
+          class="segmented__item"
+          style="--item-color: var(--team-crusaders)"
+          [class.is-active]="viewedTeam() === Team.CRUSADERS"
+          [attr.aria-pressed]="viewedTeam() === Team.CRUSADERS"
+          (click)="selectTeam(Team.CRUSADERS)"
+        >
+          Crusaders
+        </button>
+        <button
+          type="button"
+          class="segmented__item"
+          style="--item-color: var(--team-templars)"
+          [class.is-active]="viewedTeam() === Team.TEMPLARS"
+          [attr.aria-pressed]="viewedTeam() === Team.TEMPLARS"
+          (click)="selectTeam(Team.TEMPLARS)"
+        >
+          Templars
+        </button>
+      </div>
+    </div>
+  }
 
   <main class="admin-content">
     <router-outlet />
   </main>
 
   <!-- Mobile bottom navigation -->
-  <nav class="admin-bottom-nav">
+  <nav class="bottom-nav admin-bottom-nav" aria-label="Beheer">
     @for (item of navItems; track item.path) {
-      <a class="bottom-nav-item" [routerLink]="item.path" routerLinkActive="active">
-        <span class="bottom-nav-icon">{{ item.icon }}</span>
-        <span class="bottom-nav-label">{{ item.label }}</span>
+      <a class="bottom-nav__item" [routerLink]="item.path" routerLinkActive="active">
+        <span class="material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
+        <span class="admin-bottom-nav__label">{{ item.label }}</span>
       </a>
     }
   </nav>

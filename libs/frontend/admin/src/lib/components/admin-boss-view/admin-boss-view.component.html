@@ -1,14 +1,26 @@
 ﻿@if (catalog()) {
   <div class="admin-layout">
-    <!-- Main content -->
+    <!-- Workspace -->
     <div class="admin-main">
+      <header class="page-head boss-head">
+        <div class="page-head__main">
+          <div class="page-head__eyebrow">
+            <span class="badge badge-gold">Loot</span>
+            <span class="page-head__meta">{{ catalog()!.season.name }}</span>
+          </div>
+          <h1 class="page-head__title">Loot toewijzen</h1>
+        </div>
+      </header>
+
       @if (!selectedDifficulty()) {
         <div class="landing-state">
-          <p class="landing-title">Selecteer gear tier om toe te wijzen</p>
-          <div class="difficulty-selector">
+          <p class="t-title-sm c-secondary landing-title">Selecteer gear tier om toe te wijzen</p>
+          <div class="tier-cards">
             @for (d of difficulties; track d.key) {
-              <button class="diff-btn" [class]="'tier-' + d.key" (click)="selectedDifficulty.set(d.value)">
-                {{ d.label }}
+              <button class="diff-btn tier-card card card-interactive card-accent" [attr.data-tier]="d.key" (click)="selectedDifficulty.set(d.value)">
+                <span class="tier-card__name">{{ d.label }}</span>
+                <span class="tier-card__hint">Tier kiezen</span>
+                <span class="material-symbols-outlined tier-card__go">arrow_forward</span>
               </button>
             }
           </div>
@@ -20,55 +32,77 @@
       }
 
       @if (selectedDifficulty() && !loadingAll()) {
-        <div class="active-difficulty-bar">
-          @if (allRaiders().length > 0) {
-            <button class="raid-toggle-btn" (click)="raidDrawerOpen.set(true)" aria-label="Raider aanwezigheid tonen">
-              👥 {{ allRaiders().length - excludedRaiders().size }}/{{ allRaiders().length }}
-            </button>
-          }
-          <div class="diff-btns">
-            @for (d of difficulties; track d.key) {
-              <button
-                class="diff-btn"
-                [class]="'tier-' + d.key"
-                [class.active]="selectedDifficulty() === d.value"
-                (click)="selectedDifficulty.set(d.value)"
-              >
-                {{ d.label }}
+        <div class="toolbar sticky-bar" [attr.data-tier]="selectedDifficulty()">
+          <div class="toolbar__row row-between">
+            <div class="segmented segmented--lg segmented--tint diff-btns" role="group" aria-label="Gear tier">
+              @for (d of difficulties; track d.key) {
+                <button
+                  class="segmented__item diff-btn"
+                  [attr.data-tier]="d.key"
+                  [class.is-active]="selectedDifficulty() === d.value"
+                  [attr.aria-pressed]="selectedDifficulty() === d.value"
+                  (click)="selectedDifficulty.set(d.value)"
+                >
+                  {{ d.label }}
+                </button>
+              }
+            </div>
+            @if (allRaiders().length > 0) {
+              <button class="btn btn-sm raid-toggle-btn" (click)="raidDrawerOpen.set(true)" aria-label="Raider aanwezigheid tonen">
+                <span class="material-symbols-outlined icon-16">groups</span>
+                {{ presentCount() }}/{{ allRaiders().length }}
               </button>
             }
           </div>
+          <div class="scroll-x scroll-hidden">
+            <div class="boss-chips" role="group" aria-label="Boss">
+              <button class="chip" [class.is-active]="!selectedBossId()" (click)="selectedBossId.set(null)">
+                Alle bosses
+              </button>
+              @for (view of bossLootViews(); track view.boss.id) {
+                <button
+                  class="chip"
+                  [class.is-active]="selectedBossId() === view.boss.id"
+                  [attr.aria-pressed]="selectedBossId() === view.boss.id"
+                  (click)="selectedBossId.set(view.boss.id)"
+                >
+                  {{ view.boss.name }}
+                  <span class="chip-count" [class.is-done]="openDropCount(view) === 0">{{ openDropCount(view) }}</span>
+                </button>
+              }
+            </div>
+          </div>
         </div>
-        <div class="boss-sections">
-          @for (view of bossLootViews(); track view.boss.id) {
-            <div class="loot-view" [id]="'boss-' + view.boss.id">
+
+        <div class="boss-sections" [attr.data-tier]="selectedDifficulty()">
+          @for (view of shownViews(); track view.boss.id) {
+            <section class="loot-view" [id]="'boss-' + view.boss.id">
               <div class="loot-view-header">
-                <h2>{{ view.boss.name }}</h2>
+                <h2 class="t-headline-md">{{ view.boss.name }}</h2>
                 @if (view.boss.raidName) {
-                  <span class="badge badge-muted">{{ view.boss.raidName }}</span>
+                  <span class="badge badge-neutral">{{ view.boss.raidName }}</span>
                 }
+                <span class="spacer"></span>
+                <span class="t-label-caps c-muted">{{ openDropCount(view) }} / {{ view.drops.length }} open</span>
               </div>
 
               <div class="item-panels">
                 @if (view.drops.length === 0) {
-                  <div class="no-reservations-state">
-                    <span class="no-reservations-icon">📋</span>
-                    <p>
-                      Geen lootreservaties voor <strong>{{ view.boss.name }}</strong>
-                    </p>
+                  <div class="empty-box empty-box--boxed">
+                    <span class="material-symbols-outlined">inbox</span>
+                    <p class="empty-box__title">Geen lootreservaties voor {{ view.boss.name }}</p>
                   </div>
                 } @else if (visibleDrops(view.drops).length === 0) {
-                  <div class="no-reservations-state">
-                    <span class="no-reservations-icon">✅</span>
-                    <p>
-                      Alle raiders hebben hun items al voor
-                      <strong>{{ difficultyLabel(selectedDifficulty()!) }}</strong>
+                  <div class="empty-box empty-box--boxed">
+                    <span class="material-symbols-outlined c-success">check_circle</span>
+                    <p class="empty-box__title">
+                      Alle raiders hebben hun items al voor {{ difficultyLabel(selectedDifficulty()!) }}
                     </p>
                   </div>
                 }
                 @for (drop of visibleDrops(view.drops); track drop.item.id) {
-                  <div class="item-panel">
-                    <div class="item-panel-header">
+                  <article class="item-panel panel" [class.card-accent]="drop.item.isSuperRare">
+                    <header class="item-panel-header">
                       <div class="item-panel-info">
                         @if (drop.item.iconUrl && drop.item.secondaryIconUrl) {
                           <div class="item-icon-sm item-icon-sm--split" [attr.aria-label]="drop.item.name">
@@ -79,17 +113,21 @@
                         } @else if (drop.item.iconUrl) {
                           <img class="item-icon-sm" [src]="drop.item.iconUrl" [alt]="drop.item.name" />
                         }
-                        <div>
-                          <span class="item-panel-name">{{ drop.item.name }}</span>
+                        <div class="item-panel-text">
+                          <span class="item-panel-name">{{ drop.item.mergedDisplayName ?? drop.item.name }}</span>
                           <div class="item-panel-meta">
+                            @if (drop.item.isSuperRare) {
+                              <span class="badge badge-super-rare">
+                                <span class="material-symbols-outlined icon-fill icon-14">star</span>Super rare
+                              </span>
+                            }
                             <span class="cat-badge" [ngClass]="'cat-' + drop.item.category">
                               {{ categoryLabels[drop.item.category] }}
                             </span>
                             @if (drop.item.primaryStats.length) {
-                              <span
-                                class="stat-badge"
-                                >{{ drop.item.primaryStats.map(s => primaryStatLabels[s]).join('/') }}</span
-                              >
+                              <span class="stat-badge">{{
+                                drop.item.primaryStats.map(s => primaryStatLabels[s]).join('/')
+                              }}</span>
                             }
                             @if (drop.item.category === ItemCategory.WEAPON && drop.item.weaponType) {
                               <span class="weapon-badge">{{ weaponTypeLabels[drop.item.weaponType] }}</span>
@@ -99,14 +137,15 @@
                       </div>
                       @if (spinCandidates(drop.eligibleRaiders).length > 1) {
                         <button
-                          class="dice-btn"
+                          class="icon-btn icon-btn--gold dice-btn"
                           title="Willekeurig toewijzen via Wheel of Fortune"
+                          aria-label="Willekeurig toewijzen via Wheel of Fortune"
                           (click)="openDiceModal(drop, view.boss.id)"
                         >
-                          &#x1F3A1;
+                          <span class="material-symbols-outlined">casino</span>
                         </button>
                       }
-                    </div>
+                    </header>
 
                     @if (drop.eligibleRaiders.length === 0) {
                       <div class="no-eligible">Geen eligible raiders</div>
@@ -115,31 +154,46 @@
                         Iedereen heeft dit item al op {{ difficultyLabel(selectedDifficulty()!) }}
                       </div>
                     } @else {
-                      <div class="raiders-chips-panel">
-                        @for (raider of visibleRaiders(drop.eligibleRaiders); track raider.raiderId) {
-                          <button
-                            class="raider-chip"
-                            [class.has-reservation]="raider.hasReservation"
-                            [class.excluded]="isExcluded(raider.raiderId)"
-                            [style.--class-color]="classColor(raider.wowClass)"
-                            [title]="raider.wowClass + ' – ' + raider.spec"
-                            [disabled]="isExcluded(raider.raiderId)"
-                            (click)="
-                              assign(raider.raiderId, drop.item.id, view.boss.id, raider.characterName, drop.item)
-                            "
-                          >
-                            @if (raider.hasReservation) {
-                              <span class="chip-star">★</span>
+                      <div class="item-panel-body">
+                        @if (reservedRaiders(drop.eligibleRaiders); as reserved) {
+                          @if (reserved.length) {
+                            <div class="group-label c-gold">
+                              <span class="material-symbols-outlined icon-fill icon-14">bookmark</span>
+                              Gereserveerd
+                              <span class="group-label__n">{{ reserved.length }}</span>
+                            </div>
+                            <div class="raiders-chips-panel">
+                              @for (raider of reserved; track raider.raiderId) {
+                                <ng-container
+                                  *ngTemplateOutlet="raiderBtn; context: { $implicit: raider, drop: drop, boss: view.boss }"
+                                />
+                              }
+                            </div>
+                          }
+                        }
+                        @if (otherRaiders(drop.eligibleRaiders); as others) {
+                          @if (others.length) {
+                            @if (reservedRaiders(drop.eligibleRaiders).length) {
+                              <div class="group-label c-muted">
+                                Overige raiders
+                                <span class="group-label__n">{{ others.length }}</span>
+                              </div>
                             }
-                            {{ raider.characterName }}
-                          </button>
+                            <div class="raiders-chips-panel">
+                              @for (raider of others; track raider.raiderId) {
+                                <ng-container
+                                  *ngTemplateOutlet="raiderBtn; context: { $implicit: raider, drop: drop, boss: view.boss }"
+                                />
+                              }
+                            </div>
+                          }
                         }
                       </div>
                     }
-                  </div>
+                  </article>
                 }
               </div>
-            </div>
+            </section>
           }
         </div>
       }
@@ -147,34 +201,41 @@
 
     <!-- Right panel: raid attendance -->
     @if (allRaiders().length > 0) {
-      <div class="raid-backdrop" role="button" tabindex="0" aria-label="Sluiten" [class.visible]="raidDrawerOpen()" (click)="raidDrawerOpen.set(false)" (keydown.escape)="raidDrawerOpen.set(false)"></div>
-      <aside class="raid-panel" [class.drawer-open]="raidDrawerOpen()">
+      <div
+        class="raid-backdrop drawer-backdrop--contained"
+        role="button"
+        tabindex="0"
+        aria-label="Sluiten"
+        [class.is-open]="raidDrawerOpen()"
+        (click)="raidDrawerOpen.set(false)"
+        (keydown.escape)="raidDrawerOpen.set(false)"
+      ></div>
+      <aside class="raid-panel drawer--contained" [class.is-open]="raidDrawerOpen()">
         <div class="raid-panel-header">
-          <span class="raid-panel-count"
-            >{{ allRaiders().length - excludedRaiders().size }} / {{ allRaiders().length }}</span
-          >
-          <span class="raid-panel-label">Aanwezig</span>
+          <div class="raid-panel-title">
+            <span class="t-label-caps c-muted">Aanwezig</span>
+            <span class="t-stat-mono raid-panel-count">
+              {{ presentCount() }}<span class="c-muted"> / {{ allRaiders().length }}</span>
+            </span>
+          </div>
           <button
-            class="raid-panel-reset"
+            class="btn btn-sm raid-panel-reset"
             title="Iedereen weer aanwezig zetten"
             [disabled]="excludedRaiders().size === 0"
             (click)="resetExcluded()"
           >
             Reset
           </button>
-          <button class="raid-drawer-close" (click)="raidDrawerOpen.set(false)" aria-label="Sluiten">✕</button>
+          <button class="icon-btn raid-drawer-close" (click)="raidDrawerOpen.set(false)" aria-label="Sluiten">
+            <span class="material-symbols-outlined">close</span>
+          </button>
         </div>
         <div class="raid-panel-list">
           @for (raider of allRaiders(); track raider.raiderId; let i = $index) {
             @if (i === 0 || raidRole(raider.spec) !== raidRole(allRaiders()[i - 1].spec)) {
               <div class="raid-role-divider raid-role-divider--{{ raidRole(raider.spec) }}">
-                {{
-                  raidRole(raider.spec) === 'tank'
-                    ? '🛡 Tanks'
-                    : raidRole(raider.spec) === 'healer'
-                      ? '💚 Healers'
-                      : '⚔ DPS'
-                }}
+                <span class="material-symbols-outlined icon-14">{{ roleIcon(raidRole(raider.spec)) }}</span>
+                {{ roleLabel(raidRole(raider.spec)) }}
               </div>
             }
             @if (
@@ -182,18 +243,22 @@
               raider.wowClass !== allRaiders()[i - 1].wowClass ||
               raidRole(raider.spec) !== raidRole(allRaiders()[i - 1].spec)
             ) {
-              <div class="raid-class-divider" [style.--class-color]="classColor(raider.wowClass)">
+              <div class="raid-class-divider" [class]="'raid-class-divider ' + classSlug(raider.wowClass)">
                 {{ raider.wowClass }}
               </div>
             }
             <button
-              class="raid-panel-row"
+              class="raid-panel-row chip-edged"
+              [class]="'raid-panel-row chip-edged ' + classSlug(raider.wowClass)"
               [class.excluded]="isExcluded(raider.raiderId)"
-              [style.--class-color]="classColor(raider.wowClass)"
+              [attr.aria-pressed]="!isExcluded(raider.raiderId)"
               [title]="isExcluded(raider.raiderId) ? 'Zet aanwezig' : 'Zet absent'"
               (click)="toggleExclude(raider.raiderId)"
             >
               <span class="raid-panel-name">{{ raider.characterName }}</span>
+              <span class="material-symbols-outlined icon-16 raid-panel-state">{{
+                isExcluded(raider.raiderId) ? 'person_off' : 'check'
+              }}</span>
             </button>
           }
         </div>
@@ -201,6 +266,26 @@
     }
   </div>
 }
+
+<ng-template #raiderBtn let-raider let-drop="drop" let-boss="boss">
+  <button
+    class="raider-chip chip-edged"
+    [class]="'raider-chip chip-edged ' + classSlug(raider.wowClass)"
+    [class.has-reservation]="raider.hasReservation"
+    [class.excluded]="isExcluded(raider.raiderId)"
+    [title]="raider.wowClass + ' – ' + raider.spec + (heldTier(raider) ? ' · ' + heldTitle(raider) : '')"
+    [disabled]="isExcluded(raider.raiderId)"
+    (click)="assign(raider.raiderId, drop.item.id, boss.id, raider.characterName, drop.item)"
+  >
+    @if (raider.hasReservation) {
+      <span class="material-symbols-outlined icon-fill icon-14 chip-star">star</span>
+    }
+    <span class="chip-name">{{ raider.characterName }}</span>
+    @if (heldTier(raider); as held) {
+      <span class="tier-badge chip-held" [class]="'tier-badge chip-held tier-badge--' + held">{{ tierShort[held] }}</span>
+    }
+  </button>
+</ng-template>
 
 @if (pendingAssignment(); as pending) {
   <lib-admin-assign-confirm

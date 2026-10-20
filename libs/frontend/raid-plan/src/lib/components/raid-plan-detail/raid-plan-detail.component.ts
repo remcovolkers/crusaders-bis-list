@@ -9,11 +9,14 @@ import {
   RaidDifficulty,
   CreateRaidPlanParticipantDto,
   IBoss,
+  HEALER_SPECS,
+  TANK_SPECS,
   WowClass,
+  specRole,
   WowSpec,
 } from '@crusaders-bis-list/shared-domain';
 import { RaidPlanService } from '../../services/raid-plan.service';
-import { ToastService, RaiderCardComponent } from '@crusaders-bis-list/frontend-shared-ui';
+import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 import { AdminService } from '@crusaders-bis-list/frontend-admin';
 import { AuthStateService } from '@crusaders-bis-list/frontend-auth';
 import { CompositionAnalysisComponent } from '../composition-analysis/composition-analysis.component';
@@ -21,26 +24,13 @@ import { BossPlanningComponent } from '../boss-planning/boss-planning.component'
 import { DiscordComposerComponent } from '../discord-composer/discord-composer.component';
 import { CdkDropList, CdkDrag, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
-// ── Spec sets for auto-distribution ─────────────────────────────────────────
-const TANK_SPECS = new Set<WowSpec>([
-  WowSpec.PROTECTION_WARRIOR,
-  WowSpec.PROTECTION_PALADIN,
-  WowSpec.BLOOD,
-  WowSpec.VENGEANCE,
-  WowSpec.GUARDIAN,
-  WowSpec.BREWMASTER,
-]);
-const HEALER_SPECS = new Set<WowSpec>([
-  WowSpec.HOLY_PALADIN,
-  WowSpec.DISCIPLINE,
-  WowSpec.HOLY_PRIEST,
-  WowSpec.RESTORATION_SHAMAN,
-  WowSpec.RESTORATION_DRUID,
-  WowSpec.MISTWEAVER,
-  WowSpec.PRESERVATION,
-]);
-
 const GROUP_COUNT = 4;
+const GROUP_SIZE = 5;
+
+type RosterRole = 'tank' | 'healer' | 'dps';
+
+const ROLE_ICON: Record<RosterRole, string> = { tank: 'shield', healer: 'ecg_heart', dps: 'swords' };
+const ROLE_LABEL: Record<RosterRole, string> = { tank: 'Tank', healer: 'Healer', dps: 'DPS' };
 
 @Component({
   selector: 'lib-raid-plan-detail',
@@ -49,7 +39,6 @@ const GROUP_COUNT = 4;
     FormsModule,
     CdkDropList,
     CdkDrag,
-    RaiderCardComponent,
     CompositionAnalysisComponent,
     BossPlanningComponent,
     DiscordComposerComponent,
@@ -148,6 +137,28 @@ export class RaidPlanDetailComponent implements OnDestroy {
   });
   readonly raiders = computed(() => this.groups().flat());
 
+  // ── Derived header KPIs / per-group role summary (frontend only) ────────────
+
+  readonly rosterCapacity = GROUP_COUNT * GROUP_SIZE;
+  readonly roleCounts = computed(() => {
+    const counts: Record<RosterRole, number> = { tank: 0, healer: 0, dps: 0 };
+    for (const p of this.raiders()) counts[this.roleOf(p)]++;
+    return counts;
+  });
+  readonly groupRoleCounts = computed(() =>
+    this.groups().map((group) => {
+      const counts: Record<RosterRole, number> = { tank: 0, healer: 0, dps: 0 };
+      for (const p of group) counts[this.roleOf(p)]++;
+      return counts;
+    }),
+  );
+  readonly raidBadges = computed(() =>
+    (this.plan()?.raidName ?? '')
+      .split(' + ')
+      .map((s) => s.trim())
+      .filter(Boolean),
+  );
+
   readonly groupIds = Array.from({ length: GROUP_COUNT }, (_, i) => `group-${i}`);
   readonly allListIds = [...this.groupIds, 'bench-zone', 'absent-zone'];
 
@@ -242,7 +253,6 @@ export class RaidPlanDetailComponent implements OnDestroy {
       const tanks = unassigned.filter((p) => TANK_SPECS.has(p.spec));
       const healers = unassigned.filter((p) => HEALER_SPECS.has(p.spec));
       const dps = unassigned.filter((p) => !TANK_SPECS.has(p.spec) && !HEALER_SPECS.has(p.spec));
-      const GROUP_SIZE = 5;
 
       for (const p of [...tanks, ...healers, ...dps]) {
         const targetGroup = this._groups.find((g) => g.length < GROUP_SIZE);
@@ -265,7 +275,7 @@ export class RaidPlanDetailComponent implements OnDestroy {
       moveItemInArray(this._groups[groupIndex], event.previousIndex, event.currentIndex);
     } else {
       // Enforce max 5 per group
-      if (this._groups[groupIndex].length >= 5) {
+      if (this._groups[groupIndex].length >= GROUP_SIZE) {
         this.toast.show('Groep is vol (max 5).', 'error');
         return;
       }
@@ -447,6 +457,30 @@ export class RaidPlanDetailComponent implements OnDestroy {
       hour: '2-digit',
       minute: '2-digit',
     }).format(new Date(date));
+  }
+
+  readonly roles: RosterRole[] = ['tank', 'healer', 'dps'];
+  readonly roleIcon = ROLE_ICON;
+  readonly roleLabel = ROLE_LABEL;
+
+  roleOf(p: IRaidPlanParticipant): RosterRole {
+    return specRole(p.spec);
+  }
+
+  /** `Death Knight` -> `death-knight` (matches the global `.class-<slug>` colours). */
+  classSlug(p: IRaidPlanParticipant): string {
+    return String(p.wowClass).toLowerCase().replace(/\s+/g, '-');
+  }
+
+  difficultyBadge(difficulty: RaidDifficulty): string {
+    switch (difficulty) {
+      case RaidDifficulty.MYTHIC:
+        return 'badge-myth';
+      case RaidDifficulty.HEROIC:
+        return 'badge-hero';
+      default:
+        return 'badge-champion';
+    }
   }
 
   trackById(_: number, p: IRaidPlanParticipant): string {

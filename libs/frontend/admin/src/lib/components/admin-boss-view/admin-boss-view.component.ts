@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { AdminService } from '../../services/admin.service';
@@ -20,7 +20,6 @@ import {
   IItem,
   Team,
 } from '@crusaders-bis-list/shared-domain';
-import { CatalogResponse } from '@crusaders-bis-list/frontend-loot';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 import { AdminAssignConfirmComponent, PendingAssignment } from '../admin-assign-confirm/admin-assign-confirm.component';
 import { AdminDiceModalComponent } from '../admin-dice-modal/admin-dice-modal.component';
@@ -80,7 +79,7 @@ const ROLE_ORDER: Record<RaidRole, number> = { tank: 0, healer: 1, dps: 2 };
 
 @Component({
   selector: 'lib-admin-boss-view',
-  imports: [NgClass, AdminAssignConfirmComponent, AdminDiceModalComponent],
+  imports: [NgClass, NgTemplateOutlet, AdminAssignConfirmComponent, AdminDiceModalComponent],
   templateUrl: './admin-boss-view.component.html',
   styleUrls: ['./admin-boss-view.component.scss'],
 })
@@ -116,6 +115,14 @@ export class AdminBossViewComponent {
   readonly tierLabels = TIER_LABELS;
 
   readonly selectedDifficulty = signal<AssignmentStatus | null>(null);
+  /** Boss filter for the workspace; null = all bosses stacked. */
+  readonly selectedBossId = signal<string | null>(null);
+  readonly shownViews = computed(() => {
+    const id = this.selectedBossId();
+    const views = this.bossLootViews();
+    return id ? views.filter((v) => v.boss.id === id) : views;
+  });
+  readonly presentCount = computed(() => this.allRaiders().length - this.excludedRaiders().size);
 
   readonly difficulties = [
     { key: AssignmentStatus.CHAMPION_TIER, label: 'Champion', value: AssignmentStatus.CHAMPION_TIER },
@@ -228,6 +235,53 @@ export class AdminBossViewComponent {
       if (eligible.length === 0) return false;
       return eligible.some((r) => !this.raiderHasAtLeast(r, diff));
     });
+  }
+
+  /** Number of drops of a boss that still have a raider who needs the item at the selected tier. */
+  openDropCount(view: IBossLootView): number {
+    return this.visibleDrops(view.drops).length;
+  }
+
+  reservedRaiders(raiders: IEligibleRaider[]): IEligibleRaider[] {
+    return this.visibleRaiders(raiders).filter((r) => r.hasReservation);
+  }
+
+  otherRaiders(raiders: IEligibleRaider[]): IEligibleRaider[] {
+    return this.visibleRaiders(raiders).filter((r) => !r.hasReservation);
+  }
+
+  /** Highest tier this raider already holds for the item (assignment or self-reported). */
+  heldTier(raider: IEligibleRaider): AssignmentStatus | null {
+    const a = raider.assignment?.status ?? null;
+    const r = raider.receivedTier ?? null;
+    if (!a) return r;
+    if (!r) return a;
+    return this.TIER_RANK[a] >= this.TIER_RANK[r] ? a : r;
+  }
+
+  heldTitle(raider: IEligibleRaider): string {
+    const tier = this.heldTier(raider);
+    if (!tier) return '';
+    const label = this.difficultyLabel(tier);
+    return raider.assignment?.status === tier ? `Al toegewezen op ${label}` : `Al ontvangen op ${label}`;
+  }
+
+  readonly tierShort: Record<AssignmentStatus, string> = {
+    [AssignmentStatus.CHAMPION_TIER]: 'C',
+    [AssignmentStatus.HERO_TIER]: 'H',
+    [AssignmentStatus.MYTH_TIER]: 'M',
+  };
+
+  roleIcon(role: RaidRole): string {
+    return role === 'tank' ? 'shield' : role === 'healer' ? 'health_and_safety' : 'swords';
+  }
+
+  roleLabel(role: RaidRole): string {
+    return role === 'tank' ? 'Tanks' : role === 'healer' ? 'Healers' : 'DPS';
+  }
+
+  classSlug(wowClass: WowClass): string {
+    return 'class-' + String(wowClass).toLowerCase().replace(/\s+/g, '-');
   }
 
   classColor(wowClass: WowClass): string {

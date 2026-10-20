@@ -1,32 +1,69 @@
-<div class="composer">
-  <!-- ── Status badge ───────────────────────────────────────────────────────── -->
+<section class="card composer">
+  <header class="card-header">
+    <h3 class="card-title">
+      <span class="material-symbols-outlined c-gold">forum</span>
+      Discord
+    </h3>
+    @if (scheduleStatus(); as status) {
+      <span
+        class="badge badge--sentence"
+        [class.badge-success]="status.type === 'sent'"
+        [class.badge-info]="status.type === 'scheduled'"
+      >
+        <span class="material-symbols-outlined icon-14">{{
+          status.type === 'sent' ? 'check_circle' : 'schedule'
+        }}</span>
+        {{ status.type === 'sent' ? 'Verstuurd' : 'Gepland' }}
+      </span>
+    } @else {
+      <span class="badge badge-neutral badge--sentence">Niet verstuurd</span>
+    }
+  </header>
+
+  <!-- ── Status ────────────────────────────────────────────────────────────── -->
   @if (scheduleStatus(); as status) {
     <div
-      class="status-banner"
-      [class.status-banner--sent]="status.type === 'sent'"
-      [class.status-banner--scheduled]="status.type === 'scheduled'"
+      class="banner"
+      [class.banner-success]="status.type === 'sent'"
+      [class.banner-info]="status.type === 'scheduled'"
     >
-      {{ status.label }}
+      <span class="material-symbols-outlined">{{ status.type === 'sent' ? 'check_circle' : 'schedule' }}</span>
+      <div class="grow">{{ status.label }}</div>
       @if (status.type === 'scheduled') {
-        <button class="status-banner__clear" (click)="clearSchedule()" title="Planning verwijderen">✕</button>
+        <button
+          type="button"
+          class="icon-btn icon-btn--sm"
+          (click)="clearSchedule()"
+          aria-label="Planning verwijderen"
+          title="Planning verwijderen"
+        >
+          <span class="material-symbols-outlined">close</span>
+        </button>
       }
     </div>
   }
 
   <!-- ── Discord preview ───────────────────────────────────────────────────── -->
-  <div class="preview-panel">
-    <div class="preview-panel__header">
-      <span class="preview-panel__label">Voorbeeld Discord berichten</span>
-      <span class="preview-panel__count">{{ previewMessages().length }} bericht(en)</span>
+  <div class="composer__block">
+    <div class="row row-between gap-md">
+      <span class="t-label-caps c-muted">Voorbeeld Discord berichten</span>
+      <span class="t-body-code c-muted">{{ previewMessages().length }} bericht(en)</span>
     </div>
 
     <div class="discord-window">
       @for (msg of previewMessages(); track $index) {
         <div class="discord-message">
-          <img class="discord-avatar" src="assets/icons/icon-72x72.png" alt="bot" />
+          <span class="avatar discord-message__avatar" aria-hidden="true">
+            <span class="material-symbols-outlined icon-18">shield_person</span>
+          </span>
           <div class="discord-message__body">
-            <div class="discord-message__author">RoyalTeam Bot <span class="discord-message__bot-tag">BOT</span></div>
-            <div class="discord-message__content" [innerHTML]="renderMarkdown(msg.content)"></div>
+            <div class="discord-message__author">
+              <span class="t-body-medium fw-semibold">RoyalTeam Bot</span>
+              <span class="badge badge-info">Bot</span>
+            </div>
+            <div class="discord-embed">
+              <div class="discord-embed__content" [innerHTML]="renderMarkdown(msg.content)"></div>
+            </div>
           </div>
         </div>
       }
@@ -34,39 +71,46 @@
   </div>
 
   <!-- ── Actions ───────────────────────────────────────────────────────────── -->
-  <div class="actions">
+  <div class="composer__actions">
     <!-- Send now -->
-    <div class="action-card">
-      <div class="action-card__title">Verstuur nu</div>
-      <div class="action-card__desc">Stuur de bovenstaande berichten direct naar Discord.</div>
-      <button class="btn btn--discord" (click)="sendNow()" [disabled]="sending()">
+    <div class="card-tier-2 composer__action">
+      <div class="composer__action-head">
+        <span class="t-title-sm">Verstuur nu</span>
+        <span class="t-body-code c-secondary">Stuur de bovenstaande berichten direct naar Discord.</span>
+      </div>
+      <button type="button" class="btn-primary btn-block" (click)="sendNow()" [disabled]="sending()">
         @if (sending()) {
           Versturen…
         } @else {
-          📣 Verstuur naar Discord
+          <span class="material-symbols-outlined icon-16">send</span>
+          Verstuur naar Discord
         }
       </button>
     </div>
 
     <!-- Schedule -->
-    <div class="action-card">
-      <div class="action-card__title">Inplannen</div>
-      <div class="action-card__desc">De bot verstuurt de berichten automatisch op het gekozen tijdstip.</div>
-      <div class="schedule-row">
+    <div class="card-tier-2 composer__action">
+      <div class="composer__action-head">
+        <span class="t-title-sm">Inplannen</span>
+        <span class="t-body-code c-secondary">De bot verstuurt de berichten automatisch op het gekozen tijdstip.</span>
+      </div>
+      <div class="composer__schedule">
         <input
-          class="schedule-input"
+          class="form-input"
           type="datetime-local"
+          aria-label="Verstuurtijdstip"
           [ngModel]="scheduleInput()"
           (ngModelChange)="scheduleInput.set($event)"
         />
-        <button class="btn btn--primary" (click)="saveSchedule()" [disabled]="scheduling() || !scheduleInput()">
+        <button type="button" class="btn" (click)="saveSchedule()" [disabled]="scheduling() || !scheduleInput()">
           @if (scheduling()) {
             Opslaan…
           } @else {
-            💾 Inplannen
+            <span class="material-symbols-outlined icon-16">schedule_send</span>
+            Inplannen
           }
         </button>
       </div>
     </div>
   </div>
-</div>
+</section>

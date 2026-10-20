@@ -1,0 +1,19 @@
+<!-- Action Button Group -->
+<div class="relative z-10 flex flex-wrap xl:flex-col gap-space-sm justify-end shrink-0">
+<button class="h-8 px-space-md bg-primary-container hover:bg-gold-hover active:bg-gold-pressed text-on-primary-container font-body-medium text-body-medium flex items-center justify-center gap-space-sm transition-colors shadow-sm" id="btn-push-discord" onclick="triggerDiscordSync()">
+<span class="material-symbols-outlined text-[18px]">send</span>
+<span>Push to Discord Webhook</span>
+</button>
+<div class="flex items-center gap-space-xs">
+<button class="h-8 flex-1 px-space-md bg-surface-tier-2 hover:bg-surface-hover text-text-primary font-body-medium text-body-medium flex items-center justify-center gap-space-xs transition-colors" id="btn-export-mrt" onclick="copyMRTNote()">
+<span class="material-symbols-outlined text-[16px] text-primary">content_copy</span>
+<span>Export MRT Note</span>
+</button>
+<button class="h-8 px-space-sm bg-surface-tier-2 hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors flex items-center justify-center" onclick="autoFillSR()" title="Auto-Fill Roster from Soft-Reserves">
+<span class="material-symbols-outlined text-[18px]">auto_fix_high</span>
+</button>
+<button class="h-8 px-space-sm bg-surface-tier-2 hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors flex items-center justify-center" onclick="toggleSettingsModal()" title="Plan Configuration">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+</button>
+</div>
+</div>

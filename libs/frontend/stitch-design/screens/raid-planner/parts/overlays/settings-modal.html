@@ -1,0 +1,30 @@
+<!-- PLAN SETTINGS MODAL (OVERLAY) -->
+<div class="fixed inset-0 z-50 bg-surface-base/80 backdrop-blur-sm hidden items-center justify-center p-space-md" id="settings-modal">
+<div class="bg-surface-tier-1 w-full max-w-md p-space-lg shadow-2xl flex flex-col gap-space-md border-l-2 border-primary animate-in fade-in zoom-in-95 duration-150">
+<div class="flex items-center justify-between pb-space-sm bg-surface-tier-2 -mx-space-lg -mt-space-lg px-space-lg py-space-sm">
+<span class="font-headline-md text-headline-md text-text-primary">Plan Parameters</span>
+<button class="text-text-muted hover:text-text-primary" onclick="toggleSettingsModal()">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<div class="flex flex-col gap-space-sm">
+<label class="flex items-center justify-between p-space-sm bg-surface-tier-2 cursor-pointer">
+<span class="font-body-medium text-body-medium text-text-primary">Enforce Minimum 635 ilvl Gate</span>
+<input checked="" class="accent-primary" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between p-space-sm bg-surface-tier-2 cursor-pointer">
+<span class="font-body-medium text-body-medium text-text-primary">Auto-Award Standby Attendance Points</span>
+<input checked="" class="accent-primary" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between p-space-sm bg-surface-tier-2 cursor-pointer">
+<span class="font-body-medium text-body-medium text-text-primary">Lock MRT Export to Officers Only</span>
+<input class="accent-primary" type="checkbox"/>
+</label>
+</div>
+<div class="flex justify-end pt-space-xs">
+<button class="px-space-md py-1 bg-primary text-on-primary font-body-medium text-body-medium font-semibold" onclick="toggleSettingsModal()">
+          Save Configuration
+        </button>
+</div>
+</div>
+</div>

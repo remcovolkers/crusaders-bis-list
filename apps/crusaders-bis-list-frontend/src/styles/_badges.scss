@@ -1,0 +1,381 @@
+@use 'mixins' as *;
+
+// ============================================================
+// Badges  (static labels)
+//
+//   <span class="badge badge-gold">Admin</span>
+//
+// Base `.badge` = label-caps text on a translucent tint, 2px radius, no border.
+// Colour variants set `--badge-color`; the tint is derived from it.
+//
+//   neutral:  .badge-neutral (alias .badge-muted)
+//   brand:    .badge-gold
+//   status:   .badge-success|warning|danger|info   (aliases: -green -red)
+//   other:    .badge-blue .badge-purple (legacy)
+//   teams:    .badge-crusaders .badge-templars
+//   tiers:    .badge-champion .badge-hero .badge-myth .badge-super-rare
+//   class:    .badge-class + .class-<slug>   (e.g. class="badge badge-class class-mage")
+//   solid:    .badge-solid  (gold fill, high emphasis)
+//
+// Modifiers: .badge--sentence (no uppercase), .badge--pill, .badge--dot (leading status dot),
+//            .badge--lg (13px body size, for values)
+// ============================================================
+.badge {
+  --badge-color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  background: color-mix(in srgb, var(--badge-color) 15%, transparent);
+  color: var(--badge-color);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  vertical-align: middle;
+
+  .material-symbols-outlined {
+    font-size: 12px;
+  }
+
+  &--sentence {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 600;
+  }
+  &--pill {
+    border-radius: var(--radius-pill);
+    padding-inline: 8px;
+  }
+  &--lg {
+    padding: 3px 8px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+  &--dot::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+}
+
+.badge-neutral,
+.badge-muted {
+  --badge-color: var(--text-secondary);
+  background: var(--surface-tier-2);
+  color: var(--text-muted);
+}
+.badge-gold {
+  --badge-color: var(--primary);
+}
+.badge-success,
+.badge-green {
+  --badge-color: var(--success-text);
+}
+.badge-warning {
+  --badge-color: var(--warning-text);
+}
+.badge-danger,
+.badge-red {
+  --badge-color: var(--danger-text);
+}
+.badge-info {
+  --badge-color: var(--info-text);
+}
+.badge-blue {
+  --badge-color: #60a5fa;
+}
+.badge-purple {
+  --badge-color: #a78bfa;
+}
+.badge-crusaders {
+  --badge-color: var(--team-crusaders);
+}
+.badge-templars {
+  --badge-color: var(--team-templars);
+}
+.badge-champion {
+  --badge-color: var(--tier-champion);
+}
+.badge-hero {
+  --badge-color: var(--tier-hero);
+}
+.badge-myth {
+  --badge-color: var(--tier-myth);
+}
+.badge-super-rare {
+  --badge-color: var(--tier-super-rare);
+  background: color-mix(in srgb, var(--tier-super-rare) 20%, transparent);
+}
+.badge-class {
+  --badge-color: var(--class-color, var(--text-secondary));
+}
+.badge-solid {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+// ============================================================
+// Chips  (interactive filters / toggles)
+//
+//   <button class="chip is-active">Alle</button>
+//   <button class="chip chip-class class-mage" aria-pressed="true">Mage</button>
+//
+// Same look as badges but clickable; `.is-active` / `[aria-pressed=true]` is the selected state
+// (gold tint). `.chip-class` takes its colour from `--class-color` (set via `.class-<slug>`).
+// Unselected class chips are muted until hovered/active, like the Stitch class filter strip.
+// ============================================================
+.chip {
+  --chip-color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 24px;
+  padding: 2px 8px;
+  border: none;
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-2);
+  color: var(--chip-color);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background var(--dur-fast),
+    color var(--dur-fast);
+
+  &:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+  }
+  &.is-active,
+  &[aria-pressed='true'] {
+    background: var(--gold-dim);
+    color: var(--primary);
+  }
+  .material-symbols-outlined {
+    font-size: 14px;
+  }
+  &--sentence {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+.chip-class {
+  color: var(--text-muted);
+  &:hover {
+    background: color-mix(in srgb, var(--class-color, var(--primary)) 25%, transparent);
+    color: var(--class-color, var(--primary));
+  }
+  &.is-active,
+  &[aria-pressed='true'] {
+    background: color-mix(in srgb, var(--class-color, var(--primary)) 15%, transparent);
+    color: var(--class-color, var(--primary));
+  }
+}
+// Class-edged compact chip (raider pickers, attendance rows): tier-2 pill with a 3px left edge in `--class-color`.
+//   <button class="chip-edged class-mage"><span>Arcanis</span></button>
+.chip-edged {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 28px;
+  padding: 0 var(--space-sm);
+  border-radius: var(--radius-xs);
+  border-left: 3px solid var(--class-color, var(--border-strong));
+  background: var(--surface-tier-2);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+  &:hover {
+    background: var(--surface-hover);
+  }
+  @include below(768px) {
+    min-height: 36px;
+  }
+}
+
+// ============================================================
+// Class marks
+//   .class-stripe  thin vertical class colour bar next to a name (raid matrix rows)
+//   .class-tile    square tinted tile with the class-coloured initial (roster rows)
+// Both read `--class-color`: combine with `.class-<slug>`.
+// ============================================================
+.class-stripe {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 6px;
+  height: 16px;
+  background: var(--class-color, var(--text-muted));
+  border-radius: 1px;
+  &--sm {
+    width: 4px;
+    height: 14px;
+  }
+}
+.class-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-xs);
+  background: color-mix(in srgb, var(--class-color, var(--text-muted)) 20%, transparent);
+  color: var(--class-color, var(--text-muted));
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  &--lg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+// ============================================================
+// Item category / stat / tier badges (legacy global classes, restyled flat).
+// Used by loot cards, reserve modal, boss view. Same semantics as before.
+// ============================================================
+.cat-badge,
+.stat-badge,
+.weapon-badge {
+  --cat-color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--cat-color) 14%, transparent);
+  color: var(--cat-color);
+}
+.cat-trinket,
+.stat-badge {
+  --cat-color: #a78bfa;
+}
+.cat-weapon {
+  --cat-color: #f87171;
+}
+.cat-offhand {
+  --cat-color: #fca5a5;
+}
+.cat-cloth {
+  --cat-color: #67e8f9;
+}
+.cat-leather {
+  --cat-color: #fb923c;
+}
+.cat-mail {
+  --cat-color: #86efac;
+}
+.cat-plate {
+  --cat-color: #fbbf24;
+}
+.cat-jewelry {
+  --cat-color: #f9a8d4;
+}
+.cat-other {
+  --cat-color: var(--text-muted);
+  background: var(--surface-tier-2);
+}
+.weapon-badge {
+  --cat-color: #fbbf24;
+}
+
+// `.tier-badge.tier-badge--champion_tier` etc. (class names come from the backend tier enum)
+.tier-badge {
+  --tier-color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: color-mix(in srgb, var(--tier-color) 15%, transparent);
+  color: var(--tier-color);
+
+  &--champion_tier,
+  &--champion {
+    --tier-color: var(--tier-champion);
+  }
+  &--hero_tier,
+  &--hero {
+    --tier-color: var(--tier-hero);
+  }
+  &--myth_tier,
+  &--myth {
+    --tier-color: var(--tier-myth);
+  }
+  &--super_rare,
+  &--super-rare {
+    --tier-color: var(--tier-super-rare);
+  }
+}
+
+// Interactive tier marker: tinted with `currentColor`, so combine it with a tier colour class
+//   <button class="tier-chip tier-hero_tier" [class.active]="open">Hero <span class="tier-chip__count">+2</span></button>
+.tier-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 22px;
+  padding: 2px 6px;
+  border: none;
+  border-radius: var(--radius-xs);
+  background: color-mix(in srgb, currentColor 15%, transparent);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur-fast);
+
+  &:hover,
+  &.active {
+    background: color-mix(in srgb, currentColor 28%, transparent);
+  }
+  &__count {
+    font-variant-numeric: tabular-nums;
+    opacity: 0.85;
+  }
+}
+
+// Tier colour hooks: an element with `data-tone="champion|hero|myth"` (e.g. from `difficultyTone()`) or
+// `data-tier="champion_tier|hero_tier|myth_tier"` exposes --tone / --tier-color / --item-color to its subtree
+// (so `.segmented__item`, `.card-accent` via `--accent-color: var(--tone)` etc. pick it up).
+@each $name in ('champion', 'hero', 'myth') {
+  [data-tone='#{$name}'],
+  [data-tier='#{$name}_tier'] {
+    --tone: var(--tier-#{$name});
+    --tier-color: var(--tier-#{$name});
+    --item-color: var(--tier-#{$name});
+  }
+}
+
+// Tier colour utilities (color only), keyed by backend tier enum
+.tier-champion_tier {
+  color: var(--tier-champion);
+}
+.tier-hero_tier {
+  color: var(--tier-hero);
+}
+.tier-myth_tier {
+  color: var(--tier-myth);
+}

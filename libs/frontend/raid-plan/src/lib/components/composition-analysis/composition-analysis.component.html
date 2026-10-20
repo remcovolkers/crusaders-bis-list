@@ -1,58 +1,159 @@
-<div class="comp">
-  <h3 class="comp__title">Compositie</h3>
+<section class="card comp">
+  <header class="card-header">
+    <h3 class="card-title">
+      <span class="material-symbols-outlined c-gold">equalizer</span>
+      Compositie
+    </h3>
+    <span
+      class="badge badge--sentence"
+      [class.badge-success]="coverage().full"
+      [class.badge-warning]="!coverage().full"
+      [title]="coverage().present + ' van ' + coverage().total + ' buffs gedekt'"
+    >
+      <span class="material-symbols-outlined icon-14">{{ coverage().full ? 'check_circle' : 'warning' }}</span>
+      {{ coverage().present }}/{{ coverage().total }} buffs
+    </span>
+  </header>
 
-  <div class="comp__roles">
-    <div class="comp__role">
-      <span class="comp__role-icon">🛡️</span>
-      <span class="comp__role-label">Tanks</span>
-      <span
-        class="comp__role-count"
-        [class.comp__role-count--ok]="tanks().length >= 2"
-        [class.comp__role-count--warn]="tanks().length < 2"
-      >
-        {{ tanks().length }}
-      </span>
-    </div>
-    <div class="comp__role">
-      <span class="comp__role-icon">💚</span>
-      <span class="comp__role-label">Healers</span>
-      <span
-        class="comp__role-count"
-        [class.comp__role-count--ok]="healers().length >= 4"
-        [class.comp__role-count--warn]="healers().length < 4"
-      >
-        {{ healers().length }}
-      </span>
-    </div>
-    <div class="comp__role">
-      <span class="comp__role-icon">🏹</span>
-      <span class="comp__role-label">Ranged</span>
-      <span class="comp__role-count">{{ ranged().length }}</span>
-    </div>
-    <div class="comp__role">
-      <span class="comp__role-icon">⚔️</span>
-      <span class="comp__role-label">Melee</span>
-      <span class="comp__role-count">{{ melee().length }}</span>
-    </div>
-  </div>
-
-  <div class="comp__divider"></div>
-
-  <h4 class="comp__subtitle">Key Buffs</h4>
-  <div class="comp__buffs">
-    @for (buff of buffs(); track buff.label) {
-      <div class="comp__buff" [class.comp__buff--present]="buff.present" [class.comp__buff--missing]="!buff.present">
-        <span class="comp__buff-icon">{{ buff.icon }}</span>
-        <div class="comp__buff-info">
-          <span class="comp__buff-label">{{ buff.label }}</span>
-          @if (buff.present) {
-            <span class="comp__buff-providers">{{ buff.providers.join(', ') }}</span>
-          } @else {
-            <span class="comp__buff-providers comp__buff-providers--missing">Niet aanwezig</span>
-          }
-        </div>
-        <span class="comp__buff-status">{{ buff.present ? '✓' : '✗' }}</span>
+  <!-- ── Role ratio ───────────────────────────────────────────────────────── -->
+  <div class="comp__block">
+    <div class="comp__stats">
+      <div class="comp__stat">
+        <span class="t-label-caps c-muted">Tanks</span>
+        <span
+          class="t-stat-mono comp__stat-value"
+          [class.c-success]="tanks().length >= 2"
+          [class.c-warning]="tanks().length < 2"
+          >{{ tanks().length }}</span
+        >
       </div>
-    }
+      <div class="comp__stat">
+        <span class="t-label-caps c-muted">Healers</span>
+        <span
+          class="t-stat-mono comp__stat-value"
+          [class.c-success]="healers().length >= 4"
+          [class.c-warning]="healers().length < 4"
+          >{{ healers().length }}</span
+        >
+      </div>
+      <div class="comp__stat">
+        <span class="t-label-caps c-muted">Ranged</span>
+        <span class="t-stat-mono comp__stat-value">{{ ranged().length }}</span>
+      </div>
+      <div class="comp__stat">
+        <span class="t-label-caps c-muted">Melee</span>
+        <span class="t-stat-mono comp__stat-value">{{ melee().length }}</span>
+      </div>
+    </div>
+
+    <div
+      class="ratio-bar ratio-bar--lg"
+      role="img"
+      [attr.aria-label]="'Rolverdeling van ' + raiders().length + ' raiders'"
+    >
+      <div
+        class="ratio-bar__seg"
+        [style.width.%]="ratio().tanks"
+        style="background: var(--team-templars)"
+        title="Tanks"
+      ></div>
+      <div
+        class="ratio-bar__seg"
+        [style.width.%]="ratio().healers"
+        style="background: var(--success)"
+        title="Healers"
+      ></div>
+      <div class="ratio-bar__seg" [style.width.%]="ratio().melee" style="background: var(--danger)" title="Melee"></div>
+      <div
+        class="ratio-bar__seg"
+        [style.width.%]="ratio().ranged"
+        style="background: var(--class-mage)"
+        title="Ranged"
+      ></div>
+    </div>
+    <div class="comp__legend t-body-code c-secondary">
+      <span class="row"><span class="dot dot--sm" style="--dot-color: var(--team-templars)"></span>Tank</span>
+      <span class="row"><span class="dot dot--sm" style="--dot-color: var(--success)"></span>Heal</span>
+      <span class="row"><span class="dot dot--sm" style="--dot-color: var(--danger)"></span>Melee</span>
+      <span class="row"><span class="dot dot--sm" style="--dot-color: var(--class-mage)"></span>Ranged</span>
+      <span class="comp__legend-total tnum">{{ dpsCount() }} DPS</span>
+    </div>
   </div>
-</div>
+
+  <!-- ── Key buffs (bloodlust, rez, ...) ──────────────────────────────────── -->
+  <div class="comp__block">
+    <span class="t-label-caps c-muted">Key buffs</span>
+    <div class="comp__grid">
+      @for (buff of buffs(); track buff.label) {
+        <div
+          class="comp__tile"
+          [class.is-missing]="!buff.present"
+          [title]="buff.present ? buff.providers.join(', ') : 'Niet aanwezig'"
+        >
+          <span class="material-symbols-outlined icon-16" [style.color]="buff.present ? buff.color : null">{{
+            buff.icon
+          }}</span>
+          <div class="comp__tile-text">
+            <span class="t-body-medium truncate">{{ buff.label }}</span>
+            @if (buff.present) {
+              <span class="t-body-code c-success truncate">{{ buff.providers.join(', ') }}</span>
+            } @else {
+              <span class="t-body-code c-danger">Niet aanwezig</span>
+            }
+          </div>
+          <span
+            class="material-symbols-outlined icon-16 comp__tile-state"
+            [class.c-success]="buff.present"
+            [class.c-danger]="!buff.present"
+            >{{ buff.present ? 'check' : 'close' }}</span
+          >
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── Raid buff coverage (one class each) ──────────────────────────────── -->
+  <div class="comp__block">
+    <span class="t-label-caps c-muted">Raidbuffs</span>
+    <div class="comp__grid">
+      @for (buff of raidBuffs(); track buff.label) {
+        <div
+          class="comp__tile"
+          [class.is-missing]="!buff.present"
+          [title]="
+            buff.present ? buff.label + ' gedekt door ' + buff.wowClass : buff.label + ' mist (' + buff.wowClass + ')'
+          "
+        >
+          <span class="material-symbols-outlined icon-16" [style.color]="buff.present ? buff.color : null">{{
+            buff.icon
+          }}</span>
+          <span class="t-body-code c-text truncate comp__tile-label">{{ buff.label }}</span>
+          <span
+            class="t-stat-mono comp__tile-effect"
+            [class.c-success]="buff.present"
+            [class.c-danger]="!buff.present"
+            >{{ buff.effect }}</span
+          >
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── Tier token distribution ──────────────────────────────────────────── -->
+  <div class="comp__block">
+    <span class="t-label-caps c-muted">Tier tokens</span>
+    <div class="comp__tokens">
+      @for (token of tierTokens(); track token.label) {
+        <div class="comp__token" [title]="token.label + ': ' + token.count + ' raiders (' + token.classes + ')'">
+          <span class="t-label-caps c-muted">{{ token.label }}</span>
+          <span
+            class="t-stat-mono comp__token-count"
+            [class.c-gold]="token.count > 0 && token.count === maxTierCount()"
+            >{{ token.count }}</span
+          >
+          <span class="comp__token-classes c-secondary">{{ token.classes }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</section>

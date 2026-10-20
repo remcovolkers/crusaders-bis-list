@@ -1,5 +1,14 @@
 <div class="unauth-container">
-  <h2>Geen toegang</h2>
-  <p>Je hebt geen rechten voor deze pagina.</p>
-  <button (click)="goHome()">Terug naar Home</button>
+  <section class="unauth-card card card-lg">
+    <span class="unauth-watermark watermark material-symbols-outlined" aria-hidden="true">lock</span>
+    <div class="empty-box">
+      <span class="unauth-icon material-symbols-outlined" aria-hidden="true">gpp_bad</span>
+      <h2 class="t-headline-md empty-box__title">Geen toegang</h2>
+      <p class="empty-box__text">Je hebt geen rechten voor deze pagina.</p>
+      <button type="button" class="btn-primary" (click)="goHome()">
+        <span class="material-symbols-outlined icon-16" aria-hidden="true">home</span>
+        Terug naar Home
+      </button>
+    </div>
+  </section>
 </div>

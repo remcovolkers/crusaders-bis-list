@@ -7,58 +7,92 @@
   (keydown.escape)="cancelled.emit()"
 >
   <div
-    class="modal"
+    class="modal reserve-modal"
     role="dialog"
     aria-modal="true"
+    aria-labelledby="reserve-modal-title"
     (click)="$event.stopPropagation()"
     (keydown)="$event.stopPropagation()"
   >
     <div class="modal-header">
-      <h3>{{ item().name }}</h3>
-      <button class="modal-close" (click)="cancelled.emit()">✕</button>
+      <h3 id="reserve-modal-title">
+        <span class="material-symbols-outlined">{{ isEditing() ? 'edit_note' : 'bookmark_add' }}</span>
+        {{ isEditing() ? 'Reservering aanpassen' : 'Item reserveren' }}
+      </h3>
+      <button class="icon-btn" aria-label="Sluit venster" (click)="cancelled.emit()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
     </div>
 
-    <div class="modal-body">
-      <div class="modal-changelog-warning">
-        @if (isEditing()) {
-          ℹ️ Wil je je reservering volledig annuleren? Neem contact op met je lootmeister.
+    <div class="modal-body stack">
+      <div class="confirm-item-preview reserve-item">
+        @if (item().iconUrl) {
+          <img class="confirm-item-icon" [src]="item().iconUrl" alt="" />
         } @else {
-          ⚠️ Dit venster is recent aangepast. Je geeft nu aan op welke tiers je wilt <strong>reserveren</strong>, in
-          plaats van op welke je het item al hebt ontvangen.
+          <div class="confirm-item-icon-placeholder"></div>
         }
-      </div>
-
-      <p class="reserve-question">
-        {{ isEditing() ? 'Pas je reservering aan' : 'Reserveer dit item op de volgende tiers' }}
-      </p>
-      @if (!isEditing()) {
-        <p class="reserve-subtext">
-          Meerdere antwoorden mogelijk — een lagere tier selecteren includeert automatisch hogere tiers.
-        </p>
-      }
-
-      <div class="tier-options">
-        @for (tier of receivableTiers; track tier) {
-          <button
-            class="tier-btn"
-            [ngClass]="'tier-' + tier"
-            [class.selected]="isTierIncluded(tier)"
-            [class.is-floor]="selectedFloor() === tier"
-            (click)="selectedFloor.set(selectedFloor() === tier ? null : tier)"
-          >
-            <span class="tier-btn-label">{{ tierLabels[tier] }}</span>
-            @if (isTierIncluded(tier) && selectedFloor() !== tier) {
-              <span class="tier-btn-auto">auto</span>
+        <div class="confirm-item-info">
+          <p class="confirm-item-name">{{ item().name }}</p>
+          <div class="confirm-item-meta">
+            <span class="cat-badge" [ngClass]="'cat-' + item().category">{{ categoryLabels[item().category] }}</span>
+            @if (item().isSuperRare) {
+              <span class="badge badge-super-rare"
+                ><span class="material-symbols-outlined icon-fill">star</span>Super rare</span
+              >
             }
-          </button>
-        }
+          </div>
+        </div>
       </div>
 
-      <button class="btn-already-myth" (click)="markReceivedAtMyth()">Al ontvangen op Myth tier</button>
+      <div class="banner" [class.banner-info]="isEditing()" [class.banner-warning]="!isEditing()">
+        <span class="material-symbols-outlined">{{ isEditing() ? 'info' : 'warning' }}</span>
+        <div>
+          @if (isEditing()) {
+            Wil je je reservering volledig annuleren? Neem contact op met je lootmeister.
+          } @else {
+            Dit venster is recent aangepast. Je geeft nu aan op welke tiers je wilt <strong>reserveren</strong>, in plaats
+            van op welke je het item al hebt ontvangen.
+          }
+        </div>
+      </div>
+
+      <div class="stack reserve-pick">
+        <div>
+          <p class="t-title-sm">{{ isEditing() ? 'Pas je reservering aan' : 'Reserveer dit item op de volgende tiers' }}</p>
+          @if (!isEditing()) {
+            <p class="t-body-code c-secondary">
+              Meerdere antwoorden mogelijk — een lagere tier selecteren includeert automatisch hogere tiers.
+            </p>
+          }
+        </div>
+
+        <div class="tier-options" role="group" aria-label="Tiers">
+          @for (tier of receivableTiers; track tier) {
+            <button
+              type="button"
+              class="tier-btn"
+              [ngClass]="'tier-' + tier"
+              [class.selected]="isTierIncluded(tier)"
+              [class.is-floor]="selectedFloor() === tier"
+              [attr.aria-pressed]="isTierIncluded(tier)"
+              (click)="selectedFloor.set(selectedFloor() === tier ? null : tier)"
+            >
+              <span class="tier-btn-label">{{ tierLabels[tier] }}</span>
+              @if (isTierIncluded(tier) && selectedFloor() !== tier) {
+                <span class="tier-btn-auto">auto</span>
+              }
+            </button>
+          }
+        </div>
+
+        <button type="button" class="btn-text btn-sm btn-already-myth" (click)="markReceivedAtMyth()">
+          <span class="material-symbols-outlined icon-16">check_circle</span>Al ontvangen op Myth tier
+        </button>
+      </div>
     </div>
 
     <div class="modal-footer">
-      <button class="btn-ghost" (click)="cancelled.emit()">{{ isEditing() ? 'Sluiten' : 'Annuleer' }}</button>
+      <button class="btn" (click)="cancelled.emit()">{{ isEditing() ? 'Sluiten' : 'Annuleer' }}</button>
       <button class="btn-primary" [disabled]="!selectedFloor()" (click)="confirm()">{{ confirmButtonLabel() }}</button>
     </div>
   </div>

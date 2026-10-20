@@ -1,14 +1,15 @@
 import { Component, inject, computed, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { IRaidPlan, RaidParticipantRole } from '@crusaders-bis-list/shared-domain';
+import { DifficultyTone, IRaidPlan, RaidParticipantRole, difficultyTone, specRole } from '@crusaders-bis-list/shared-domain';
 import { RaidPlanService } from '../../services/raid-plan.service';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 import { AuthStateService } from '@crusaders-bis-list/frontend-auth';
 
 @Component({
   selector: 'lib-raid-plan-list',
-  imports: [RouterLink],
+  imports: [RouterLink, NgTemplateOutlet],
   templateUrl: './raid-plan-list.component.html',
   styleUrls: ['./raid-plan-list.component.scss'],
 })
@@ -81,6 +82,20 @@ export class RaidPlanListComponent {
 
   absentCount(plan: IRaidPlan): number {
     return plan.participants.filter((p) => p.role === RaidParticipantRole.ABSENT).length;
+  }
+
+  /** Item-tier tone used for the difficulty badge and card edge (normal -> champion, heroic -> hero, mythic -> myth). */
+  difficultyTone(plan: IRaidPlan): DifficultyTone {
+    return difficultyTone(plan.difficulty);
+  }
+
+  /** Tank / healer / dps split of the raiders in a plan. */
+  roleCounts(plan: IRaidPlan): { tank: number; healer: number; dps: number } {
+    const counts = { tank: 0, healer: 0, dps: 0 };
+    for (const p of plan.participants) {
+      if (p.role === RaidParticipantRole.RAIDER) counts[specRole(p.spec)]++;
+    }
+    return counts;
   }
 
   discordStatus(plan: IRaidPlan): 'sent' | 'scheduled' | 'none' {

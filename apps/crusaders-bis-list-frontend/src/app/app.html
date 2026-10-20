@@ -11,34 +11,32 @@
   </div>
 } @else {
   @if (isAuthenticated()) {
-    <header class="app-header">
-      <div class="header-brand">
-        <span class="brand-icon">⚔️</span>
-        <span class="brand-name">RoyalTeam</span>
-        <span class="brand-sub">BIS List</span>
+    <header class="topbar app-header">
+      <div class="header-brand topbar__brand">
+        <span class="brand-mark"><span class="material-symbols-outlined">shield_person</span></span>
+        <span class="brand-text">
+          <span class="brand-text__name brand-name">RoyalTeam</span>
+          <span class="brand-text__sub brand-sub">BIS List</span>
+        </span>
       </div>
 
       <nav class="header-nav">
-        <a routerLink="/loot" routerLinkActive="active">Mijn Loot</a>
+        <a class="nav-link" routerLink="/loot" routerLinkActive="active">Mijn Loot</a>
         @if (isAdmin()) {
-          <a routerLink="/admin" routerLinkActive="active">Admin</a>
+          <a class="nav-link" routerLink="/admin" routerLinkActive="active">Admin</a>
         }
         @if (isSuperUser()) {
-          <a routerLink="/raid-plan" routerLinkActive="active">Raidplan</a>
-          <a routerLink="/dev-panel" routerLinkActive="active">Dev Panel</a>
-          <a routerLink="/feedback-inbox" routerLinkActive="active">Feedback</a>
+          <a class="nav-link" routerLink="/raid-plan" routerLinkActive="active">Raidplan</a>
+          <a class="nav-link" routerLink="/dev-panel" routerLinkActive="active">Dev Panel</a>
+          <a class="nav-link" routerLink="/feedback-inbox" routerLinkActive="active">Feedback</a>
         }
       </nav>
 
       @if (currentUser(); as user) {
         <div class="header-user">
-          @if (user.avatarUrl) {
-            <img class="user-avatar" [src]="user.avatarUrl" [alt]="user.displayName" />
-          }
           @if (showFeedbackButton()) {
             <lib-feedback-button />
           }
-          <span class="user-name">{{ user.displayName }}</span>
           @if (!isBnetLinked()) {
             <button class="btn-link-bnet" (click)="linkBnet()" title="Koppel je Battle.net account">
               <img src="/assets/bnet_logo.png" alt="Battle.net" class="bnet-icon" />
@@ -52,12 +50,22 @@
             rel="noopener"
             title="Het runnen en bouwen van deze site kost tijd en geld. Wil je een steentje bijdragen aan het voortbestaan ervan? Elke tip wordt superwaardeerd!"
           >
-            ☕ Tip
+            <span class="material-symbols-outlined">coffee</span>
+            Tip
           </a>
-          @if (isAdmin()) {
-            <span class="badge badge-gold">Admin</span>
+          <span class="divider divider--v"></span>
+          <div class="user-block">
+            <span class="user-name">{{ user.displayName }}</span>
+            @if (isAdmin()) {
+              <span class="user-role">Admin</span>
+            }
+          </div>
+          @if (user.avatarUrl) {
+            <img class="user-avatar avatar" [src]="user.avatarUrl" [alt]="user.displayName" />
+          } @else {
+            <span class="avatar"><span class="material-symbols-outlined">person</span></span>
           }
-          <button class="btn-ghost btn logout-btn" (click)="logout()">Uitloggen</button>
+          <button class="btn btn-text btn-sm logout-btn" (click)="logout()">Uitloggen</button>
         </div>
       }
 
@@ -81,7 +89,9 @@
         @if (currentUser(); as user) {
           <div class="mobile-user-row">
             @if (user.avatarUrl) {
-              <img class="user-avatar" [src]="user.avatarUrl" [alt]="user.displayName" />
+              <img class="user-avatar avatar" [src]="user.avatarUrl" [alt]="user.displayName" />
+            } @else {
+              <span class="avatar"><span class="material-symbols-outlined">person</span></span>
             }
             <span class="user-name">{{ user.displayName }}</span>
             @if (isAdmin()) {
@@ -95,6 +105,7 @@
             <a routerLink="/admin" routerLinkActive="active" (click)="menuOpen.set(false)">Admin</a>
           }
           @if (isSuperUser()) {
+            <a routerLink="/raid-plan" routerLinkActive="active" (click)="menuOpen.set(false)">Raidplan</a>
             <a routerLink="/dev-panel" routerLinkActive="active" (click)="menuOpen.set(false)">Dev Panel</a>
             <a routerLink="/feedback-inbox" routerLinkActive="active" (click)="menuOpen.set(false)">Feedback</a>
           }
@@ -106,12 +117,15 @@
               Link Battle.net
             </button>
           }
-          <a class="btn-tip" [href]="tipLink" target="_blank" rel="noopener" (click)="menuOpen.set(false)"> ☕ Tip </a>
+          <a class="btn-tip" [href]="tipLink" target="_blank" rel="noopener" (click)="menuOpen.set(false)">
+            <span class="material-symbols-outlined">coffee</span>
+            Tip
+          </a>
           <p class="tip-info-mobile">
             Het runnen en bouwen van deze site kost tijd en geld. Wil je bijdragen aan het voortbestaan ervan? Elke tip
             wordt superwaardeerd! ☕
           </p>
-          <button class="btn-ghost logout-btn" (click)="logout()">Uitloggen</button>
+          <button class="btn btn-ghost logout-btn" (click)="logout()">Uitloggen</button>
         </div>
       </div>
     }

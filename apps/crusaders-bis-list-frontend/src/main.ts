@@ -1,7 +1,9 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS, HttpErrorResponse } from '@angular/common/http';
-import { inject, provideAppInitializer, provideBrowserGlobalErrorListeners, isDevMode } from '@angular/core';
+import { inject, provideAppInitializer, provideBrowserGlobalErrorListeners, isDevMode, LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeNl from '@angular/common/locales/nl';
 import { App } from './app/app';
 import { appRoutes } from './app/app.routes';
 import { API_URL, AuthInterceptor, AuthStateService, AuthService, AuthUser } from '@crusaders-bis-list/frontend-auth';
@@ -10,8 +12,12 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { provideServiceWorker } from '@angular/service-worker';
 
+// Dutch UI: the Angular `date` pipe (and friends) must render Dutch month/day names.
+registerLocaleData(localeNl);
+
 bootstrapApplication(App, {
   providers: [
+    { provide: LOCALE_ID, useValue: 'nl' },
     provideBrowserGlobalErrorListeners(),
     provideRouter(appRoutes),
     provideHttpClient(withInterceptorsFromDi()),

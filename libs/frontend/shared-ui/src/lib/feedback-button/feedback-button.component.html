@@ -9,7 +9,7 @@
     [class.glowing]="showLabel()"
     title="Feedback geven"
   >
-    💬
+    <span class="material-symbols-outlined">chat_bubble</span>
   </button>
 </div>
 
@@ -18,11 +18,16 @@
     <div class="feedback-header">
       <span class="feedback-title">Feedback</span>
       <span class="feedback-page">{{ currentPage }}</span>
-      <button class="feedback-close" (click)="toggle()">✕</button>
+      <button class="feedback-close" (click)="toggle()" aria-label="Sluiten">
+        <span class="material-symbols-outlined">close</span>
+      </button>
     </div>
 
     @if (sent()) {
-      <div class="feedback-sent">✓ Bedankt voor je feedback!</div>
+      <div class="feedback-sent">
+        <span class="material-symbols-outlined icon-fill">check_circle</span>
+        Bedankt voor je feedback!
+      </div>
     } @else {
       <textarea
         class="feedback-textarea"

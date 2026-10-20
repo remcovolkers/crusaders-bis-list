@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { rxResource } from '@angular/core/rxjs-interop';
@@ -10,7 +11,7 @@ import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
   selector: 'lib-admin-season-config',
-  imports: [FormsModule],
+  imports: [FormsModule, DatePipe],
   templateUrl: './admin-season-config.component.html',
   styleUrl: './admin-season-config.component.scss',
 })
@@ -43,6 +44,26 @@ export class AdminSeasonConfigComponent {
   readonly jewelryLimit = signal(1);
   readonly armorLimit = signal(1);
   readonly superrareLimit = signal(0);
+
+  readonly season = computed(() => this.catalog()?.season ?? null);
+  readonly teamName = computed(() => (this.viewedTeam() === Team.TEMPLARS ? 'Templars' : 'Crusaders'));
+  readonly teamColor = computed(() =>
+    this.viewedTeam() === Team.TEMPLARS ? 'var(--team-templars)' : 'var(--team-crusaders)',
+  );
+  readonly dirty = computed(() => {
+    const c = this.config();
+    return (
+      !!c &&
+      (c.trinketLimit !== this.trinketLimit() ||
+        c.weaponLimit !== this.weaponLimit() ||
+        c.jewelryLimit !== this.jewelryLimit() ||
+        c.armorLimit !== this.armorLimit() ||
+        c.superrareLimit !== this.superrareLimit())
+    );
+  });
+  readonly superRareCount = computed(
+    () => this.catalog()?.bosses.reduce((n, b) => n + b.items.filter((i) => i.isSuperRare).length, 0) ?? 0,
+  );
 
   readonly selectedBossId = signal<string | null>(null);
   readonly selectedBossItems = computed(() => {

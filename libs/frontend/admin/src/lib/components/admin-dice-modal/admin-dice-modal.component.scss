@@ -1,50 +1,65 @@
-/* All modal, badge, and item-icon styles come from the global styles.scss */
+/* Modal, badge and item-preview styles come from the global primitives. */
 
 .dice-modal {
-  width: min(520px, 95vw);
+  width: min(520px, 100%);
+}
+
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.confirm-item-preview.is-super-rare {
+  box-shadow: inset 3px 0 0 var(--tier-super-rare);
+}
+
+.confirm-item-preview {
+  margin-bottom: 0;
 }
 
 .dice-wheel-wrap {
   display: flex;
   justify-content: center;
-  padding-top: 20px;
+  padding-top: var(--space-lg);
 }
 
 .dice-loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 48px;
+  padding: var(--space-2xl);
   color: var(--text-muted);
-  font-size: 14px;
 }
 
-.spectator-badge {
-  display: inline-flex;
+.dice-winner {
+  display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary, #94a3b8);
-  background: rgba(148, 163, 184, 0.08);
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 999px;
-  padding: 3px 10px;
-  cursor: default;
-  white-space: nowrap;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  background: var(--surface-tier-2);
+  border-radius: var(--radius-xs);
+  box-shadow: inset 3px 0 0 var(--primary);
+
+  > .material-symbols-outlined {
+    font-size: 28px;
+    color: var(--primary);
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__name {
+    color: var(--class-color, var(--text-primary));
+    overflow-wrap: anywhere;
+  }
 }
 
 @media (max-width: 560px) {
-  .dice-modal {
-    width: 100%;
-    border-radius: 16px 16px 0 0;
-    margin-top: auto;
-  }
-
-  .modal-backdrop {
-    align-items: flex-end;
-  }
-
   .modal-footer {
     flex-direction: column-reverse;
 

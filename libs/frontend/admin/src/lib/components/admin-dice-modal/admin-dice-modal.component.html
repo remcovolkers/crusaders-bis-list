@@ -3,32 +3,37 @@
     class="modal dice-modal"
     role="dialog"
     aria-modal="true"
+    aria-labelledby="dice-modal-title"
     (click)="$event.stopPropagation()"
     (keydown)="$event.stopPropagation()"
   >
     <div class="modal-header">
-      <h3>🎡 Wheel of Fortune</h3>
+      <h3 id="dice-modal-title"><span class="material-symbols-outlined c-gold">casino</span>Wheel of Fortune</h3>
       <div class="modal-header-actions">
-        <button class="btn-share" title="Kopieer deellink voor spectators" (click)="copyShareUrl()">🔗 Deel</button>
+        <button class="btn btn-sm" title="Kopieer deellink voor spectators" (click)="copyShareUrl()">
+          <span class="material-symbols-outlined icon-16">share</span>Deel
+        </button>
         @if (spectators().length) {
           <span
-            class="spectator-badge"
+            class="badge badge-neutral badge--sentence"
             [title]="spectators().length + ' kijkers: ' + spectators().map(s => s.displayName).join(', ')"
           >
-            👁 {{ spectators().length }}
+            <span class="material-symbols-outlined icon-14">visibility</span>{{ spectators().length }}
           </span>
         }
-        <button class="modal-close" (click)="close()">✕</button>
+        <button class="icon-btn" (click)="close()" aria-label="Sluiten">
+          <span class="material-symbols-outlined">close</span>
+        </button>
       </div>
     </div>
 
     @if (loading()) {
       <div class="modal-body dice-loading">
-        <span>Sessie aanmaken…</span>
+        <span class="loading-spinner">Sessie aanmaken…</span>
       </div>
     } @else {
       <div class="modal-body">
-        <div class="confirm-item-preview">
+        <div class="confirm-item-preview" [class.is-super-rare]="item().isSuperRare">
           @if (item().iconUrl && item().secondaryIconUrl) {
             <div class="confirm-item-icon confirm-item-icon--split">
               <img class="split-primary" [src]="item().iconUrl" [alt]="item().name" />
@@ -41,12 +46,20 @@
           <div class="confirm-item-info">
             <span class="confirm-item-name">{{ item().name }}</span>
             <div class="confirm-item-meta">
+              @if (item().isSuperRare) {
+                <span class="badge badge-super-rare">
+                  <span class="material-symbols-outlined icon-fill icon-14">star</span>Super rare
+                </span>
+              }
               <span class="cat-badge" [ngClass]="'cat-' + item().category">
                 {{ categoryLabels[item().category] }}
               </span>
               <span class="tier-badge tier-badge--{{ selectedDifficulty() }}">{{
                 tierLabels[selectedDifficulty()]
               }}</span>
+              <span class="badge badge-neutral badge--sentence">
+                <span class="material-symbols-outlined icon-14">groups</span>{{ eligibleRaiders().length }} deelnemers
+              </span>
             </div>
           </div>
         </div>
@@ -61,16 +74,32 @@
             (spinDone)="onWheelDone()"
           />
         </div>
+
+        @if (winner(); as w) {
+          @if (wheelDone()) {
+            <div class="dice-winner" [class]="'dice-winner ' + classSlug(w)">
+              <span class="material-symbols-outlined icon-fill">emoji_events</span>
+              <div class="dice-winner__text">
+                <span class="t-label-caps c-muted">Winnaar</span>
+                <span class="t-headline-md dice-winner__name">{{ w.characterName }}</span>
+              </div>
+            </div>
+          }
+        }
       </div>
 
       <div class="modal-footer">
-        <button class="btn-ghost" (click)="close()">Annuleer</button>
+        <button class="btn" (click)="close()">Annuleer</button>
         @if (!winner() && !rolling()) {
-          <button class="btn-primary" (click)="rollDice()">Spin THAT Wheel!</button>
+          <button class="btn-primary" (click)="rollDice()">
+            <span class="material-symbols-outlined">casino</span>Spin THAT Wheel!
+          </button>
         } @else if (rolling() || !wheelDone()) {
           <button class="btn-primary" disabled>Draait...</button>
         } @else {
-          <button class="btn-primary" (click)="assignFromDice()">Toewijzen aan {{ winner()?.characterName }}</button>
+          <button class="btn-primary" (click)="assignFromDice()">
+            <span class="material-symbols-outlined">check</span>Toewijzen aan {{ winner()?.characterName }}
+          </button>
         }
       </div>
     }

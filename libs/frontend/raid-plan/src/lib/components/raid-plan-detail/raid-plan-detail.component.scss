@@ -1,467 +1,435 @@
-// ── Workspace layout ────────────────────────────────────────────────────────────
+// Raid plan detail ("Tactical Suite" bento). Cards, badges, forms, stat tiles, buttons come from the global primitives;
+// this file only holds the page layout and the roster rows.
 
-.workspace {
-  padding: 20px 24px;
-  max-width: 1400px;
-  margin: 0 auto;
+:host {
+  display: block;
 }
 
-// ── Header ─────────────────────────────────────────────────────────────────────
+.plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gutter);
 
-.back-link {
-  display: inline-block;
-  margin-bottom: 10px;
-  color: #94a3b8;
-  text-decoration: none;
-  font-size: 0.9rem;
-
-  &:hover {
-    color: #e2e8f0;
+  @media (min-width: 1025px) {
+    gap: var(--gutter-desktop);
   }
 }
 
-.workspace__header {
-  margin-bottom: 24px;
+.loading-text {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 60px 0;
 }
 
-.workspace__header-main {
+// ── Breadcrumb / schedule strip ───────────────────────────────────────────────
+
+.plan-strip {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
+  gap: var(--space-sm) var(--space-md);
+  padding: var(--space-md);
+  background: var(--surface-tier-1);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+
+  &__current {
+    color: var(--text-primary);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  &__when {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// ── Title card ────────────────────────────────────────────────────────────────
+
+.plan-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__title {
+    margin: 0;
+    letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
+  }
+
+  &__notes {
+    margin: 0;
+    max-width: 70ch;
+    white-space: pre-wrap;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  @media (min-width: 1281px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    &__main {
+      max-width: 960px;
+    }
+
+    &__actions {
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-end;
+      flex: 0 0 auto;
+      min-width: 168px;
+    }
+  }
+}
+
+.plan-kpi {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+
+  @media (min-width: 641px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .stat-tile__value {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+  }
+  .stat-tile__value .material-symbols-outlined {
+    align-self: center;
+  }
+}
+
+// Inline plan settings (replaces the old inline edit bar)
+.plan-edit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+
+  &__row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--space-md);
+    align-items: end;
+  }
+
+  .segmented {
+    align-self: flex-start;
+  }
+}
+
+// ── Bento ─────────────────────────────────────────────────────────────────────
+
+.plan-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'roster'
+    'side'
+    'boss';
+  gap: var(--gutter);
+
+  @media (min-width: 1025px) {
+    gap: var(--gutter-desktop);
+  }
+
+  @media (min-width: 1281px) {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'roster side'
+      'boss side';
+  }
+}
+
+.plan-roster {
+  grid-area: roster;
+  align-self: start;
+}
+
+.plan-boss {
+  grid-area: boss;
+  align-self: start;
+  min-width: 0;
+}
+
+.plan-side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gutter);
+  min-width: 0;
+  align-self: start;
+
+  @media (min-width: 1025px) {
+    gap: var(--gutter-desktop);
+  }
+
+  lib-composition-analysis,
+  lib-discord-composer {
+    display: block;
+    min-width: 0;
+  }
+}
+
+.plan-roster > .card-header {
   flex-wrap: wrap;
 }
 
-.workspace__title {
-  margin: 0 0 8px;
-  font-size: 1.7rem;
-  color: #f0c040;
-}
-
-.workspace__meta {
+.plan-legend {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-md);
   flex-wrap: wrap;
 }
 
-.workspace__notes {
-  color: #94a3b8;
-  font-size: 0.85rem;
-  font-style: italic;
-}
+// ── Group matrix ──────────────────────────────────────────────────────────────
 
-// ── Inline edit bar ────────────────────────────────────────────────────────────
-
-.inline-edit-bar {
-  display: flex;
-  align-items: flex-end;
-  gap: 14px;
-  flex-wrap: wrap;
-  padding: 10px 0 4px;
-}
-
-.inline-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-
-  &--grow {
-    flex: 1 1 180px;
-  }
-
-  &--raids {
-    flex: 1 1 100%;
-  }
-
-  &__label {
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #475569;
-  }
-}
-
-.edit-raid-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.raid-chip {
-  padding: 5px 12px;
-  border-radius: 999px;
-  border: 1px solid #1e3a5a;
-  background: #0f172a;
-  color: #64748b;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover {
-    border-color: #3b82f6;
-    color: #93c5fd;
-  }
-
-  &--active {
-    background: #1e3a8a;
-    border-color: #3b82f6;
-    color: #93c5fd;
-    font-weight: 600;
-  }
-}
-
-.inline-input {
-  background: #0f172a;
-  border: 1px solid #1e3a5a;
-  border-radius: 6px;
-  padding: 7px 10px;
-  color: #e2e8f0;
-  font-size: 0.85rem;
-  font-family: inherit;
-  color-scheme: dark;
-
-  &--sm {
-    padding-right: 28px;
-    appearance: auto;
-    width: 90px;
-  }
-
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-  }
-}
-
-.difficulty-toggle {
-  display: flex;
-  gap: 4px;
-}
-
-.difficulty-btn {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  background: #1e293b;
-  color: #475569;
-  transition: all 0.15s;
-
-  &--normal.difficulty-btn--active {
-    background: #166534;
-    color: #86efac;
-    border-color: #166534;
-  }
-  &--heroic.difficulty-btn--active {
-    background: #1d4ed8;
-    color: #93c5fd;
-    border-color: #1d4ed8;
-  }
-  &--mythic.difficulty-btn--active {
-    background: #7e22ce;
-    color: #d8b4fe;
-    border-color: #7e22ce;
-  }
-
-  &:hover:not(.difficulty-btn--active) {
-    background: #334155;
-    color: #cbd5e1;
-  }
-}
-
-.meta-date {
-  color: #94a3b8;
-  font-size: 0.85rem;
-}
-
-.meta-count {
-  color: #64748b;
-  font-size: 0.82rem;
-}
-
-.save-indicator {
-  color: #60a5fa;
-  font-size: 0.78rem;
-  animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
-}
-
-.workspace__header-actions {
-  display: flex;
-  gap: 10px;
-  flex-shrink: 0;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-// ── Difficulty badge ────────────────────────────────────────────────────────────
-
-.difficulty-badge {
-  font-size: 0.78rem;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-weight: 600;
-
-  &.difficulty-normal {
-    background: #166534;
-    color: #86efac;
-  }
-  &.difficulty-heroic {
-    background: #1d4ed8;
-    color: #93c5fd;
-  }
-  &.difficulty-mythic {
-    background: #7e22ce;
-    color: #d8b4fe;
-  }
-}
-
-// ── Workspace body ──────────────────────────────────────────────────────────────
-
-.workspace__body {
+.plan-groups {
   display: grid;
-  grid-template-columns: 1fr 240px;
-  gap: 20px;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+
+  @media (min-width: 641px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-// ── Roster area ─────────────────────────────────────────────────────────────────
-
-.roster-area {
+.plan-group {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    min-height: 20px;
+    padding: 0 2px;
+  }
+
+  &__title {
+    font-weight: 700;
+  }
+
+  &__summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  &__pip {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-variant-numeric: tabular-nums;
+  }
 }
 
-.groups-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-}
-
-// ── Group zone ──────────────────────────────────────────────────────────────────
-
-.group-zone {
-  background: #111827;
-  border: 1px solid #1e3a5a;
-  border-radius: 8px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-}
-
-.group-zone__title {
-  margin: 0 0 10px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #64748b;
-  display: flex;
-  justify-content: space-between;
-}
-
-.group-zone__count {
-  color: #475569;
-  font-weight: 400;
-}
-
-// ── CDK drop list ───────────────────────────────────────────────────────────────
+// ── CDK drop lists ────────────────────────────────────────────────────────────
 
 .drop-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-height: 40px;
-  flex: 1;
+  min-width: 0;
+  border-radius: var(--radius-xs);
 
-  &--horizontal {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 6px;
-    flex: unset;
+  &--group {
+    min-height: 120px;
+    flex: 1;
   }
-}
 
-// Active drop target highlight
-.cdk-drop-list-dragging .drop-list:not(.cdk-drop-list-dragging),
-.drop-list.cdk-drop-list-receiving {
-  background: #172554;
-  border-radius: 6px;
-  outline: 2px dashed #3b82f6;
+  &--tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    min-height: 40px;
+  }
+
+  &.cdk-drop-list-receiving,
+  &.cdk-drop-list-dragging {
+    outline: 1px dashed var(--primary);
+    outline-offset: 2px;
+    background: var(--gold-dim);
+  }
 }
 
 .drop-placeholder {
-  font-size: 0.75rem;
-  color: #334155;
-  text-align: center;
-  padding: 8px 4px;
   pointer-events: none;
+  grid-column: 1 / -1;
 }
 
-// ── Extra zones (bench / absent) ────────────────────────────────────────────────
+// ── Roster rows (Stitch "player row") ─────────────────────────────────────────
 
-.extra-zones {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.extra-zone {
-  border-radius: 8px;
-  padding: 12px;
-  border: 1px solid;
-
-  &--bench {
-    background: #1c1a08;
-    border-color: #713f12;
-  }
-  &--absent {
-    background: #1c0a0a;
-    border-color: #7f1d1d;
-  }
-}
-
-.extra-zone__title {
-  margin: 0 0 8px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #64748b;
-}
-
-// ── Buttons ─────────────────────────────────────────────────────────────────────
-
-.btn-primary {
-  background: #f0c040;
-  color: #0f172a;
-  border: none;
-  border-radius: 6px;
-  padding: 9px 16px;
-  font-weight: 700;
-  cursor: pointer;
-  font-size: 0.9rem;
-
-  &:hover:not(:disabled) {
-    background: #fcd34d;
-  }
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-}
-
-.btn-danger {
-  background: #7f1d1d;
-  color: #fca5a5;
-  border: none;
-  border-radius: 6px;
-  padding: 9px 16px;
-  cursor: pointer;
-  font-size: 0.9rem;
-
-  &:hover:not(:disabled) {
-    background: #991b1b;
-  }
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-}
-
-.confirm-text {
-  font-size: 0.88rem;
-  color: #94a3b8;
-  align-self: center;
-}
-
-.btn-secondary {
-  color: #e2e8f0;
-  border: none;
-  border-radius: 6px;
-  padding: 9px 16px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  text-decoration: none;
-  display: inline-block;
-
-  &:hover:not(:disabled) {
-    background: #475569;
-  }
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-}
-
-.btn-discord {
-  background: #5865f2;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 9px 16px;
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 0.9rem;
+.roster-row,
+.roster-tile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+  background: var(--surface-tier-1);
+  border-radius: var(--radius-xs);
+  cursor: grab;
+  user-select: none;
+  transition: background var(--dur-fast);
 
   &:hover {
-    background: #4752c4;
+    background: var(--surface-hover);
   }
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+
+  &.cdk-drag-preview {
+    background: var(--surface-tier-2);
+    box-shadow: var(--shadow-lg);
+    cursor: grabbing;
+  }
+  &.cdk-drag-placeholder {
+    opacity: 0.25;
+  }
+  &.cdk-drag-animating {
+    transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
   }
 }
 
-.loading-text {
-  color: #64748b;
-  text-align: center;
-  padding: 60px 0;
+.roster-row {
+  padding: 4px var(--space-sm);
+
+  &__role {
+    flex-shrink: 0;
+  }
+
+  &__id {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: var(--t-body-medium-size);
+    line-height: var(--t-body-medium-lh);
+    font-weight: 500;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__spec {
+    font-size: var(--t-body-code-size);
+    line-height: var(--t-body-code-lh);
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
-// ── Boss planning section ─────────────────────────────────────────────────────
+.roster-tile {
+  padding: var(--space-xs);
+  gap: var(--space-xs);
 
-.boss-section {
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid #1e3a5a;
+  .class-stripe {
+    width: 4px;
+    height: 14px;
+  }
+  .roster-row__id {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .roster-row__name {
+    font-size: var(--t-body-code-size);
+    line-height: 16px;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .roster-row__spec {
+    font-size: 10px;
+    line-height: 12px;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &--absent {
+    opacity: 0.7;
+  }
 }
 
-.boss-section__title {
-  margin: 0 0 16px;
-  font-size: 1.1rem;
-  color: #94a3b8;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+// ── Bench / absent strips ─────────────────────────────────────────────────────
+
+.plan-extra {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+
+  @media (min-width: 641px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-// ── Discord section ──────────────────────────────────────────────────────────
+.plan-zone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
 
-.discord-section {
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid #1e3a5a;
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding: 0 2px;
+  }
 }
 
-.discord-section__title {
-  margin: 0 0 16px;
-  font-size: 1.1rem;
-  color: #94a3b8;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+@media (max-width: 640px) {
+  // Phones: one group per row, so keep each player on a single dense line.
+  .roster-row {
+    padding-block: 6px;
+
+    &__id {
+      flex-direction: row;
+      align-items: baseline;
+      gap: var(--space-sm);
+    }
+    &__spec {
+      flex: 1;
+      min-width: 0;
+      text-align: right;
+    }
+  }
+  .plan-legend {
+    width: 100%;
+  }
 }

@@ -1,112 +1,149 @@
-<div class="form-page">
-  <div class="form-page__header">
-    <a class="back-link" (click)="cancel()">← Terug</a>
-    <h1>⚔️ Nieuw raidplan</h1>
-  </div>
-
-  <div class="form-layout form-layout--single">
-    <div class="settings-panel">
-      <section class="settings-section">
-        <h2 class="settings-section__title">📅 Wanneer</h2>
-
-        <div class="date-time-row">
-          <div class="field">
-            <label class="field__label">Datum</label>
-            <input
-              class="field__input"
-              type="date"
-              [ngModel]="scheduledDate()"
-              (ngModelChange)="scheduledDate.set($event)"
-            />
-          </div>
-          <div class="field field--time">
-            <label class="field__label">Tijd</label>
-            <select class="field__input" [ngModel]="scheduledTime()" (ngModelChange)="scheduledTime.set($event)">
-              @for (t of timeOptions; track t) {
-                <option [value]="t">{{ t }}</option>
-              }
-            </select>
-          </div>
-        </div>
-      </section>
-
-      <section class="settings-section">
-        <h2 class="settings-section__title">⚔️ Welke raids?</h2>
-
-        <div class="field">
-          <label class="field__label">
-            Raids
-            <span class="optional">(meerdere mogelijk)</span>
-          </label>
-          @if (bossesResource.isLoading()) {
-            <p class="field__hint">Raids laden…</p>
-          } @else if (raidNames().length === 0) {
-            <p class="field__hint">Geen raids gevonden voor het actieve seizoen.</p>
-          } @else {
-            <div class="raid-chips">
-              @for (name of raidNames(); track name) {
-                <button
-                  type="button"
-                  class="raid-chip"
-                  [class.raid-chip--active]="isRaidSelected(name)"
-                  (click)="toggleRaid(name)"
-                >
-                  {{ name }}
-                </button>
-              }
-            </div>
-          }
-        </div>
-
-        @if (selectedRaids().size > 0) {
-          <p class="raid-preview">
-            <span class="raid-preview__label">Sessie:</span>
-            <strong>{{ derivedRaidName() }}</strong>
-          </p>
-        }
-      </section>
-
-      <section class="settings-section">
-        <h2 class="settings-section__title">⚙️ Instellingen</h2>
-
-        <div class="field">
-          <label class="field__label">Moeilijkheidsgraad</label>
-          <div class="difficulty-toggle">
-            @for (d of difficulties; track d) {
-              <button
-                class="difficulty-btn difficulty-btn--{{ d.toLowerCase() }}"
-                [class.difficulty-btn--active]="selectedDifficulty() === d"
-                (click)="selectedDifficulty.set(d)"
-                type="button"
-              >
-                {{ d }}
-              </button>
-            }
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="field__label">Notities <span class="optional">(optioneel)</span></label>
-          <textarea
-            class="field__input"
-            rows="3"
-            [ngModel]="notes()"
-            (ngModelChange)="notes.set($event)"
-            placeholder="Bijv. 'Focus op eerste 3 bosses'"
-          ></textarea>
-        </div>
-      </section>
-
-      <div class="form-actions">
-        <button class="btn btn--ghost" (click)="cancel()" [disabled]="saving()">Annuleren</button>
-        <button class="btn btn--gold" (click)="save()" [disabled]="saving() || !canSave()">
-          @if (saving()) {
-            Opslaan…
-          } @else {
-            ⚔️ Aanmaken
-          }
+<div class="page page--narrow form-page">
+  <header class="page-head">
+    <div class="page-head__main">
+      <div class="page-head__eyebrow">
+        <button type="button" class="btn-text btn-sm form-page__back" (click)="cancel()">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Raidplannen
         </button>
       </div>
+      <h1 class="page-head__title">Nieuw raidplan</h1>
+      <p class="page-head__subtitle">Kies wanneer en welke raids je loopt.</p>
     </div>
+  </header>
+
+  <section class="card">
+    <header class="card-header">
+      <h2 class="card-title">
+        <span class="material-symbols-outlined c-gold">event</span>
+        Wanneer
+      </h2>
+    </header>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label" for="plan-date">Datum</label>
+        <input
+          id="plan-date"
+          class="form-input"
+          type="date"
+          [ngModel]="scheduledDate()"
+          (ngModelChange)="scheduledDate.set($event)"
+        />
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="plan-time">Tijd</label>
+        <select
+          id="plan-time"
+          class="form-select"
+          [ngModel]="scheduledTime()"
+          (ngModelChange)="scheduledTime.set($event)"
+        >
+          @for (t of timeOptions; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <header class="card-header">
+      <h2 class="card-title">
+        <span class="material-symbols-outlined c-gold">swords</span>
+        Welke raids?
+      </h2>
+      @if (selectedRaids().size > 0) {
+        <span class="badge badge-gold">{{ selectedRaids().size }} geselecteerd</span>
+      }
+    </header>
+
+    <div class="form-field">
+      <span class="form-label" id="plan-raids-label">
+        Raids <span class="c-muted fw-medium">(meerdere mogelijk)</span>
+      </span>
+      @if (bossesResource.isLoading()) {
+        <p class="form-hint">Raids laden…</p>
+      } @else if (raidNames().length === 0) {
+        <p class="form-hint">Geen raids gevonden voor het actieve seizoen.</p>
+      } @else {
+        <div class="form-page__chips" role="group" aria-labelledby="plan-raids-label">
+          @for (name of raidNames(); track name) {
+            <button
+              type="button"
+              class="chip"
+              [class.is-active]="isRaidSelected(name)"
+              [attr.aria-pressed]="isRaidSelected(name)"
+              (click)="toggleRaid(name)"
+            >
+              @if (isRaidSelected(name)) {
+                <span class="material-symbols-outlined icon-16">check</span>
+              }
+              {{ name }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    @if (selectedRaids().size > 0) {
+      <div class="form-page__session">
+        <span class="t-label-caps c-muted">Sessie</span>
+        <span class="t-title-sm c-gold">{{ derivedRaidName() }}</span>
+      </div>
+    }
+  </section>
+
+  <section class="card">
+    <header class="card-header">
+      <h2 class="card-title">
+        <span class="material-symbols-outlined c-gold">tune</span>
+        Instellingen
+      </h2>
+    </header>
+
+    <div class="stack">
+      <div class="form-field">
+        <span class="form-label" id="plan-difficulty-label">Moeilijkheidsgraad</span>
+        <div class="segmented segmented--block" role="group" aria-labelledby="plan-difficulty-label">
+          @for (d of difficulties; track d) {
+            <button
+              type="button"
+              class="segmented__item"
+              [class.is-active]="selectedDifficulty() === d"
+              [attr.aria-pressed]="selectedDifficulty() === d"
+              [attr.data-tone]="difficultyTone(d)"
+              (click)="selectedDifficulty.set(d)"
+            >
+              {{ d }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="plan-notes">Notities <span class="c-muted fw-medium">(optioneel)</span></label>
+        <textarea
+          id="plan-notes"
+          class="form-textarea"
+          rows="3"
+          [ngModel]="notes()"
+          (ngModelChange)="notes.set($event)"
+          placeholder="Bijv. 'Focus op eerste 3 bosses'"
+        ></textarea>
+      </div>
+    </div>
+  </section>
+
+  <div class="form-page__actions">
+    <button type="button" class="btn" (click)="cancel()" [disabled]="saving()">Annuleren</button>
+    <button type="button" class="btn-primary" (click)="save()" [disabled]="saving() || !canSave()">
+      @if (saving()) {
+        Opslaan…
+      } @else {
+        <span class="material-symbols-outlined">add</span>
+        Aanmaken
+      }
+    </button>
   </div>
 </div>

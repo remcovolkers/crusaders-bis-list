@@ -1,0 +1,59 @@
+<!-- FEEDBACK & DISPUTE MODAL (OVERLAY) -->
+<div class="fixed inset-0 z-50 bg-surface-base/80 backdrop-blur-sm hidden items-center justify-center p-space-md" id="feedback-modal">
+<div class="bg-surface-tier-1 w-full max-w-lg p-space-lg shadow-2xl flex flex-col gap-space-md border-l-2 border-primary animate-in fade-in zoom-in-95 duration-150">
+<div class="flex items-center justify-between pb-space-sm bg-surface-tier-2 -mx-space-lg -mt-space-lg px-space-lg py-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">report</span>
+<span class="font-headline-md text-headline-md text-text-primary">Loot Dispute / Operational Feedback</span>
+</div>
+<button class="text-text-muted hover:text-text-primary" onclick="closeFeedbackModal()">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<div class="flex flex-col gap-space-sm">
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-text-muted">Report Classification</label>
+<div class="grid grid-cols-3 gap-space-xs">
+<button class="feedback-type-btn py-1 text-center font-label-caps text-label-caps uppercase bg-primary text-on-primary font-bold" onclick="selectFeedbackType(this)" type="button">Loot Dispute</button>
+<button class="feedback-type-btn py-1 text-center font-label-caps text-label-caps uppercase bg-surface-tier-2 text-text-secondary hover:text-text-primary" onclick="selectFeedbackType(this)" type="button">Tactical Bug</button>
+<button class="feedback-type-btn py-1 text-center font-label-caps text-label-caps uppercase bg-surface-tier-2 text-text-secondary hover:text-text-primary" onclick="selectFeedbackType(this)" type="button">Roster Issue</button>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-text-muted">Encounter / Boss</label>
+<input class="bg-surface-tier-2 px-space-sm py-1 text-body-default text-text-primary outline-none focus:bg-surface-hover" type="text" value="Queen Ansurek (Mythic)"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-text-muted">Priority Urgency</label>
+<select class="bg-surface-tier-2 px-space-sm py-1 text-body-default text-text-primary outline-none focus:bg-surface-hover">
+<option>P1 - Immediate (Before Pull 1)</option>
+<option selected="">P2 - High (During Break)</option>
+<option>P3 - Post-Raid Review</option>
+</select>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-text-muted">Incident or Dispute Statement</label>
+<textarea class="bg-surface-tier-2 p-space-sm text-body-default text-text-primary outline-none focus:bg-surface-hover resize-none" placeholder="Provide log timestamp, item link, or tactical conflict..." rows="3"></textarea>
+</div>
+<div class="bg-surface-tier-2 p-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-text-secondary">
+<span class="material-symbols-outlined text-[18px]">attachment</span>
+<span class="font-body-code text-body-code">Attach combat log or screenshot</span>
+</div>
+<button class="px-space-sm py-0.5 bg-surface-tier-1 hover:bg-surface-hover text-text-primary font-body-code text-body-code" type="button">
+            Browse
+          </button>
+</div>
+</div>
+<div class="flex items-center justify-end gap-space-sm pt-space-xs">
+<button class="px-space-md py-1 bg-surface-tier-2 hover:bg-surface-hover text-text-secondary font-body-medium text-body-medium" onclick="closeFeedbackModal()">
+          Cancel
+        </button>
+<button class="px-space-md py-1 bg-primary text-on-primary font-body-medium text-body-medium font-semibold hover:bg-gold-hover" onclick="submitFeedback()">
+          Transmit to Officers
+        </button>
+</div>
+</div>
+</div>

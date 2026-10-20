@@ -3,87 +3,161 @@
 }
 
 @if (state.catalog() && !state.loading()) {
-  <div class="loot-layout">
-    <!-- Main content -->
-    <div class="loot-main">
-      <!-- Top bar: profile + reservation counters -->
-      <div class="loot-topbar">
-        <div class="profile-area">
-          @if (state.profile()) {
-            <div class="profile-badge" [style.border-color]="state.classColor()" [style.color]="state.classColor()">
-              <span class="profile-char">{{ state.profile()!.characterName }}</span>
-              <span class="profile-sep">·</span>
-              <span class="profile-spec">{{ state.profile()!.spec }}</span>
+  <div class="page loot-page">
+    <!-- Character + reservation limits + soft-reserve slots -->
+    <section class="card loot-summary" aria-label="Mijn reserveringen">
+      <div class="loot-summary__top">
+        <div class="loot-id">
+          @if (state.profile(); as profile) {
+            <span class="class-tile class-tile--lg" [class]="classSlug()">{{ profile.characterName.charAt(0).toUpperCase() }}</span>
+            <div class="loot-id__text">
+              <div class="row gap-sm">
+                <span class="t-headline-md truncate" [class]="classSlug()">{{ profile.characterName }}</span>
+                <a
+                  class="icon-btn icon-btn--sm"
+                  routerLink="/onboarding"
+                  [queryParams]="{ edit: true }"
+                  aria-label="Character wijzigen"
+                  title="Character wijzigen"
+                >
+                  <span class="material-symbols-outlined icon-16">edit</span>
+                </a>
+              </div>
+              <span class="t-label-caps c-muted truncate"
+                >{{ profile.wowClass }} · {{ profile.spec }}@if (profile.realm) {
+                  · {{ profile.realm }}
+                }</span
+              >
+            </div>
+          } @else {
+            <span class="class-tile class-tile--lg"><span class="material-symbols-outlined icon-18">person</span></span>
+            <div class="loot-id__text">
+              <span class="t-headline-md">Geen character</span>
+              <span class="t-label-caps c-muted">Maak eerst je character aan</span>
             </div>
           }
         </div>
 
-        <div class="reservation-counters">
-          <span class="res-counter" [class.at-limit]="state.reservedTrinkets() >= state.trinketLimit()">
-            Trinkets {{ state.reservedTrinkets() }}/{{ state.trinketLimit() }}
-          </span>
-          <span class="res-counter" [class.at-limit]="state.reservedWeapons() >= state.weaponLimit()">
-            Wapens {{ state.reservedWeapons() }}/{{ state.weaponLimit() }}
-          </span>
-          @if (state.jewelryLimit() > 0) {
-            <span class="res-counter" [class.at-limit]="state.reservedJewelry() >= state.jewelryLimit()">
-              Jewelry {{ state.reservedJewelry() }}/{{ state.jewelryLimit() }}
-            </span>
-          }
-          @if (state.armorLimit() > 0) {
-            <span class="res-counter" [class.at-limit]="state.reservedArmor() >= state.armorLimit()">
-              Armor {{ state.reservedArmor() }}/{{ state.armorLimit() }}
-            </span>
-          }
-          @if (state.superrareLimit() > 0) {
-            <span class="res-counter" [class.at-limit]="state.reservedSuperrare() >= state.superrareLimit()">
-              Superrare {{ state.reservedSuperrare() }}/{{ state.superrareLimit() }}
-            </span>
+        <div class="loot-limits">
+          @for (tile of limitTiles(); track tile.key) {
+            <div class="stat-tile loot-limit" [class.is-full]="tile.used >= tile.limit" [class.is-super-rare]="tile.key === 'superrare'">
+              <span class="stat-tile__label">
+                @if (tile.key === 'superrare') {
+                  <span class="material-symbols-outlined icon-fill icon-14">star</span>
+                }
+                {{ tile.label }}
+              </span>
+              <span class="stat-tile__value">
+                <span>{{ tile.used }}</span><span class="stat-tile__sub">/ {{ tile.limit }}</span>
+              </span>
+              <div class="progress progress--sm progress--on-tier-2" aria-hidden="true">
+                <div class="progress__bar" [style.width.%]="tile.limit ? (100 * tile.used) / tile.limit : 0"></div>
+              </div>
+            </div>
           }
         </div>
       </div>
 
-      <!-- Tab bar + search -->
-      <div class="tab-bar">
-        @for (tab of state.visibleTabs(); track tab.key) {
-          <button class="tab-btn" [class.active]="state.activeTab() === tab.key" (click)="state.setActiveTab(tab.key)">
-            {{ tab.label }}
-          </button>
-        }
+      <div class="loot-slots">
+        <div class="loot-slots__head row-between gap-md">
+          <span class="t-label-caps c-muted">Soft reserves</span>
+          <span class="t-label-caps c-gold">{{ myReservations().length }} / {{ totalSlots() }} gebruikt</span>
+        </div>
+        <div class="loot-slots__list">
+          @for (r of myReservations(); track r.item.id) {
+            <button type="button" class="slot-row slot-row--btn" (click)="openEditReserveModal(r.item)" title="Reservering aanpassen">
+              <span class="badge" [class.badge-super-rare]="r.item.isSuperRare" [class.badge-neutral]="!r.item.isSuperRare">
+                @if (r.item.isSuperRare) {
+                  <span class="material-symbols-outlined icon-fill">star</span>
+                }
+                {{ r.item.isSuperRare ? 'SR' : r.group }}
+              </span>
+              <span class="truncate">{{ r.item.name }}</span>
+            </button>
+          }
+          @for (e of emptySlots(); track e.label) {
+            <span class="empty-slot">+ {{ e.count }} {{ e.label }} vrij</span>
+          }
+          @if (myReservations().length === 0 && emptySlots().length === 0) {
+            <span class="empty-slot">Geen reserveringen mogelijk</span>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Category tabs + search -->
+    <div class="loot-filters sticky-bar">
+      <div class="scroll-x scroll-hidden loot-filters__tabs">
+        <div class="segmented" role="tablist" aria-label="Categorie">
+          @for (tab of state.visibleTabs(); track tab.key) {
+            <button
+              class="segmented__item"
+              role="tab"
+              [class.is-active]="state.activeTab() === tab.key"
+              [attr.aria-selected]="state.activeTab() === tab.key"
+              (click)="state.setActiveTab(tab.key)"
+            >
+              {{ tab.label }}
+            </button>
+          }
+        </div>
+      </div>
+      <label class="search-field loot-filters__search">
+        <span class="material-symbols-outlined">search</span>
         <input
-          class="search-input"
           type="search"
           placeholder="Zoek items..."
+          aria-label="Zoek items"
           [ngModel]="state.searchQuery()"
           (ngModelChange)="state.searchQuery.set($event)"
         />
-      </div>
+      </label>
+    </div>
 
-      <!-- Boss sections -->
-      <div class="boss-sections">
-        @for (boss of state.catalog()!.bosses; track boss.id) {
-          @if (state.hasBossItems(boss.items)) {
-            <section class="boss-section" [id]="'boss-' + boss.id">
-              <div class="boss-section-header" [style.--boss-color]="getBossColor(boss)">
-                <span class="boss-accent-bar"></span>
-                <span class="boss-section-name">{{ boss.name }}</span>
-                <span class="boss-raid-tag">{{ boss.raidName }}</span>
-              </div>
+    <!-- Boss sections -->
+    <div class="boss-sections">
+      @for (group of bossGroups(); track group.boss.id) {
+        <section class="card card-flush boss-panel" [id]="'boss-' + group.boss.id" [style.--boss-color]="getBossColor(group.boss)">
+          <header class="boss-panel__header">
+            <span class="boss-panel__bar"></span>
+            <h2 class="t-title-sm boss-panel__name truncate">{{ group.boss.name }}</h2>
+            <span class="badge badge--sentence boss-panel__raid" [style.--badge-color]="getBossColor(group.boss)">{{
+              group.boss.raidName
+            }}</span>
+            <span class="t-label-caps c-muted tnum" [title]="group.items.length + ' items'">{{ group.items.length }}</span>
+          </header>
 
-              <div class="items-grid">
-                @for (item of state.getFilteredItems(boss.items); track item.id) {
-                  <lib-loot-item-card
-                    [item]="item"
-                    [allBossItems]="boss.items"
-                    (reserveClicked)="openReserveModal(item)"
-                    (editReservationClicked)="openEditReserveModal(item)"
-                  />
-                }
-              </div>
-            </section>
+          <div class="items-grid">
+            @for (item of group.items; track item.id) {
+              <lib-loot-item-card
+                [item]="item"
+                [allBossItems]="group.boss.items"
+                (reserveClicked)="openReserveModal(item)"
+                (editReservationClicked)="openEditReserveModal(item)"
+              />
+            }
+          </div>
+        </section>
+      } @empty {
+        <div class="empty-box empty-box--boxed">
+          <span class="material-symbols-outlined">inventory_2</span>
+          <p class="empty-box__title">Geen items gevonden</p>
+          <p class="empty-box__text">
+            @if (state.profile()) {
+              @if (isFiltered()) {
+                Er zijn geen items die bij je filter passen.
+              } @else {
+                Er zijn geen reserveerbare items voor jouw class en spec.
+              }
+            } @else {
+              Maak eerst een character aan om items te kunnen reserveren.
+            }
+          </p>
+          @if (isFiltered()) {
+            <button class="btn btn-sm" (click)="resetFilters()">Filters wissen</button>
           }
-        }
-      </div>
+        </div>
+      }
     </div>
   </div>
 }

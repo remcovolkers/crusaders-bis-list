@@ -1,12 +1,15 @@
 <div class="onboarding-wrapper">
-  <div class="onboarding-card">
-    <div class="onboarding-header">
-      <h1 class="onboarding-title">
+  <section class="onboarding-card card card-lg">
+    <span class="onboarding-watermark watermark material-symbols-outlined" aria-hidden="true">military_tech</span>
+
+    <header class="onboarding-header">
+      <span class="onboarding-mark" aria-hidden="true"><span class="material-symbols-outlined">shield_person</span></span>
+      <h1 class="t-headline-lg">
         {{
           updateCharMode() ? 'Karakter bijwerken' : editMode() ? 'Profiel bewerken' : 'Welkom bij RoyalTeam BiS List'
         }}
       </h1>
-      <p class="onboarding-subtitle">
+      <p class="t-body-default c-secondary">
         {{
           updateCharMode()
             ? 'Kies je nieuwe karakter via Battle.net'
@@ -15,155 +18,190 @@
               : 'Stel je karakter in om te beginnen'
         }}
       </p>
-    </div>
+    </header>
 
     @if (step() !== 0) {
-      <div class="step-indicator">
-        <span class="step-dot" [class.active]="step() >= 1" [class.done]="step() > 1">1</span>
-        <span class="step-line"></span>
-        <span class="step-dot" [class.active]="step() >= 2">2</span>
-      </div>
+      <ol class="stepper" aria-label="Voortgang">
+        <li class="stepper__step" [class.is-active]="step() >= 1" [class.is-done]="step() > 1">
+          <span class="stepper__dot">
+            @if (step() > 1) {
+              <span class="material-symbols-outlined icon-14" aria-hidden="true">check</span>
+            } @else {
+              1
+            }
+          </span>
+          <span class="stepper__label">Karakter</span>
+        </li>
+        <li class="stepper__line" aria-hidden="true" [class.is-done]="step() > 1"></li>
+        <li class="stepper__step" [class.is-active]="step() >= 2">
+          <span class="stepper__dot">2</span>
+          <span class="stepper__label">Class &amp; spec</span>
+        </li>
+      </ol>
     }
 
     @if (step() === 0) {
       <div class="step-content">
-        <h2 class="step-title">Kies je karakter</h2>
+        <h2 class="t-headline-md">Kies je karakter</h2>
 
         @if (updateCharMode()) {
-          <div class="update-char-info">
-            <span class="update-char-label">Huidig karakter</span>
-            <span class="update-char-value">{{ characterName() }} &middot; {{ selectedClass() }}</span>
-            <span class="update-char-hint"
+          <div class="card card-tier-2 update-char-info">
+            <span class="t-label-caps c-muted">Huidig karakter</span>
+            <span class="t-body-medium">{{ characterName() }} &middot; {{ selectedClass() }}</span>
+            <span class="t-body-code c-muted"
               >Kies een karakter met dezelfde class om je naam en realm bij te werken.</span
             >
           </div>
         }
 
         @if (wowCharactersLoading()) {
-          <div class="chars-loading">Karakters laden...</div>
+          <div class="loading-spinner">Karakters laden...</div>
         } @else if (wowCharactersError()) {
-          <p class="error-msg">{{ wowCharactersError() }}</p>
-          <button class="btn-ghost" style="margin-top: 8px" (click)="skipCharacterPicker()">
-            {{ updateCharMode() ? 'Overslaan' : 'Handmatig invullen →' }}
-          </button>
+          <div class="banner banner-danger">
+            <span class="material-symbols-outlined" aria-hidden="true">error</span>
+            <div>{{ wowCharactersError() }}</div>
+          </div>
+          <div class="step-actions step-actions--start">
+            <button class="btn" (click)="skipCharacterPicker()">
+              {{ updateCharMode() ? 'Overslaan' : 'Handmatig invullen' }}
+            </button>
+          </div>
         } @else {
           @if (!updateCharMode() && !selectedCharacter() && characterName().trim().length > 0) {
-            <div class="manual-entry-notice">
-              <span class="manual-entry-icon">&#x26A0;</span>
-              <span class="manual-entry-text">Met de hand ingevoerd — niet gevalideerd via Battle.net.</span>
+            <div class="banner banner-warning">
+              <span class="material-symbols-outlined" aria-hidden="true">warning</span>
+              <div>Met de hand ingevoerd — niet gevalideerd via Battle.net.</div>
             </div>
-            <div class="char-card char-card--current">
-              <div class="char-card-main">
-                <span class="char-name" [style.color]="classColor(selectedClass()!)">{{ characterName() }}</span>
-                <span class="char-level-badge">Huidig</span>
-              </div>
-              <div class="char-card-sub">
-                @if (selectedClass()) {
-                  <span class="char-class-dot" [style.background]="classColor(selectedClass()!)"></span>
-                  <span class="char-meta">{{ selectedClass() }} &middot; {{ realm() }}</span>
-                } @else {
-                  <span class="char-meta">{{ realm() }}</span>
-                }
-              </div>
+            <div
+              class="char-card char-card--current"
+              [style.--class-color]="selectedClass() ? classColor(selectedClass()!) : null"
+            >
+              <span class="class-tile">{{ characterName().charAt(0).toUpperCase() }}</span>
+              <span class="char-card__main">
+                <span
+                  class="t-body-medium truncate"
+                  [style.color]="selectedClass() ? classColor(selectedClass()!) : null"
+                  >{{ characterName() }}</span
+                >
+                <span class="t-body-code c-muted truncate">
+                  @if (selectedClass()) {
+                    {{ selectedClass() }} &middot;
+                  }
+                  {{ realm() }}
+                </span>
+              </span>
+              <span class="badge badge-gold">Huidig</span>
             </div>
-            <p class="char-list-heading">Hier zijn je Blizzard characters:</p>
+            <p class="t-label-caps c-muted">Hier zijn je Blizzard characters</p>
           }
           <div class="char-list">
             @for (char of wowCharacters(); track char.name + char.realm) {
               <button
+                type="button"
                 class="char-card"
                 [disabled]="saving()"
                 [style.--class-color]="classColor(char.wowClass)"
                 (click)="pickCharacter(char)"
               >
-                <div class="char-card-main">
-                  <span class="char-name" [style.color]="classColor(char.wowClass)">{{ char.name }}</span>
-                  <span class="char-level-badge">lvl {{ char.level }}</span>
-                </div>
-                <div class="char-card-sub">
-                  <span class="char-class-dot" [style.background]="classColor(char.wowClass)"></span>
-                  <span class="char-meta">{{ char.wowClass }} &middot; {{ char.realm }}</span>
-                </div>
+                <span class="class-tile">{{ char.name.charAt(0).toUpperCase() }}</span>
+                <span class="char-card__main">
+                  <span class="t-body-medium truncate" [style.color]="classColor(char.wowClass)">{{ char.name }}</span>
+                  <span class="t-body-code c-muted truncate">{{ char.wowClass }} &middot; {{ char.realm }}</span>
+                </span>
+                <span class="badge badge-neutral tnum">lvl {{ char.level }}</span>
+                <span class="material-symbols-outlined icon-18 char-card__chevron" aria-hidden="true"
+                  >chevron_right</span
+                >
               </button>
             }
           </div>
           @if (updateCharError()) {
-            <p class="error-msg update-char-error">{{ updateCharError() }}</p>
+            <div class="banner banner-danger">
+              <span class="material-symbols-outlined" aria-hidden="true">error</span>
+              <div>{{ updateCharError() }}</div>
+            </div>
           }
           @if (saving()) {
-            <p class="chars-loading">Opslaan...</p>
+            <div class="loading-spinner">Opslaan...</div>
           }
-          @if (updateCharMode()) {
-            <button class="btn-ghost" style="margin-top: 12px" (click)="skipCharacterPicker()">Overslaan</button>
-          } @else {
-            <button class="manual-link" (click)="skipCharacterPicker()">Handmatig invullen</button>
-          }
+          <div class="step-actions step-actions--start">
+            @if (updateCharMode()) {
+              <button class="btn" (click)="skipCharacterPicker()">Overslaan</button>
+            } @else {
+              <button class="btn btn-text" (click)="skipCharacterPicker()">Handmatig invullen</button>
+            }
+          </div>
         }
       </div>
     }
 
     @if (step() === 1) {
       <div class="step-content">
-        <h2 class="step-title">Je karakter</h2>
+        <h2 class="t-headline-md">Je karakter</h2>
 
         @if (!editMode() && !isBnetLinked()) {
-          <div class="bnet-nudge">
-            <button class="btn-link-bnet" (click)="linkBnet()">
+          <div class="card card-tier-2 bnet-nudge">
+            <button type="button" class="btn-link-bnet" (click)="linkBnet()">
               <img src="/assets/bnet_logo.png" alt="" class="bnet-nudge-icon" />
               Link Battle.net account
             </button>
-            <p class="bnet-nudge-hint">Koppel je Battle.net account om automatisch je karakter te selecteren.</p>
+            <p class="t-body-code c-muted">Koppel je Battle.net account om automatisch je karakter te selecteren.</p>
           </div>
-          <div class="manual-divider">
+          <div class="manual-divider t-label-caps c-muted">
             <span>Of vul handmatig je character in</span>
           </div>
         }
 
         @if (!editMode() && isBnetLinked() && wowCharacters().length > 0 && !selectedCharacter()) {
-          <button class="btn-ghost blizzard-chars-btn" (click)="step.set(0)">
+          <button type="button" class="btn blizzard-chars-btn" (click)="step.set(0)">
             <img src="/assets/bnet_logo.png" alt="" class="bnet-nudge-icon" />
             Toon Blizzard characters
           </button>
         }
 
-        <div class="form-group">
-          <label class="form-label" for="char-name">In-game naam</label>
-          <input
-            id="char-name"
-            class="form-input"
-            type="text"
-            placeholder="bijv. Arthas"
-            [ngModel]="characterName()"
-            (ngModelChange)="characterName.set($event)"
-            autocomplete="off"
-          />
-        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label" for="char-name">In-game naam</label>
+            <input
+              id="char-name"
+              class="form-input"
+              type="text"
+              placeholder="bijv. Arthas"
+              [ngModel]="characterName()"
+              (ngModelChange)="characterName.set($event)"
+              autocomplete="off"
+            />
+          </div>
 
-        <div class="form-group">
-          <label class="form-label" for="realm">Realm</label>
-          <input
-            id="realm"
-            class="form-input"
-            type="text"
-            placeholder="bijv. Silvermoon"
-            [ngModel]="realm()"
-            (ngModelChange)="realm.set($event)"
-            autocomplete="off"
-          />
+          <div class="form-field">
+            <label class="form-label" for="realm">Realm</label>
+            <input
+              id="realm"
+              class="form-input"
+              type="text"
+              placeholder="bijv. Silvermoon"
+              [ngModel]="realm()"
+              (ngModelChange)="realm.set($event)"
+              autocomplete="off"
+            />
+          </div>
         </div>
 
         <div class="step-actions">
           @if (editMode()) {
-            <button class="btn-ghost" (click)="cancel()">Annuleer</button>
+            <button class="btn" (click)="cancel()">Annuleer</button>
           }
-          <button class="btn-primary" [disabled]="!canProceedStep1" (click)="goToStep2()">Volgende →</button>
+          <button class="btn-primary" [disabled]="!canProceedStep1" (click)="goToStep2()">
+            Volgende
+            <span class="material-symbols-outlined icon-16" aria-hidden="true">arrow_forward</span>
+          </button>
         </div>
       </div>
     }
 
     @if (step() === 2) {
       <div class="step-content">
-        <h2 class="step-title">{{ selectedCharacter() ? 'Wat is je main spec?' : 'Je class & spec' }}</h2>
+        <h2 class="t-headline-md">{{ selectedCharacter() ? 'Wat is je main spec?' : 'Je class & spec' }}</h2>
 
         <lib-class-spec-selector
           [selectedClass]="selectedClass()"
@@ -172,36 +210,47 @@
           (selectionChange)="onClassSpecChange($event)"
         />
 
-        <div class="form-group membership-group">
-          <span class="membership-label">Kies je team</span>
-          <div class="team-choice">
-            <label class="team-option">
-              <input
-                type="radio"
-                name="team"
-                [checked]="team() === Team.CRUSADERS"
-                (change)="team.set(Team.CRUSADERS)"
-              />
-              <span class="membership-text">Crusaders</span>
-            </label>
-            <label class="team-option">
-              <input type="radio" name="team" [checked]="team() === Team.TEMPLARS" (change)="team.set(Team.TEMPLARS)" />
-              <span class="membership-text">Templars</span>
-            </label>
+        <div class="form-field">
+          <span class="form-label" id="team-label">Kies je team</span>
+          <div class="segmented segmented--block" role="group" aria-labelledby="team-label">
+            <button
+              type="button"
+              class="segmented__item"
+              style="--item-color: var(--team-crusaders)"
+              [attr.aria-pressed]="team() === Team.CRUSADERS"
+              (click)="team.set(Team.CRUSADERS)"
+            >
+              Crusaders
+            </button>
+            <button
+              type="button"
+              class="segmented__item"
+              style="--item-color: var(--team-templars)"
+              [attr.aria-pressed]="team() === Team.TEMPLARS"
+              (click)="team.set(Team.TEMPLARS)"
+            >
+              Templars
+            </button>
           </div>
         </div>
 
         @if (error()) {
-          <p class="error-msg">{{ error() }}</p>
+          <div class="banner banner-danger">
+            <span class="material-symbols-outlined" aria-hidden="true">error</span>
+            <div>{{ error() }}</div>
+          </div>
         }
 
         <div class="step-actions">
-          <button class="btn-ghost" (click)="step.set(selectedCharacter() ? 0 : 1)">← Terug</button>
+          <button class="btn" (click)="step.set(selectedCharacter() ? 0 : 1)">
+            <span class="material-symbols-outlined icon-16" aria-hidden="true">arrow_back</span>
+            Terug
+          </button>
           <button class="btn-primary" [disabled]="!canSubmit || saving()" (click)="save()">
             {{ saving() ? 'Opslaan...' : editMode() ? 'Opslaan' : 'Aan de slag!' }}
           </button>
         </div>
       </div>
     }
-  </div>
+  </section>
 </div>

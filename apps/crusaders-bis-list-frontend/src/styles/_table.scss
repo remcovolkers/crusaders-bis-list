@@ -1,0 +1,206 @@
+@use 'mixins' as *;
+
+// ============================================================
+// Tables (dense, tonal)
+//
+//   <div class="table-wrap">
+//     <table class="table">
+//       <thead><tr><th>Raider</th><th class="cell-num">Items</th><th class="cell-actions"></th></tr></thead>
+//       <tbody>
+//         <tr class="is-selected"><td>...</td><td class="cell-num">3</td><td class="cell-actions">...</td></tr>
+//       </tbody>
+//     </table>
+//   </div>
+//
+// - `.table-wrap` gives the inset well + horizontal scroll (mandatory on small screens).
+// - Header: tier-2 strip with label-caps text. Body: base colour, hairline between rows, hover = surface-hover.
+// - Selected row: `.is-selected` / `[aria-selected=true]` (gold tint). Clickable rows: `.table--clickable`.
+// - Zebra striping is intentionally OFF. `.table--zebra` exists for very long read-only lists.
+// - Cell helpers: `.cell-num` (right aligned, tabular), `.cell-center`, `.cell-actions` (right, no wrap, icon buttons).
+// - `.table--comfortable` = taller rows (8px/12px padding).
+//
+// Mobile: wrap `.table-wrap` scrolls horizontally. For tables with <= 5 columns prefer `.table--stack`,
+// which turns every row into a small card below 640px; each <td> needs `data-label="Kolomnaam"`.
+// ============================================================
+.table-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+  border-radius: var(--radius-xs);
+  background: var(--surface-base);
+
+  // long tables: scrolls vertically inside the wrapper, the header strip (`th`) stays sticky.
+  //   <div class="table-wrap table-wrap--scroll" style="--table-max-h: 360px">
+  &--scroll {
+    max-height: var(--table-max-h, 480px);
+    overflow-y: auto;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+  line-height: 18px;
+
+  th {
+    padding: var(--space-sm) var(--space-md);
+    background: var(--surface-tier-2);
+    color: var(--text-muted);
+    font-size: 10px;
+    line-height: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  td {
+    padding: var(--space-sm) var(--space-md);
+    vertical-align: middle;
+    color: var(--text-primary);
+  }
+  tbody tr {
+    transition: background var(--dur-fast);
+    & + tr {
+      box-shadow: inset 0 1px 0 var(--surface-tier-2);
+    }
+    &:hover {
+      background: var(--surface-hover);
+    }
+    &.is-selected,
+    &[aria-selected='true'] {
+      background: color-mix(in srgb, var(--primary) 6%, transparent);
+      box-shadow: inset 2px 0 0 var(--primary);
+      &:hover {
+        background: var(--surface-hover);
+      }
+    }
+  }
+
+  .cell-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .cell-center {
+    text-align: center;
+  }
+  .cell-actions {
+    text-align: right;
+    white-space: nowrap;
+  }
+  .cell-muted {
+    color: var(--text-muted);
+  }
+  // identity cell: tile + name/sub stacked, keeps vertical centring (don't put display:flex on the <td> itself)
+  .cell-id {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    min-width: 0;
+  }
+
+  &--clickable tbody tr {
+    cursor: pointer;
+  }
+  &--zebra tbody tr:nth-child(even) {
+    background: color-mix(in srgb, var(--surface-tier-1) 55%, transparent);
+  }
+  &--comfortable {
+    th,
+    td {
+      padding-block: var(--space-md);
+    }
+  }
+}
+
+// row action buttons fade in on hover (desktop pointer only)
+@media (hover: hover) {
+  .table--fade-actions tbody tr:not(:hover):not(.is-selected) .cell-actions {
+    opacity: 0.55;
+  }
+}
+
+// Stacked rows on phones
+@include below(640px) {
+  .table--stack {
+    display: block;
+    thead {
+      display: none;
+    }
+    tbody,
+    tr,
+    td {
+      display: block;
+    }
+    tr {
+      padding: var(--space-sm) var(--space-md);
+      background: var(--surface-tier-1);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--space-sm);
+      box-shadow: none;
+    }
+    tbody tr + tr {
+      box-shadow: none;
+    }
+    td {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      padding: 3px 0;
+      text-align: right;
+      &::before {
+        content: attr(data-label);
+        flex-shrink: 0;
+        font-size: 10px;
+        line-height: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+      &:not([data-label])::before {
+        content: none;
+      }
+    }
+    .cell-id {
+      justify-content: flex-start;
+    }
+  }
+  .table-wrap:has(.table--stack) {
+    background: transparent;
+    overflow: visible;
+  }
+}
+
+// Pagination footer:
+//   <div class="pagination"><span>1-20 van 32</span><div class="row gap-xs">
+//     <button class="icon-btn icon-btn--sm" disabled><span class="material-symbols-outlined">chevron_left</span></button>
+//     <span class="pagination__page">1</span>
+//     <button class="icon-btn icon-btn--sm"><span class="material-symbols-outlined">chevron_right</span></button></div></div>
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  padding-top: var(--space-xs);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+
+  &__page {
+    padding: 0 var(--space-xs);
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    color: var(--text-primary);
+  }
+}

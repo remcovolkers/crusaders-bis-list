@@ -1,6 +1,6 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
-import { AssignmentStatus, RECEIVABLE_TIERS, TIER_LABELS } from '@crusaders-bis-list/shared-domain';
+import { AssignmentStatus, ITEM_CATEGORY_LABELS, RECEIVABLE_TIERS, TIER_LABELS } from '@crusaders-bis-list/shared-domain';
 import { ItemWithReservation } from '../../ui-types/loot-ui.types';
 
 @Component({
@@ -28,6 +28,7 @@ export class ReserveModalComponent {
 
   readonly receivableTiers = RECEIVABLE_TIERS;
   readonly tierLabels = TIER_LABELS;
+  readonly categoryLabels = ITEM_CATEGORY_LABELS;
 
   /** The lowest tier the user wants to reserve for. Higher tiers are auto-included. */
   readonly selectedFloor = signal<AssignmentStatus | null>(null);

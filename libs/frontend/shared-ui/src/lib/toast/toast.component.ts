@@ -14,11 +14,11 @@ export class ToastComponent {
   iconFor(type: string): string {
     switch (type) {
       case 'success':
-        return '✓';
+        return 'check_circle';
       case 'error':
-        return '✕';
+        return 'error';
       default:
-        return 'ℹ';
+        return 'info';
     }
   }
 }

@@ -1,17 +1,22 @@
+// App shell. Primitives (.topbar, .nav-link, .brand-mark, .avatar, .badge ...) come from the global
+// stylesheet (src/styles/); this file only holds shell specifics.
+
 // ── Pagina verhuisd ──────────────────────────────────────────
 .moved-wrapper {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-base);
-  padding: 24px;
+  background: var(--surface-base);
+  padding: var(--margin-desktop);
 }
 
 .moved-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg, 12px);
+  background: var(--surface-tier-1);
+  border-radius: var(--radius-sm);
+  box-shadow:
+    inset 2px 0 0 var(--primary),
+    var(--shadow-xl);
   padding: 48px 40px;
   max-width: 480px;
   width: 100%;
@@ -19,7 +24,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: var(--margin);
 }
 
 .moved-icon {
@@ -27,9 +32,10 @@
 }
 
 .moved-title {
-  font-size: 24px;
+  font-size: var(--t-headline-xl-mobile-size);
+  line-height: var(--t-headline-xl-mobile-lh);
   font-weight: 700;
-  color: var(--accent-gold);
+  color: var(--primary);
   margin: 0;
 }
 
@@ -42,182 +48,119 @@
 
 .moved-link {
   display: inline-block;
-  background: var(--accent-gold);
-  color: #0a0e17;
-  font-weight: 700;
-  font-size: 16px;
-  padding: 12px 28px;
-  border-radius: var(--radius-sm, 6px);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 600;
+  font-size: 15px;
+  padding: 10px 24px;
+  border-radius: var(--radius-xs);
   text-decoration: none;
-  margin-top: 8px;
+  margin-top: var(--space-sm);
+  transition: background var(--dur-fast);
 
   &:hover {
-    opacity: 0.88;
+    background: var(--gold-hover);
+    color: var(--on-primary);
   }
 }
 // ─────────────────────────────────────────────────────────────
 
+// `.topbar` (global) provides height, blur, shadow, sticky positioning.
 .app-header {
-  display: flex;
-  align-items: center;
-  padding: 0 24px;
-  height: 54px;
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border-color);
-  position: sticky;
-  top: 0;
-  z-index: 200;
-  gap: 0;
-  flex-shrink: 0;
+  gap: var(--space-lg);
 }
 
 .header-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-right: 32px;
-  flex-shrink: 0;
-}
-
-.brand-icon {
-  font-size: 18px;
-}
-
-.brand-name {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--accent-gold);
-  letter-spacing: 0.3px;
-}
-
-.brand-sub {
-  font-size: 11px;
-  color: var(--text-muted);
-  font-weight: 400;
-  border-left: 1px solid var(--border-color);
-  padding-left: 8px;
-  margin-left: 4px;
+  margin-right: var(--space-sm);
 }
 
 .header-nav {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: var(--space-xs);
   flex: 1;
-
-  a {
-    padding: 6px 12px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    color: var(--text-secondary);
-    transition:
-      color 0.15s,
-      background 0.15s;
-
-    &:hover {
-      color: var(--text-primary);
-      background: var(--bg-elevated);
-    }
-
-    &.active {
-      color: var(--text-primary);
-      background: var(--bg-elevated);
-      font-weight: 500;
-    }
-  }
+  min-width: 0;
 }
 
 .header-user {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-sm);
   flex-shrink: 0;
 }
 
-.user-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid var(--border-color);
-  object-fit: cover;
+.user-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
 }
 
 .user-name {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.logout-btn {
-  font-size: 12px;
-  padding: 5px 12px;
-  &:hover:not(:disabled) {
-    color: #f87171;
-    border-color: rgba(239, 68, 68, 0.4);
-  }
-}
-
-.btn-link-bnet {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  border-radius: 4px;
-  border: 1px solid rgba(0, 174, 255, 0.35);
-  background: rgba(0, 174, 255, 0.08);
-  color: #00aeff;
-  font-size: 12px;
+  font-size: var(--t-title-sm-size);
+  line-height: var(--t-title-sm-lh);
   font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition:
-    background 0.15s,
-    border-color 0.15s;
+  letter-spacing: var(--t-title-sm-ls);
+  color: var(--text-primary);
+}
 
-  .bnet-icon {
-    width: 14px;
-    height: 14px;
-    object-fit: contain;
-  }
+.user-role {
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
 
-  &:hover {
-    background: rgba(0, 174, 255, 0.16);
-    border-color: rgba(0, 174, 255, 0.6);
-  }
+.mobile-user-row .user-name {
+  font-size: 14px;
+}
+
+.logout-btn:hover:not(:disabled) {
+  color: var(--danger-text);
 }
 
 .btn-tip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 4px;
-  border: 1px solid rgba(240, 192, 64, 0.35);
-  background: rgba(240, 192, 64, 0.1);
-  color: #f0c040;
+  gap: var(--space-xs);
+  min-height: 28px;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-xs);
   font-size: 12px;
   font-weight: 600;
-  text-decoration: none;
   white-space: nowrap;
-  transition:
-    background 0.15s,
-    border-color 0.15s;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--dur-fast);
+
+  .material-symbols-outlined {
+    font-size: 16px;
+  }
+}
+
+.btn-tip {
+  background: var(--gold-dim);
+  color: var(--primary);
 
   &:hover {
-    background: rgba(240, 192, 64, 0.18);
-    border-color: rgba(240, 192, 64, 0.6);
+    background: var(--gold-dim-strong);
+    color: var(--primary);
   }
 }
 
 .tip-info-mobile {
   margin: 0;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-surface);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-2);
   color: var(--text-secondary);
   font-size: 12px;
   line-height: 1.5;
 }
 
+// The shell never scrolls; every page scrolls inside `.app-main` (html/body are overflow:hidden).
 .app-main {
   flex: 1;
   overflow-y: auto;
@@ -239,11 +182,15 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-elevated);
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-2);
   cursor: pointer;
   flex-shrink: 0;
+  transition: background var(--dur-fast);
+
+  &:hover {
+    background: var(--surface-hover);
+  }
 }
 
 .hamburger-line {
@@ -253,11 +200,11 @@
   height: 2px;
   background: var(--text-primary);
   border-radius: 2px;
-  transition: background 0.15s;
+  transition: background var(--dur-fast);
 
   &::before,
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     left: 0;
     width: 18px;
@@ -289,21 +236,21 @@
 .mobile-nav-drawer {
   display: none;
   position: sticky;
-  top: 54px;
-  z-index: 199;
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  padding: 12px 16px 16px;
+  top: var(--topbar-h);
+  z-index: calc(var(--z-topbar) - 1);
+  flex-shrink: 0;
+  background: var(--surface-tier-1);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-md) var(--margin) var(--margin);
 }
 
 .mobile-user-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 8px;
+  gap: var(--space-md);
+  padding-bottom: var(--space-md);
+  box-shadow: 0 1px 0 var(--surface-tier-2);
+  margin-bottom: var(--space-sm);
 }
 
 .mobile-nav-links {
@@ -313,22 +260,23 @@
 
   a {
     display: block;
-    padding: 10px 12px;
-    border-radius: 6px;
+    padding: 10px var(--space-md);
+    border-radius: var(--radius-xs);
     font-size: 14px;
+    font-weight: 500;
     color: var(--text-secondary);
     transition:
-      background 0.12s,
-      color 0.12s;
+      background var(--dur-fast),
+      color var(--dur-fast);
 
-    &:hover,
-    &.active {
-      background: var(--bg-elevated);
+    &:hover {
+      background: var(--surface-hover);
       color: var(--text-primary);
     }
 
     &.active {
-      font-weight: 500;
+      background: var(--surface-tier-2);
+      color: var(--primary);
     }
   }
 }
@@ -336,18 +284,21 @@
 .mobile-nav-footer {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-color);
-  margin-top: 8px;
+  gap: var(--space-sm);
+  padding-top: var(--space-md);
+  box-shadow: 0 -1px 0 var(--surface-tier-2);
+  margin-top: var(--space-sm);
 
-  button {
+  button,
+  .btn-tip {
     width: 100%;
     justify-content: center;
+    min-height: 40px;
   }
 }
 
-@media (max-width: 768px) {
+/* the full nav (up to 5 links for super users) + user block needs ~1100px */
+@media (max-width: 1100px) {
   .header-nav,
   .header-user {
     display: none;
@@ -360,7 +311,7 @@
 
   .mobile-menu-btn {
     display: flex;
-    margin-left: 8px;
+    margin-left: var(--space-sm);
   }
 
   .mobile-nav-drawer {
@@ -368,7 +319,7 @@
   }
 
   .app-header {
-    padding: 0 16px;
+    gap: var(--space-md);
   }
 
   .header-brand {
