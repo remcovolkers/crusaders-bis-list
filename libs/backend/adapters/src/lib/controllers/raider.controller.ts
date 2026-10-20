@@ -12,7 +12,7 @@ import {
   HttpCode,
   HttpStatus,
   NotFoundException,
-  UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtPayload } from '../auth/jwt.strategy';
@@ -79,7 +79,9 @@ export class RaiderController {
   async getWowCharacters(@Req() req: Request) {
     const userId = (req.user as JwtPayload).sub;
     const user = await this.userRepo.findById(userId);
-    if (!user?.bnetAccessToken) throw new UnauthorizedException('Geen Battle.net account gekoppeld.');
+    // 403, not 401: the user's own session is fine, only the Battle.net link is missing/expired.
+    // A 401 here makes the frontend interceptor treat it as an expired session and log the user out.
+    if (!user?.bnetAccessToken) throw new ForbiddenException('Geen Battle.net account gekoppeld.');
 
     const region = process.env['BLIZZARD_REGION'] ?? 'eu';
     const url = `https://${region}.api.blizzard.com/profile/user/wow?namespace=profile-${region}&locale=en_US`;
@@ -87,7 +89,7 @@ export class RaiderController {
       headers: { Authorization: `Bearer ${user.bnetAccessToken}` },
     });
 
-    if (response.status === 401) throw new UnauthorizedException('Battle.net token verlopen. Koppel opnieuw.');
+    if (response.status === 401) throw new ForbiddenException('Battle.net token verlopen. Koppel opnieuw.');
     if (!response.ok) throw new Error(`Blizzard API fout: ${response.status}`);
 
     const data = (await response.json()) as { wow_accounts?: { characters?: BlizzardCharacter[] }[] };

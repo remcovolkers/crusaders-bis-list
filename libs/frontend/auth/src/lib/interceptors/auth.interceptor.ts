@@ -40,6 +40,13 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     return this.authService.refreshAccessToken().pipe(
+      // Only a failed refresh means the session is really gone. This catchError sits BEFORE the
+      // switchMap on purpose: errors of the retried request itself (e.g. a 401 from a business
+      // rule) must reach the caller instead of logging the user out.
+      catchError(() => {
+        this.clearAndRedirect();
+        return throwError(() => new Error('Sessie verlopen'));
+      }),
       switchMap(({ token }) => {
         this.authService.saveToken(token);
         const user = this.authService.decodeToken(token);
@@ -48,10 +55,6 @@ export class AuthInterceptor implements HttpInterceptor {
           setHeaders: { Authorization: `Bearer ${token}`, 'X-Retry': 'true' },
         });
         return next.handle(retried);
-      }),
-      catchError(() => {
-        this.clearAndRedirect();
-        return throwError(() => new Error('Sessie verlopen'));
       }),
     );
   }
