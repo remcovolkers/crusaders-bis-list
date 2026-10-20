@@ -1,11 +1,6 @@
 import { Component, input, output, signal, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  IRaidPlan,
-  IRaidPlanParticipant,
-  RaidParticipantRole,
-  RaidDifficulty,
-} from '@crusaders-bis-list/shared-domain';
+import { IRaidPlan, RaidParticipantRole, RaidDifficulty } from '@crusaders-bis-list/shared-domain';
 import { RaidPlanService } from '../../services/raid-plan.service';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
@@ -75,10 +70,10 @@ export class DiscordComposerComponent {
   readonly scheduleStatus = computed(() => {
     const plan = this.plan();
     if (plan.discordSentAt) {
-      return { type: 'sent' as const, label: `✅ Verstuurd op ${this.formatDate(plan.discordSentAt)}` };
+      return { type: 'sent' as const, label: `Verstuurd op ${this.formatDate(plan.discordSentAt)}` };
     }
     if (plan.scheduledDiscordAt) {
-      return { type: 'scheduled' as const, label: `🕐 Gepland voor ${this.formatDate(plan.scheduledDiscordAt)}` };
+      return { type: 'scheduled' as const, label: `Gepland voor ${this.formatDate(plan.scheduledDiscordAt)}` };
     }
     return null;
   });
