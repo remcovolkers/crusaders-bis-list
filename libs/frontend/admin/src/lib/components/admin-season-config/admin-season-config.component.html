@@ -1,135 +1,165 @@
-<div class="config-page">
-  <div class="config-header">
-    <h2>Seizoen configuratie</h2>
-    <p class="config-subtitle">
-      Beheer reservatielimieten en super rare items voor
-      <strong>{{ viewedTeam() === 'templars' ? 'Templars' : 'Crusaders' }}</strong
-      >.
-    </p>
-  </div>
+<div class="page">
+  <header class="page-head">
+    <div class="page-head__main">
+      <div class="page-head__eyebrow">
+        @if (season(); as s) {
+          @if (s.isActive) {
+            <span class="badge badge-success badge--dot">Actief seizoen</span>
+          } @else {
+            <span class="badge badge-neutral">Inactief seizoen</span>
+          }
+          <span class="page-head__meta">Start {{ s.startDate | date: 'd MMM y' }}</span>
+        } @else {
+          <span class="badge badge-gold">Seizoen config</span>
+        }
+      </div>
+      <h1 class="page-head__title">{{ season()?.name ?? 'Seizoen configuratie' }}</h1>
+      <p class="page-head__subtitle">
+        Beheer reservatielimieten en super rare items voor
+        <strong [class]="teamName() === 'Templars' ? 'c-templars' : 'c-crusaders'">{{ teamName() }}</strong>.
+      </p>
+    </div>
+  </header>
 
   <div class="config-columns">
-    <!-- -- Reservatielimieten -- -->
-    <div class="config-column">
-      <div class="section-heading">
-        <h3>Reservatielimieten</h3>
-        <p>
-          Stel per itemcategorie in hoeveel reservaties een raider per seizoen mag plaatsen. Markeer specifieke items
-          als super rare om een apart limiet toe te passen.
-        </p>
-      </div>
+    <!-- Reservatielimieten (ruleset) -->
+    <section class="card config-ruleset">
+      <header class="card-header">
+        <h2 class="card-title">
+          <span class="dot" [style.--dot-color]="teamColor()"></span>
+          {{ teamName() }} regelset
+        </h2>
+        <div class="card-actions">
+          <span class="t-label-caps c-muted">Per raider per seizoen</span>
+        </div>
+      </header>
+
+      <p class="t-body-default c-secondary config-intro">
+        Stel per itemcategorie in hoeveel reservaties een raider per seizoen mag plaatsen. Markeer specifieke items als
+        super rare om een apart limiet toe te passen.
+      </p>
 
       @if (loading()) {
         <div class="loading-spinner">Laden...</div>
       }
 
       @if (config() && !loading()) {
-        <div class="config-card card">
-          <div class="limit-grid">
-            <div class="limit-field">
-              <div class="limit-icon">💍</div>
-              <div class="limit-body">
-                <label class="form-label" for="trinket-limit">Trinkets</label>
-                <input
-                  id="trinket-limit"
-                  class="form-input config-input"
-                  type="number"
-                  [ngModel]="trinketLimit()"
-                  (ngModelChange)="trinketLimit.set($event)"
-                  min="0"
-                  max="10"
-                />
-              </div>
-            </div>
-            <div class="limit-field">
-              <div class="limit-icon">⚔️</div>
-              <div class="limit-body">
-                <label class="form-label" for="weapon-limit">Wapens</label>
-                <input
-                  id="weapon-limit"
-                  class="form-input config-input"
-                  type="number"
-                  [ngModel]="weaponLimit()"
-                  (ngModelChange)="weaponLimit.set($event)"
-                  min="0"
-                  max="10"
-                />
-              </div>
-            </div>
-            <div class="limit-field">
-              <div class="limit-icon">💛</div>
-              <div class="limit-body">
-                <label class="form-label" for="jewelry-limit">Sieraden</label>
-                <input
-                  id="jewelry-limit"
-                  class="form-input config-input"
-                  type="number"
-                  [ngModel]="jewelryLimit()"
-                  (ngModelChange)="jewelryLimit.set($event)"
-                  min="0"
-                  max="10"
-                />
-              </div>
-            </div>
-            <div class="limit-field">
-              <div class="limit-icon">🛡️</div>
-              <div class="limit-body">
-                <label class="form-label" for="other-limit">Armor</label>
-                <input
-                  id="other-limit"
-                  class="form-input config-input"
-                  type="number"
-                  [ngModel]="armorLimit()"
-                  (ngModelChange)="armorLimit.set($event)"
-                  min="0"
-                  max="10"
-                />
-              </div>
-            </div>
-            <div class="limit-field limit-field--superrare">
-              <div class="limit-icon">⭐</div>
-              <div class="limit-body">
-                <label class="form-label" for="superrare-limit">Super Rare</label>
-                <input
-                  id="superrare-limit"
-                  class="form-input config-input"
-                  type="number"
-                  [ngModel]="superrareLimit()"
-                  (ngModelChange)="superrareLimit.set($event)"
-                  min="0"
-                  max="10"
-                />
-              </div>
-            </div>
+        <div class="limit-grid">
+          <div class="limit-tile">
+            <label class="t-label-caps c-muted" for="trinket-limit">
+              <span class="material-symbols-outlined icon-14" aria-hidden="true">auto_awesome</span>Trinkets
+            </label>
+            <input
+              id="trinket-limit"
+              class="form-input limit-input"
+              type="number"
+              [ngModel]="trinketLimit()"
+              (ngModelChange)="trinketLimit.set($event)"
+              min="0"
+              max="10"
+            />
           </div>
-
-          <div class="config-actions">
-            <button class="btn-primary" [disabled]="saving()" (click)="save()">
-              {{ saving() ? 'Opslaan...' : 'Opslaan' }}
-            </button>
+          <div class="limit-tile">
+            <label class="t-label-caps c-muted" for="weapon-limit">
+              <span class="material-symbols-outlined icon-14" aria-hidden="true">swords</span>Wapens
+            </label>
+            <input
+              id="weapon-limit"
+              class="form-input limit-input"
+              type="number"
+              [ngModel]="weaponLimit()"
+              (ngModelChange)="weaponLimit.set($event)"
+              min="0"
+              max="10"
+            />
+          </div>
+          <div class="limit-tile">
+            <label class="t-label-caps c-muted" for="jewelry-limit">
+              <span class="material-symbols-outlined icon-14" aria-hidden="true">diamond</span>Sieraden
+            </label>
+            <input
+              id="jewelry-limit"
+              class="form-input limit-input"
+              type="number"
+              [ngModel]="jewelryLimit()"
+              (ngModelChange)="jewelryLimit.set($event)"
+              min="0"
+              max="10"
+            />
+          </div>
+          <div class="limit-tile">
+            <label class="t-label-caps c-muted" for="other-limit">
+              <span class="material-symbols-outlined icon-14" aria-hidden="true">shield</span>Armor
+            </label>
+            <input
+              id="other-limit"
+              class="form-input limit-input"
+              type="number"
+              [ngModel]="armorLimit()"
+              (ngModelChange)="armorLimit.set($event)"
+              min="0"
+              max="10"
+            />
+          </div>
+          <div class="limit-tile limit-tile--superrare">
+            <label class="t-label-caps c-super-rare" for="superrare-limit">
+              <span class="material-symbols-outlined icon-14 icon-fill" aria-hidden="true">star</span>Super rare
+            </label>
+            <input
+              id="superrare-limit"
+              class="form-input limit-input"
+              type="number"
+              [ngModel]="superrareLimit()"
+              (ngModelChange)="superrareLimit.set($event)"
+              min="0"
+              max="10"
+            />
           </div>
         </div>
-      }
-    </div>
 
-    <!-- -- Super Rare markering -- -->
-    <div class="config-column">
+        <footer class="config-actions">
+          @if (dirty()) {
+            <span class="t-body-code c-warning config-dirty">
+              <span class="material-symbols-outlined icon-14" aria-hidden="true">edit_note</span>Niet-opgeslagen
+              wijzigingen
+            </span>
+          }
+          <button class="btn-primary" [disabled]="saving()" (click)="save()">
+            <span class="material-symbols-outlined icon-16" aria-hidden="true">save</span>
+            {{ saving() ? 'Opslaan...' : 'Opslaan' }}
+          </button>
+        </footer>
+      }
+    </section>
+
+    <!-- Super Rare markering -->
+    <section class="panel sr-card">
+      <header class="panel__header">
+        <h2 class="panel__title">
+          <span class="material-symbols-outlined icon-fill c-super-rare" aria-hidden="true">star</span>
+          Super Rare markering
+        </h2>
+        <div class="card-actions">
+          @if (catalog()) {
+            <span class="badge badge-super-rare">{{ superRareCount() }} gemarkeerd</span>
+          }
+        </div>
+      </header>
+
       @if (!catalog()) {
         <div class="loading-spinner">Laden...</div>
       } @else {
-        <div class="section-heading">
-          <h3>Super Rare markering</h3>
-          <p>Klik op een item om de super rare markering aan of uit te zetten.</p>
-        </div>
+        <p class="t-body-default c-secondary sr-intro">
+          Klik op een item om de super rare markering aan of uit te zetten.
+        </p>
 
-        <div class="card sr-card">
-          <!-- Boss tabs -->
+        <div class="scroll-x scroll-hidden sr-boss-scroll">
           <div class="sr-boss-tabs" role="tablist">
             @for (boss of catalog()!.bosses; track boss.id) {
               <button
-                class="sr-boss-tab"
+                class="chip"
                 role="tab"
-                [class.active]="selectedBossId() === boss.id"
+                [class.is-active]="selectedBossId() === boss.id"
                 [attr.aria-selected]="selectedBossId() === boss.id"
                 (click)="selectedBossId.set(boss.id)"
               >
@@ -137,25 +167,29 @@
               </button>
             }
           </div>
+        </div>
 
-          <!-- Item list -->
-          <div class="sr-item-list">
-            @for (item of selectedBossItems(); track item.id) {
-              <button
-                class="item-row"
-                [class.is-super-rare]="item.isSuperRare"
-                [disabled]="isUpdating(item.id)"
-                (click)="toggleSuperRare(item)"
+        <div class="sr-item-list">
+          @for (item of selectedBossItems(); track item.id) {
+            <button
+              class="item-row"
+              [class.is-super-rare]="item.isSuperRare"
+              [disabled]="isUpdating(item.id)"
+              (click)="toggleSuperRare(item)"
+            >
+              <span
+                class="material-symbols-outlined icon-18 item-row-star"
+                [class.icon-fill]="item.isSuperRare"
+                aria-hidden="true"
+                >star</span
               >
-                <span class="item-row-star">{{ item.isSuperRare ? '★' : '☆' }}</span>
-                <span class="item-row-name">{{ item.name }}</span>
-                <span class="item-row-slot">{{ item.slot }}</span>
-                <span class="sr-toggle">{{ item.isSuperRare ? 'Verwijder' : 'Markeer' }}</span>
-              </button>
-            }
-          </div>
+              <span class="t-body-medium item-row-name">{{ item.name }}</span>
+              <span class="t-body-code c-muted item-row-slot">{{ item.slot }}</span>
+              <span class="t-label-caps sr-toggle">{{ item.isSuperRare ? 'Verwijder' : 'Markeer' }}</span>
+            </button>
+          }
         </div>
       }
-    </div>
+    </section>
   </div>
 </div>

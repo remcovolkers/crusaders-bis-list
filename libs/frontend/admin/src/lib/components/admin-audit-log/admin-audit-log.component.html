@@ -1,52 +1,86 @@
-<div class="audit-log">
-  <div class="page-header">
-    <h2>Audit log</h2>
-    <p class="page-subtitle">Overzicht van alle adminacties.</p>
-  </div>
-  @if (loading()) {
-    <p class="state-msg">Laden...</p>
-  } @else if (error()) {
-    <p class="state-msg state-msg--error">Kon audit log niet laden.</p>
-  } @else {
-    <div class="filter-bar">
-      <select class="filter-select" [ngModel]="filterAction()" (ngModelChange)="filterAction.set($event)">
-        <option value="">Alle acties</option>
-        @for (opt of actionOptions; track opt[0]) {
-          <option [value]="opt[0]">{{ opt[1] }}</option>
+<div class="page audit-log">
+  <header class="page-head">
+    <div class="page-head__main">
+      <div class="page-head__eyebrow">
+        <span class="badge badge-gold">Admin</span>
+        @if (!loading() && !error()) {
+          <span class="page-head__meta">
+            {{ hasActiveFilter() ? filteredEntries().length + ' van ' + entries().length : entries().length }}
+            {{ entries().length === 1 ? 'actie' : 'acties' }}
+          </span>
         }
-      </select>
-      <input
-        class="filter-input"
-        type="search"
-        placeholder="Door…"
-        [ngModel]="filterActor()"
-        (ngModelChange)="filterActor.set($event)"
-      />
-      <input
-        class="filter-input"
-        type="search"
-        placeholder="Raider…"
-        [ngModel]="filterRaider()"
-        (ngModelChange)="filterRaider.set($event)"
-      />
-      <input
-        class="filter-input"
-        type="search"
-        placeholder="Item…"
-        [ngModel]="filterItem()"
-        (ngModelChange)="filterItem.set($event)"
-      />
-      @if (hasActiveFilter()) {
-        <button class="filter-clear" (click)="clearFilters()">Wis filters</button>
-      }
+      </div>
+      <h1 class="page-head__title">Audit log</h1>
+      <p class="page-head__subtitle">Overzicht van alle adminacties.</p>
     </div>
+  </header>
 
-    @if (filteredEntries().length === 0) {
-      <p class="state-msg">Geen resultaten gevonden.</p>
-    } @else {
-      <div class="log-table-wrap">
-        <div class="log-table-scroller">
-          <table class="log-table">
+  @if (loading()) {
+    <div class="loading-spinner">Laden...</div>
+  } @else if (error()) {
+    <div class="banner banner-danger" role="alert">
+      <span class="material-symbols-outlined" aria-hidden="true">error</span>
+      <div>Kon audit log niet laden.</div>
+    </div>
+  } @else {
+    <section class="card card-flush">
+      <div class="audit-filters">
+        <select
+          class="form-select audit-filters__action"
+          aria-label="Filter op actie"
+          [ngModel]="filterAction()"
+          (ngModelChange)="filterAction.set($event)"
+        >
+          <option value="">Alle acties</option>
+          @for (opt of actionOptions; track opt[0]) {
+            <option [value]="opt[0]">{{ opt[1] }}</option>
+          }
+        </select>
+        <label class="search-field">
+          <span class="material-symbols-outlined" aria-hidden="true">manage_accounts</span>
+          <input
+            type="search"
+            placeholder="Door…"
+            aria-label="Filter op uitvoerder"
+            [ngModel]="filterActor()"
+            (ngModelChange)="filterActor.set($event)"
+          />
+        </label>
+        <label class="search-field">
+          <span class="material-symbols-outlined" aria-hidden="true">person_search</span>
+          <input
+            type="search"
+            placeholder="Raider…"
+            aria-label="Filter op raider"
+            [ngModel]="filterRaider()"
+            (ngModelChange)="filterRaider.set($event)"
+          />
+        </label>
+        <label class="search-field">
+          <span class="material-symbols-outlined" aria-hidden="true">search</span>
+          <input
+            type="search"
+            placeholder="Item…"
+            aria-label="Filter op item"
+            [ngModel]="filterItem()"
+            (ngModelChange)="filterItem.set($event)"
+          />
+        </label>
+        @if (hasActiveFilter()) {
+          <button class="btn btn-sm" (click)="clearFilters()">
+            <span class="material-symbols-outlined icon-16" aria-hidden="true">filter_alt_off</span>Wis filters
+          </button>
+        }
+      </div>
+
+      @if (filteredEntries().length === 0) {
+        <div class="empty-box">
+          <span class="material-symbols-outlined" aria-hidden="true">manage_search</span>
+          <p class="empty-box__title">Geen resultaten gevonden.</p>
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table class="table table--stack">
             <thead>
               <tr>
                 <th>Tijdstip</th>
@@ -60,20 +94,39 @@
             <tbody>
               @for (entry of filteredEntries(); track entry.id) {
                 <tr>
-                  <td class="col-time" data-label="Tijdstip">{{ entry.createdAt | date: 'd MMM y, HH:mm' }}</td>
-                  <td class="col-action" data-label="Actie">
-                    <span class="action-badge" [class]="actionClass(entry.action)">
+                  <td class="col-time" data-label="Tijdstip">
+                    <span class="t-stat-mono nowrap">{{ entry.createdAt | date: 'd MMM y, HH:mm' }}</span>
+                  </td>
+                  <td data-label="Actie">
+                    <span class="badge nowrap" [class]="actionClass(entry.action)">
+                      <span class="material-symbols-outlined icon-14" aria-hidden="true">{{
+                        actionIcon(entry.action)
+                      }}</span>
                       {{ actionLabel(entry.action) }}
                     </span>
                   </td>
-                  <td class="col-actor" data-label="Door">{{ entry.actorName }}</td>
-                  <td class="col-raider" data-label="Raider">{{ entry.raiderName ?? '—' }}</td>
-                  <td class="col-item" data-label="Item">{{ entry.itemName ?? '—' }}</td>
+                  <td class="col-actor t-body-medium" data-label="Door">{{ entry.actorName }}</td>
+                  <td class="col-raider" data-label="Raider">
+                    @if (entry.raiderName) {
+                      {{ entry.raiderName }}
+                    } @else {
+                      <span class="c-muted">—</span>
+                    }
+                  </td>
+                  <td class="col-item" data-label="Item">
+                    @if (entry.itemName) {
+                      {{ entry.itemName }}
+                    } @else {
+                      <span class="c-muted">—</span>
+                    }
+                  </td>
                   <td class="col-details" data-label="Details">
                     @if (entry.details) {
-                      <span class="details-text">{{ entry.details | json }}</span>
+                      <span class="t-body-code c-secondary details-text" [title]="entry.details | json">{{
+                        entry.details | json
+                      }}</span>
                     } @else {
-                      <span class="empty-cell">—</span>
+                      <span class="c-muted">—</span>
                     }
                   </td>
                 </tr>
@@ -81,7 +134,7 @@
             </tbody>
           </table>
         </div>
-      </div>
-    }
+      }
+    </section>
   }
 </div>
