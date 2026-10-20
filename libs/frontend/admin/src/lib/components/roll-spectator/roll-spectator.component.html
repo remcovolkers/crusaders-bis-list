@@ -1,63 +1,115 @@
 ﻿@if (notFound()) {
-  <div class="spectator-wrap">
-    <div class="spectator-card">
-      <p class="spectator-error">Sessie niet gevonden of verlopen.</p>
+  <div class="stage stage--center">
+    <div class="empty-box empty-box--boxed stage-message">
+      <span class="material-symbols-outlined c-danger" aria-hidden="true">error</span>
+      <p class="empty-box__title">Sessie niet gevonden of verlopen.</p>
     </div>
   </div>
 } @else if (!sessionInfo()) {
-  <div class="spectator-wrap">
-    <div class="spectator-card">
-      <p class="spectator-connecting">Verbinden...</p>
-    </div>
+  <div class="stage stage--center">
+    <div class="loading-spinner" role="status">Verbinden...</div>
   </div>
 } @else {
-  <div class="spectator-wrap">
-    <div class="spectator-card">
-      <h1 class="spectator-title">🎡 Wheel of Fortune</h1>
-      <div class="spectator-item-preview">
-        @if (sessionInfo()!.itemIconUrl && sessionInfo()!.secondaryIconUrl) {
-          <div class="spectator-item-icon spectator-item-icon--split">
-            <img class="split-primary" [src]="sessionInfo()!.itemIconUrl!" [alt]="sessionInfo()!.itemName" />
-            <img class="split-secondary" [src]="sessionInfo()!.secondaryIconUrl!" [alt]="sessionInfo()!.itemName" />
-            <div class="split-divider"></div>
-          </div>
-        } @else if (sessionInfo()!.itemIconUrl) {
-          <img class="spectator-item-icon" [src]="sessionInfo()!.itemIconUrl" [alt]="sessionInfo()!.itemName" />
-        }
-        <div class="spectator-item-info">
-          <p class="spectator-item">{{ sessionInfo()!.itemName }}</p>
-          @if (sessionInfo()!.difficulty) {
-            <span class="spectator-difficulty">{{ sessionInfo()!.difficulty }}</span>
-          }
+  <div class="stage" [class.stage--winner]="winnerRevealed()">
+    <header class="stage__head">
+      <div class="stage__title">
+        <span class="stage-mark" aria-hidden="true"><span class="material-symbols-outlined">casino</span></span>
+        <div>
+          <span class="t-label-caps c-gold">RoyalTeam BIS List</span>
+          <h1 class="t-headline-lg">Wheel of Fortune</h1>
         </div>
       </div>
-
-      <lib-wheel-of-fortune
-        [raiders]="wheelRaiders()"
-        [spinning]="rolling()"
-        [winnerRaiderId]="winner()?.raiderId ?? null"
-        [instantWinner]="sessionInfo()?.status === 'done'"
-        [size]="360"
-        [itemIconUrl]="sessionInfo()!.itemIconUrl"
-        [secondaryIconUrl]="sessionInfo()!.secondaryIconUrl"
-      />
-
-      @if (!rolling() && !winner()) {
-        <p class="spectator-waiting">⏳ Wachten op de roll...</p>
+      @if (winnerRevealed()) {
+        <span class="badge badge-success badge--dot">Afgerond</span>
+      } @else if (rolling()) {
+        <span class="badge badge-gold badge--dot live-badge">Live</span>
+      } @else {
+        <span class="badge badge-neutral badge--dot">Wachten</span>
       }
+    </header>
 
-      <div class="spectator-viewers">
-        <span class="spectator-viewers-count"
-          >👁 {{ spectators().length }} kijker{{ spectators().length === 1 ? '' : 's' }}</span
-        >
-        @if (spectators().length) {
-          <ul class="spectator-viewers-list">
-            @for (s of spectators(); track s.displayName) {
-              <li>{{ s.displayName }}</li>
+    <div class="stage__body">
+      <section class="stage__wheel" aria-label="Wheel of Fortune">
+        <div class="wheel-frame">
+          <lib-wheel-of-fortune
+            [raiders]="wheelRaiders()"
+            [spinning]="rolling()"
+            [winnerRaiderId]="winner()?.raiderId ?? null"
+            [instantWinner]="sessionInfo()?.status === 'done'"
+            [size]="360"
+            [itemIconUrl]="sessionInfo()!.itemIconUrl"
+            [secondaryIconUrl]="sessionInfo()!.secondaryIconUrl"
+            (spinDone)="spinFinished.set(true)"
+          />
+        </div>
+      </section>
+
+      <aside class="stage__side">
+        <section class="card">
+          <header class="card-header">
+            <h2 class="card-title">
+              <span class="material-symbols-outlined" aria-hidden="true">diamond</span>
+              Item
+            </h2>
+            @if (sessionInfo()!.difficulty) {
+              <div class="card-actions">
+                <span class="badge badge-gold">{{ sessionInfo()!.difficulty }}</span>
+              </div>
             }
-          </ul>
+          </header>
+          <div class="spectator-item-preview">
+            @if (sessionInfo()!.itemIconUrl && sessionInfo()!.secondaryIconUrl) {
+              <div class="spectator-item-icon spectator-item-icon--split">
+                <img class="split-primary" [src]="sessionInfo()!.itemIconUrl!" [alt]="sessionInfo()!.itemName" />
+                <img class="split-secondary" [src]="sessionInfo()!.secondaryIconUrl!" [alt]="sessionInfo()!.itemName" />
+                <div class="split-divider"></div>
+              </div>
+            } @else if (sessionInfo()!.itemIconUrl) {
+              <img class="spectator-item-icon" [src]="sessionInfo()!.itemIconUrl" [alt]="sessionInfo()!.itemName" />
+            }
+            <p class="t-title-sm c-gold spectator-item">{{ sessionInfo()!.itemName }}</p>
+          </div>
+        </section>
+
+        @if (winnerRevealed()) {
+          <section class="winner-panel" role="status" aria-live="polite">
+            <span class="winner-panel__icon material-symbols-outlined icon-fill" aria-hidden="true">emoji_events</span>
+            <span class="t-label-caps c-gold">Winnaar</span>
+            <p class="t-headline-xl winner-panel__name">{{ winner()!.name }}</p>
+          </section>
+        } @else if (rolling()) {
+          <section class="card status-panel" role="status" aria-live="polite">
+            <span class="dot dot--pulse" style="--dot-color: var(--primary)"></span>
+            <div class="stack status-panel__text">
+              <span class="t-label-caps c-gold">Roll bezig</span>
+              <span class="t-headline-md truncate">{{ displayName() }}</span>
+            </div>
+          </section>
+        } @else {
+          <section class="card status-panel" role="status" aria-live="polite">
+            <span class="material-symbols-outlined c-muted" aria-hidden="true">hourglass_top</span>
+            <span class="t-body-default c-secondary">Wachten op de roll...</span>
+          </section>
         }
-      </div>
+
+        <section class="card">
+          <header class="card-header">
+            <h2 class="card-title">
+              <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+              {{ spectators().length }} kijker{{ spectators().length === 1 ? '' : 's' }}
+            </h2>
+          </header>
+          @if (spectators().length) {
+            <ul class="spectator-viewers-list">
+              @for (s of spectators(); track s.displayName) {
+                <li class="chip">{{ s.displayName }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="t-body-code c-muted spectator-none">Nog geen kijkers.</p>
+          }
+        </section>
+      </aside>
     </div>
   </div>
 }
