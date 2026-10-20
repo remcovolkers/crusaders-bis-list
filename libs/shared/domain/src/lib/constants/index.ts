@@ -5,3 +5,4 @@ export * from './receivable-tiers';
 export * from './super-user';
 export * from './tier-labels';
 export * from './weapon-type-labels';
+export * from './spec-roles';

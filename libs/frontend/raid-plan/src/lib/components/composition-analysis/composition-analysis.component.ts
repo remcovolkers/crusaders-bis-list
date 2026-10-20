@@ -1,52 +1,12 @@
 import { Component, computed, input } from '@angular/core';
-import { IRaidPlanParticipant, WowClass, WowSpec } from '@crusaders-bis-list/shared-domain';
-
-// ── Spec role classification ─────────────────────────────────────────────────
-
-const TANK_SPECS = new Set<WowSpec>([
-  WowSpec.PROTECTION_WARRIOR,
-  WowSpec.PROTECTION_PALADIN,
-  WowSpec.BLOOD,
-  WowSpec.VENGEANCE,
-  WowSpec.GUARDIAN,
-  WowSpec.BREWMASTER,
-]);
-
-const HEALER_SPECS = new Set<WowSpec>([
-  WowSpec.HOLY_PALADIN,
-  WowSpec.DISCIPLINE,
-  WowSpec.HOLY_PRIEST,
-  WowSpec.RESTORATION_SHAMAN,
-  WowSpec.RESTORATION_DRUID,
-  WowSpec.MISTWEAVER,
-  WowSpec.PRESERVATION,
-]);
-
-const RANGED_DPS_SPECS = new Set<WowSpec>([
-  WowSpec.BALANCE,
-  WowSpec.SHADOW,
-  WowSpec.ELEMENTAL,
-  WowSpec.ARCANE,
-  WowSpec.FIRE,
-  WowSpec.FROST_MAGE,
-  WowSpec.AFFLICTION,
-  WowSpec.DEMONOLOGY,
-  WowSpec.DESTRUCTION,
-  WowSpec.MARKSMANSHIP,
-  WowSpec.BEAST_MASTERY,
-  WowSpec.DEVASTATION,
-  WowSpec.AUGMENTATION,
-  WowSpec.DEVOURER,
-]);
-
-export type SpecRole = 'tank' | 'healer' | 'dps';
-
-/** Role of a spec (tank / healer / dps), shared with the raid plan list. */
-export function specRole(spec: WowSpec): SpecRole {
-  if (TANK_SPECS.has(spec)) return 'tank';
-  if (HEALER_SPECS.has(spec)) return 'healer';
-  return 'dps';
-}
+import {
+  HEALER_SPECS,
+  IRaidPlanParticipant,
+  RANGED_DPS_SPECS,
+  TANK_SPECS,
+  WowClass,
+  WowSpec,
+} from '@crusaders-bis-list/shared-domain';
 
 // ── Key buff providers ────────────────────────────────────────────────────────
 

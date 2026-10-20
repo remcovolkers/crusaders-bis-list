@@ -2,9 +2,8 @@ import { Component, inject, computed, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { IRaidPlan, RaidDifficulty, RaidParticipantRole } from '@crusaders-bis-list/shared-domain';
+import { IRaidPlan, RaidDifficulty, RaidParticipantRole, specRole } from '@crusaders-bis-list/shared-domain';
 import { RaidPlanService } from '../../services/raid-plan.service';
-import { specRole } from '../composition-analysis/composition-analysis.component';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 import { AuthStateService } from '@crusaders-bis-list/frontend-auth';
 

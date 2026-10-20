@@ -9,7 +9,10 @@ import {
   RaidDifficulty,
   CreateRaidPlanParticipantDto,
   IBoss,
+  HEALER_SPECS,
+  TANK_SPECS,
   WowClass,
+  specRole,
   WowSpec,
 } from '@crusaders-bis-list/shared-domain';
 import { RaidPlanService } from '../../services/raid-plan.service';
@@ -20,25 +23,6 @@ import { CompositionAnalysisComponent } from '../composition-analysis/compositio
 import { BossPlanningComponent } from '../boss-planning/boss-planning.component';
 import { DiscordComposerComponent } from '../discord-composer/discord-composer.component';
 import { CdkDropList, CdkDrag, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-
-// ── Spec sets for auto-distribution ─────────────────────────────────────────
-const TANK_SPECS = new Set<WowSpec>([
-  WowSpec.PROTECTION_WARRIOR,
-  WowSpec.PROTECTION_PALADIN,
-  WowSpec.BLOOD,
-  WowSpec.VENGEANCE,
-  WowSpec.GUARDIAN,
-  WowSpec.BREWMASTER,
-]);
-const HEALER_SPECS = new Set<WowSpec>([
-  WowSpec.HOLY_PALADIN,
-  WowSpec.DISCIPLINE,
-  WowSpec.HOLY_PRIEST,
-  WowSpec.RESTORATION_SHAMAN,
-  WowSpec.RESTORATION_DRUID,
-  WowSpec.MISTWEAVER,
-  WowSpec.PRESERVATION,
-]);
 
 const GROUP_COUNT = 4;
 const GROUP_SIZE = 5;
@@ -480,9 +464,7 @@ export class RaidPlanDetailComponent implements OnDestroy {
   readonly roleLabel = ROLE_LABEL;
 
   roleOf(p: IRaidPlanParticipant): RosterRole {
-    if (TANK_SPECS.has(p.spec)) return 'tank';
-    if (HEALER_SPECS.has(p.spec)) return 'healer';
-    return 'dps';
+    return specRole(p.spec);
   }
 
   /** `Death Knight` -> `death-knight` (matches the global `.class-<slug>` colours). */
