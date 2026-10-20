@@ -1,13 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { NgClass } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { AdminService, RaiderReservationEntry, RaiderReservationSummary } from '../../services/admin.service';
+import { AdminService, RaiderReservationEntry } from '../../services/admin.service';
 import { AssignmentStatus } from '@crusaders-bis-list/shared-domain';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
+import { classSlug } from '../admin-user-management/spec-role';
 
 @Component({
   selector: 'lib-admin-reservation-management',
-  imports: [NgClass],
   templateUrl: './admin-reservation-management.component.html',
   styleUrls: ['./admin-reservation-management.component.scss'],
 })
@@ -26,6 +25,7 @@ export class AdminReservationManagementComponent {
   readonly orphanedRaiders = computed(() => this.raiders().filter((r) => this.UUID_RE.test(r.characterName)));
 
   readonly AssignmentStatus = AssignmentStatus;
+  readonly classSlug = classSlug;
 
   isAcquired(entry: RaiderReservationEntry): boolean {
     const status = entry.assignment?.status;
@@ -63,11 +63,11 @@ export class AdminReservationManagementComponent {
   tierClass(status: AssignmentStatus | undefined): string {
     switch (status) {
       case AssignmentStatus.CHAMPION_TIER:
-        return 'tier-champion';
+        return 'badge-champion';
       case AssignmentStatus.HERO_TIER:
-        return 'tier-hero';
+        return 'badge-hero';
       case AssignmentStatus.MYTH_TIER:
-        return 'tier-myth';
+        return 'badge-myth';
       default:
         return '';
     }

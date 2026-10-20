@@ -1,18 +1,25 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
-import { NgClass } from '@angular/common';
 import {
   AdminService,
   RaiderReservationEntry,
   RaiderReservationSummary,
   RaiderUser,
 } from '../../services/admin.service';
-import { IUser, UserRole, AssignmentStatus, SUPER_USER_EMAIL, Team } from '@crusaders-bis-list/shared-domain';
+import {
+  IUser,
+  UserRole,
+  AssignmentStatus,
+  RaiderStatus,
+  SUPER_USER_EMAIL,
+  Team,
+} from '@crusaders-bis-list/shared-domain';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 import { AuthStateService } from '@crusaders-bis-list/frontend-auth';
+import { classSlug, ROLE_META, roleOfSpec } from '../admin-user-management/spec-role';
 
 @Component({
   selector: 'lib-admin-user-detail-modal',
-  imports: [NgClass],
+  host: { '(document:keydown.escape)': 'close()' },
   templateUrl: './admin-user-detail-modal.component.html',
   styleUrls: ['./admin-user-detail-modal.component.scss'],
 })
@@ -21,6 +28,8 @@ export class AdminUserDetailModalComponent {
   readonly user = input.required<IUser>();
   readonly summary = input<RaiderReservationSummary | undefined>(undefined);
   readonly profile = input<RaiderUser | undefined>(undefined);
+  /** Total reservation slots of the user's team (null when unknown). */
+  readonly slotLimit = input<number | null>(null);
 
   // ── Outputs ─────────────────────────────────────────────
   /** Request to close the modal */
@@ -41,6 +50,9 @@ export class AdminUserDetailModalComponent {
   readonly confirmingUnlinkBnetUserId = signal<string | null>(null);
 
   readonly adminRole = UserRole.ADMIN;
+  readonly superAdminRole = UserRole.SUPER_ADMIN;
+  readonly RaiderStatus = RaiderStatus;
+  readonly roleMeta = ROLE_META;
   readonly AssignmentStatus = AssignmentStatus;
   readonly Team = Team;
 
@@ -58,6 +70,26 @@ export class AdminUserDetailModalComponent {
     this.confirmingUnlinkBnetUserId.set(null);
     this.closed.emit();
   }
+
+  // ── Derived view data ───────────────────────────────────
+  readonly name = computed(
+    () => this.summary()?.characterName ?? this.profile()?.characterName ?? this.user().displayName,
+  );
+  readonly wowClass = computed(() => this.summary()?.wowClass ?? this.profile()?.wowClass ?? null);
+  readonly spec = computed(() => this.summary()?.spec ?? this.profile()?.spec ?? null);
+  readonly classSlug = computed(() => classSlug(this.wowClass()));
+  readonly role = computed(() => roleOfSpec(this.spec()));
+  readonly status = computed(() => this.profile()?.status ?? null);
+  readonly raiderId = computed(() => this.summary()?.raiderId ?? this.profile()?.id ?? null);
+  /** Active reservations (a reservation may already be received in some tier). */
+  readonly reserves = computed(() => (this.summary()?.reservations ?? []).filter((e) => !e.receivedOnly));
+  /** Items that were received without a reservation (loot history). */
+  readonly receivedItems = computed(() => (this.summary()?.reservations ?? []).filter((e) => e.receivedOnly));
+  readonly superRareCount = computed(() => this.reserves().filter((e) => e.isSuperRare).length);
+  readonly freeSlots = computed(() => {
+    const limit = this.slotLimit();
+    return limit === null ? 0 : Math.max(0, limit - this.reserves().length);
+  });
 
   // ── Helpers ─────────────────────────────────────────────
   isBis(entry: RaiderReservationEntry): boolean {
@@ -87,11 +119,11 @@ export class AdminUserDetailModalComponent {
   tierClass(status: AssignmentStatus | undefined): string {
     switch (status) {
       case AssignmentStatus.CHAMPION_TIER:
-        return 'tier-champion';
+        return 'badge-champion';
       case AssignmentStatus.HERO_TIER:
-        return 'tier-hero';
+        return 'badge-hero';
       case AssignmentStatus.MYTH_TIER:
-        return 'tier-myth';
+        return 'badge-myth';
       default:
         return '';
     }
@@ -168,6 +200,17 @@ export class AdminUserDetailModalComponent {
         this.userChanged.emit({ ...user, roles });
       },
     });
+  }
+
+  toggleAdmin(user: IUser): void {
+    if (user.roles.includes(UserRole.ADMIN)) this.removeAdmin(user);
+    else this.makeAdmin(user);
+  }
+
+  setTeam(user: IUser, team: Team): void {
+    if (team === user.team) return;
+    if (team === Team.CRUSADERS) this.makeCrusader(user);
+    else this.makeTemplar(user);
   }
 
   makeCrusader(user: IUser): void {

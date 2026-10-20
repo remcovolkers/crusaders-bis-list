@@ -1,383 +1,74 @@
+// Reservation management: one card per raider, rows use the same "soft reserve slot" language as the user drawer.
+:host {
+  display: block;
+}
+
 .reservations-page {
-  padding: 24px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-/* -- Page header -- */
-.page-header {
-  margin-bottom: 28px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.page-header-main {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-
-  h2 {
-    font-size: 20px;
-    font-weight: 700;
-    margin: 0 0 4px;
-    color: var(--text-primary);
-  }
-}
-
-.count-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--bg-elevated);
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-}
-
-.page-subtitle {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.raider-card {
-  margin-bottom: 16px;
-  overflow: hidden;
-}
-
-.raider-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  background: var(--bg-elevated);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.raider-name {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.raider-meta {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.res-count {
-  margin-left: auto;
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.res-table {
   display: flex;
   flex-direction: column;
-}
+  gap: var(--gutter-desktop);
 
-.res-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: start;
-  gap: 16px;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--border-color);
-
-  &:last-child {
-    border-bottom: none;
-  }
-  &:hover {
-    background: var(--bg-elevated);
+  .page-head {
+    margin-bottom: 0;
   }
 }
 
-.res-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.card-title {
   min-width: 0;
-}
-
-.item-name {
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.item-badges {
-  display: flex;
-  gap: 4px;
   flex-wrap: wrap;
 }
 
-.cat-badge {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 999px;
-}
-.cat-trinket {
-  background: rgba(167, 139, 250, 0.12);
-  color: #a78bfa;
-  border: 1px solid rgba(167, 139, 250, 0.25);
-}
-.cat-weapon {
-  background: rgba(239, 68, 68, 0.12);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.25);
-}
-.cat-offhand {
-  background: rgba(239, 68, 68, 0.08);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.2);
-}
-.cat-cloth {
-  background: rgba(63, 199, 235, 0.1);
-  color: #67e8f9;
-  border: 1px solid rgba(63, 199, 235, 0.2);
-}
-.cat-leather {
-  background: rgba(255, 124, 10, 0.1);
-  color: #fb923c;
-  border: 1px solid rgba(255, 124, 10, 0.2);
-}
-.cat-mail {
-  background: rgba(170, 211, 114, 0.1);
-  color: #86efac;
-  border: 1px solid rgba(170, 211, 114, 0.2);
-}
-.cat-plate {
-  background: rgba(198, 155, 58, 0.1);
-  color: #fbbf24;
-  border: 1px solid rgba(198, 155, 58, 0.2);
-}
-.cat-jewelry {
-  background: rgba(244, 140, 186, 0.1);
-  color: #f9a8d4;
-  border: 1px solid rgba(244, 140, 186, 0.2);
-}
-.cat-other {
-  background: var(--bg-elevated);
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-}
-
-.superrare-badge {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 999px;
-  background: rgba(251, 191, 36, 0.12);
-  color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.25);
-}
-
-.res-assignment {
+.res-list {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  min-width: 130px;
-  text-align: right;
-}
-
-.tier-badge {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 999px;
-}
-.tier-champion {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-}
-.tier-hero {
-  background: rgba(139, 92, 246, 0.15);
-  color: #a78bfa;
-  border: 1px solid rgba(139, 92, 246, 0.3);
-}
-.tier-myth {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-.tier-no-need {
-  background: var(--bg-elevated);
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-}
-
-.warning-text {
-  font-size: 10px;
-  color: #f59e0b;
-}
-
-.no-assignment {
-  font-size: 11px;
-  color: var(--text-muted);
-  font-style: italic;
-}
-
-/* -- Tier pills -- */
-.tier-pills {
-  display: flex;
-  align-items: center;
   gap: 4px;
-  flex-wrap: wrap;
-  margin-top: 4px;
 }
 
-.tier-pills-label {
-  font-size: 10px;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-.bis-badge-sm {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 999px;
-  background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
-}
-
-.res-actions {
+.slot {
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-width: 120px;
-  justify-content: flex-end;
-}
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-2);
 
-.confirm-text {
-  font-size: 11px;
-  color: var(--text-secondary);
-}
-
-.btn-danger-sm {
-  padding: 3px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  cursor: pointer;
-  &:hover {
-    background: rgba(239, 68, 68, 0.25);
+  &--sr {
+    box-shadow: inset 2px 0 0 var(--tier-super-rare);
+  }
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  &__name {
+    overflow-wrap: anywhere;
+  }
+  &__badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+  }
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    flex-shrink: 0;
   }
 }
 
-.btn-ghost-sm {
-  padding: 3px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  &:hover {
-    border-color: var(--border-bright);
-    color: var(--text-primary);
-  }
-
-  &.warn {
-    border-color: rgba(245, 158, 11, 0.4);
-    color: #f59e0b;
-    &:hover {
-      background: rgba(245, 158, 11, 0.1);
-    }
-  }
-}
-
-.empty-state {
-  padding: 48px;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-/* ── Orphaned reservations ── */
-.orphaned-section {
-  margin-bottom: 32px;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-
-.orphaned-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: rgba(239, 68, 68, 0.08);
-  border-bottom: 1px solid rgba(239, 68, 68, 0.2);
-  flex-wrap: wrap;
-}
-
-.orphaned-wiping {
-  margin-left: auto;
-  font-size: 12px;
-  color: var(--text-muted);
-  font-style: italic;
-}
-
-.orphaned-icon {
-  font-size: 16px;
-}
-
-.orphaned-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #f87171;
-}
-
-.orphaned-subtitle {
-  font-size: 12px;
-  color: var(--text-muted);
-  padding: 8px 16px;
-  margin: 0;
-  border-bottom: 1px solid rgba(239, 68, 68, 0.15);
-}
-
-.orphaned-card {
-  border: none;
-  border-top: 1px solid rgba(239, 68, 68, 0.15);
-  border-radius: 0;
-  margin: 0;
-}
-
-.orphaned-name {
-  font-family: monospace;
-  font-size: 11px;
-  color: #f87171;
-  opacity: 0.8;
-}
-
-/* -- Mobile -- */
 @media (max-width: 640px) {
   .reservations-page {
-    padding: 16px;
+    gap: var(--gutter);
   }
-
-  .res-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .raider-header {
+  .slot {
+    align-items: flex-start;
     flex-wrap: wrap;
-  }
 
-  .item-badges {
-    flex-wrap: wrap;
+    &__actions {
+      margin-left: auto;
+    }
   }
 }
