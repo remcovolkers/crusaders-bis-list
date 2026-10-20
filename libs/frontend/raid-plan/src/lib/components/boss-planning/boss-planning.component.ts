@@ -35,8 +35,8 @@ export class BossPlanningComponent {
     for (const n of this.bossNotesResource.value() ?? []) map.set(n.bossId, n);
     return map;
   });
-  /** bossId → collapsed */
-  readonly collapsed = signal<Set<string>>(new Set([]));
+  /** bossId → explicit collapsed state chosen by the user (overrides the default) */
+  readonly collapsedOverride = signal<Map<string, boolean>>(new Map());
   /** bossId → new resource URL being typed */
   readonly pendingUrl = signal<Map<string, string>>(new Map());
   /** bossId → resolved preview (null while loading) */
@@ -45,20 +45,27 @@ export class BossPlanningComponent {
   readonly addingResource = signal<Set<string>>(new Set());
 
   readonly statuses: BossNoteStatus[] = ['progression', 'farm', 'skip'];
+  readonly statusLabel: Record<BossNoteStatus, string> = { progression: 'Progressie', farm: 'Farm', skip: 'Overslaan' };
+  readonly statusBadge: Record<BossNoteStatus, string> = {
+    progression: 'badge-info',
+    farm: 'badge-success',
+    skip: 'badge-neutral',
+  };
 
   // ── Collapse ──────────────────────────────────────────────────────────────────
 
   toggleCollapse(bossId: string): void {
-    this.collapsed.update((set) => {
-      const next = new Set(set);
-      if (next.has(bossId)) next.delete(bossId);
-      else next.add(bossId);
-      return next;
-    });
+    const next = !this.isCollapsed(bossId);
+    this.collapsedOverride.update((m) => new Map(m).set(bossId, next));
   }
 
+  /** Read-only view: bosses without notes or resources start collapsed to keep the strip dense. */
   isCollapsed(bossId: string): boolean {
-    return this.collapsed().has(bossId);
+    const override = this.collapsedOverride().get(bossId);
+    if (override !== undefined) return override;
+    if (!this.readonly()) return false;
+    const note = this.getNote(bossId);
+    return !(note?.notes?.trim() || (note?.resources?.length ?? 0) > 0);
   }
 
   // ── Notes / status ───────────────────────────────────────────────────────────

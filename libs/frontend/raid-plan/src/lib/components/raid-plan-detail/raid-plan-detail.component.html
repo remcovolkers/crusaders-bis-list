@@ -1,131 +1,215 @@
 @if (loading()) {
-  <p class="loading-text">Laden…</p>
+  <div class="page"><p class="loading-text">Laden…</p></div>
 } @else if (!plan()) {
-  <p class="loading-text">Raidplan niet gevonden.</p>
+  <div class="page"><p class="loading-text">Raidplan niet gevonden.</p></div>
 } @else {
-  <div class="workspace">
-    <!-- ── Header ── -->
-    <div class="workspace__header">
-      <a routerLink=".." class="back-link">← Overzicht</a>
-      <div class="workspace__header-main">
-        <div class="workspace__header-info">
-          <h1 class="workspace__title">{{ plan()!.raidName }}</h1>
-          <div class="workspace__meta">
-            @if (editMode()) {
-              <div class="inline-edit-bar">
-                <div class="inline-field">
-                  <label class="inline-field__label">Moeilijkheid</label>
-                  <div class="difficulty-toggle">
-                    @for (d of difficulties; track d) {
-                      <button
-                        class="difficulty-btn difficulty-btn--{{ d.toLowerCase() }}"
-                        [class.difficulty-btn--active]="editDifficulty() === d"
-                        (click)="editDifficulty.set(d)"
-                        type="button"
-                      >
-                        {{ d }}
-                      </button>
-                    }
-                  </div>
-                </div>
-                <div class="inline-field">
-                  <label class="inline-field__label">Datum</label>
-                  <input
-                    class="inline-input"
-                    type="date"
-                    [ngModel]="editDate()"
-                    (ngModelChange)="editDate.set($event)"
-                  />
-                </div>
-                <div class="inline-field">
-                  <label class="inline-field__label">Tijd</label>
-                  <select
-                    class="inline-input inline-input--sm"
-                    [ngModel]="editTime()"
-                    (ngModelChange)="editTime.set($event)"
-                  >
-                    @for (t of timeOptions; track t) {
-                      <option [value]="t">{{ t }}</option>
-                    }
-                  </select>
-                </div>
-                @if (raidNames().length > 0) {
-                  <div class="inline-field inline-field--raids">
-                    <label class="inline-field__label">Raids</label>
-                    <div class="edit-raid-chips">
-                      @for (name of raidNames(); track name) {
-                        <button
-                          type="button"
-                          class="raid-chip"
-                          [class.raid-chip--active]="editRaids().has(name)"
-                          (click)="toggleEditRaid(name)"
-                        >
-                          {{ name }}
-                        </button>
-                      }
-                    </div>
-                  </div>
-                }
-                <div class="inline-field inline-field--grow">
-                  <label class="inline-field__label">Notities</label>
-                  <input
-                    class="inline-input"
-                    type="text"
-                    [ngModel]="editNotes()"
-                    (ngModelChange)="editNotes.set($event)"
-                    placeholder="Optioneel"
-                  />
-                </div>
-              </div>
-            } @else {
-              <span class="difficulty-badge difficulty-{{ plan()!.difficulty.toLowerCase() }}">{{
-                plan()!.difficulty
-              }}</span>
-              <span class="meta-date">📅 {{ formatDate(plan()!.scheduledAt) }}</span>
-              <span class="meta-count"
-                >⚔️ {{ raiders().length }} raiders · 🪑 {{ bench().length }} bank · ❌
-                {{ absent().length }} afgemeld</span
-              >
-              @if (plan()!.notes) {
-                <span class="workspace__notes">{{ plan()!.notes }}</span>
-              }
-            }
-            @if (saving()) {
-              <span class="save-indicator">💾 Opslaan…</span>
-            }
-          </div>
-        </div>
-        <div class="workspace__header-actions">
-          @if (editMode()) {
-            <button class="btn-secondary" (click)="cancelEdit()" [disabled]="saving()">Annuleren</button>
-            <button class="btn-primary" (click)="saveEdit()" [disabled]="saving()">✅ Opslaan</button>
-          } @else if (isAdmin()) {
-            @if (pendingDelete()) {
-              <span class="confirm-text">Raidplan verwijderen?</span>
-              <button class="btn-danger" (click)="confirmDelete()">Ja, verwijder</button>
-              <button class="btn-secondary" (click)="abortDelete()">Annuleer</button>
-            } @else {
-              <button class="btn-secondary" (click)="enterEdit()">✏️ Bewerken</button>
-              <button class="btn-danger" (click)="requestDelete()">🗑️ Verwijder</button>
-            }
-          }
-        </div>
+  <div class="page plan">
+    <!-- ── Breadcrumb / schedule strip ── -->
+    <div class="plan-strip">
+      <nav class="breadcrumb" aria-label="Kruimelpad">
+        <a routerLink="..">Raidplannen</a>
+        <span class="breadcrumb__sep">/</span>
+        <span class="plan-strip__current">{{ plan()!.raidName }}</span>
+      </nav>
+      <div class="plan-strip__when t-body-code">
+        <span class="dot" style="--dot-color: var(--success)"></span>
+        <span class="c-secondary">{{ formatDate(plan()!.scheduledAt) }}</span>
       </div>
     </div>
 
-    <!-- ── Workspace body ── -->
-    <div class="workspace__body" cdkDropListGroup>
-      <!-- Roster area -->
-      <div class="roster-area">
-        <!-- Groups grid -->
-        <div class="groups-grid">
+    <!-- ── Title card + KPI telemetry + actions ── -->
+    <section class="card card-lg plan-hero">
+      <div class="plan-hero__main">
+        <div class="row row-wrap gap-sm">
+          <span class="badge {{ difficultyBadge(plan()!.difficulty) }}">{{ plan()!.difficulty }}</span>
+          @for (raid of raidBadges(); track raid) {
+            <span class="badge badge-gold">{{ raid }}</span>
+          }
+          @if (saving()) {
+            <span class="badge badge-info badge--dot">Opslaan…</span>
+          }
+        </div>
+
+        <h1 class="t-headline-xl plan-hero__title">{{ plan()!.raidName }}</h1>
+
+        @if (editMode()) {
+          <!-- Plan settings (inline edit flow) -->
+          <div class="plan-edit card-tier-2">
+            <div class="plan-edit__row">
+              <div class="form-field">
+                <span class="form-label">Moeilijkheid</span>
+                <div class="segmented" role="group" aria-label="Moeilijkheid">
+                  @for (d of difficulties; track d) {
+                    <button
+                      class="segmented__item"
+                      [class.is-active]="editDifficulty() === d"
+                      (click)="editDifficulty.set(d)"
+                      type="button"
+                    >
+                      {{ d }}
+                    </button>
+                  }
+                </div>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="plan-edit-date">Datum</label>
+                <input
+                  id="plan-edit-date"
+                  class="form-input"
+                  type="date"
+                  [ngModel]="editDate()"
+                  (ngModelChange)="editDate.set($event)"
+                />
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="plan-edit-time">Tijd</label>
+                <select
+                  id="plan-edit-time"
+                  class="form-select"
+                  [ngModel]="editTime()"
+                  (ngModelChange)="editTime.set($event)"
+                >
+                  @for (t of timeOptions; track t) {
+                    <option [value]="t">{{ t }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+            @if (raidNames().length > 0) {
+              <div class="form-field">
+                <span class="form-label">Raids</span>
+                <div class="row row-wrap gap-xs">
+                  @for (name of raidNames(); track name) {
+                    <button
+                      type="button"
+                      class="chip"
+                      [class.is-active]="editRaids().has(name)"
+                      (click)="toggleEditRaid(name)"
+                    >
+                      {{ name }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+            <div class="form-field">
+              <label class="form-label" for="plan-edit-notes">Notities</label>
+              <input
+                id="plan-edit-notes"
+                class="form-input"
+                type="text"
+                [ngModel]="editNotes()"
+                (ngModelChange)="editNotes.set($event)"
+                placeholder="Optioneel"
+              />
+            </div>
+          </div>
+        } @else if (plan()!.notes) {
+          <p class="t-body-default c-secondary plan-hero__notes">{{ plan()!.notes }}</p>
+        }
+
+        <!-- KPI telemetry (derived from the roster) -->
+        <div class="plan-kpi">
+          <div class="stat-tile">
+            <span class="stat-tile__label">Raiders</span>
+            <span class="stat-tile__value">
+              {{ raiders().length }}/{{ rosterCapacity }}
+              @if (bench().length > 0 || absent().length > 0) {
+                <span class="stat-tile__sub">
+                  @if (bench().length > 0) {
+                    +{{ bench().length }} bank
+                  }
+                  @if (absent().length > 0) {
+                    {{ bench().length > 0 ? '· ' : '' }}{{ absent().length }} afgemeld
+                  }
+                </span>
+              }
+            </span>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-tile__label">Tanks</span>
+            <span class="stat-tile__value">
+              <span class="material-symbols-outlined icon-16 role-tank">{{ roleIcon.tank }}</span>
+              {{ roleCounts().tank }}
+            </span>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-tile__label">Healers</span>
+            <span class="stat-tile__value">
+              <span class="material-symbols-outlined icon-16 role-healer">{{ roleIcon.healer }}</span>
+              {{ roleCounts().healer }}
+            </span>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-tile__label">DPS</span>
+            <span class="stat-tile__value">
+              <span class="material-symbols-outlined icon-16 role-dps">{{ roleIcon.dps }}</span>
+              {{ roleCounts().dps }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-hero__actions">
+        @if (editMode()) {
+          <button class="btn-primary" (click)="saveEdit()" [disabled]="saving()">
+            <span class="material-symbols-outlined">check</span>Opslaan
+          </button>
+          <button class="btn" (click)="cancelEdit()" [disabled]="saving()">Annuleren</button>
+        } @else if (isAdmin()) {
+          @if (pendingDelete()) {
+            <span class="t-body-code c-secondary">Raidplan verwijderen?</span>
+            <button class="btn-danger" (click)="confirmDelete()">Ja, verwijder</button>
+            <button class="btn" (click)="abortDelete()">Annuleer</button>
+          } @else {
+            <button class="btn" (click)="enterEdit()">
+              <span class="material-symbols-outlined c-gold">settings</span>Bewerken
+            </button>
+            <button class="btn-danger" (click)="requestDelete()">
+              <span class="material-symbols-outlined">delete</span>Verwijder
+            </button>
+          }
+        }
+      </div>
+    </section>
+
+    <!-- ── Bento: roster matrix + boss strip (left) / analysis + discord (right) ── -->
+    <div class="plan-grid" cdkDropListGroup>
+      <!-- Roster matrix -->
+      <section class="card plan-roster">
+        <header class="card-header">
+          <h2 class="card-title">
+            <span class="material-symbols-outlined">grid_view</span>Roster
+            <span class="badge badge-neutral">{{ raiders().length }}/{{ rosterCapacity }} plekken</span>
+          </h2>
+          <div class="card-actions plan-legend t-body-code c-muted">
+            @for (r of roles; track r) {
+              <span class="row gap-xs">
+                <span class="dot dot--sm role-bg-{{ r }}"></span>{{ roleLabel[r] }} ({{ roleCounts()[r] }})
+              </span>
+            }
+          </div>
+        </header>
+
+        <div class="plan-groups">
           @for (group of groups(); track $index) {
-            <div class="group-zone">
-              <h3 class="group-zone__title">
-                Groep {{ $index + 1 }} <span class="group-zone__count">{{ group.length }}/5</span>
-              </h3>
+            <div class="plan-group card-tier-2">
+              <div class="plan-group__head t-label-caps">
+                <span class="c-gold plan-group__title">Groep {{ $index + 1 }}</span>
+                <span class="plan-group__summary c-muted">
+                  @for (r of roles; track r) {
+                    @if (groupRoleCounts()[$index][r] > 0) {
+                      <span class="plan-group__pip role-{{ r }}">
+                        <span class="material-symbols-outlined icon-14">{{ roleIcon[r] }}</span>
+                        {{ groupRoleCounts()[$index][r] }}
+                      </span>
+                    }
+                  }
+                  <span class="t-stat-mono c-secondary">{{ group.length }}/5</span>
+                </span>
+              </div>
               <div
-                class="drop-list"
+                class="drop-list drop-list--group"
                 cdkDropList
                 [id]="groupIds[$index]"
                 [cdkDropListData]="group"
@@ -133,24 +217,38 @@
                 (cdkDropListDropped)="onGroupDrop($event, $index)"
               >
                 @for (p of group; track p.id) {
-                  <lib-raider-card [participant]="p" cdkDrag [cdkDragData]="p" [cdkDragDisabled]="!isAdmin()" />
+                  <div class="roster-row" cdkDrag [cdkDragData]="p" [cdkDragDisabled]="!isAdmin()">
+                    <span
+                      class="material-symbols-outlined icon-16 roster-row__role role-{{ roleOf(p) }}"
+                      [attr.title]="roleLabel[roleOf(p)]"
+                      >{{ roleIcon[roleOf(p)] }}</span
+                    >
+                    <span class="class-stripe class-{{ classSlug(p) }}"></span>
+                    <span class="roster-row__id">
+                      <span class="roster-row__name">{{ p.characterName }}</span>
+                      <span class="roster-row__spec">{{ p.spec }}</span>
+                    </span>
+                  </div>
                 }
                 @if (group.length === 0) {
-                  <div class="drop-placeholder">Sleep een raider hierheen</div>
+                  <div class="empty-slot drop-placeholder">Sleep een raider hierheen</div>
                 }
               </div>
             </div>
           }
         </div>
 
-        <!-- Bench + Absent -->
-        <div class="extra-zones">
-          <div class="extra-zone extra-zone--bench">
-            <h3 class="extra-zone__title">
-              🪑 Bank <span class="group-zone__count">{{ bench().length }}</span>
-            </h3>
+        <!-- Bench + absent -->
+        <div class="plan-extra">
+          <div class="plan-zone card-tier-2">
+            <div class="plan-zone__head t-label-caps">
+              <span class="row gap-xs c-text">
+                <span class="material-symbols-outlined icon-16" style="color: var(--tier-hero)">hourglass_top</span>Bank
+              </span>
+              <span class="t-stat-mono c-secondary">{{ bench().length }}</span>
+            </div>
             <div
-              class="drop-list drop-list--horizontal"
+              class="drop-list drop-list--tiles"
               cdkDropList
               id="bench-zone"
               [cdkDropListData]="_bench"
@@ -159,20 +257,29 @@
               (cdkDropListDropped)="onBenchDrop($event)"
             >
               @for (p of bench(); track p.id) {
-                <lib-raider-card [participant]="p" cdkDrag [cdkDragData]="p" [cdkDragDisabled]="!isAdmin()" />
+                <div class="roster-tile" cdkDrag [cdkDragData]="p" [cdkDragDisabled]="!isAdmin()">
+                  <span class="class-stripe class-{{ classSlug(p) }}"></span>
+                  <span class="roster-row__id">
+                    <span class="roster-row__name">{{ p.characterName }}</span>
+                    <span class="roster-row__spec">{{ p.spec }}</span>
+                  </span>
+                </div>
               }
               @if (bench().length === 0) {
-                <div class="drop-placeholder">Sleep hier naartoe voor bank</div>
+                <div class="empty-slot drop-placeholder">Sleep hier naartoe voor bank</div>
               }
             </div>
           </div>
 
-          <div class="extra-zone extra-zone--absent">
-            <h3 class="extra-zone__title">
-              ❌ Afgemeld <span class="group-zone__count">{{ absent().length }}</span>
-            </h3>
+          <div class="plan-zone card-tier-2">
+            <div class="plan-zone__head t-label-caps">
+              <span class="row gap-xs c-text">
+                <span class="material-symbols-outlined icon-16 c-danger">person_off</span>Afgemeld
+              </span>
+              <span class="t-stat-mono c-secondary">{{ absent().length }}</span>
+            </div>
             <div
-              class="drop-list drop-list--horizontal"
+              class="drop-list drop-list--tiles"
               cdkDropList
               id="absent-zone"
               [cdkDropListData]="_absent"
@@ -181,32 +288,39 @@
               (cdkDropListDropped)="onAbsentDrop($event)"
             >
               @for (p of absent(); track p.id) {
-                <lib-raider-card [participant]="p" cdkDrag [cdkDragData]="p" [cdkDragDisabled]="!isAdmin()" />
+                <div class="roster-tile roster-tile--absent" cdkDrag [cdkDragData]="p" [cdkDragDisabled]="!isAdmin()">
+                  <span class="class-stripe class-{{ classSlug(p) }}"></span>
+                  <span class="roster-row__id">
+                    <span class="roster-row__name">{{ p.characterName }}</span>
+                    <span class="roster-row__spec">{{ p.spec }}</span>
+                  </span>
+                </div>
               }
               @if (absent().length === 0) {
-                <div class="drop-placeholder">Sleep hier naartoe voor afgemeld</div>
+                <div class="empty-slot drop-placeholder">Sleep hier naartoe voor afgemeld</div>
               }
             </div>
           </div>
         </div>
+      </section>
+
+      <!-- Boss tactical assignments -->
+      @if (bosses().length > 0) {
+        <section class="card plan-boss">
+          <header class="card-header">
+            <h2 class="card-title">
+              <span class="material-symbols-outlined" style="color: var(--tier-myth)">emergency</span>Boss planning
+            </h2>
+          </header>
+          <lib-boss-planning [raidPlanId]="plan()!.id" [bosses]="bosses()" [readonly]="!editMode()" />
+        </section>
+      }
+
+      <!-- Analysis + Discord -->
+      <div class="plan-side">
+        <lib-composition-analysis [raiders]="raiders()" />
+        <lib-discord-composer [plan]="plan()!" (planUpdated)="onPlanUpdated($event)" />
       </div>
-
-      <!-- Composition sidebar -->
-      <lib-composition-analysis [raiders]="raiders()" />
-    </div>
-
-    <!-- ── Boss planning ── -->
-    @if (bosses().length > 0) {
-      <div class="boss-section">
-        <h2 class="boss-section__title">⚔️ Boss Planning</h2>
-        <lib-boss-planning [raidPlanId]="plan()!.id" [bosses]="bosses()" [readonly]="!editMode()" />
-      </div>
-    }
-
-    <!-- ── Discord Composer ── -->
-    <div class="discord-section">
-      <h2 class="discord-section__title">💬 Discord</h2>
-      <lib-discord-composer [plan]="plan()!" (planUpdated)="onPlanUpdated($event)" />
     </div>
   </div>
 }
