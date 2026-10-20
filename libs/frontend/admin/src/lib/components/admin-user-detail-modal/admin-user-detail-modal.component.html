@@ -1,183 +1,319 @@
-<div
-  class="modal-backdrop"
-  role="button"
-  tabindex="0"
-  aria-label="Sluit venster"
-  (click)="close()"
-  (keydown.escape)="close()"
-></div>
-
-<div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-  <!-- Header -->
-  <div class="panel-header">
-    <div class="panel-user-info">
-      <span id="modal-title" class="panel-display-name">
-        {{ summary()?.characterName ?? profile()?.characterName ?? user().displayName }}
-      </span>
-    </div>
-    <button class="close-btn" (click)="close()" aria-label="Sluiten">✕</button>
-  </div>
-
-  <!-- Body -->
-  <div class="modal-body-columns">
-    <!-- Left column: profile + account actions -->
-    <div class="modal-col modal-col--actions">
-      <!-- Raider profiel -->
-      <div class="panel-section">
-        <h3 class="section-title">Raider profiel</h3>
-        @if (summary(); as s) {
-          <div class="profile-card">
-            <span class="profile-char">{{ s.characterName }}</span>
-            <span class="profile-meta">{{ s.wowClass }} – {{ s.spec }}</span>
+<div class="drawer-backdrop drawer-backdrop--end">
+  <div
+    class="user-drawer__scrim"
+    role="button"
+    tabindex="-1"
+    aria-label="Sluit venster"
+    (click)="close()"
+    (keydown.escape)="close()"
+  ></div>
+  <aside class="drawer user-drawer" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <!-- Header -->
+    <header class="drawer__header">
+      <div class="user-drawer__id">
+        <span class="class-tile class-tile--lg" [class]="'class-' + classSlug()">{{
+          name().charAt(0).toUpperCase()
+        }}</span>
+        <div class="user-drawer__title">
+          <div class="user-drawer__name-line">
+            <h2 id="modal-title" class="t-headline-md truncate" [class]="'class-' + classSlug()">{{ name() }}</h2>
+            @if (user().roles.includes(superAdminRole)) {
+              <span class="badge badge-gold">Super admin</span>
+            } @else if (user().roles.includes(adminRole)) {
+              <span class="badge badge-gold">Admin</span>
+            }
           </div>
-        } @else if (profile(); as p) {
-          <div class="profile-card">
-            <span class="profile-char">{{ p.characterName }}</span>
-            <span class="profile-meta">{{ p.wowClass }} – {{ p.spec }}</span>
-          </div>
-        } @else {
-          <p class="empty-state">Geen raider-profiel.</p>
-        }
-      </div>
-
-      <!-- Account acties -->
-      <div class="panel-section">
-        <h3 class="section-title">Account acties</h3>
-        <div class="action-group">
-          @if (!user().roles.includes(adminRole)) {
-            <button class="action-btn" (click)="makeAdmin(user())">Maak Admin</button>
-          } @else {
-            <button class="action-btn danger" (click)="removeAdmin(user())">Verwijder Admin rol</button>
-          }
-
-          @if (canSwitchTeam()) {
-            @if (user().team !== Team.CRUSADERS) {
-              <button class="action-btn" (click)="makeCrusader(user())">Zet in Crusaders</button>
-            } @else {
-              <button class="action-btn" (click)="makeTemplar(user())">Zet in Templars</button>
+          <span class="t-label-caps c-muted truncate">
+            {{ user().team === Team.CRUSADERS ? 'Crusaders' : 'Templars' }}
+            @if (spec() && wowClass()) {
+              · {{ spec() }} {{ wowClass() }}
             }
-          }
-
-          @if (user().battletag) {
-            @if (confirmingUnlinkBnetUserId() === user().id) {
-              <div class="confirm-row">
-                <span class="confirm-text">Battle.net ontkoppelen?</span>
-                <button class="action-btn danger" (click)="confirmUnlinkBnet(user())">Ja, ontkoppel</button>
-                <button class="action-btn" (click)="abortUnlinkBnet()">Annuleer</button>
-              </div>
-            } @else {
-              <button class="action-btn danger" (click)="requestUnlinkBnet(user().id)" [title]="user().battletag ?? ''">
-                Ontkoppel Battle.net ({{ user().battletag }})
-              </button>
-            }
-          }
-
-          @if (summary(); as s) {
-            @if (confirmingResetRaiderId() === s.raiderId) {
-              <div class="confirm-row">
-                <span class="confirm-text">Profiel resetten?</span>
-                <button class="action-btn danger" (click)="confirmReset(s.raiderId)">Ja, reset</button>
-                <button class="action-btn" (click)="abortReset()">Annuleer</button>
-              </div>
-            } @else {
-              <button class="action-btn danger" (click)="requestReset(s.raiderId)">Reset raider profiel</button>
-            }
-          } @else if (profile(); as p) {
-            @if (confirmingResetRaiderId() === p.id) {
-              <div class="confirm-row">
-                <span class="confirm-text">Profiel resetten?</span>
-                <button class="action-btn danger" (click)="confirmReset(p.id)">Ja, reset</button>
-                <button class="action-btn" (click)="abortReset()">Annuleer</button>
-              </div>
-            } @else {
-              <button class="action-btn danger" (click)="requestReset(p.id)">Reset raider profiel</button>
-            }
-          }
-
-          @if (confirmingDeleteUserId() === user().id) {
-            <div class="confirm-row">
-              <span class="confirm-text">Account verwijderen?</span>
-              <button class="action-btn danger" (click)="confirmDeleteUser(user().id)">Ja, verwijder</button>
-              <button class="action-btn" (click)="abortDeleteUser()">Annuleer</button>
-            </div>
-          } @else {
-            <button class="action-btn danger" (click)="requestDeleteUser(user().id)">Verwijder account</button>
-          }
+          </span>
         </div>
       </div>
-    </div>
-    <!-- /.modal-col--actions -->
+      <div class="row gap-xs">
+        <span
+          class="dot"
+          [style.--dot-color]="user().battletag ? 'var(--success)' : 'var(--text-muted)'"
+          [attr.title]="user().battletag ? 'Battle.net gekoppeld' : 'Battle.net niet gekoppeld'"
+        ></span>
+        <button type="button" class="icon-btn" (click)="close()" aria-label="Sluiten">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </header>
 
-    <!-- Right column: reservations -->
-    <div class="modal-col modal-col--reservations">
-      <div class="panel-section reservations-section">
-        <h3 class="section-title">
-          Reserveringen
-          @if (summary(); as s) {
-            <span class="section-count">{{ s.reservations.length }}</span>
+    <div class="drawer__body">
+      <!-- Quick stats -->
+      <div class="user-drawer__stats">
+        <div class="stat-tile">
+          <span class="stat-tile__label">Status</span>
+          <span class="stat-tile__value">
+            @switch (status()) {
+              @case (RaiderStatus.ACTIVE) {
+                <span class="c-champion">Actief</span>
+              }
+              @case (RaiderStatus.TRIAL) {
+                <span class="c-hero">Trial</span>
+              }
+              @case (RaiderStatus.INACTIVE) {
+                <span class="c-muted">Inactief</span>
+              }
+              @default {
+                <span class="c-muted">—</span>
+              }
+            }
+          </span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile__label">Reserveringen</span>
+          <span class="stat-tile__value c-gold">
+            {{ reserves().length }}
+            @if (slotLimit() !== null) {
+              <span class="stat-tile__sub">/ {{ slotLimit() }}</span>
+            }
+          </span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile__label">Super rare</span>
+          <span class="stat-tile__value" [class.c-super-rare]="superRareCount() > 0">{{ superRareCount() }}</span>
+        </div>
+      </div>
+
+      <!-- Battle.net link status -->
+      <section class="user-drawer__section">
+        <h3 class="t-label-caps c-muted">Battle.net koppeling</h3>
+        <div class="user-drawer__bnet">
+          @if (user().battletag; as tag) {
+            <span class="material-symbols-outlined icon-16 c-success">verified</span>
+            <span class="t-body-medium truncate grow" [title]="tag">{{ tag }}</span>
+            @if (confirmingUnlinkBnetUserId() === user().id) {
+              <span class="t-body-code c-secondary">Ontkoppelen?</span>
+              <button type="button" class="btn btn-sm btn-danger" (click)="confirmUnlinkBnet(user())">Ja</button>
+              <button type="button" class="btn btn-sm" (click)="abortUnlinkBnet()">Annuleer</button>
+            } @else {
+              <button type="button" class="btn-text btn-sm c-danger" (click)="requestUnlinkBnet(user().id)">
+                Ontkoppel Battle.net
+              </button>
+            }
+          } @else {
+            <span class="material-symbols-outlined icon-16 c-muted">link_off</span>
+            <span class="t-body-default c-muted">Niet gekoppeld</span>
           }
+        </div>
+      </section>
+
+      <!-- Roles -->
+      <section class="user-drawer__section">
+        <h3 class="t-label-caps c-muted">Rechten</h3>
+        <div class="user-drawer__roles">
+          <label class="check-row">
+            <span>Raider</span>
+            <input type="checkbox" checked disabled />
+          </label>
+          <label class="check-row">
+            <span class="c-gold fw-medium">Admin</span>
+            <input
+              type="checkbox"
+              [checked]="user().roles.includes(adminRole)"
+              (click)="$event.preventDefault(); toggleAdmin(user())"
+            />
+          </label>
+          @if (user().roles.includes(superAdminRole)) {
+            <label class="check-row">
+              <span class="c-super-rare fw-medium">Super admin</span>
+              <input type="checkbox" checked disabled />
+            </label>
+          }
+        </div>
+      </section>
+
+      <!-- Team & role -->
+      <section class="user-drawer__section">
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label" for="drawer-team">Team</label>
+            @if (canSwitchTeam()) {
+              <select
+                id="drawer-team"
+                class="form-select"
+                #teamSelect
+                (change)="setTeam(user(), teamSelect.value === Team.CRUSADERS ? Team.CRUSADERS : Team.TEMPLARS)"
+              >
+                <option [value]="Team.CRUSADERS" [selected]="user().team === Team.CRUSADERS">Crusaders</option>
+                <option [value]="Team.TEMPLARS" [selected]="user().team === Team.TEMPLARS">Templars</option>
+              </select>
+            } @else {
+              <span class="user-drawer__static" id="drawer-team">
+                <span class="badge" [class]="user().team === Team.CRUSADERS ? 'badge-crusaders' : 'badge-templars'">
+                  {{ user().team === Team.CRUSADERS ? 'Crusaders' : 'Templars' }}
+                </span>
+              </span>
+            }
+          </div>
+          <div class="form-field">
+            <span class="form-label">Raid-rol</span>
+            <span class="user-drawer__static">
+              @if (role(); as r) {
+                <span class="material-symbols-outlined icon-16" [class]="'role-' + r">{{ roleMeta[r].icon }}</span>
+                {{ roleMeta[r].label }}
+              } @else {
+                <span class="c-muted">Geen raider-profiel</span>
+              }
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Active soft reserves -->
+      <section class="user-drawer__section">
+        <h3 class="t-label-caps c-muted">
+          Actieve reserveringen ({{ reserves().length }}
+          @if (slotLimit() !== null) {
+            / {{ slotLimit() }}
+          }
+          )
         </h3>
-
-        @if (summary(); as s) {
-          @if (s.reservations.length === 0) {
-            <p class="empty-state">Geen reserveringen.</p>
-          }
-          @for (entry of s.reservations; track entry.id) {
-            <div class="res-row" [class.res-row--bis]="isBis(entry)">
-              <div class="res-item">
-                @if (entry.iconUrl && entry.secondaryIconUrl) {
-                  <div class="item-icon-sm item-icon-sm--split">
-                    <img class="split-primary" [src]="entry.iconUrl" [alt]="entry.itemName" loading="lazy" />
-                    <img class="split-secondary" [src]="entry.secondaryIconUrl" [alt]="entry.itemName" loading="lazy" />
-                    <div class="split-divider"></div>
-                  </div>
-                } @else if (entry.iconUrl) {
-                  <img class="item-icon-sm" [src]="entry.iconUrl" [alt]="entry.itemName" loading="lazy" />
+        <div class="user-drawer__list">
+          @for (entry of reserves(); track entry.id) {
+            <div class="slot" [class.slot--sr]="entry.isSuperRare">
+              @if (entry.iconUrl && entry.secondaryIconUrl) {
+                <div class="item-icon-sm item-icon-sm--split">
+                  <img class="split-primary" [src]="entry.iconUrl" [alt]="entry.itemName" loading="lazy" />
+                  <img class="split-secondary" [src]="entry.secondaryIconUrl" [alt]="entry.itemName" loading="lazy" />
+                  <div class="split-divider"></div>
+                </div>
+              } @else if (entry.iconUrl) {
+                <img class="item-icon-sm" [src]="entry.iconUrl" [alt]="entry.itemName" loading="lazy" />
+              }
+              <div class="slot__main">
+                <span class="t-body-medium slot__name" [class.c-super-rare]="entry.isSuperRare">{{
+                  entry.itemName
+                }}</span>
+                <div class="slot__badges">
+                  <span class="cat-badge" [class]="'cat-' + entry.itemCategory">{{ entry.itemCategory }}</span>
+                  @if (entry.isSuperRare) {
+                    <span class="badge badge-super-rare">
+                      <span class="material-symbols-outlined icon-14 icon-fill">star</span>Super rare
+                    </span>
+                  }
+                  @if (isBis(entry)) {
+                    <span class="badge badge-success">
+                      <span class="material-symbols-outlined icon-14">check</span>BiS ontvangen
+                    </span>
+                    @if (entry.assignment?.status) {
+                      <span class="badge" [class]="tierClass(entry.assignment!.status)">{{
+                        tierLabel(entry.assignment!.status)
+                      }}</span>
+                    }
+                  } @else {
+                    @for (tier of getReservedTiers(entry); track tier) {
+                      <span class="badge" [class]="tierClass(tier)">{{ tierLabel(tier) }}</span>
+                    }
+                  }
+                </div>
+              </div>
+              <div class="slot__actions">
+                @if (confirmingEntry()?.itemId === entry.itemId) {
+                  <span class="t-body-code c-secondary">Zeker?</span>
+                  <button type="button" class="btn btn-sm btn-danger" (click)="confirmCancel()">Ja</button>
+                  <button type="button" class="btn btn-sm" (click)="abortCancel()">Nee</button>
+                } @else {
+                  <button
+                    type="button"
+                    class="icon-btn icon-btn--sm icon-btn--danger"
+                    aria-label="Reservering intrekken"
+                    title="Reservering intrekken"
+                    (click)="requestCancel(entry)"
+                  >
+                    <span class="material-symbols-outlined icon-16">delete</span>
+                  </button>
                 }
-                <div class="item-text">
-                  <span class="item-name">{{ entry.itemName }}</span>
-                  <div class="item-badges">
-                    <span class="cat-badge" [ngClass]="'cat-' + entry.itemCategory">{{ entry.itemCategory }}</span>
-                    @if (entry.isSuperRare) {
-                      <span class="superrare-badge">⭐ Superrare</span>
+              </div>
+            </div>
+          }
+          @if (reserves().length === 0) {
+            <div class="empty-slot">Geen reserveringen.</div>
+          } @else if (freeSlots() > 0) {
+            <div class="empty-slot">+ {{ freeSlots() }} vrije {{ freeSlots() === 1 ? 'plek' : 'plekken' }}</div>
+          }
+        </div>
+      </section>
+
+      <!-- Loot history (received without reservation) -->
+      @if (receivedItems().length) {
+        <section class="user-drawer__section">
+          <h3 class="t-label-caps c-muted">Ontvangen loot ({{ receivedItems().length }})</h3>
+          <div class="user-drawer__list">
+            @for (entry of receivedItems(); track entry.itemId) {
+              <div class="slot slot--history">
+                <div class="slot__main">
+                  <span class="t-body-medium slot__name" [class.c-super-rare]="entry.isSuperRare">{{
+                    entry.itemName
+                  }}</span>
+                  <div class="slot__badges">
+                    <span class="cat-badge" [class]="'cat-' + entry.itemCategory">{{ entry.itemCategory }}</span>
+                    @if (entry.receivedTier) {
+                      <span class="badge" [class]="tierClass(entry.receivedTier)">{{
+                        tierLabel(entry.receivedTier)
+                      }}</span>
                     }
                   </div>
                 </div>
-              </div>
-              <div class="res-tiers">
-                @if (isBis(entry)) {
-                  <span class="bis-badge-sm">&#10003; BiS Ontvangen</span>
-                  @if (entry.assignment?.status) {
-                    <span class="tier-badge" [ngClass]="tierClass(entry.assignment!.status)">{{
-                      tierLabel(entry.assignment!.status)
-                    }}</span>
-                  }
-                } @else if (getReservedTiers(entry).length) {
-                  @for (tier of getReservedTiers(entry); track tier) {
-                    <span class="tier-badge" [ngClass]="tierClass(tier)">{{ tierLabel(tier) }}</span>
-                  }
-                }
-              </div>
-              <div class="res-right">
-                <div class="res-actions">
+                <div class="slot__actions">
                   @if (confirmingEntry()?.itemId === entry.itemId) {
-                    <span class="confirm-text">Zeker?</span>
-                    <button class="action-btn-sm danger" (click)="confirmCancel()">Ja</button>
-                    <button class="action-btn-sm" (click)="abortCancel()">Nee</button>
+                    <span class="t-body-code c-secondary">Zeker?</span>
+                    <button type="button" class="btn btn-sm btn-danger" (click)="confirmCancel()">Ja</button>
+                    <button type="button" class="btn btn-sm" (click)="abortCancel()">Nee</button>
                   } @else {
-                    <button class="action-btn-sm" (click)="requestCancel(entry)">Intrekken</button>
+                    <button
+                      type="button"
+                      class="icon-btn icon-btn--sm icon-btn--danger"
+                      aria-label="Ontvangen item verwijderen"
+                      title="Ontvangen item verwijderen"
+                      (click)="requestCancel(entry)"
+                    >
+                      <span class="material-symbols-outlined icon-16">delete</span>
+                    </button>
                   }
                 </div>
               </div>
-            </div>
-          }
-        } @else {
-          <p class="empty-state">Geen reserveringen.</p>
-        }
-      </div>
+            }
+          </div>
+        </section>
+      }
     </div>
-    <!-- /.modal-col--reservations -->
-  </div>
-  <!-- /.modal-body-columns -->
+
+    <!-- Account actions -->
+    <footer class="drawer__footer">
+      @if (raiderId(); as rid) {
+        @if (confirmingResetRaiderId() === rid) {
+          <div class="user-drawer__confirm">
+            <span class="t-body-default">Profiel resetten?</span>
+            <button type="button" class="btn btn-sm btn-danger" (click)="confirmReset(rid)">Ja, reset</button>
+            <button type="button" class="btn btn-sm" (click)="abortReset()">Annuleer</button>
+          </div>
+        }
+      }
+      @if (confirmingDeleteUserId() === user().id) {
+        <div class="user-drawer__confirm">
+          <span class="t-body-default">Account verwijderen?</span>
+          <button type="button" class="btn btn-sm btn-danger" (click)="confirmDeleteUser(user().id)">
+            Ja, verwijder
+          </button>
+          <button type="button" class="btn btn-sm" (click)="abortDeleteUser()">Annuleer</button>
+        </div>
+      }
+      <div class="user-drawer__actions">
+        @if (raiderId(); as rid) {
+          <button type="button" class="btn grow" (click)="requestReset(rid)">
+            <span class="material-symbols-outlined icon-16">restart_alt</span>Reset raider profiel
+          </button>
+        }
+        <button type="button" class="btn-danger grow" (click)="requestDeleteUser(user().id)">
+          <span class="material-symbols-outlined icon-16">person_remove</span>Verwijder account
+        </button>
+      </div>
+    </footer>
+  </aside>
 </div>
-<!-- /.modal -->
