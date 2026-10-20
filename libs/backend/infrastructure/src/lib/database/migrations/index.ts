@@ -17,6 +17,7 @@ import { AddTeamColumn1778544000000 } from './1778544000000-AddTeamColumn';
 import { AddSeasonConfigTeam1778630400000 } from './1778630400000-AddSeasonConfigTeam';
 import { AddItemSuperRareOverrides1778716800000 } from './1778716800000-AddItemSuperRareOverrides';
 import { AddAuditLogTeam1778803200000 } from './1778803200000-AddAuditLogTeam';
+import { EnableRowLevelSecurity1778889600000 } from './1778889600000-EnableRowLevelSecurity';
 
 export const MIGRATIONS: (new () => MigrationInterface)[] = [
   BeastMasterySpecFix1744761600000,
@@ -37,4 +38,5 @@ export const MIGRATIONS: (new () => MigrationInterface)[] = [
   AddSeasonConfigTeam1778630400000,
   AddItemSuperRareOverrides1778716800000,
   AddAuditLogTeam1778803200000,
+  EnableRowLevelSecurity1778889600000,
 ];

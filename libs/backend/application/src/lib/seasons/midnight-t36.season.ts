@@ -12,6 +12,7 @@ import { SeasonDefinition } from './season-definition.types';
  *   The Venomous Abyss    (instanceId 1320) — 8 bosses: Nek'zali the Soulcoiler,
  *     Entombed Sentinels, The Lost Explorers, Vashnik the Malignant, Sszorak,
  *     The Twin Fangs, The Coiled Altar, Ula'tek
+ *   The Unbinding of Kith'ix (instanceId 1324) — 1 boss: Kith'ix (patch 12.1.5, no tier tokens)
  *
  * Tier token naming convention — "Venom<armor> <slot-name>":
  *   Venomforged  → Plate   |  Venomcured → Leather
@@ -46,6 +47,12 @@ export const MIDNIGHT_T36_SEASON: SeasonDefinition = {
       // Nek'zali the Soulcoiler, Entombed Sentinels, The Lost Explorers,
       // Vashnik the Malignant, Sszorak, The Twin Fangs, The Coiled Altar, Ula'tek
       fallbackEncounterIds: [2888, 2874, 2894, 2882, 2871, 2887, 2883, 2895],
+    },
+    {
+      instanceId: 1324,
+      name: "The Unbinding of Kith'ix",
+      accentColor: '#7c3aed',
+      fallbackEncounterIds: [2896],
     },
   ],
 
