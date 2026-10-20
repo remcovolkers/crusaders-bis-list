@@ -185,7 +185,7 @@
           <div class="card-actions plan-legend t-body-code c-muted">
             @for (r of roles; track r) {
               <span class="row gap-xs">
-                <span class="dot dot--sm role-bg-{{ r }}"></span>{{ roleLabel[r] }} ({{ roleCounts()[r] }})
+                <span class="dot dot--sm role-{{ r }}"></span>{{ roleLabel[r] }} ({{ roleCounts()[r] }})
               </span>
             }
           </div>

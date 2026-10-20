@@ -21,26 +21,6 @@
   padding: 60px 0;
 }
 
-// Role colours (icons + legend dots). Stitch: tank = cool, healer = green, dps = red.
-.role-tank {
-  color: var(--info);
-}
-.role-healer {
-  color: var(--success-text);
-}
-.role-dps {
-  color: var(--error);
-}
-.role-bg-tank {
-  --dot-color: var(--info);
-}
-.role-bg-healer {
-  --dot-color: var(--success-text);
-}
-.role-bg-dps {
-  --dot-color: var(--error);
-}
-
 // ── Breadcrumb / schedule strip ───────────────────────────────────────────────
 
 .plan-strip {

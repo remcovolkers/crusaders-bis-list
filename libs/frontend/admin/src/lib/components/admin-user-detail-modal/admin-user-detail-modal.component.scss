@@ -4,6 +4,10 @@
 }
 
 .user-drawer {
+  // role colours for the global `.role-*` helpers
+  --role-tank: var(--tier-myth);
+  --role-healer: var(--success-text);
+  --role-dps: var(--text-secondary);
   position: relative;
 
   &__scrim {
@@ -106,17 +110,6 @@
   &__actions {
     display: flex;
     gap: var(--space-xs);
-  }
-
-  // role colours
-  .role-tank {
-    color: var(--tier-myth);
-  }
-  .role-healer {
-    color: var(--success-text);
-  }
-  .role-dps {
-    color: var(--text-secondary);
   }
 }
 

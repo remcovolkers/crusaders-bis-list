@@ -27,6 +27,13 @@
   max-width: 100%;
   border-radius: var(--radius-xs);
   background: var(--surface-base);
+
+  // long tables: scrolls vertically inside the wrapper, the header strip (`th`) stays sticky.
+  //   <div class="table-wrap table-wrap--scroll" style="--table-max-h: 360px">
+  &--scroll {
+    max-height: var(--table-max-h, 480px);
+    overflow-y: auto;
+  }
 }
 
 .table {

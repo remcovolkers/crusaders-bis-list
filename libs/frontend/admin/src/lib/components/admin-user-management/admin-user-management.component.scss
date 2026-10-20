@@ -24,6 +24,10 @@
 }
 
 .roster {
+  // role colours for the global `.role-*` helpers (icons in the table, tint in the role filter)
+  --role-tank: var(--tier-myth);
+  --role-healer: var(--success-text);
+  --role-dps: var(--text-secondary);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
@@ -120,26 +124,6 @@
   }
   &__sr {
     max-width: 150px;
-  }
-
-  // role colours (icons in the table, tint in the role filter)
-  .role-tank {
-    --item-color: var(--tier-myth);
-  }
-  .role-healer {
-    --item-color: var(--success-text);
-  }
-  .role-dps {
-    --item-color: var(--text-secondary);
-  }
-  span.role-tank {
-    color: var(--tier-myth);
-  }
-  span.role-healer {
-    color: var(--success-text);
-  }
-  span.role-dps {
-    color: var(--text-secondary);
   }
 
   .user-row:focus-visible {

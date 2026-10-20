@@ -99,6 +99,11 @@ $type-scale: (
   --tier-myth: #fb923c;
   --tier-super-rare: #f59e0b;
 
+  // Raid roles (tank / healer / dps): used by the `.role-*` helpers, override per context if needed
+  --role-tank: var(--info);
+  --role-healer: var(--success-text);
+  --role-dps: var(--error);
+
   // ---------- WoW class colours ----------
   --class-warrior: #c69b6d;
   --class-paladin: #f48cba;

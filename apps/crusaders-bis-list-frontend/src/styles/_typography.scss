@@ -39,6 +39,11 @@
   @include type('stat-mono');
   font-variant-numeric: tabular-nums;
 }
+// small numeric variant for dense table cells (timestamps, counters)
+.t-stat-mono--sm {
+  font-size: 12px;
+  line-height: 16px;
+}
 .t-label-caps {
   @include type('label-caps');
   text-transform: uppercase;
@@ -122,6 +127,25 @@
 }
 .c-super-rare {
   color: var(--tier-super-rare);
+}
+
+// raid roles: `.role-tank|healer|dps` colour text/icons (`color`) and expose the same colour to
+// `.segmented__item` (`--item-color`) and `.dot` (`--dot-color`). Colours come from `--role-tank|healer|dps`.
+.role-tank {
+  --role-color: var(--role-tank);
+}
+.role-healer {
+  --role-color: var(--role-healer);
+}
+.role-dps {
+  --role-color: var(--role-dps);
+}
+.role-tank,
+.role-healer,
+.role-dps {
+  color: var(--role-color);
+  --item-color: var(--role-color);
+  --dot-color: var(--role-color);
 }
 
 // ---------- WoW class helpers ----------

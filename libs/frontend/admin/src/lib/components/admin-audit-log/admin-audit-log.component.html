@@ -94,8 +94,8 @@
             <tbody>
               @for (entry of filteredEntries(); track entry.id) {
                 <tr>
-                  <td class="col-time" data-label="Tijdstip">
-                    <span class="t-stat-mono nowrap">{{ entry.createdAt | date: 'd MMM y, HH:mm' }}</span>
+                  <td data-label="Tijdstip">
+                    <span class="t-stat-mono t-stat-mono--sm c-secondary nowrap">{{ entry.createdAt | date: 'd MMM y, HH:mm' }}</span>
                   </td>
                   <td data-label="Actie">
                     <span class="badge nowrap" [class]="actionClass(entry.action)">
