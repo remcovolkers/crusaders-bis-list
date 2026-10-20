@@ -1,0 +1,144 @@
+            <!-- 8. SPACING, RADIUS, ELEVATION & ACCESSIBILITY TOKENS -->
+            <section class="flex flex-col gap-space-md" id="spacing-accessibility">
+              <div class="flex items-center justify-between pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="w-2 h-5 bg-primary-fixed rounded-sm"></span>
+                  <h2 class="font-headline-lg text-headline-lg text-text-primary">
+                    07. Spacing Scales, Radius & WCAG AA Enforcement
+                  </h2>
+                </div>
+                <span class="font-stat-mono text-body-code text-text-muted">GRID_BASE_4PX</span>
+              </div>
+              <!-- 4px Base Spacing Rulers Visualizer -->
+              <div class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col gap-space-md">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">Harmonic Grid</span>
+                    <h3 class="font-headline-md text-headline-md text-text-primary">Spacing Bounding Metric Rulers</h3>
+                  </div>
+                  <span class="font-stat-mono text-[11px] text-primary">SCALE: 4PX - 64PX</span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-space-sm">
+                  <!-- 4px -->
+                  <div class="bg-surface-tier-2 p-space-sm rounded flex flex-col gap-1.5">
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">space-xs (4px)</span>
+                    <div class="h-1 bg-primary rounded w-full"></div>
+                    <span class="font-stat-mono text-[11px] text-text-secondary">0.25rem • micro-gap</span>
+                  </div>
+                  <!-- 6px -->
+                  <div class="bg-surface-tier-2 p-space-sm rounded flex flex-col gap-1.5">
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">space-sm (6px)</span>
+                    <div class="h-1.5 bg-primary rounded w-full"></div>
+                    <span class="font-stat-mono text-[11px] text-text-secondary">0.375rem • row-pad</span>
+                  </div>
+                  <!-- 12px -->
+                  <div class="bg-surface-tier-2 p-space-sm rounded flex flex-col gap-1.5">
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">space-md (12px)</span>
+                    <div class="h-3 bg-primary rounded w-full"></div>
+                    <span class="font-stat-mono text-[11px] text-text-secondary">0.75rem • card-pad</span>
+                  </div>
+                  <!-- 20px -->
+                  <div class="bg-surface-tier-2 p-space-sm rounded flex flex-col gap-1.5">
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">space-lg (20px)</span>
+                    <div class="h-5 bg-primary rounded w-full"></div>
+                    <span class="font-stat-mono text-[11px] text-text-secondary">1.25rem • panel-gap</span>
+                  </div>
+                  <!-- 32px -->
+                  <div class="bg-surface-tier-2 p-space-sm rounded flex flex-col gap-1.5">
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">space-xl (32px)</span>
+                    <div class="h-8 bg-primary rounded w-full"></div>
+                    <span class="font-stat-mono text-[11px] text-text-secondary">2.0rem • section-gap</span>
+                  </div>
+                  <!-- 48px -->
+                  <div class="bg-surface-tier-2 p-space-sm rounded flex flex-col gap-1.5">
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">space-2xl (48px)</span>
+                    <div class="h-12 bg-primary rounded w-full"></div>
+                    <span class="font-stat-mono text-[11px] text-text-secondary">3.0rem • hero-pad</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Radius & Breakpoints Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+                <!-- Radius Specimen Card -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between gap-space-md"
+                >
+                  <div>
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">Corner Curvature</span>
+                    <h3 class="font-headline-md text-headline-md text-text-primary">Corner Geometry Scale</h3>
+                  </div>
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm">
+                    <div
+                      class="p-space-sm bg-surface-tier-2 rounded flex flex-col items-center justify-center text-center h-24"
+                    >
+                      <span class="font-stat-mono text-stat-mono text-primary font-bold">2px</span>
+                      <span class="font-label-caps text-label-caps uppercase text-text-muted mt-1">DEFAULT</span>
+                      <span class="text-[10px] text-text-secondary">Inputs / Pills</span>
+                    </div>
+                    <div
+                      class="p-space-sm bg-surface-tier-2 rounded-lg flex flex-col items-center justify-center text-center h-24"
+                    >
+                      <span class="font-stat-mono text-stat-mono text-primary font-bold">4px</span>
+                      <span class="font-label-caps text-label-caps uppercase text-text-muted mt-1">ROUND-LG</span>
+                      <span class="text-[10px] text-text-secondary">Cards / Buttons</span>
+                    </div>
+                    <div
+                      class="p-space-sm bg-surface-tier-2 rounded-xl flex flex-col items-center justify-center text-center h-24"
+                    >
+                      <span class="font-stat-mono text-stat-mono text-primary font-bold">8px</span>
+                      <span class="font-label-caps text-label-caps uppercase text-text-muted mt-1">ROUND-XL</span>
+                      <span class="text-[10px] text-text-secondary">Modals / Panels</span>
+                    </div>
+                    <div
+                      class="p-space-sm bg-surface-tier-2 rounded-full flex flex-col items-center justify-center text-center h-24"
+                    >
+                      <span class="font-stat-mono text-stat-mono text-primary font-bold">Full</span>
+                      <span class="font-label-caps text-label-caps uppercase text-text-muted mt-1">PILL FULL</span>
+                      <span class="text-[10px] text-text-secondary">Avatars / Tags</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Breakpoints & Accessibility Card -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between gap-space-md"
+                >
+                  <div>
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">Target Standards</span>
+                    <h3 class="font-headline-md text-headline-md text-text-primary">Breakpoints & WCAG Ergonomics</h3>
+                  </div>
+                  <div class="flex flex-col gap-space-sm">
+                    <div class="p-space-sm rounded bg-surface-tier-2 flex items-center justify-between">
+                      <div class="flex items-center gap-space-sm">
+                        <span class="material-symbols-outlined text-primary text-[18px]">smartphone</span>
+                        <span class="font-body-medium text-body-medium text-text-primary"
+                          >Mobile Breakpoint (<640px)</span
+                        >
+                      </div>
+                      <span class="font-stat-mono text-[11px] text-class-monk">≥44px Touch Targets</span>
+                    </div>
+                    <div class="p-space-sm rounded bg-surface-tier-2 flex items-center justify-between">
+                      <div class="flex items-center gap-space-sm">
+                        <span class="material-symbols-outlined text-primary text-[18px]">tablet_mac</span>
+                        <span class="font-body-medium text-body-medium text-text-primary">Tablet (640px - 1024px)</span>
+                      </div>
+                      <span class="font-stat-mono text-[11px] text-text-secondary">Scroll Rail & Sticky Col</span>
+                    </div>
+                    <div class="p-space-sm rounded bg-surface-tier-2 flex items-center justify-between">
+                      <div class="flex items-center gap-space-sm">
+                        <span class="material-symbols-outlined text-primary text-[18px]">desktop_windows</span>
+                        <span class="font-body-medium text-body-medium text-text-primary">Desktop (>1024px)</span>
+                      </div>
+                      <span class="font-stat-mono text-[11px] text-text-primary">1520px Max Grid</span>
+                    </div>
+                  </div>
+                  <!-- Focus Ring Demo -->
+                  <div class="flex items-center justify-between pt-space-xs text-text-muted text-[11px]">
+                    <span class="flex items-center gap-1 font-body-code">
+                      <span class="w-2 h-2 rounded-full bg-primary ring-2 ring-primary/40"></span>
+                      Focus Ring: ring-2 ring-primary/50
+                    </span>
+                    <span class="font-stat-mono text-class-monk">4.5:1 Verified AA</span>
+                  </div>
+                </div>
+              </div>
+            </section>

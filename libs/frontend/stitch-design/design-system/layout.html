@@ -1,0 +1,33 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+<!--@head web_standard-->
+  <body class="bg-surface-base font-body-default text-body-default text-text-primary antialiased selection:bg-gold-dim selection:text-primary">
+<!--@include parts/topbar.html-->
+    <main class="w-full pt-14 bg-surface-base min-h-screen">
+      <div class="flex flex-col w-full">
+<!--@include parts/toast.html-->
+        <!-- Main Content Layout with Sticky Quick-Navigation Side Rail -->
+        <div class="w-full max-w-[1520px] mx-auto px-gutter-desktop py-space-lg flex flex-col lg:flex-row items-start gap-space-xl">
+<!--@include parts/outline-rail.html-->
+          <!-- Main Specification Canvas -->
+          <div class="flex-1 min-w-0 flex flex-col gap-space-xl">
+<!--@include sections/01-spec-overview.html-->
+<!--@include sections/02-surface-elevation.html-->
+<!--@include sections/03-status-tokens.html-->
+<!--@include sections/04-class-palette.html-->
+<!--@include sections/05-item-tiers.html-->
+<!--@include sections/06-raids-teams.html-->
+<!--@include sections/07-typography.html-->
+<!--@include sections/08-spacing-accessibility.html-->
+<!--@include parts/playground-footer.html-->
+          </div>
+        </div>
+      </div>
+      <script>
+<!--@include scripts/copy-token.js-->
+      </script>
+    </main>
+<!--@include parts/page-footer.html-->
+  </body>
+</html>

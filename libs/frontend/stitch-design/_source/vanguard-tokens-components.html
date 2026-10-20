@@ -1,0 +1,1833 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="web_standard" name="shell-type" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet" />
+    <style>
+      @layer base {
+        html,
+        body {
+          margin: 0;
+          padding: 0;
+        }
+        body {
+          overscroll-behavior: none;
+        }
+        main > :first-child {
+          margin-top: 0 !important;
+        }
+        main > :last-child {
+          margin-bottom: 0 !important;
+        }
+      }
+      ::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              secondary: '#a4c9ff',
+              'class-monk': '#00ff98',
+              'class-paladin': '#f48cba',
+              'tier-myth': '#fb923c',
+              background: '#0f131c',
+              'on-tertiary': '#490081',
+              'on-surface-variant': '#d0c5b2',
+              'on-tertiary-fixed': '#2c0051',
+              'tertiary-fixed': '#f0dbff',
+              'inverse-on-surface': '#2c303a',
+              'surface-container-high': '#262a34',
+              'error-container': '#93000a',
+              'secondary-fixed': '#d4e3ff',
+              'class-death-knight': '#c41e3a',
+              'text-secondary': '#94a3b8',
+              'gold-dim': '#c9a84c26',
+              'surface-container-low': '#181b25',
+              'surface-bright': '#353943',
+              'on-tertiary-container': '#5a1b93',
+              'class-evoker': '#33937f',
+              'primary-container': '#c9a84c',
+              'outline-variant': '#4d4637',
+              'class-rogue': '#fff468',
+              'surface-tier-2': '#1a2235',
+              'border-subtle': '#2a3650',
+              'on-error': '#690005',
+              'class-demon-hunter': '#a330c9',
+              'class-druid': '#ff7c0a',
+              'team-templars': '#06b6d4',
+              'surface-dim': '#0f131c',
+              'primary-fixed': '#ffe08f',
+              'primary-fixed-dim': '#e6c364',
+              'on-tertiary-fixed-variant': '#62259b',
+              'secondary-container': '#0267b8',
+              'on-primary-fixed': '#241a00',
+              surface: '#0f131c',
+              'class-warrior': '#c69b6d',
+              'class-mage': '#3fc7eb',
+              error: '#ffb4ab',
+              'on-error-container': '#ffdad6',
+              'on-surface': '#dfe2ef',
+              'on-secondary-container': '#d6e5ff',
+              'text-muted': '#5a6a82',
+              'on-secondary': '#00315d',
+              'on-secondary-fixed': '#001c39',
+              'tier-hero': '#c084fc',
+              'secondary-fixed-dim': '#a4c9ff',
+              'class-warlock': '#8788ee',
+              'on-primary': '#3d2e00',
+              'team-crusaders': '#f59e0b',
+              'surface-hover': '#222d44',
+              'class-hunter': '#aad372',
+              'tertiary-fixed-dim': '#ddb8ff',
+              'on-background': '#dfe2ef',
+              'inverse-primary': '#755b00',
+              'class-priest': '#ffffff',
+              'surface-base': '#0a0e17',
+              'text-primary': '#e2e8f0',
+              primary: '#e6c364',
+              'tertiary-container': '#ca94ff',
+              'surface-tier-1': '#12182b',
+              'surface-container-lowest': '#0a0e17',
+              outline: '#99907e',
+              'on-primary-container': '#503d00',
+              'gold-pressed': '#b3923d',
+              'surface-container-highest': '#31353f',
+              'class-shaman': '#0070dd',
+              'on-primary-fixed-variant': '#584400',
+              tertiary: '#ddb8ff',
+              'surface-tint': '#e6c364',
+              'surface-container': '#1c1f29',
+              'tier-champion': '#60a5fa',
+              'gold-hover': '#dbb95d',
+              'surface-variant': '#31353f',
+              'on-secondary-fixed-variant': '#004883',
+              'tier-super-rare': '#f59e0b',
+              'inverse-surface': '#dfe2ef',
+            },
+            borderRadius: { DEFAULT: '0.125rem', lg: '0.25rem', xl: '0.5rem', full: '0.75rem' },
+            spacing: {
+              'space-md': '0.75rem',
+              'margin-desktop': '1.5rem',
+              margin: '1rem',
+              'space-xl': '2rem',
+              'space-xs': '0.25rem',
+              'gutter-desktop': '1rem',
+              'space-sm': '0.375rem',
+              gutter: '0.75rem',
+              'space-lg': '1.25rem',
+            },
+            fontFamily: {
+              'headline-xl-mobile': ['Inter'],
+              'body-medium': ['Inter'],
+              'stat-mono': ['Inter'],
+              'label-caps': ['Inter'],
+              'headline-md': ['Inter'],
+              'title-sm': ['Inter'],
+              'body-default': ['Inter'],
+              'body-code': ['Inter'],
+              'headline-lg': ['Inter'],
+              'headline-xl': ['Inter'],
+            },
+            fontSize: {
+              'headline-xl-mobile': ['24px', { lineHeight: '30px', letterSpacing: '-0.01em', fontWeight: '700' }],
+              'body-medium': ['13px', { lineHeight: '18px', letterSpacing: '0', fontWeight: '500' }],
+              'stat-mono': ['13px', { lineHeight: '16px', letterSpacing: '-0.01em', fontWeight: '600' }],
+              'label-caps': ['10px', { lineHeight: '12px', letterSpacing: '0.08em', fontWeight: '700' }],
+              'headline-md': ['18px', { lineHeight: '24px', letterSpacing: '-0.01em', fontWeight: '600' }],
+              'title-sm': ['15px', { lineHeight: '20px', letterSpacing: '-0.005em', fontWeight: '600' }],
+              'body-default': ['13px', { lineHeight: '18px', letterSpacing: '0', fontWeight: '400' }],
+              'body-code': ['12px', { lineHeight: '16px', letterSpacing: '0.02em', fontWeight: '500' }],
+              'headline-lg': ['22px', { lineHeight: '28px', letterSpacing: '-0.015em', fontWeight: '600' }],
+              'headline-xl': ['32px', { lineHeight: '38px', letterSpacing: '-0.02em', fontWeight: '700' }],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="bg-surface-base font-body-default text-body-default text-text-primary antialiased selection:bg-gold-dim selection:text-primary"
+  >
+    <header class="fixed top-0 left-0 w-full z-50 bg-surface-tier-1/95 backdrop-blur-md border-b border-border-subtle">
+      <div class="h-14 w-full px-gutter-desktop flex items-center justify-between gap-space-md">
+        <div class="flex items-center gap-space-lg flex-shrink-0">
+          <div class="flex items-center gap-space-sm">
+            <img
+              alt="RoyalTeam BIS Logo"
+              class="h-8 w-auto object-contain"
+              src="https://lh3.googleusercontent.com/aida/AEtjO1VgRmzmGgNKv3TaipiKTn63Tevb3e-fQGiTHIKJQP1rT9yaWOeVMimUUtS-ZF_gQpuRpSLl9x-BSi8IlQycnVRTzNa8g4bWcxyjuAF_LD8tbhUaYmh8mOCjiSemgsA01TmwcrKwxUGw56dFk74EgneYtH2Nybx4b1adeGEcO4_gHsi-t52BRb6vtYfjXbU7UBJooySCDmHouwiWRjDnaEJSA8ZI09p3OzLHpZclTjUADUWOoUsTUZRkSn0"
+            />
+            <div class="flex flex-col">
+              <div class="flex items-center gap-space-xs">
+                <span class="font-title-sm text-title-sm tracking-tight text-text-primary">RoyalTeam</span
+                ><span class="font-title-sm text-title-sm tracking-tight text-primary font-bold">BIS</span>
+              </div>
+              <span class="font-label-caps text-label-caps uppercase text-text-muted">v2.4 Guild Edition</span>
+            </div>
+          </div>
+          <div class="hidden xl:flex items-center bg-surface-tier-2 p-0.5 rounded border border-border-subtle">
+            <button
+              class="px-space-sm py-0.5 rounded text-label-caps font-label-caps uppercase transition-colors bg-gold-dim text-team-crusaders border border-team-crusaders/30 flex items-center gap-1"
+              type="button"
+            >
+              <span class="w-1.5 h-1.5 rounded-full bg-team-crusaders"></span>Crusaders (Mythic)</button
+            ><button
+              class="px-space-sm py-0.5 rounded text-label-caps font-label-caps uppercase transition-colors text-text-muted hover:text-text-primary flex items-center gap-1"
+              type="button"
+            >
+              <span class="w-1.5 h-1.5 rounded-full bg-team-templars/50"></span>Templars (Heroic)
+            </button>
+          </div>
+        </div>
+        <nav
+          class="hidden lg:flex items-center gap-space-md h-full"
+          data-active-classes="text-primary border-b-2 border-primary"
+        >
+          <a
+            class="h-full flex items-center px-space-xs font-body-medium text-body-medium text-text-secondary hover:text-text-primary transition-colors border-b-2 border-transparent"
+            data-path="raid-planner"
+            href="#"
+            >Raid Planner</a
+          ><a
+            class="h-full flex items-center px-space-xs font-body-medium text-body-medium text-text-secondary hover:text-text-primary transition-colors border-b-2 border-transparent"
+            data-path="soft-reserves"
+            href="#"
+            >Soft Reserves</a
+          ><a
+            class="h-full flex items-center px-space-xs font-body-medium text-body-medium text-text-secondary hover:text-text-primary transition-colors border-b-2 border-transparent"
+            data-path="loot-history"
+            href="#"
+            >Loot History</a
+          ><a
+            class="h-full flex items-center px-space-xs font-body-medium text-body-medium text-text-secondary hover:text-text-primary transition-colors border-b-2 border-transparent"
+            data-path="guild-roster"
+            href="#"
+            >Guild Roster</a
+          ><a
+            class="h-full flex items-center px-space-xs font-body-medium text-body-medium text-text-secondary hover:text-text-primary transition-colors border-b-2 border-transparent"
+            data-path="tokens-styleguide"
+            href="#"
+            >Tokens & Styleguide</a
+          ><a
+            class="h-full flex items-center px-space-xs font-body-medium text-body-medium text-text-secondary hover:text-text-primary transition-colors border-b-2 border-transparent"
+            data-path="component-library"
+            href="#"
+            >Component Library</a
+          >
+        </nav>
+        <div class="flex items-center gap-space-sm flex-shrink-0">
+          <div
+            class="hidden md:flex items-center bg-surface-tier-2 border border-border-subtle rounded px-space-sm py-1 gap-space-sm text-text-muted cursor-pointer hover:border-outline transition-colors"
+          >
+            <span class="material-symbols-outlined text-[16px]">search</span
+            ><span class="font-body-default text-body-default text-text-muted">Search raider, item...</span
+            ><kbd
+              class="bg-surface-tier-1 text-text-secondary border border-border-subtle px-1 py-0.5 rounded font-stat-mono text-label-caps"
+              >Ctrl+K</kbd
+            >
+          </div>
+          <button
+            class="relative p-1.5 rounded bg-surface-tier-2 border border-border-subtle text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
+            type="button"
+          >
+            <span class="material-symbols-outlined text-[18px]">notifications</span
+            ><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-error border border-surface-tier-2"></span>
+          </button>
+          <div class="flex items-center gap-space-sm pl-space-xs border-l border-border-subtle">
+            <div class="relative">
+              <img
+                alt="Profile"
+                class="w-8 h-8 rounded-full object-cover ring-1 ring-primary/40"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXAxGr2arTCuJH_Ddeitqx8oRM-D1cuL0HJ9684fmWwTmHEUgyOsxGnMkeAHFreaekiRzgnQXPbSShuUYfGsmt87PqUulosqLYuy7Oa37c6zQ3jr4SZAvJ5l6iwsu-R0saUrJW8_MtAkObGftFnQn9x-S9QMtrx63HlBvsn50Dek6hTnpXptgoHCl4-hXRWrnM8IIBTZR1n8iH6efqpQB1OLPWkEjPeHvo4ol-RHrEBtyrREsrwa1t"
+              /><span
+                class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-class-monk border-2 border-surface-tier-1"
+              ></span>
+            </div>
+            <div class="hidden sm:flex flex-col">
+              <span class="font-body-medium text-body-medium text-text-primary leading-none">Vaelin</span
+              ><span class="font-label-caps text-label-caps text-primary uppercase leading-tight mt-0.5"
+                >Guild Master</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main class="w-full pt-14 bg-surface-base min-h-screen">
+      <div class="flex flex-col w-full">
+        <!-- Interactive Toast Notification Element -->
+        <div
+          class="fixed bottom-6 right-6 z-50 flex items-center gap-space-sm px-space-md py-space-sm rounded-lg bg-surface-tier-2 shadow-2xl transition-all duration-300 translate-y-12 opacity-0 pointer-events-none"
+          id="copy-toast"
+        >
+          <span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+          <span class="font-body-medium text-body-medium text-text-primary" id="toast-text"
+            >Token copied to clipboard</span
+          >
+        </div>
+        <!-- Main Content Layout with Sticky Quick-Navigation Side Rail -->
+        <div
+          class="w-full max-w-[1520px] mx-auto px-gutter-desktop py-space-lg flex flex-col lg:flex-row items-start gap-space-xl"
+        >
+          <!-- Sticky Architectural Rail -->
+          <aside class="hidden lg:flex flex-col w-60 shrink-0 sticky top-20 gap-space-md">
+            <div class="bg-surface-tier-1 p-space-md rounded-lg shadow-lg flex flex-col gap-space-sm">
+              <div class="flex items-center justify-between pb-space-xs text-text-muted">
+                <span class="font-label-caps text-label-caps uppercase tracking-wider text-text-muted"
+                  >Tokens Outline</span
+                >
+                <span class="font-stat-mono text-[10px] text-primary">v2.4-SPEC</span>
+              </div>
+              <nav class="flex flex-col gap-0.5">
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#spec-overview"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-primary"></span>Overview</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">01</span>
+                </a>
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#elevation-layers"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Surfaces & Gold</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">02</span>
+                </a>
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#status-tones"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-error"></span>Status Tokens</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">03</span>
+                </a>
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#wow-class-palette"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-class-monk"></span>13 Class Swatches</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">04</span>
+                </a>
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#item-tiers"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-tier-myth"></span>Item Upgrade Tiers</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">05</span>
+                </a>
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#raids-teams"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-team-templars"></span>Raids & Rosters</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">06</span>
+                </a>
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#typography-metrics"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-text-primary"></span>Type Scale Matrix</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">07</span>
+                </a>
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#spacing-accessibility"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span>Geometry & WCAG</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">08</span>
+                </a>
+              </nav>
+            </div>
+            <!-- Quick Context Box -->
+            <div class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col gap-space-sm">
+              <div class="flex items-center gap-space-xs text-text-muted">
+                <span class="material-symbols-outlined text-[15px] text-primary">terminal</span>
+                <span class="font-label-caps text-label-caps uppercase">Dev Quick-Export</span>
+              </div>
+              <p class="font-body-code text-body-code text-text-secondary leading-snug">
+                Click any card or chip token to instantly copy its CSS variable, hex code, or Tailwind class name.
+              </p>
+              <button
+                class="mt-space-xs w-full py-1 px-space-sm bg-surface-tier-2 hover:bg-surface-hover text-text-primary font-body-medium text-body-medium rounded flex items-center justify-center gap-1.5 transition-colors"
+                onclick="navigator.clipboard.writeText(':root { --color-bg: #0a0e17; --color-gold: #c9a84c; --color-surface-1: #12182b; --color-surface-2: #1a2235; }'); window.showCopyToast('CSS Variables batch copied');"
+                type="button"
+              >
+                <span class="material-symbols-outlined text-[14px] text-primary">content_copy</span>
+                <span>Copy Core CSS</span>
+              </button>
+            </div>
+          </aside>
+          <!-- Main Specification Canvas -->
+          <div class="flex-1 min-w-0 flex flex-col gap-space-xl">
+            <!-- 1. HERO INTRO & SPECIFICATION BANNER -->
+            <section
+              class="relative overflow-hidden bg-surface-tier-1 rounded-xl p-space-lg shadow-xl"
+              id="spec-overview"
+            >
+              <div
+                class="absolute -right-20 -top-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"
+              ></div>
+              <div class="absolute right-6 top-6 hidden sm:flex items-center gap-2">
+                <span
+                  class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded-full bg-surface-tier-2 text-text-secondary font-stat-mono text-[11px]"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-class-monk"></span>WCAG AA Compliant
+                </span>
+                <span
+                  class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded-full bg-gold-dim text-primary font-stat-mono text-[11px]"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>Active Release 2.4.0
+                </span>
+              </div>
+              <div class="flex flex-col gap-space-sm max-w-3xl">
+                <div
+                  class="flex items-center gap-space-xs text-primary font-label-caps text-label-caps uppercase tracking-wider"
+                >
+                  <span class="material-symbols-outlined text-[16px]">token</span>
+                  <span>Design Tokens & Visual Style Guide</span>
+                </div>
+                <h1 class="font-headline-xl text-headline-xl text-text-primary tracking-tight">
+                  RoyalTeam BIS — Design System & Token Architecture
+                </h1>
+                <p class="font-body-default text-body-default text-text-secondary leading-relaxed">
+                  Dark-mode first token system engineered for ultra-dense esports logistics, mythic raiding matrices,
+                  and surgical loot distribution. Rooted in obsidian contrast with antique gold telemetry.
+                </p>
+              </div>
+              <!-- Metric Spec Bounding Pills -->
+              <div
+                class="mt-space-lg pt-space-md bg-surface-tier-2/50 -mx-space-lg -mb-space-lg px-space-lg py-space-md grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-space-sm"
+              >
+                <div class="flex flex-col">
+                  <span class="font-label-caps text-label-caps text-text-muted uppercase">Base Color</span>
+                  <span class="font-stat-mono text-stat-mono text-text-primary">#0a0e17 Canvas</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="font-label-caps text-label-caps text-text-muted uppercase">Typography</span>
+                  <span class="font-stat-mono text-stat-mono text-text-primary">Inter / Variable</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="font-label-caps text-label-caps text-text-muted uppercase">Grid Scale</span>
+                  <span class="font-stat-mono text-stat-mono text-text-primary">4px Base Unit</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="font-label-caps text-label-caps text-text-muted uppercase">Numeric Mode</span>
+                  <span class="font-stat-mono text-stat-mono text-primary">Tabular Digits [tnum]</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="font-label-caps text-label-caps text-text-muted uppercase">Target Target</span>
+                  <span class="font-stat-mono text-stat-mono text-text-primary">≥ 44px Mobile Touch</span>
+                </div>
+              </div>
+            </section>
+            <!-- 2. PALETTE & SURFACE ELEVATION LAYERS -->
+            <section class="flex flex-col gap-space-md" id="elevation-layers">
+              <div class="flex items-center justify-between pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="w-2 h-5 bg-primary rounded-sm"></span>
+                  <h2 class="font-headline-lg text-headline-lg text-text-primary">
+                    01. Surface Layers & Brand Gold Palette
+                  </h2>
+                </div>
+                <span class="font-stat-mono text-body-code text-text-muted">SURFACES_4_TIER</span>
+              </div>
+              <!-- 4-Tier Surface Stack Visualizer -->
+              <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
+                <!-- Canvas Base -->
+                <div
+                  class="bg-surface-base p-space-md rounded-lg shadow-inner flex flex-col justify-between h-44 cursor-pointer group transition-all hover:-translate-y-0.5"
+                  onclick="window.copyToken('#0a0e17', 'bg-surface-base')"
+                >
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <span class="font-label-caps text-label-caps text-text-muted uppercase">Canvas Void</span>
+                      <h3 class="font-title-sm text-title-sm text-text-primary mt-0.5">Base Surface</h3>
+                    </div>
+                    <span
+                      class="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors text-[18px]"
+                      >layers</span
+                    >
+                  </div>
+                  <div class="flex flex-col gap-0.5 bg-surface-tier-1/70 p-space-xs rounded">
+                    <span class="font-stat-mono text-stat-mono text-text-primary">#0a0e17</span>
+                    <span class="font-body-code text-[11px] text-text-muted">token: surface-base</span>
+                  </div>
+                </div>
+                <!-- Surface Tier 1 -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between h-44 cursor-pointer group transition-all hover:-translate-y-0.5"
+                  onclick="window.copyToken('#12182b', 'bg-surface-tier-1')"
+                >
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <span class="font-label-caps text-label-caps text-text-muted uppercase">Level 1 Elev.</span>
+                      <h3 class="font-title-sm text-title-sm text-text-primary mt-0.5">Card Container</h3>
+                    </div>
+                    <span
+                      class="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors text-[18px]"
+                      >view_quilt</span
+                    >
+                  </div>
+                  <div class="flex flex-col gap-0.5 bg-surface-tier-2/70 p-space-xs rounded">
+                    <span class="font-stat-mono text-stat-mono text-text-primary">#12182b</span>
+                    <span class="font-body-code text-[11px] text-text-muted">token: surface-tier-1</span>
+                  </div>
+                </div>
+                <!-- Surface Tier 2 -->
+                <div
+                  class="bg-surface-tier-2 p-space-md rounded-lg shadow-md flex flex-col justify-between h-44 cursor-pointer group transition-all hover:-translate-y-0.5"
+                  onclick="window.copyToken('#1a2235', 'bg-surface-tier-2')"
+                >
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <span class="font-label-caps text-label-caps text-text-muted uppercase">Level 2 Elev.</span>
+                      <h3 class="font-title-sm text-title-sm text-text-primary mt-0.5">Popovers & Nested</h3>
+                    </div>
+                    <span
+                      class="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors text-[18px]"
+                      >filter_none</span
+                    >
+                  </div>
+                  <div class="flex flex-col gap-0.5 bg-surface-base/50 p-space-xs rounded">
+                    <span class="font-stat-mono text-stat-mono text-text-primary">#1a2235</span>
+                    <span class="font-body-code text-[11px] text-text-muted">token: surface-tier-2</span>
+                  </div>
+                </div>
+                <!-- Surface Hover -->
+                <div
+                  class="bg-surface-hover p-space-md rounded-lg shadow-lg flex flex-col justify-between h-44 cursor-pointer group transition-all hover:-translate-y-0.5"
+                  onclick="window.copyToken('#222d44', 'bg-surface-hover')"
+                >
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <span class="font-label-caps text-label-caps text-text-muted uppercase">Interaction State</span>
+                      <h3 class="font-title-sm text-title-sm text-text-primary mt-0.5">Surface Hover</h3>
+                    </div>
+                    <span
+                      class="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors text-[18px]"
+                      >touch_app</span
+                    >
+                  </div>
+                  <div class="flex flex-col gap-0.5 bg-surface-tier-1/70 p-space-xs rounded">
+                    <span class="font-stat-mono text-stat-mono text-text-primary">#222d44</span>
+                    <span class="font-body-code text-[11px] text-text-muted">token: surface-hover</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Brand Accent Gold Palette Details & Text Levels -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-md">
+                <!-- Antique Gold Palette Card -->
+                <div class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col gap-space-md">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <span class="font-label-caps text-label-caps text-primary uppercase">Esports Accent</span>
+                      <h3 class="font-headline-md text-headline-md text-text-primary">Antique Gold Hierarchy</h3>
+                    </div>
+                    <span class="font-stat-mono text-[11px] text-text-muted">BRAND_TOKEN</span>
+                  </div>
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm">
+                    <div
+                      class="bg-primary p-space-sm rounded flex flex-col justify-between h-28 text-surface-base cursor-pointer hover:opacity-90 transition-opacity"
+                      onclick="window.copyToken('#c9a84c', 'bg-primary')"
+                    >
+                      <span class="font-label-caps text-label-caps uppercase font-bold text-surface-base">Primary</span>
+                      <div>
+                        <span class="font-stat-mono text-[12px] font-bold block">#c9a84c</span>
+                        <span class="text-[10px] leading-tight block opacity-90">28px Action CTA</span>
+                      </div>
+                    </div>
+                    <div
+                      class="bg-gold-hover p-space-sm rounded flex flex-col justify-between h-28 text-surface-base cursor-pointer hover:opacity-90 transition-opacity"
+                      onclick="window.copyToken('#dbb95d', 'bg-gold-hover')"
+                    >
+                      <span class="font-label-caps text-label-caps uppercase font-bold text-surface-base">Hover</span>
+                      <div>
+                        <span class="font-stat-mono text-[12px] font-bold block">#dbb95d</span>
+                        <span class="text-[10px] leading-tight block opacity-90">+8% Luminance</span>
+                      </div>
+                    </div>
+                    <div
+                      class="bg-gold-pressed p-space-sm rounded flex flex-col justify-between h-28 text-surface-base cursor-pointer hover:opacity-90 transition-opacity"
+                      onclick="window.copyToken('#b3923d', 'bg-gold-pressed')"
+                    >
+                      <span class="font-label-caps text-label-caps uppercase font-bold text-surface-base">Pressed</span>
+                      <div>
+                        <span class="font-stat-mono text-[12px] font-bold block">#b3923d</span>
+                        <span class="text-[10px] leading-tight block opacity-90">-11% Lightness</span>
+                      </div>
+                    </div>
+                    <div
+                      class="bg-gold-dim p-space-sm rounded flex flex-col justify-between h-28 text-primary cursor-pointer hover:bg-gold-dim/80 transition-colors"
+                      onclick="window.copyToken('rgba(201,168,76,0.15)', 'bg-gold-dim')"
+                    >
+                      <span class="font-label-caps text-label-caps uppercase font-bold">15% Dim</span>
+                      <div>
+                        <span class="font-stat-mono text-[12px] font-bold block">Dim Tint</span>
+                        <span class="text-[10px] leading-tight block text-text-secondary">Pills & Selected</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Text Contrast Hierarchy -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between gap-space-md"
+                >
+                  <div>
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">Typography Tones</span>
+                    <h3 class="font-headline-md text-headline-md text-text-primary">Text Contrast & Legibility</h3>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+                    <div
+                      class="bg-surface-tier-2 p-space-sm rounded flex flex-col justify-between gap-1 cursor-pointer hover:bg-surface-hover transition-colors"
+                      onclick="window.copyToken('#e2e8f0', 'text-text-primary')"
+                    >
+                      <div class="flex items-center justify-between">
+                        <span class="font-body-medium text-text-primary">Primary Text</span>
+                        <span class="font-stat-mono text-[11px] text-text-muted">#e2e8f0</span>
+                      </div>
+                      <p class="font-body-default text-[12px] text-text-primary truncate">
+                        15.8:1 Contrast on Base (High Contrast)
+                      </p>
+                    </div>
+                    <div
+                      class="bg-surface-tier-2 p-space-sm rounded flex flex-col justify-between gap-1 cursor-pointer hover:bg-surface-hover transition-colors"
+                      onclick="window.copyToken('#94a3b8', 'text-text-secondary')"
+                    >
+                      <div class="flex items-center justify-between">
+                        <span class="font-body-medium text-text-secondary">Secondary Text</span>
+                        <span class="font-stat-mono text-[11px] text-text-muted">#94a3b8</span>
+                      </div>
+                      <p class="font-body-default text-[12px] text-text-secondary truncate">
+                        8.2:1 Contrast (Subheaders & Labels)
+                      </p>
+                    </div>
+                    <div
+                      class="bg-surface-tier-2 p-space-sm rounded flex flex-col justify-between gap-1 cursor-pointer hover:bg-surface-hover transition-colors"
+                      onclick="window.copyToken('#5a6a82', 'text-text-muted')"
+                    >
+                      <div class="flex items-center justify-between">
+                        <span class="font-body-medium text-text-muted">Muted Text</span>
+                        <span class="font-stat-mono text-[11px] text-text-muted">#5a6a82</span>
+                      </div>
+                      <p class="font-body-default text-[12px] text-text-muted truncate">
+                        4.6:1 WCAG AA (Captions & Keys)
+                      </p>
+                    </div>
+                    <div
+                      class="bg-primary p-space-sm rounded flex flex-col justify-between gap-1 cursor-pointer hover:opacity-95 transition-opacity"
+                      onclick="window.copyToken('#0a0e17', 'text-surface-base')"
+                    >
+                      <div class="flex items-center justify-between text-surface-base">
+                        <span class="font-body-medium font-bold">Inverse Text</span>
+                        <span class="font-stat-mono text-[11px] font-bold">#0a0e17</span>
+                      </div>
+                      <p class="font-body-default text-[12px] text-surface-base truncate font-medium">
+                        Rendered strictly on Primary Buttons
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- 3. SYSTEM STATUS TOKENS -->
+            <section class="flex flex-col gap-space-md" id="status-tones">
+              <div class="flex items-center justify-between pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="w-2 h-5 bg-error rounded-sm"></span>
+                  <h2 class="font-headline-lg text-headline-lg text-text-primary">02. System Status & Telemetry</h2>
+                </div>
+                <span class="font-stat-mono text-body-code text-text-muted">ALERT_SEMANTICS</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+                <!-- Success Token -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col gap-space-sm cursor-pointer hover:bg-surface-hover transition-all"
+                  onclick="window.copyToken('#10b981', 'status-success')"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="font-label-caps text-label-caps text-class-monk uppercase">Pass / Ready</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-class-monk"></span>
+                  </div>
+                  <div class="p-space-sm rounded bg-[#064e3b]/40 flex items-center gap-space-sm">
+                    <span class="material-symbols-outlined text-class-monk text-[20px]">check_circle</span>
+                    <div class="flex flex-col">
+                      <span class="font-body-medium text-body-medium text-class-monk">Success</span>
+                      <span class="font-stat-mono text-[11px] text-text-secondary">#10b981 (tint: #064e3b)</span>
+                    </div>
+                  </div>
+                  <p class="font-body-code text-[11px] text-text-muted">Raider ready, boss downed, lock satisfied.</p>
+                </div>
+                <!-- Warning Token -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col gap-space-sm cursor-pointer hover:bg-surface-hover transition-all"
+                  onclick="window.copyToken('#f59e0b', 'status-warning')"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="font-label-caps text-label-caps text-team-crusaders uppercase">Attention</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-team-crusaders"></span>
+                  </div>
+                  <div class="p-space-sm rounded bg-[#78350f]/40 flex items-center gap-space-sm">
+                    <span class="material-symbols-outlined text-team-crusaders text-[20px]">warning</span>
+                    <div class="flex flex-col">
+                      <span class="font-body-medium text-body-medium text-team-crusaders">Warning</span>
+                      <span class="font-stat-mono text-[11px] text-text-secondary">#f59e0b (tint: #78350f)</span>
+                    </div>
+                  </div>
+                  <p class="font-body-code text-[11px] text-text-muted">Duplicate soft reserve, missing gem/enchant.</p>
+                </div>
+                <!-- Error Token -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col gap-space-sm cursor-pointer hover:bg-surface-hover transition-all"
+                  onclick="window.copyToken('#ef4444', 'status-error')"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="font-label-caps text-label-caps text-error uppercase">Conflict / Wipe</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-error"></span>
+                  </div>
+                  <div class="p-space-sm rounded bg-[#7f1d1d]/40 flex items-center gap-space-sm">
+                    <span class="material-symbols-outlined text-error text-[20px]">cancel</span>
+                    <div class="flex flex-col">
+                      <span class="font-body-medium text-body-medium text-error">Critical Error</span>
+                      <span class="font-stat-mono text-[11px] text-text-secondary">#ef4444 (tint: #7f1d1d)</span>
+                    </div>
+                  </div>
+                  <p class="font-body-code text-[11px] text-text-muted">
+                    Absent roster deficit, loot priority violation.
+                  </p>
+                </div>
+                <!-- Info Token -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col gap-space-sm cursor-pointer hover:bg-surface-hover transition-all"
+                  onclick="window.copyToken('#38bdf8', 'status-info')"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="font-label-caps text-label-caps text-team-templars uppercase">Raid Advisory</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-team-templars"></span>
+                  </div>
+                  <div class="p-space-sm rounded bg-[#0c4a6e]/40 flex items-center gap-space-sm">
+                    <span class="material-symbols-outlined text-team-templars text-[20px]">info</span>
+                    <div class="flex flex-col">
+                      <span class="font-body-medium text-body-medium text-team-templars">Information</span>
+                      <span class="font-stat-mono text-[11px] text-text-secondary">#38bdf8 (tint: #0c4a6e)</span>
+                    </div>
+                  </div>
+                  <p class="font-body-code text-[11px] text-text-muted">Combat log synced, guild bank updated.</p>
+                </div>
+              </div>
+            </section>
+            <!-- 4. SEMANTIC GAMING TOKENS: 13 WOW CLASS PALETTE -->
+            <section class="flex flex-col gap-space-md" id="wow-class-palette">
+              <div class="flex items-center justify-between pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="w-2 h-5 bg-class-monk rounded-sm"></span>
+                  <h2 class="font-headline-lg text-headline-lg text-text-primary">
+                    03. WoW Class Color Telemetry (13 Official Classes)
+                  </h2>
+                </div>
+                <span class="font-stat-mono text-body-code text-text-muted">BLIZZARD_EXACT_HEX</span>
+              </div>
+              <p class="font-body-default text-body-default text-text-secondary -mt-space-sm">
+                Every raid member, combat log line, and loot distribution channel utilizes official game engine color
+                values calibrated for maximum readability against obsidian (#0a0e17) backgrounds.
+              </p>
+              <!-- 13 Class Swatches Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-space-sm">
+                <!-- Warrior -->
+                <div
+                  class="bg-surface-tier-1 p-space-sm rounded-lg shadow flex flex-col justify-between h-28 cursor-pointer hover:bg-surface-hover transition-colors group"
+                  onclick="window.copyToken('#c69b6d', 'class-warrior')"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-class-warrior"></span>
+                      <span class="font-body-medium text-body-medium text-class-warrior font-semibold">Warrior</span>
+                    </div>
+                    <span class="font-label-caps text-label-caps text-text-muted">Plate</span>
+                  </div>
+                  <div class="flex items-end justify-between">
+                    <span class="font-stat-mono text-[12px] text-text-primary">#c69b6d</span>
+                    <span class="font-body-code text-[10px] text-text-muted px-1 py-0.5 rounded bg-surface-tier-2"
+                      >DPS / Tank</span
+                    >
+                  </div>
+                </div>
+                <!-- Paladin -->
+                <div
+                  class="bg-surface-tier-1 p-space-sm rounded-lg shadow flex flex-col justify-between h-28 cursor-pointer hover:bg-surface-hover transition-colors group"
+                  onclick="window.copyToken('#f48cba', 'class-paladin')"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-class-paladin"></span>
+                      <span class="font-body-medium text-body-medium text-class-paladin font-semibold">Paladin</span>
+                    </div>
+                    <span class="font-label-caps text-label-caps text-text-muted">Plate</span>
+                  </div>
+                  <div class="flex items-end justify-between">
+                    <span class="font-stat-mono text-[12px] text-text-primary">#f48cba</span>
+                    <span class="font-body-code text-[10px] text-text-muted px-1 py-0.5 rounded bg-surface-tier-2"
+                      >Hybrid 3-Spec</span
+                    >
+                  </div>
+                </div>
+                <!-- Hunter -->
+                <div
+                  class="bg-surface-tier-1 p-space-sm rounded-lg shadow flex flex-col justify-between h-28 cursor-pointer hover:bg-surface-hover transition-colors group"
+                  onclick="window.copyToken('#aad372', 'class-hunter')"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-class-hunter"></span>
+                      <span class="font-body-medium text-body-medium text-class-hunter font-semibold">Hunter</span>
+                    </div>
+                    <span class="font-label-caps text-label-caps text-text-muted">Mail</span>
+                  </div>
+                  <div class="flex items-end justify-between">
+                    <span class="font-stat-mono text-[12px] text-text-primary">#aad372</span>
+                    <span class="font-body-code text-[10px] text-text-muted px-1 py-0.5 rounded bg-surface-tier-2"
+                      >Ranged Physical</span
+                    >
+                  </div>
+                </div>
+                <!-- Rogue -->
+                <div
+                  class="bg-surface-tier-1 p-space-sm rounded-lg shadow flex flex-col justify-between h-28 cursor-pointer hover:bg-surface-hover transition-colors group"
+                  onclick="window.copyToken('#fff468', 'class-rogue')"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-class-rogue"></span>
+                      <span class="font-body-medium text-body-medium text-class-rogue font-semibold">Rogue</span>
+                    </div>
+                    <span class="font-label-caps text-label-caps text-text-muted">Leather</span>
+                  </div>
+                  <div class="flex items-end justify-between">
+                    <span class="font-stat-mono text-[12px] text-text-primary">#fff468</span>
+                    <span class="font-body-code text-[10px] text-text-muted px-1 py-0.5 rounded bg-surface-tier-2"
+                      >Melee Agility</span
+                    >
+                  </div>
+                </div>
+                <!-- Priest -->
+                <div
+                  class="bg-surface-tier-1 p-space-sm rounded-lg shadow flex flex-col justify-between h-28 cursor-pointer hover:bg-surface-hover transition-colors group"
+                  onclick="window.copyToken('#ffffff', 'class-priest')"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-class-priest"></span>
+                      <span class="font-body-medium text-body-medium text-class-priest font-semibold">Priest</span>
+                    </div>
+                    <span class="font-label-caps text-label-caps text-text-muted">Cloth</span>
+                  </div>
+                  <div class="flex items-end justify-between">
+                    <span class="font-stat-mono text-[12px] text-text-primary">#ffffff</span>
+                    <span class="font-body-code text-[10px] text-text-muted px-1 py-0.5 rounded bg-surface-tier-2"
+                      >Healer / Ranged</span
+                    >
+                  </div>
+                </div>
+                <!-- Shaman -->
+                <div
+                  class="bg-surface-tier-1 p-space-sm rounded-lg shadow flex flex-col justify-between h-28 cursor-pointer hover:bg-surface-hover transition-colors group"
+                  onclick="window.copyToken('#0070dd', 'class-shaman')"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-class-shaman"></span>
+                      <span class="font-body-medium text-body-medium text-class-shaman font-semibold">Shaman</span>
+                    </div>
+                    <span class="font-label-caps text-label-caps text-text-muted">Mail</span>
+                  </div>
+                  <div class="flex items-end justify-between">
+                    <span class="font-stat-mono text-[12px] text-text-primary">#0070dd</span>
+                    <span class="font-body-code text-[10px] text-text-muted px-1 py-0.5 rounded bg-surface-tier-2"
+                      >Totem Utility</span
+                    >
+                  </div>
+                </div>
+                <!-- Mage -->
+                <div
+                  class="bg-surface-tier-1 p-space-sm rounded-lg shadow flex flex-col justify-between h-28 cursor-pointer hover:bg-surface-hover transition-colors group"
+                  onclick="window.copyToken('#3fc7eb', 'class-mage')"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-class-mage"></span>
+                      <span class="font-body-medium text-body-medium text-class-mage font-semibold">Mage</span>
+                    </div>
+                    <span class="font-label-caps text-label-caps text-text-muted">Cloth</span>
+                  </div>
+                  <div class="flex items-end justify-between">
+                    <span class="font-stat-mono text-[12px] text-text-primary">#3fc7eb</span>
+                    <span class="font-body-code text-[10px] text-text-muted px-1 py-0.5 rounded bg-surface-tier-2"
+                      >Arcane / Frost</span
+                    >
+                  </div>
+                </div>
+                <!-- Warlock -->
+                <div
+                  class="bg-surface-tier-1 p-space-sm rounded-lg shadow flex flex-col justify-between h-28 cursor-pointer hover:bg-surface-hover transition-colors group"
+                  onclick="window.copyToken('#8788ee', 'class-warlock')"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-class-warlock"></span>
+                      <span class="font-body-medium text-body-medium text-class-warlock font-semibold">Warlock</span>
+                    </div>
+                    <span class="font-label-caps text-label-caps text-text-muted">Cloth</span>
+                  </div>
+                  <div class="flex items-end justify-between">
+                    <span class="font-stat-mono text-[12px] text-text-primary">#8788ee</span>
+                    <span class="font-body-code text-[10px] text-text-muted px-1 py-0.5 rounded bg-surface-tier-2"
+                      >Gate / Healthstone</span
+                    >
+                  </div>
+                </div>
+                <!-- Druid -->
+                <div
+                  class="bg-surface-tier-1 p-space-sm rounded-lg shadow flex flex-col justify-between h-28 cursor-pointer hover:bg-surface-hover transition-colors group"
+                  onclick="window.copyToken('#ff7c0a', 'class-druid')"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-class-druid"></span>
+                      <span class="font-body-medium text-body-medium text-class-druid font-semibold">Druid</span>
+                    </div>
+                    <span class="font-label-caps text-label-caps text-text-muted">Leather</span>
+                  </div>
+                  <div class="flex items-end justify-between">
+                    <span class="font-stat-mono text-[12px] text-text-primary">#ff7c0a</span>
+                    <span class="font-body-code text-[10px] text-text-muted px-1 py-0.5 rounded bg-surface-tier-2"
+                      >Shapeshift 4-Spec</span
+                    >
+                  </div>
+                </div>
+                <!-- Death Knight -->
+                <div
+                  class="bg-surface-tier-1 p-space-sm rounded-lg shadow flex flex-col justify-between h-28 cursor-pointer hover:bg-surface-hover transition-colors group"
+                  onclick="window.copyToken('#c41e3a', 'class-death-knight')"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-class-death-knight"></span>
+                      <span class="font-body-medium text-body-medium text-class-death-knight font-semibold"
+                        >Death Knight</span
+                      >
+                    </div>
+                    <span class="font-label-caps text-label-caps text-text-muted">Plate</span>
+                  </div>
+                  <div class="flex items-end justify-between">
+                    <span class="font-stat-mono text-[12px] text-text-primary">#c41e3a</span>
+                    <span class="font-body-code text-[10px] text-text-muted px-1 py-0.5 rounded bg-surface-tier-2"
+                      >Grip / AMS</span
+                    >
+                  </div>
+                </div>
+                <!-- Monk -->
+                <div
+                  class="bg-surface-tier-1 p-space-sm rounded-lg shadow flex flex-col justify-between h-28 cursor-pointer hover:bg-surface-hover transition-colors group"
+                  onclick="window.copyToken('#00ff98', 'class-monk')"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-class-monk"></span>
+                      <span class="font-body-medium text-body-medium text-class-monk font-semibold">Monk</span>
+                    </div>
+                    <span class="font-label-caps text-label-caps text-text-muted">Leather</span>
+                  </div>
+                  <div class="flex items-end justify-between">
+                    <span class="font-stat-mono text-[12px] text-text-primary">#00ff98</span>
+                    <span class="font-body-code text-[10px] text-text-muted px-1 py-0.5 rounded bg-surface-tier-2"
+                      >Phys Touch Debuff</span
+                    >
+                  </div>
+                </div>
+                <!-- Demon Hunter -->
+                <div
+                  class="bg-surface-tier-1 p-space-sm rounded-lg shadow flex flex-col justify-between h-28 cursor-pointer hover:bg-surface-hover transition-colors group"
+                  onclick="window.copyToken('#a330c9', 'class-demon-hunter')"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-class-demon-hunter"></span>
+                      <span class="font-body-medium text-body-medium text-class-demon-hunter font-semibold"
+                        >Demon Hunter</span
+                      >
+                    </div>
+                    <span class="font-label-caps text-label-caps text-text-muted">Leather</span>
+                  </div>
+                  <div class="flex items-end justify-between">
+                    <span class="font-stat-mono text-[12px] text-text-primary">#a330c9</span>
+                    <span class="font-body-code text-[10px] text-text-muted px-1 py-0.5 rounded bg-surface-tier-2"
+                      >Chaos Brand 5%</span
+                    >
+                  </div>
+                </div>
+                <!-- Evoker -->
+                <div
+                  class="bg-surface-tier-1 p-space-sm rounded-lg shadow flex flex-col justify-between h-28 cursor-pointer hover:bg-surface-hover transition-colors group"
+                  onclick="window.copyToken('#33937f', 'class-evoker')"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-class-evoker"></span>
+                      <span class="font-body-medium text-body-medium text-class-evoker font-semibold">Evoker</span>
+                    </div>
+                    <span class="font-label-caps text-label-caps text-text-muted">Mail</span>
+                  </div>
+                  <div class="flex items-end justify-between">
+                    <span class="font-stat-mono text-[12px] text-text-primary">#33937f</span>
+                    <span class="font-body-code text-[10px] text-text-muted px-1 py-0.5 rounded bg-surface-tier-2"
+                      >Augmentation/Heal</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- 5. ITEM UPGRADE TIERS & SUPER RARE MARKER -->
+            <section class="flex flex-col gap-space-md" id="item-tiers">
+              <div class="flex items-center justify-between pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="w-2 h-5 bg-tier-hero rounded-sm"></span>
+                  <h2 class="font-headline-lg text-headline-lg text-text-primary">
+                    04. Item Upgrade Tiers & Rarity Taxonomy
+                  </h2>
+                </div>
+                <span class="font-stat-mono text-body-code text-text-muted">DRAGONFLIGHT_S4_TIERS</span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
+                <!-- Champion Tier Card -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between gap-space-md cursor-pointer hover:bg-surface-hover transition-all"
+                  onclick="window.copyToken('#60a5fa', 'tier-champion')"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex flex-col">
+                      <span class="font-label-caps text-label-caps text-text-muted uppercase">Normal Raid / M+6</span>
+                      <h3 class="font-headline-md text-headline-md text-tier-champion">Champion Tier</h3>
+                    </div>
+                    <span
+                      class="px-space-xs py-0.5 rounded bg-tier-champion/15 text-tier-champion font-label-caps text-label-caps uppercase"
+                      >Tier 02</span
+                    >
+                  </div>
+                  <div class="p-space-sm rounded bg-surface-tier-2 flex flex-col gap-1">
+                    <div class="flex items-center justify-between">
+                      <span class="font-body-medium text-text-secondary">Item Level Range</span>
+                      <span class="font-stat-mono text-stat-mono text-tier-champion">489 - 502</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-text-muted font-stat-mono">
+                      <span>Crests: Drake / Wyrm</span>
+                      <span>Hex: #60a5fa</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Hero Tier Card -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between gap-space-md cursor-pointer hover:bg-surface-hover transition-all"
+                  onclick="window.copyToken('#c084fc', 'tier-hero')"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex flex-col">
+                      <span class="font-label-caps text-label-caps text-text-muted uppercase">Heroic Raid / M+12</span>
+                      <h3 class="font-headline-md text-headline-md text-tier-hero">Hero Tier</h3>
+                    </div>
+                    <span
+                      class="px-space-xs py-0.5 rounded bg-tier-hero/15 text-tier-hero font-label-caps text-label-caps uppercase"
+                      >Tier 03</span
+                    >
+                  </div>
+                  <div class="p-space-sm rounded bg-surface-tier-2 flex flex-col gap-1">
+                    <div class="flex items-center justify-between">
+                      <span class="font-body-medium text-text-secondary">Item Level Range</span>
+                      <span class="font-stat-mono text-stat-mono text-tier-hero">506 - 519</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-text-muted font-stat-mono">
+                      <span>Crests: Heroic Wyrm</span>
+                      <span>Hex: #c084fc</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Myth Tier Card -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between gap-space-md cursor-pointer hover:bg-surface-hover transition-all"
+                  onclick="window.copyToken('#fb923c', 'tier-myth')"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex flex-col">
+                      <span class="font-label-caps text-label-caps text-text-muted uppercase"
+                        >Mythic Raid / Great Vault</span
+                      >
+                      <h3 class="font-headline-md text-headline-md text-tier-myth">Mythic Tier</h3>
+                    </div>
+                    <span
+                      class="px-space-xs py-0.5 rounded bg-tier-myth/15 text-tier-myth font-label-caps text-label-caps uppercase"
+                      >Pinnacle</span
+                    >
+                  </div>
+                  <div class="p-space-sm rounded bg-surface-tier-2 flex flex-col gap-1">
+                    <div class="flex items-center justify-between">
+                      <span class="font-body-medium text-text-secondary">Item Level Range</span>
+                      <span class="font-stat-mono text-stat-mono text-tier-myth">522 - 535</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-text-muted font-stat-mono">
+                      <span>Crests: Aspect Crest</span>
+                      <span>Hex: #fb923c</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Super Rare Item Marker Card (Interactive Pulse) -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between gap-space-md cursor-pointer hover:bg-surface-hover transition-all relative overflow-hidden"
+                  onclick="window.copyToken('#f59e0b', 'tier-super-rare')"
+                >
+                  <div
+                    class="absolute -right-8 -bottom-8 w-28 h-28 bg-team-crusaders/10 rounded-full blur-xl pointer-events-none"
+                  ></div>
+                  <div class="flex items-start justify-between">
+                    <div class="flex flex-col">
+                      <span
+                        class="font-label-caps text-label-caps text-team-crusaders uppercase flex items-center gap-1"
+                      >
+                        <span class="material-symbols-outlined text-[13px] text-team-crusaders animate-spin"
+                          >auto_mode</span
+                        >Very Rare Drop
+                      </span>
+                      <h3 class="font-headline-md text-headline-md text-team-crusaders">Super Rare</h3>
+                    </div>
+                    <!-- Glowing Pulsating Badge -->
+                    <span
+                      class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-team-crusaders/20 text-team-crusaders font-label-caps text-label-caps uppercase"
+                    >
+                      <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1"
+                        >star</span
+                      >Curio +7 ilvl
+                    </span>
+                  </div>
+                  <div class="p-space-sm rounded bg-surface-tier-2 flex flex-col gap-1">
+                    <div class="flex items-center justify-between">
+                      <span class="font-body-medium text-text-secondary">Example Item</span>
+                      <span class="font-stat-mono text-stat-mono text-team-crusaders truncate"
+                        >Vakash, Shadowflame</span
+                      >
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-text-muted font-stat-mono">
+                      <span>Bonus: +7 Ilvl Offset</span>
+                      <span>Hex: #f59e0b</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Live Loot Priority Table Row Preview -->
+              <div class="bg-surface-tier-1 rounded-lg p-space-md shadow-lg flex flex-col gap-space-sm">
+                <div class="flex items-center justify-between">
+                  <span class="font-label-caps text-label-caps text-text-muted uppercase"
+                    >Interactive Micro-Component: Live Loot Drop Matrix Row</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-primary">DENSITY_OPTIMIZED</span>
+                </div>
+                <div class="overflow-x-auto">
+                  <div class="min-w-[700px] flex flex-col gap-1">
+                    <div
+                      class="grid grid-cols-12 py-1 px-space-sm bg-surface-tier-2/50 rounded font-label-caps text-label-caps uppercase text-text-muted"
+                    >
+                      <span class="col-span-4">Item & Specification</span>
+                      <span class="col-span-2">Upgrade Tier</span>
+                      <span class="col-span-2">Item Level</span>
+                      <span class="col-span-2">Highest Priority</span>
+                      <span class="col-span-2 text-right">RC Loot Council</span>
+                    </div>
+                    <!-- Sample Item 1 -->
+                    <div
+                      class="grid grid-cols-12 items-center py-2 px-space-sm bg-surface-tier-2 rounded hover:bg-surface-hover transition-colors"
+                    >
+                      <div class="col-span-4 flex items-center gap-space-sm">
+                        <div class="w-7 h-7 rounded bg-surface-base flex items-center justify-center text-tier-myth">
+                          <span class="material-symbols-outlined text-[16px]">shield</span>
+                        </div>
+                        <div class="flex flex-col">
+                          <span class="font-body-medium text-body-medium text-text-primary font-semibold"
+                            >Rashok's Molten Heart</span
+                          >
+                          <span class="font-stat-mono text-[11px] text-text-muted">Trinket • BiS for 6 raiders</span>
+                        </div>
+                      </div>
+                      <div class="col-span-2">
+                        <span
+                          class="inline-flex items-center px-1.5 py-0.5 rounded bg-tier-myth/15 text-tier-myth font-label-caps text-label-caps uppercase font-bold"
+                          >Mythic 4/4</span
+                        >
+                      </div>
+                      <div class="col-span-2 font-stat-mono text-stat-mono text-tier-myth">
+                        528 <span class="text-text-muted text-[11px] font-normal">[+14 ilvl]</span>
+                      </div>
+                      <div class="col-span-2 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-class-paladin"></span>
+                        <span class="font-body-medium text-body-medium text-class-paladin">Aegisheart</span>
+                      </div>
+                      <div class="col-span-2 flex justify-end">
+                        <button
+                          class="px-space-sm py-1 rounded bg-primary text-surface-base font-body-medium text-[11px] font-bold hover:bg-gold-hover transition-colors"
+                          type="button"
+                        >
+                          Award Loot
+                        </button>
+                      </div>
+                    </div>
+                    <!-- Sample Item 2 -->
+                    <div
+                      class="grid grid-cols-12 items-center py-2 px-space-sm bg-surface-tier-2/70 rounded hover:bg-surface-hover transition-colors"
+                    >
+                      <div class="col-span-4 flex items-center gap-space-sm">
+                        <div class="w-7 h-7 rounded bg-surface-base flex items-center justify-center text-tier-hero">
+                          <span class="material-symbols-outlined text-[16px]">swords</span>
+                        </div>
+                        <div class="flex flex-col">
+                          <span class="font-body-medium text-body-medium text-text-primary font-semibold"
+                            >Dreambinder, Loom of the Great Cycle</span
+                          >
+                          <span class="font-stat-mono text-[11px] text-team-crusaders">Super Rare Drop</span>
+                        </div>
+                      </div>
+                      <div class="col-span-2">
+                        <span
+                          class="inline-flex items-center px-1.5 py-0.5 rounded bg-tier-hero/15 text-tier-hero font-label-caps text-label-caps uppercase font-bold"
+                          >Hero 4/4</span
+                        >
+                      </div>
+                      <div class="col-span-2 font-stat-mono text-stat-mono text-tier-hero">
+                        522 <span class="text-text-muted text-[11px] font-normal">[Curio]</span>
+                      </div>
+                      <div class="col-span-2 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-class-druid"></span>
+                        <span class="font-body-medium text-body-medium text-class-druid">Malorne</span>
+                      </div>
+                      <div class="col-span-2 flex justify-end">
+                        <button
+                          class="px-space-sm py-1 rounded bg-surface-tier-1 text-text-primary font-body-medium text-[11px] hover:bg-surface-hover transition-colors"
+                          type="button"
+                        >
+                          Inspect SR
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- 6. RAID INSTANCES & GUILD TEAM TOKENS -->
+            <section class="flex flex-col gap-space-md" id="raids-teams">
+              <div class="flex items-center justify-between pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="w-2 h-5 bg-team-templars rounded-sm"></span>
+                  <h2 class="font-headline-lg text-headline-lg text-text-primary">
+                    05. Raid Instance Accents & Guild Team Allocations
+                  </h2>
+                </div>
+                <span class="font-stat-mono text-body-code text-text-muted">ENVIRONMENT_ROSTERS</span>
+              </div>
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-md">
+                <!-- Raid Instance Accents -->
+                <div class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col gap-space-md">
+                  <div>
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase"
+                      >Dragonflight Instances</span
+                    >
+                    <h3 class="font-headline-md text-headline-md text-text-primary">Encounter Atmospheric Tones</h3>
+                  </div>
+                  <div class="flex flex-col gap-space-sm">
+                    <!-- Amirdrassil -->
+                    <div
+                      class="p-space-sm rounded bg-surface-tier-2 flex items-center justify-between cursor-pointer hover:bg-surface-hover transition-colors"
+                      onclick="window.copyToken('#10b981', 'raid-amirdrassil')"
+                    >
+                      <div class="flex items-center gap-space-sm">
+                        <div class="w-9 h-9 rounded bg-[#10b981]/20 flex items-center justify-center text-[#10b981]">
+                          <span class="material-symbols-outlined text-[20px]">psychology</span>
+                        </div>
+                        <div class="flex flex-col">
+                          <span class="font-body-medium text-body-medium text-text-primary font-semibold"
+                            >Amirdrassil, Dream's Hope</span
+                          >
+                          <span class="font-stat-mono text-[11px] text-[#10b981]">Emerald Dream Green (#10b981)</span>
+                        </div>
+                      </div>
+                      <span
+                        class="font-label-caps text-label-caps px-2 py-0.5 rounded bg-surface-tier-1 text-text-secondary"
+                        >9 Bosses</span
+                      >
+                    </div>
+                    <!-- Aberrus -->
+                    <div
+                      class="p-space-sm rounded bg-surface-tier-2 flex items-center justify-between cursor-pointer hover:bg-surface-hover transition-colors"
+                      onclick="window.copyToken('#a855f7', 'raid-aberrus')"
+                    >
+                      <div class="flex items-center gap-space-sm">
+                        <div class="w-9 h-9 rounded bg-[#a855f7]/20 flex items-center justify-center text-[#a855f7]">
+                          <span class="material-symbols-outlined text-[20px]">storm</span>
+                        </div>
+                        <div class="flex flex-col">
+                          <span class="font-body-medium text-body-medium text-text-primary font-semibold"
+                            >Aberrus, Shadowed Crucible</span
+                          >
+                          <span class="font-stat-mono text-[11px] text-[#a855f7]">Void Shadow Purple (#a855f7)</span>
+                        </div>
+                      </div>
+                      <span
+                        class="font-label-caps text-label-caps px-2 py-0.5 rounded bg-surface-tier-1 text-text-secondary"
+                        >9 Bosses</span
+                      >
+                    </div>
+                    <!-- Vault -->
+                    <div
+                      class="p-space-sm rounded bg-surface-tier-2 flex items-center justify-between cursor-pointer hover:bg-surface-hover transition-colors"
+                      onclick="window.copyToken('#f59e0b', 'raid-vault')"
+                    >
+                      <div class="flex items-center gap-space-sm">
+                        <div class="w-9 h-9 rounded bg-[#f59e0b]/20 flex items-center justify-center text-[#f59e0b]">
+                          <span class="material-symbols-outlined text-[20px]">volcano</span>
+                        </div>
+                        <div class="flex flex-col">
+                          <span class="font-body-medium text-body-medium text-text-primary font-semibold"
+                            >Vault of the Incarnates</span
+                          >
+                          <span class="font-stat-mono text-[11px] text-[#f59e0b]">Primal Amber Flame (#f59e0b)</span>
+                        </div>
+                      </div>
+                      <span
+                        class="font-label-caps text-label-caps px-2 py-0.5 rounded bg-surface-tier-1 text-text-secondary"
+                        >8 Bosses</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <!-- Guild Teams -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between gap-space-md"
+                >
+                  <div>
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase"
+                      >Organizational Sub-Brands</span
+                    >
+                    <h3 class="font-headline-md text-headline-md text-text-primary">Guild Roster Identity Badges</h3>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+                    <!-- Team Crusaders -->
+                    <div
+                      class="bg-surface-tier-2 p-space-md rounded-lg shadow flex flex-col justify-between gap-space-md cursor-pointer hover:bg-surface-hover transition-colors"
+                      onclick="window.copyToken('#c9a84c', 'team-crusaders')"
+                    >
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                          <span class="w-2.5 h-2.5 rounded-full bg-team-crusaders"></span>
+                          <span class="font-title-sm text-title-sm text-text-primary">Team Crusaders</span>
+                        </div>
+                        <span
+                          class="font-label-caps text-[10px] uppercase px-1.5 py-0.5 rounded bg-gold-dim text-team-crusaders font-bold"
+                          >Mythic 20</span
+                        >
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <div class="flex items-center justify-between text-stat-mono font-stat-mono">
+                          <span class="text-text-muted text-[11px]">Rank: Hall of Fame</span>
+                          <span class="text-team-crusaders">#c9a84c</span>
+                        </div>
+                        <div class="h-1.5 w-full bg-surface-base rounded-full overflow-hidden">
+                          <div class="h-full bg-team-crusaders w-[88%] rounded-full"></div>
+                        </div>
+                        <span class="text-[10px] font-stat-mono text-text-muted text-right">8/9 Mythic Cleared</span>
+                      </div>
+                    </div>
+                    <!-- Team Templars -->
+                    <div
+                      class="bg-surface-tier-2 p-space-md rounded-lg shadow flex flex-col justify-between gap-space-md cursor-pointer hover:bg-surface-hover transition-colors"
+                      onclick="window.copyToken('#06b6d4', 'team-templars')"
+                    >
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                          <span class="w-2.5 h-2.5 rounded-full bg-team-templars"></span>
+                          <span class="font-title-sm text-title-sm text-text-primary">Team Templars</span>
+                        </div>
+                        <span
+                          class="font-label-caps text-[10px] uppercase px-1.5 py-0.5 rounded bg-team-templars/20 text-team-templars font-bold"
+                          >Heroic 25</span
+                        >
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <div class="flex items-center justify-between text-stat-mono font-stat-mono">
+                          <span class="text-text-muted text-[11px]">Rank: AOTC Farm</span>
+                          <span class="text-team-templars">#06b6d4</span>
+                        </div>
+                        <div class="h-1.5 w-full bg-surface-base rounded-full overflow-hidden">
+                          <div class="h-full bg-team-templars w-full rounded-full"></div>
+                        </div>
+                        <span class="text-[10px] font-stat-mono text-text-muted text-right">9/9 Heroic Cleared</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Inset Badge Usage Tip -->
+                  <div
+                    class="p-space-sm rounded bg-surface-tier-2/50 text-text-secondary font-body-code text-body-code flex items-center gap-space-sm"
+                  >
+                    <span class="material-symbols-outlined text-primary text-[18px]">verified_user</span>
+                    <span>Roster filters sync automatically across soft-reserve tables via token binding.</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- 7. TYPOGRAPHY & TABULAR NUMBERS SYSTEM -->
+            <section class="flex flex-col gap-space-md" id="typography-metrics">
+              <div class="flex items-center justify-between pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="w-2 h-5 bg-text-primary rounded-sm"></span>
+                  <h2 class="font-headline-lg text-headline-lg text-text-primary">
+                    06. Typography Scale & Tabular Numeric Engine
+                  </h2>
+                </div>
+                <span class="font-stat-mono text-body-code text-text-muted">FONT_INTER_TNUM</span>
+              </div>
+              <!-- Tabular Figures Spotlight Card -->
+              <div
+                class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col md:flex-row items-center justify-between gap-space-lg"
+              >
+                <div class="flex flex-col gap-1 max-w-xl">
+                  <div class="flex items-center gap-1.5 text-primary font-label-caps text-label-caps uppercase">
+                    <span class="material-symbols-outlined text-[15px]">pin</span>
+                    <span>Monospaced Numerical Precision</span>
+                  </div>
+                  <h3 class="font-headline-md text-headline-md text-text-primary">
+                    Tabular Figures for Live Roster Audit
+                  </h3>
+                  <p class="font-body-default text-body-default text-text-secondary leading-relaxed">
+                    Standard proportional figures wobble during high-frequency combat log streaming. RoyalTeam BIS
+                    enforces tabular figures (<code
+                      class="font-stat-mono text-primary bg-surface-tier-2 px-1 py-0.5 rounded text-[11px]"
+                      >font-variant-numeric: tabular-nums</code
+                    >) across all DPS, HPS, Item Level, and attendance counters.
+                  </p>
+                </div>
+                <div
+                  class="bg-surface-tier-2 p-space-md rounded-lg shadow flex flex-col gap-space-sm w-full md:w-auto shrink-0 font-stat-mono"
+                >
+                  <div class="flex items-center justify-between gap-space-lg text-stat-mono">
+                    <span class="text-text-muted">ILVL PRED:</span>
+                    <span class="text-primary font-bold" style="font-variant-numeric: tabular-nums">528.45</span>
+                  </div>
+                  <div class="flex items-center justify-between gap-space-lg text-stat-mono">
+                    <span class="text-text-muted">DPS DELTA:</span>
+                    <span class="text-class-monk font-bold" style="font-variant-numeric: tabular-nums">+14.28%</span>
+                  </div>
+                  <div class="flex items-center justify-between gap-space-lg text-stat-mono">
+                    <span class="text-text-muted">LOG PARSE:</span>
+                    <span class="text-tier-myth font-bold" style="font-variant-numeric: tabular-nums">99.40 pt</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Typography Matrix Specimen Table -->
+              <div class="bg-surface-tier-1 rounded-lg shadow-lg overflow-hidden">
+                <div class="overflow-x-auto">
+                  <div class="min-w-[760px] flex flex-col">
+                    <!-- Header -->
+                    <div
+                      class="grid grid-cols-12 py-space-sm px-space-md bg-surface-tier-2 font-label-caps text-label-caps uppercase text-text-muted"
+                    >
+                      <span class="col-span-3">Token & Role</span>
+                      <span class="col-span-2">Size / Line / Weight</span>
+                      <span class="col-span-2">Tracking / Props</span>
+                      <span class="col-span-5">Live Specimen Render</span>
+                    </div>
+                    <!-- Display / Headline XL -->
+                    <div
+                      class="grid grid-cols-12 items-center py-space-sm px-space-md hover:bg-surface-hover transition-colors"
+                    >
+                      <div class="col-span-3 flex flex-col">
+                        <span class="font-body-medium text-body-medium text-text-primary">headline-xl</span>
+                        <span class="font-stat-mono text-[11px] text-text-muted">Page Title / Hero</span>
+                      </div>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-secondary">32px / 38px / 700</span>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-muted">-0.02em</span>
+                      <span class="col-span-5 font-headline-xl text-headline-xl text-text-primary truncate"
+                        >Raid Roster 2025</span
+                      >
+                    </div>
+                    <!-- Headline LG -->
+                    <div
+                      class="grid grid-cols-12 items-center py-space-sm px-space-md hover:bg-surface-hover transition-colors"
+                    >
+                      <div class="col-span-3 flex flex-col">
+                        <span class="font-body-medium text-body-medium text-text-primary">headline-lg</span>
+                        <span class="font-stat-mono text-[11px] text-text-muted">Section Header</span>
+                      </div>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-secondary">22px / 28px / 600</span>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-muted">-0.015em</span>
+                      <span class="col-span-5 font-headline-lg text-headline-lg text-text-primary truncate"
+                        >Amirdrassil Mythic Priority</span
+                      >
+                    </div>
+                    <!-- Headline MD -->
+                    <div
+                      class="grid grid-cols-12 items-center py-space-sm px-space-md hover:bg-surface-hover transition-colors"
+                    >
+                      <div class="col-span-3 flex flex-col">
+                        <span class="font-body-medium text-body-medium text-text-primary">headline-md</span>
+                        <span class="font-stat-mono text-[11px] text-text-muted">Card Header / Modal</span>
+                      </div>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-secondary">18px / 24px / 600</span>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-muted">-0.01em</span>
+                      <span class="col-span-5 font-headline-md text-headline-md text-text-primary truncate"
+                        >Quartermaster Allocation</span
+                      >
+                    </div>
+                    <!-- Title SM -->
+                    <div
+                      class="grid grid-cols-12 items-center py-space-sm px-space-md hover:bg-surface-hover transition-colors"
+                    >
+                      <div class="col-span-3 flex flex-col">
+                        <span class="font-body-medium text-body-medium text-text-primary">title-sm</span>
+                        <span class="font-stat-mono text-[11px] text-text-muted">Sub-group / Inset Card</span>
+                      </div>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-secondary">15px / 20px / 600</span>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-muted">-0.005em</span>
+                      <span class="col-span-5 font-title-sm text-title-sm text-text-primary truncate"
+                        >Tindral Sageswift Roster</span
+                      >
+                    </div>
+                    <!-- Body Medium -->
+                    <div
+                      class="grid grid-cols-12 items-center py-space-sm px-space-md hover:bg-surface-hover transition-colors"
+                    >
+                      <div class="col-span-3 flex flex-col">
+                        <span class="font-body-medium text-body-medium text-text-primary">body-medium</span>
+                        <span class="font-stat-mono text-[11px] text-text-muted">Interactive Labels / CTAs</span>
+                      </div>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-secondary">13px / 18px / 500</span>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-muted">0</span>
+                      <span class="col-span-5 font-body-medium text-body-medium text-text-secondary truncate"
+                        >Sync attendance from WarcraftLogs JSON</span
+                      >
+                    </div>
+                    <!-- Body Default -->
+                    <div
+                      class="grid grid-cols-12 items-center py-space-sm px-space-md hover:bg-surface-hover transition-colors"
+                    >
+                      <div class="col-span-3 flex flex-col">
+                        <span class="font-body-medium text-body-medium text-text-primary">body-default</span>
+                        <span class="font-stat-mono text-[11px] text-text-muted">Standard Description</span>
+                      </div>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-secondary">13px / 18px / 400</span>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-muted">0</span>
+                      <span class="col-span-5 font-body-default text-body-default text-text-muted truncate"
+                        >Item reserves lock 30 minutes prior to official first pull.</span
+                      >
+                    </div>
+                    <!-- Stat Mono -->
+                    <div
+                      class="grid grid-cols-12 items-center py-space-sm px-space-md hover:bg-surface-hover transition-colors"
+                    >
+                      <div class="col-span-3 flex flex-col">
+                        <span class="font-body-medium text-body-medium text-primary">stat-mono</span>
+                        <span class="font-stat-mono text-[11px] text-text-muted">Numeric Telemetry</span>
+                      </div>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-secondary">13px / 16px / 600</span>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-muted">-0.01em</span>
+                      <span
+                        class="col-span-5 font-stat-mono text-stat-mono text-primary truncate"
+                        style="font-variant-numeric: tabular-nums"
+                        >528 ILVL • +3,450 DPS • 98.7% ATT</span
+                      >
+                    </div>
+                    <!-- Body Code -->
+                    <div
+                      class="grid grid-cols-12 items-center py-space-sm px-space-md hover:bg-surface-hover transition-colors"
+                    >
+                      <div class="col-span-3 flex flex-col">
+                        <span class="font-body-medium text-body-medium text-text-primary">body-code</span>
+                        <span class="font-stat-mono text-[11px] text-text-muted">Export Keys / JSON Tags</span>
+                      </div>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-secondary">12px / 16px / 500</span>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-muted">+0.02em</span>
+                      <span class="col-span-5 font-body-code text-body-code text-text-secondary truncate"
+                        >bis_list_id: "fyrakk_myth_09"</span
+                      >
+                    </div>
+                    <!-- Label Caps -->
+                    <div
+                      class="grid grid-cols-12 items-center py-space-sm px-space-md hover:bg-surface-hover transition-colors"
+                    >
+                      <div class="col-span-3 flex flex-col">
+                        <span class="font-body-medium text-body-medium text-text-primary">label-caps</span>
+                        <span class="font-stat-mono text-[11px] text-text-muted">Table Headers / Badges</span>
+                      </div>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-secondary">10px / 12px / 700</span>
+                      <span class="col-span-2 font-stat-mono text-[12px] text-text-muted">+0.08em</span>
+                      <span class="col-span-5 font-label-caps text-label-caps uppercase text-primary truncate"
+                        >OFFICER AUDIT PASS VERIFIED</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- 8. SPACING, RADIUS, ELEVATION & ACCESSIBILITY TOKENS -->
+            <section class="flex flex-col gap-space-md" id="spacing-accessibility">
+              <div class="flex items-center justify-between pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="w-2 h-5 bg-primary-fixed rounded-sm"></span>
+                  <h2 class="font-headline-lg text-headline-lg text-text-primary">
+                    07. Spacing Scales, Radius & WCAG AA Enforcement
+                  </h2>
+                </div>
+                <span class="font-stat-mono text-body-code text-text-muted">GRID_BASE_4PX</span>
+              </div>
+              <!-- 4px Base Spacing Rulers Visualizer -->
+              <div class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col gap-space-md">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">Harmonic Grid</span>
+                    <h3 class="font-headline-md text-headline-md text-text-primary">Spacing Bounding Metric Rulers</h3>
+                  </div>
+                  <span class="font-stat-mono text-[11px] text-primary">SCALE: 4PX - 64PX</span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-space-sm">
+                  <!-- 4px -->
+                  <div class="bg-surface-tier-2 p-space-sm rounded flex flex-col gap-1.5">
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">space-xs (4px)</span>
+                    <div class="h-1 bg-primary rounded w-full"></div>
+                    <span class="font-stat-mono text-[11px] text-text-secondary">0.25rem • micro-gap</span>
+                  </div>
+                  <!-- 6px -->
+                  <div class="bg-surface-tier-2 p-space-sm rounded flex flex-col gap-1.5">
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">space-sm (6px)</span>
+                    <div class="h-1.5 bg-primary rounded w-full"></div>
+                    <span class="font-stat-mono text-[11px] text-text-secondary">0.375rem • row-pad</span>
+                  </div>
+                  <!-- 12px -->
+                  <div class="bg-surface-tier-2 p-space-sm rounded flex flex-col gap-1.5">
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">space-md (12px)</span>
+                    <div class="h-3 bg-primary rounded w-full"></div>
+                    <span class="font-stat-mono text-[11px] text-text-secondary">0.75rem • card-pad</span>
+                  </div>
+                  <!-- 20px -->
+                  <div class="bg-surface-tier-2 p-space-sm rounded flex flex-col gap-1.5">
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">space-lg (20px)</span>
+                    <div class="h-5 bg-primary rounded w-full"></div>
+                    <span class="font-stat-mono text-[11px] text-text-secondary">1.25rem • panel-gap</span>
+                  </div>
+                  <!-- 32px -->
+                  <div class="bg-surface-tier-2 p-space-sm rounded flex flex-col gap-1.5">
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">space-xl (32px)</span>
+                    <div class="h-8 bg-primary rounded w-full"></div>
+                    <span class="font-stat-mono text-[11px] text-text-secondary">2.0rem • section-gap</span>
+                  </div>
+                  <!-- 48px -->
+                  <div class="bg-surface-tier-2 p-space-sm rounded flex flex-col gap-1.5">
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">space-2xl (48px)</span>
+                    <div class="h-12 bg-primary rounded w-full"></div>
+                    <span class="font-stat-mono text-[11px] text-text-secondary">3.0rem • hero-pad</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Radius & Breakpoints Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+                <!-- Radius Specimen Card -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between gap-space-md"
+                >
+                  <div>
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">Corner Curvature</span>
+                    <h3 class="font-headline-md text-headline-md text-text-primary">Corner Geometry Scale</h3>
+                  </div>
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm">
+                    <div
+                      class="p-space-sm bg-surface-tier-2 rounded flex flex-col items-center justify-center text-center h-24"
+                    >
+                      <span class="font-stat-mono text-stat-mono text-primary font-bold">2px</span>
+                      <span class="font-label-caps text-label-caps uppercase text-text-muted mt-1">DEFAULT</span>
+                      <span class="text-[10px] text-text-secondary">Inputs / Pills</span>
+                    </div>
+                    <div
+                      class="p-space-sm bg-surface-tier-2 rounded-lg flex flex-col items-center justify-center text-center h-24"
+                    >
+                      <span class="font-stat-mono text-stat-mono text-primary font-bold">4px</span>
+                      <span class="font-label-caps text-label-caps uppercase text-text-muted mt-1">ROUND-LG</span>
+                      <span class="text-[10px] text-text-secondary">Cards / Buttons</span>
+                    </div>
+                    <div
+                      class="p-space-sm bg-surface-tier-2 rounded-xl flex flex-col items-center justify-center text-center h-24"
+                    >
+                      <span class="font-stat-mono text-stat-mono text-primary font-bold">8px</span>
+                      <span class="font-label-caps text-label-caps uppercase text-text-muted mt-1">ROUND-XL</span>
+                      <span class="text-[10px] text-text-secondary">Modals / Panels</span>
+                    </div>
+                    <div
+                      class="p-space-sm bg-surface-tier-2 rounded-full flex flex-col items-center justify-center text-center h-24"
+                    >
+                      <span class="font-stat-mono text-stat-mono text-primary font-bold">Full</span>
+                      <span class="font-label-caps text-label-caps uppercase text-text-muted mt-1">PILL FULL</span>
+                      <span class="text-[10px] text-text-secondary">Avatars / Tags</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Breakpoints & Accessibility Card -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col justify-between gap-space-md"
+                >
+                  <div>
+                    <span class="font-label-caps text-label-caps text-text-muted uppercase">Target Standards</span>
+                    <h3 class="font-headline-md text-headline-md text-text-primary">Breakpoints & WCAG Ergonomics</h3>
+                  </div>
+                  <div class="flex flex-col gap-space-sm">
+                    <div class="p-space-sm rounded bg-surface-tier-2 flex items-center justify-between">
+                      <div class="flex items-center gap-space-sm">
+                        <span class="material-symbols-outlined text-primary text-[18px]">smartphone</span>
+                        <span class="font-body-medium text-body-medium text-text-primary"
+                          >Mobile Breakpoint (<640px)</span
+                        >
+                      </div>
+                      <span class="font-stat-mono text-[11px] text-class-monk">≥44px Touch Targets</span>
+                    </div>
+                    <div class="p-space-sm rounded bg-surface-tier-2 flex items-center justify-between">
+                      <div class="flex items-center gap-space-sm">
+                        <span class="material-symbols-outlined text-primary text-[18px]">tablet_mac</span>
+                        <span class="font-body-medium text-body-medium text-text-primary">Tablet (640px - 1024px)</span>
+                      </div>
+                      <span class="font-stat-mono text-[11px] text-text-secondary">Scroll Rail & Sticky Col</span>
+                    </div>
+                    <div class="p-space-sm rounded bg-surface-tier-2 flex items-center justify-between">
+                      <div class="flex items-center gap-space-sm">
+                        <span class="material-symbols-outlined text-primary text-[18px]">desktop_windows</span>
+                        <span class="font-body-medium text-body-medium text-text-primary">Desktop (>1024px)</span>
+                      </div>
+                      <span class="font-stat-mono text-[11px] text-text-primary">1520px Max Grid</span>
+                    </div>
+                  </div>
+                  <!-- Focus Ring Demo -->
+                  <div class="flex items-center justify-between pt-space-xs text-text-muted text-[11px]">
+                    <span class="flex items-center gap-1 font-body-code">
+                      <span class="w-2 h-2 rounded-full bg-primary ring-2 ring-primary/40"></span>
+                      Focus Ring: ring-2 ring-primary/50
+                    </span>
+                    <span class="font-stat-mono text-class-monk">4.5:1 Verified AA</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- Interactive Playground Footer -->
+            <footer
+              class="bg-surface-tier-1 p-space-lg rounded-xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-space-md"
+            >
+              <div class="flex items-center gap-space-md">
+                <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                  <span class="material-symbols-outlined text-[24px]">code</span>
+                </div>
+                <div class="flex flex-col">
+                  <h4 class="font-title-sm text-title-sm text-text-primary font-bold">
+                    Ready to build Raid Components?
+                  </h4>
+                  <span class="font-body-default text-body-default text-text-secondary"
+                    >Tokens synchronize via standard Tailwind utility config.</span
+                  >
+                </div>
+              </div>
+              <div class="flex items-center gap-space-sm w-full sm:w-auto">
+                <button
+                  class="flex-1 sm:flex-none px-space-md py-1.5 rounded bg-surface-tier-2 text-text-primary hover:bg-surface-hover font-body-medium text-body-medium transition-colors flex items-center justify-center gap-1.5"
+                  onclick="navigator.clipboard.writeText(JSON.stringify(tailwind.config.theme.extend.colors)); window.showCopyToast('Full Palette JSON copied');"
+                  type="button"
+                >
+                  <span class="material-symbols-outlined text-[15px] text-primary">download</span>
+                  <span>Export Palette JSON</span>
+                </button>
+                <a
+                  class="flex-1 sm:flex-none px-space-md py-1.5 rounded bg-primary text-surface-base font-body-medium text-body-medium font-bold hover:bg-gold-hover transition-colors flex items-center justify-center gap-1.5"
+                  data-path="component-library"
+                  href="#"
+                >
+                  <span>Open Component Library</span>
+                  <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+                </a>
+              </div>
+            </footer>
+          </div>
+        </div>
+      </div>
+      <script>
+        window.showCopyToast = function (msg) {
+          var toast = document.getElementById('copy-toast');
+          var label = document.getElementById('toast-text');
+          if (!toast || !label) return;
+          label.innerText = msg;
+          toast.classList.remove('translate-y-12', 'opacity-0', 'pointer-events-none');
+          toast.classList.add('translate-y-0', 'opacity-100');
+          setTimeout(function () {
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
+          }, 2200);
+        };
+
+        window.copyToken = function (hex, tokenKey) {
+          var textToCopy = hex;
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(textToCopy).then(function () {
+              window.showCopyToast('Copied: ' + textToCopy + ' (' + tokenKey + ')');
+            });
+          } else {
+            window.showCopyToast(textToCopy);
+          }
+        };
+      </script>
+    </main>
+    <footer class="w-full bg-surface-tier-1 border-t border-border-subtle py-space-lg">
+      <div
+        class="w-full px-gutter-desktop flex flex-col md:flex-row items-center justify-between gap-space-md text-text-muted"
+      >
+        <div class="flex items-center gap-space-sm">
+          <span class="font-title-sm text-title-sm text-primary font-bold">RoyalTeam BIS</span
+          ><span class="text-border-subtle">|</span
+          ><span class="font-body-default text-body-default text-text-muted"
+            >Mythic Tier Raid Roster & Loot Priority Engine</span
+          >
+        </div>
+        <div class="flex items-center gap-space-lg font-body-code text-body-code">
+          <span class="flex items-center gap-1"
+            ><span class="w-2 h-2 rounded-full bg-class-monk"></span>Realm: Tarren Mill (EU)</span
+          ><span class="flex items-center gap-1"
+            ><span class="w-2 h-2 rounded-full bg-team-crusaders"></span>Sync: 4m ago</span
+          ><span>© 2025 RoyalTeam Esports</span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

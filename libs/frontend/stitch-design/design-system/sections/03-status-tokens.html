@@ -1,0 +1,86 @@
+            <!-- 3. SYSTEM STATUS TOKENS -->
+            <section class="flex flex-col gap-space-md" id="status-tones">
+              <div class="flex items-center justify-between pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="w-2 h-5 bg-error rounded-sm"></span>
+                  <h2 class="font-headline-lg text-headline-lg text-text-primary">02. System Status & Telemetry</h2>
+                </div>
+                <span class="font-stat-mono text-body-code text-text-muted">ALERT_SEMANTICS</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+                <!-- Success Token -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col gap-space-sm cursor-pointer hover:bg-surface-hover transition-all"
+                  onclick="window.copyToken('#10b981', 'status-success')"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="font-label-caps text-label-caps text-class-monk uppercase">Pass / Ready</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-class-monk"></span>
+                  </div>
+                  <div class="p-space-sm rounded bg-[#064e3b]/40 flex items-center gap-space-sm">
+                    <span class="material-symbols-outlined text-class-monk text-[20px]">check_circle</span>
+                    <div class="flex flex-col">
+                      <span class="font-body-medium text-body-medium text-class-monk">Success</span>
+                      <span class="font-stat-mono text-[11px] text-text-secondary">#10b981 (tint: #064e3b)</span>
+                    </div>
+                  </div>
+                  <p class="font-body-code text-[11px] text-text-muted">Raider ready, boss downed, lock satisfied.</p>
+                </div>
+                <!-- Warning Token -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col gap-space-sm cursor-pointer hover:bg-surface-hover transition-all"
+                  onclick="window.copyToken('#f59e0b', 'status-warning')"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="font-label-caps text-label-caps text-team-crusaders uppercase">Attention</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-team-crusaders"></span>
+                  </div>
+                  <div class="p-space-sm rounded bg-[#78350f]/40 flex items-center gap-space-sm">
+                    <span class="material-symbols-outlined text-team-crusaders text-[20px]">warning</span>
+                    <div class="flex flex-col">
+                      <span class="font-body-medium text-body-medium text-team-crusaders">Warning</span>
+                      <span class="font-stat-mono text-[11px] text-text-secondary">#f59e0b (tint: #78350f)</span>
+                    </div>
+                  </div>
+                  <p class="font-body-code text-[11px] text-text-muted">Duplicate soft reserve, missing gem/enchant.</p>
+                </div>
+                <!-- Error Token -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col gap-space-sm cursor-pointer hover:bg-surface-hover transition-all"
+                  onclick="window.copyToken('#ef4444', 'status-error')"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="font-label-caps text-label-caps text-error uppercase">Conflict / Wipe</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-error"></span>
+                  </div>
+                  <div class="p-space-sm rounded bg-[#7f1d1d]/40 flex items-center gap-space-sm">
+                    <span class="material-symbols-outlined text-error text-[20px]">cancel</span>
+                    <div class="flex flex-col">
+                      <span class="font-body-medium text-body-medium text-error">Critical Error</span>
+                      <span class="font-stat-mono text-[11px] text-text-secondary">#ef4444 (tint: #7f1d1d)</span>
+                    </div>
+                  </div>
+                  <p class="font-body-code text-[11px] text-text-muted">
+                    Absent roster deficit, loot priority violation.
+                  </p>
+                </div>
+                <!-- Info Token -->
+                <div
+                  class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col gap-space-sm cursor-pointer hover:bg-surface-hover transition-all"
+                  onclick="window.copyToken('#38bdf8', 'status-info')"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="font-label-caps text-label-caps text-team-templars uppercase">Raid Advisory</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-team-templars"></span>
+                  </div>
+                  <div class="p-space-sm rounded bg-[#0c4a6e]/40 flex items-center gap-space-sm">
+                    <span class="material-symbols-outlined text-team-templars text-[20px]">info</span>
+                    <div class="flex flex-col">
+                      <span class="font-body-medium text-body-medium text-team-templars">Information</span>
+                      <span class="font-stat-mono text-[11px] text-text-secondary">#38bdf8 (tint: #0c4a6e)</span>
+                    </div>
+                  </div>
+                  <p class="font-body-code text-[11px] text-text-muted">Combat log synced, guild bank updated.</p>
+                </div>
+              </div>
+            </section>

@@ -1,0 +1,28 @@
+<!-- Composer Inputs -->
+<div class="flex flex-col gap-space-sm mb-space-md">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-text-muted">Target Webhook Channel</label>
+<div class="relative">
+<select class="w-full h-7 bg-surface-tier-2 text-text-primary font-body-default text-body-default px-space-sm appearance-none outline-none focus:bg-surface-hover" id="webhook-channel">
+<option>#mythic-announcements</option>
+<option>#officer-briefings</option>
+<option>#crusaders-raid-chat</option>
+</select>
+<span class="material-symbols-outlined text-[16px] text-text-muted absolute right-2 top-1.5 pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-text-muted">Mention Notification</label>
+<div class="flex items-center gap-space-xs h-7">
+<button class="px-space-sm py-0.5 text-label-caps font-label-caps bg-primary text-on-primary font-bold uppercase" onclick="setPingRole(this, '@Mythic Crusaders')" type="button">@Crusaders</button>
+<button class="px-space-sm py-0.5 text-label-caps font-label-caps bg-surface-tier-2 text-text-secondary hover:text-text-primary uppercase" onclick="setPingRole(this, '@everyone')" type="button">@everyone</button>
+<button class="px-space-sm py-0.5 text-label-caps font-label-caps bg-surface-tier-2 text-text-muted hover:text-text-primary uppercase" onclick="setPingRole(this, 'None')" type="button">None</button>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-text-muted">Raid Leader Tactical Note</label>
+<textarea class="w-full bg-surface-tier-2 text-text-primary font-body-default text-body-default p-space-sm outline-none focus:bg-surface-hover resize-none" id="officer-note" oninput="updateDiscordPreview(this.value)" placeholder="Input instructions for tonight's roster..." rows="2">Queen Ansurek P2 transition assignments updated in MRT note! Be in voice by 19:45 CET sharp. Check your soft reserves before the 19:00 lock!</textarea>
+</div>
+</div>

@@ -1,0 +1,103 @@
+          <!-- Sticky Architectural Rail -->
+          <aside class="hidden lg:flex flex-col w-60 shrink-0 sticky top-20 gap-space-md">
+            <div class="bg-surface-tier-1 p-space-md rounded-lg shadow-lg flex flex-col gap-space-sm">
+              <div class="flex items-center justify-between pb-space-xs text-text-muted">
+                <span class="font-label-caps text-label-caps uppercase tracking-wider text-text-muted"
+                  >Tokens Outline</span
+                >
+                <span class="font-stat-mono text-[10px] text-primary">v2.4-SPEC</span>
+              </div>
+              <nav class="flex flex-col gap-0.5">
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#spec-overview"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-primary"></span>Overview</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">01</span>
+                </a>
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#elevation-layers"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Surfaces & Gold</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">02</span>
+                </a>
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#status-tones"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-error"></span>Status Tokens</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">03</span>
+                </a>
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#wow-class-palette"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-class-monk"></span>13 Class Swatches</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">04</span>
+                </a>
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#item-tiers"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-tier-myth"></span>Item Upgrade Tiers</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">05</span>
+                </a>
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#raids-teams"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-team-templars"></span>Raids & Rosters</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">06</span>
+                </a>
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#typography-metrics"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-text-primary"></span>Type Scale Matrix</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">07</span>
+                </a>
+                <a
+                  class="flex items-center justify-between px-space-sm py-1.5 rounded hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-medium text-body-medium transition-colors"
+                  href="#spacing-accessibility"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span>Geometry & WCAG</span
+                  >
+                  <span class="font-stat-mono text-[11px] text-text-muted">08</span>
+                </a>
+              </nav>
+            </div>
+            <!-- Quick Context Box -->
+            <div class="bg-surface-tier-1 p-space-md rounded-lg shadow-md flex flex-col gap-space-sm">
+              <div class="flex items-center gap-space-xs text-text-muted">
+                <span class="material-symbols-outlined text-[15px] text-primary">terminal</span>
+                <span class="font-label-caps text-label-caps uppercase">Dev Quick-Export</span>
+              </div>
+              <p class="font-body-code text-body-code text-text-secondary leading-snug">
+                Click any card or chip token to instantly copy its CSS variable, hex code, or Tailwind class name.
+              </p>
+              <button
+                class="mt-space-xs w-full py-1 px-space-sm bg-surface-tier-2 hover:bg-surface-hover text-text-primary font-body-medium text-body-medium rounded flex items-center justify-center gap-1.5 transition-colors"
+                onclick="navigator.clipboard.writeText(':root { --color-bg: #0a0e17; --color-gold: #c9a84c; --color-surface-1: #12182b; --color-surface-2: #1a2235; }'); window.showCopyToast('CSS Variables batch copied');"
+                type="button"
+              >
+                <span class="material-symbols-outlined text-[14px] text-primary">content_copy</span>
+                <span>Copy Core CSS</span>
+              </button>
+            </div>
+          </aside>

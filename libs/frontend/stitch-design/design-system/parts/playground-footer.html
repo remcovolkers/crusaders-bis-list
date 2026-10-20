@@ -1,0 +1,36 @@
+            <!-- Interactive Playground Footer -->
+            <footer
+              class="bg-surface-tier-1 p-space-lg rounded-xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-space-md"
+            >
+              <div class="flex items-center gap-space-md">
+                <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                  <span class="material-symbols-outlined text-[24px]">code</span>
+                </div>
+                <div class="flex flex-col">
+                  <h4 class="font-title-sm text-title-sm text-text-primary font-bold">
+                    Ready to build Raid Components?
+                  </h4>
+                  <span class="font-body-default text-body-default text-text-secondary"
+                    >Tokens synchronize via standard Tailwind utility config.</span
+                  >
+                </div>
+              </div>
+              <div class="flex items-center gap-space-sm w-full sm:w-auto">
+                <button
+                  class="flex-1 sm:flex-none px-space-md py-1.5 rounded bg-surface-tier-2 text-text-primary hover:bg-surface-hover font-body-medium text-body-medium transition-colors flex items-center justify-center gap-1.5"
+                  onclick="navigator.clipboard.writeText(JSON.stringify(tailwind.config.theme.extend.colors)); window.showCopyToast('Full Palette JSON copied');"
+                  type="button"
+                >
+                  <span class="material-symbols-outlined text-[15px] text-primary">download</span>
+                  <span>Export Palette JSON</span>
+                </button>
+                <a
+                  class="flex-1 sm:flex-none px-space-md py-1.5 rounded bg-primary text-surface-base font-body-medium text-body-medium font-bold hover:bg-gold-hover transition-colors flex items-center justify-center gap-1.5"
+                  data-path="component-library"
+                  href="#"
+                >
+                  <span>Open Component Library</span>
+                  <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+                </a>
+              </div>
+            </footer>
