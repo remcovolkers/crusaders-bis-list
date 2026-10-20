@@ -16,13 +16,24 @@ const ACTION_LABELS: Record<AuditAction, string> = {
   received_item_marked: 'Tier ontvangen gemarkeerd',
 };
 
+/** Global `.badge-*` tone per action type. */
 const ACTION_CLASSES: Record<AuditAction, string> = {
-  reservation_created: 'action-created',
-  reservation_cancelled: 'action-cancelled',
-  reservation_reset_all: 'action-reset',
-  loot_assigned: 'action-assigned',
-  assignment_updated: 'action-updated',
-  received_item_marked: 'action-modified',
+  reservation_created: 'badge-success',
+  reservation_cancelled: 'badge-warning',
+  reservation_reset_all: 'badge-danger',
+  loot_assigned: 'badge-gold',
+  assignment_updated: 'badge-info',
+  received_item_marked: 'badge-purple',
+};
+
+/** Material Symbols icon per action type. */
+const ACTION_ICONS: Record<AuditAction, string> = {
+  reservation_created: 'bookmark_add',
+  reservation_cancelled: 'bookmark_remove',
+  reservation_reset_all: 'restart_alt',
+  loot_assigned: 'redeem',
+  assignment_updated: 'edit',
+  received_item_marked: 'check_circle',
 };
 
 @Component({
@@ -76,7 +87,8 @@ export class AdminAuditLogComponent {
   );
 
   readonly actionLabel = (action: AuditAction) => ACTION_LABELS[action] ?? action;
-  readonly actionClass = (action: AuditAction) => ACTION_CLASSES[action] ?? '';
+  readonly actionClass = (action: AuditAction) => ACTION_CLASSES[action] ?? 'badge-neutral';
+  readonly actionIcon = (action: AuditAction) => ACTION_ICONS[action] ?? 'history';
 
   clearFilters(): void {
     this.filterAction.set('');

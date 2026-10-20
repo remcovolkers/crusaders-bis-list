@@ -5,6 +5,8 @@
   overflow: hidden;
 }
 
+// Shell: sidebar | content (desktop), content + bottom-nav (<= 768px).
+// The content pane is neutral on purpose: pages bring their own `.page` container / padding.
 .admin-shell {
   display: flex;
   width: 100%;
@@ -12,228 +14,73 @@
   overflow: hidden;
 }
 
-/* ── Side nav ── */
-.admin-sidenav {
-  width: 220px;
-  flex-shrink: 0;
-  background: var(--bg-surface);
-  border-right: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
+.admin-sidebar {
+  height: 100%;
   scrollbar-width: none;
 
   &::-webkit-scrollbar {
     display: none;
   }
-}
 
-.sidenav-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 18px 16px 14px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.sidenav-brand-icon {
-  font-size: 20px;
-  line-height: 1;
-}
-
-.sidenav-brand-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.sidenav-brand-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: 0.3px;
-}
-
-.sidenav-brand-sub {
-  font-size: 10px;
-  color: var(--text-muted);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.sidenav-list {
-  list-style: none;
-  margin: 0;
-  padding: 8px 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.team-switcher {
-  margin: auto 8px 12px;
-  padding: 10px 8px;
-  border-top: 1px solid var(--border-color);
-}
-
-.team-switcher-label {
-  display: block;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-}
-
-.team-switcher-tabs {
-  display: flex;
-  gap: 4px;
-}
-
-.team-switcher-tab {
-  flex: 1;
-  border: 1px solid var(--border-color);
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 600;
-  padding: 6px 4px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition:
-    color 0.12s,
-    background 0.12s,
-    border-color 0.12s;
-
-  &.active {
-    color: var(--accent, #7c3aed);
-    border-color: var(--accent, #7c3aed);
-    background: color-mix(in srgb, var(--accent, #7c3aed) 8%, transparent);
+  &__team {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding: var(--space-sm);
   }
 
-  &:hover:not(.active) {
-    color: var(--text-primary);
+  &__season {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  &__season-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
   }
 }
 
-.sidenav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: var(--radius-sm, 6px);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition:
-    background 0.12s,
-    color 0.12s;
-
-  &:hover {
-    background: var(--bg-elevated);
-    color: var(--text-primary);
-  }
-
-  &.active {
-    background: var(--bg-elevated);
-    color: var(--text-primary);
-    font-weight: 600;
-    border: 1px solid var(--border-color);
-  }
-}
-
-.sidenav-icon {
-  font-size: 16px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.sidenav-label {
-  flex: 1;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* ── Main content ── */
 .admin-content {
   flex: 1;
+  min-width: 0;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  min-width: 0;
 }
 
-/* ── Mobile bottom nav (hidden on desktop) ── */
-.admin-bottom-nav {
+.admin-bottom-nav,
+.admin-mobile-team {
   display: none;
 }
 
-/* ── Mobile ── */
+.admin-bottom-nav__label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (max-width: 768px) {
   .admin-shell {
     flex-direction: column;
   }
 
-  .admin-sidenav {
+  .admin-sidebar {
     display: none;
   }
 
-  .admin-content {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+  .admin-mobile-team {
+    display: block;
+    flex-shrink: 0;
+    padding: var(--space-sm) var(--margin);
+    background: var(--surface-tier-1);
   }
 
   .admin-bottom-nav {
     display: flex;
-    flex-shrink: 0;
-    width: 100%;
-    background: var(--bg-surface);
-    border-top: 1px solid var(--border-color);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    z-index: 20;
-  }
-
-  .bottom-nav-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    padding: 8px 4px;
-    text-decoration: none;
-    color: var(--text-muted);
-    font-size: 10px;
-    font-weight: 500;
-    transition:
-      color 0.12s,
-      background 0.12s;
-
-    &.active {
-      color: var(--accent, #7c3aed);
-      background: color-mix(in srgb, var(--accent, #7c3aed) 6%, transparent);
-    }
-
-    &:hover:not(.active) {
-      color: var(--text-secondary);
-    }
-  }
-
-  .bottom-nav-icon {
-    font-size: 18px;
-    line-height: 1;
-  }
-
-  .bottom-nav-label {
-    font-size: 10px;
-    letter-spacing: 0.2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
   }
 }
