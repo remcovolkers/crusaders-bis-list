@@ -1,0 +1,292 @@
+@use 'mixins' as *;
+
+// ============================================================
+// Tabs  (underline style)
+//
+//   <div class="tabs" role="tablist">
+//     <button class="tab is-active" role="tab" aria-selected="true">Overzicht</button>
+//     <button class="tab" role="tab">Reserves <span class="badge badge-neutral">3</span></button>
+//   </div>
+//
+// Also works with <a class="tab" routerLink routerLinkActive="is-active">.
+// On mobile the strip scrolls horizontally (no wrapping).
+// ============================================================
+.tabs {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-xs);
+  overflow-x: auto;
+  scrollbar-width: none;
+  box-shadow: inset 0 -1px 0 var(--surface-tier-2);
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 0 var(--space-md);
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--dur-fast),
+    background var(--dur-fast),
+    border-color var(--dur-fast);
+
+  .material-symbols-outlined {
+    font-size: 16px;
+  }
+  &:hover {
+    color: var(--text-primary);
+    background: var(--surface-tier-2);
+  }
+  &.is-active,
+  &.active,
+  &[aria-selected='true'],
+  &[aria-current='page'] {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+}
+
+// ============================================================
+// Top bar primitives (used by the app shell in app.html, reusable for sub-shells)
+//
+//   .topbar            sticky bar: 56px, base colour 90% + blur
+//   .topbar__brand     logo tile + wordmark
+//   .nav-link          horizontal nav link; `.active` / `[aria-current=page]` = tier-2 pill with gold text
+//   .topbar__user      right block
+// ============================================================
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-topbar);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-shrink: 0;
+  height: var(--topbar-h);
+  padding: 0 var(--margin-desktop);
+  background: color-mix(in srgb, var(--surface-base) 92%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-topbar);
+
+  @include below(768px) {
+    padding: 0 var(--margin);
+  }
+}
+
+.topbar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+  color: inherit;
+  &:hover {
+    color: inherit;
+  }
+}
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-xs);
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  .material-symbols-outlined {
+    font-size: 18px;
+  }
+}
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  &__name {
+    @include type('title-sm');
+    line-height: 1;
+    color: var(--primary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  &__sub {
+    @include type('label-caps');
+    margin-top: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    color var(--dur-fast),
+    background var(--dur-fast);
+
+  .material-symbols-outlined {
+    font-size: 16px;
+  }
+  &:hover {
+    color: var(--text-primary);
+    background: var(--surface-hover);
+  }
+  &.active,
+  &[aria-current='page'] {
+    background: var(--surface-tier-2);
+    color: var(--primary);
+  }
+}
+
+// ============================================================
+// Sidebar / vertical nav  (for the admin shell; desktop only, replaced by bottom-nav / drawer on mobile)
+//
+//   <aside class="sidebar">
+//     <div class="sidebar__label">Beheer</div>
+//     <nav class="sidebar__nav">
+//       <a class="nav-item active" routerLink="..."><span class="material-symbols-outlined">shield_person</span>Gebruikers</a>
+//       <a class="nav-item" ...>...</a>
+//     </nav>
+//     <div class="sidebar__footer card-tier-2">...</div>   (optional info block)
+//   </aside>
+//
+// `.nav-item` active state: surface-hover + gold text (admin Stitch). `.nav-item--accent` = gold-dim
+// with a 2px gold bar on the left (raid planner Stitch sidebar). `.nav-item__badge` for counters.
+// The sidebar is a flex column: place it as a grid/flex child next to the page, give it `position: sticky` or
+// a fixed height from the shell; it does not position itself.
+// ============================================================
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  padding: var(--space-md);
+  background: var(--surface-tier-1);
+  overflow-y: auto;
+
+  &__label {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 10px;
+    line-height: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1;
+  }
+  &__footer {
+    margin-top: auto;
+    padding: var(--space-md);
+    border-radius: var(--radius-xs);
+    background: var(--surface-tier-2);
+  }
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  transition:
+    background var(--dur-fast),
+    color var(--dur-fast);
+
+  .material-symbols-outlined {
+    font-size: 18px;
+  }
+  &:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+  }
+  &.active,
+  &[aria-current='page'] {
+    background: var(--surface-hover);
+    color: var(--primary);
+  }
+  &__badge {
+    margin-left: auto;
+  }
+  &--accent {
+    border-radius: 0;
+    &.active,
+    &[aria-current='page'] {
+      background: var(--gold-dim);
+      box-shadow: inset 2px 0 0 var(--primary);
+    }
+  }
+}
+
+// ============================================================
+// Bottom nav (mobile replacement for the sidebar; fixed 56px bar with icon + tiny label)
+//
+//   <nav class="bottom-nav">
+//     <a class="bottom-nav__item active"><span class="material-symbols-outlined">group</span>Gebruikers</a>
+//   </nav>
+//
+// Give the scrolling content `padding-bottom: calc(var(--topbar-h) + env(safe-area-inset-bottom))`
+// or make the bar a flex child of the shell (preferred, no fixed positioning needed).
+// ============================================================
+.bottom-nav {
+  display: flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  height: var(--topbar-h);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--surface-tier-1);
+  box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.4);
+
+  &__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+    color: var(--text-muted);
+    font-size: 10px;
+    line-height: 12px;
+    font-weight: 600;
+    transition: color var(--dur-fast);
+
+    .material-symbols-outlined {
+      font-size: 20px;
+    }
+    &:hover {
+      color: var(--text-primary);
+    }
+    &.active,
+    &[aria-current='page'] {
+      color: var(--primary);
+    }
+  }
+}

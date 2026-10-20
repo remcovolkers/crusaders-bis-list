@@ -1,31 +1,37 @@
+// Raid-matrix row (Stitch "player row"): tier-1 tile with a class-coloured edge, hover = surface-hover.
+// The edge colour and spec colour are set inline from the class registry.
 .raider-card {
   display: flex;
   flex-direction: column;
-  padding: 6px 10px;
+  padding: var(--space-xs, 4px) var(--space-md, 12px);
   border-left: 3px solid transparent;
-  border-radius: 4px;
-  background: #1e2a3a;
+  border-radius: var(--radius-xs, 2px);
+  background: var(--surface-tier-1);
   cursor: grab;
   user-select: none;
-  transition: background 0.15s;
+  transition: background var(--dur-fast, 0.12s);
   gap: 1px;
 
   &:hover {
-    background: #243447;
+    background: var(--surface-hover);
   }
 
   &__name {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #e2e8f0;
+    font-size: var(--t-body-medium-size, 13px);
+    line-height: var(--t-body-medium-lh, 18px);
+    font-weight: 500;
+    color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   &__spec {
-    font-size: 0.7rem;
-    opacity: 0.8;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+    opacity: 0.85;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -34,8 +40,9 @@
 
 // CDK drag preview
 .cdk-drag-preview {
-  border-radius: 4px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  border-radius: var(--radius-xs, 2px);
+  background: var(--surface-tier-2);
+  box-shadow: var(--shadow-lg);
   opacity: 0.95;
 }
 

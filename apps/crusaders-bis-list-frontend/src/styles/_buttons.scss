@@ -1,0 +1,246 @@
+@use 'mixins' as *;
+
+// ============================================================
+// Buttons
+//
+//   .btn              secondary look (tier-2 fill)  - default
+//   .btn-primary      gold CTA (one per view/section)
+//   .btn-secondary    same as .btn, explicit
+//   .btn-ghost        transparent + hairline outline (legacy "ghost")
+//   .btn-text         no fill, no outline (Stitch "ghost")
+//   .btn-danger       destructive (red tint)
+//   .btn-success      positive (green tint)
+//   .btn-sm           compact (28px)
+//   .btn-block        full width
+//   .icon-btn         square icon-only button (+ .icon-btn--sm, --gold, --danger)
+//
+// Every variant is self-contained: `.btn-primary` works without `.btn`
+// (legacy templates use both `class="btn btn-primary"` and `class="btn-primary"`).
+// ============================================================
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-ghost,
+.btn-text,
+.btn-danger,
+.btn-success {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  min-height: 32px;
+  padding: 0 var(--space-md);
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-2);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+  transition:
+    background var(--dur-fast),
+    color var(--dur-fast),
+    border-color var(--dur-fast),
+    opacity var(--dur-fast),
+    box-shadow var(--dur-fast);
+
+  &:hover:not(:disabled):not(.is-disabled) {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+  }
+  &:active:not(:disabled):not(.is-disabled) {
+    background: var(--surface-tier-1);
+  }
+  &:disabled,
+  &.is-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .material-symbols-outlined {
+    font-size: 16px;
+  }
+
+  @include below(768px) {
+    @media (pointer: coarse) {
+      min-height: 36px;
+    }
+  }
+}
+
+// ---------- primary (gold) ----------
+.btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+
+  &:hover:not(:disabled):not(.is-disabled) {
+    background: var(--gold-hover);
+    color: var(--on-primary);
+  }
+  &:active:not(:disabled):not(.is-disabled) {
+    background: var(--gold-pressed);
+  }
+}
+
+// ---------- secondary (explicit alias of the default .btn) ----------
+.btn-secondary {
+  background: var(--surface-tier-2);
+}
+
+// ---------- ghost: legacy outlined-transparent ----------
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border-subtle);
+  color: var(--text-secondary);
+
+  &:hover:not(:disabled):not(.is-disabled) {
+    background: var(--surface-tier-2);
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+  }
+  &:active:not(:disabled):not(.is-disabled) {
+    background: var(--surface-hover);
+  }
+}
+
+// ---------- text: Stitch ghost (no fill, no outline) ----------
+.btn-text {
+  background: transparent;
+  color: var(--text-secondary);
+
+  &:hover:not(:disabled):not(.is-disabled) {
+    background: var(--surface-tier-2);
+    color: var(--text-primary);
+  }
+  &:active:not(:disabled):not(.is-disabled) {
+    background: var(--surface-hover);
+  }
+}
+
+// ---------- danger ----------
+.btn-danger {
+  background: var(--danger-dim);
+  border-color: transparent;
+  color: var(--danger-text);
+
+  &:hover:not(:disabled):not(.is-disabled) {
+    background: color-mix(in srgb, var(--danger) 26%, transparent);
+    color: var(--danger-text);
+  }
+  &:active:not(:disabled):not(.is-disabled) {
+    background: color-mix(in srgb, var(--danger) 34%, transparent);
+  }
+}
+
+// ---------- success ----------
+.btn-success {
+  background: var(--success-dim);
+  color: var(--success-text);
+
+  &:hover:not(:disabled):not(.is-disabled) {
+    background: color-mix(in srgb, var(--success) 26%, transparent);
+    color: var(--success-text);
+  }
+  &:active:not(:disabled):not(.is-disabled) {
+    background: color-mix(in srgb, var(--success) 34%, transparent);
+  }
+}
+
+// ---------- sizes / layout modifiers ----------
+.btn-sm {
+  min-height: 28px;
+  padding: 0 var(--space-md);
+  font-size: 12px;
+  .material-symbols-outlined {
+    font-size: 14px;
+  }
+}
+.btn-block {
+  display: flex;
+  width: 100%;
+}
+
+// ---------- icon button (tooltip-less) ----------
+// <button class="icon-btn" aria-label="Sluiten"><span class="material-symbols-outlined">close</span></button>
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast),
+    color var(--dur-fast);
+
+  .material-symbols-outlined {
+    font-size: 18px;
+  }
+  &:hover:not(:disabled) {
+    background: var(--surface-tier-2);
+    color: var(--text-primary);
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  &--sm {
+    width: 24px;
+    height: 24px;
+    .material-symbols-outlined {
+      font-size: 16px;
+    }
+  }
+  &--gold {
+    color: var(--primary);
+  }
+  &--danger:hover:not(:disabled) {
+    color: var(--danger-text);
+  }
+  &.is-active {
+    background: var(--surface-hover);
+    color: var(--primary);
+  }
+
+  @media (pointer: coarse) {
+    width: 36px;
+    height: 36px;
+    &--sm {
+      width: 30px;
+      height: 30px;
+    }
+  }
+}
+
+// small share button (legacy, kept)
+.btn-share {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 4px 10px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-2);
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition:
+    background var(--dur-fast),
+    color var(--dur-fast);
+
+  &:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+  }
+}

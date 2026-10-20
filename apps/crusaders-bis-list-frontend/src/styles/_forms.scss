@@ -1,0 +1,331 @@
+@use 'mixins' as *;
+
+// ============================================================
+// Form controls
+//
+//   <div class="form-field">
+//     <label class="form-label" for="x">Naam</label>
+//     <input id="x" class="form-input" />
+//     <span class="form-hint">Uitleg</span>
+//   </div>
+//
+//   .form-input / .form-select / .form-textarea   32px tier-2 fields, gold focus ring
+//   .form-input--sm                               28px
+//   .is-invalid / [aria-invalid=true]             red ring + .form-error text
+//   .form-row                                     2 columns (1 on mobile)
+//
+// Fields have no border (Stitch); they are tier-2 on tier-1 surfaces and automatically switch to
+// the base colour when placed inside a tier-2 container (.card-tier-2, .card-header, .stat-tile ...).
+// ============================================================
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-sm);
+  @media (min-width: 641px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.form-label {
+  display: block;
+  margin: 0 0 var(--space-xs);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.form-field > .form-label {
+  margin-bottom: 0;
+}
+.form-hint {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-muted);
+}
+.form-error {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--danger-text);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  display: block;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 var(--space-md);
+  border: none;
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-2);
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 18px;
+  box-shadow: inset 0 0 0 1px transparent;
+  transition:
+    background var(--dur-fast),
+    box-shadow var(--dur-fast);
+
+  &::placeholder {
+    color: var(--text-muted);
+  }
+  &:hover:not(:disabled):not(:focus) {
+    box-shadow: inset 0 0 0 1px var(--border-subtle);
+  }
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 1px var(--primary);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  &.is-invalid,
+  &[aria-invalid='true'] {
+    box-shadow: 0 0 0 1px var(--danger);
+  }
+  &--sm {
+    min-height: 28px;
+    font-size: 12px;
+  }
+
+  @media (pointer: coarse) {
+    min-height: 40px;
+    font-size: 16px; // avoids iOS zoom-on-focus
+  }
+}
+.form-textarea,
+textarea.form-input {
+  min-height: 72px;
+  padding: var(--space-sm) var(--space-md);
+  resize: vertical;
+}
+.form-select,
+select.form-input {
+  padding-right: 28px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  cursor: pointer;
+}
+input[type='date'].form-input,
+input[type='time'].form-input,
+input[type='datetime-local'].form-input {
+  color-scheme: dark;
+}
+
+// inputs inside tier-2 containers use the darker well colour so they stay visible
+.card-tier-2,
+.card-header,
+.panel__header,
+.stat-tile,
+.surface-2 {
+  .form-input,
+  .form-select,
+  .form-textarea,
+  .search-field {
+    background-color: var(--surface-base);
+  }
+}
+
+// ---------- checkbox / radio rows ----------
+// <label class="check-row"><span>Raider</span><input type="checkbox" /></label>
+// Whole row is the click target (tier-2 tile), good for permission lists.
+.check-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-2);
+  cursor: pointer;
+  transition: background var(--dur-fast);
+  &:hover {
+    background: var(--surface-hover);
+  }
+  input {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+}
+
+// ---------- toggle switch ----------
+// <label class="switch"><input type="checkbox" [checked]="x" (change)="..." /><span class="switch__track"></span></label>
+// Put a text label next to it yourself (<span>), or use aria-label on the input.
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+  }
+  &__track {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    border-radius: var(--radius-pill);
+    background: var(--surface-base);
+    box-shadow: inset 0 0 0 1px var(--border-subtle);
+    transition: background var(--dur);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+      transition:
+        transform var(--dur) var(--ease),
+        background var(--dur);
+    }
+  }
+  input:checked + .switch__track {
+    background: var(--primary);
+    box-shadow: none;
+    &::after {
+      transform: translateX(16px);
+      background: var(--surface-base);
+    }
+  }
+  input:focus-visible + .switch__track {
+    outline: 2px solid color-mix(in srgb, var(--primary) 60%, transparent);
+    outline-offset: 2px;
+  }
+  input:disabled + .switch__track {
+    opacity: 0.45;
+  }
+}
+
+// ---------- search field with icon ----------
+// <label class="search-field"><span class="material-symbols-outlined">search</span><input placeholder="Zoek..." /></label>
+.search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+  height: 32px;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-2);
+  color: var(--text-muted);
+  transition: box-shadow var(--dur-fast);
+
+  .material-symbols-outlined {
+    font-size: 16px;
+  }
+  input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 13px;
+    &::placeholder {
+      color: var(--text-muted);
+    }
+  }
+  &:focus-within {
+    box-shadow: 0 0 0 1px var(--primary);
+  }
+  @media (pointer: coarse) {
+    height: 40px;
+    input {
+      font-size: 16px;
+    }
+  }
+}
+
+// ---------- segmented control / filter pills ----------
+// <div class="segmented" role="group">
+//   <button class="segmented__item is-active">Alle</button>
+//   <button class="segmented__item" style="--item-color: var(--team-crusaders)">Crusaders</button>
+// </div>
+// Selected state: `.is-active` or `[aria-pressed=true]`. `--item-color` tints the label (teams / roles).
+// On mobile wrap it in `.scroll-x.scroll-hidden` so long rows scroll instead of overflowing.
+.segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-2);
+  max-width: 100%;
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    min-height: 24px;
+    padding: 2px var(--space-md);
+    border-radius: var(--radius-xs);
+    background: transparent;
+    color: var(--item-color, var(--text-secondary));
+    font-size: 10px;
+    line-height: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background var(--dur-fast),
+      color var(--dur-fast);
+
+    .material-symbols-outlined {
+      font-size: 16px;
+    }
+    &:hover {
+      background: var(--surface-hover);
+      color: var(--item-color, var(--text-primary));
+    }
+    &.is-active,
+    &[aria-pressed='true'],
+    &[aria-selected='true'] {
+      background: var(--surface-hover);
+      color: var(--item-color, var(--primary));
+    }
+  }
+  // inside tier-2 containers the track would vanish
+  .card-tier-2 &,
+  .stat-tile & {
+    background: var(--surface-base);
+  }
+  &--block {
+    display: flex;
+    width: 100%;
+    .segmented__item {
+      flex: 1;
+    }
+  }
+  @media (pointer: coarse) {
+    .segmented__item {
+      min-height: 32px;
+    }
+  }
+}

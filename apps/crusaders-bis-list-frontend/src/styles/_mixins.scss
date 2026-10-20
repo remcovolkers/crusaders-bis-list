@@ -1,0 +1,37 @@
+// Shared SCSS helpers for the global stylesheet partials.
+// Only used at build time - nothing here ends up in the CSS by itself.
+
+/// Flat tinted surface: translucent fill of `$color` with `$color` text.
+/// Example: `@include tint(var(--team-crusaders));`
+@mixin tint($color, $pct: 15%) {
+  background: color-mix(in srgb, #{$color} $pct, transparent);
+  color: $color;
+}
+
+/// Standard 1px gold focus ring (matches Stitch `focus:ring-1 focus:ring-primary`).
+@mixin focus-ring($width: 1px) {
+  outline: none;
+  box-shadow: 0 0 0 $width var(--primary);
+}
+
+/// Truncate a single line with an ellipsis.
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/// Apply one of the Stitch type-scale styles by name (see _tokens.scss `$type-scale`).
+@mixin type($name) {
+  font-size: var(--t-#{$name}-size);
+  line-height: var(--t-#{$name}-lh);
+  letter-spacing: var(--t-#{$name}-ls);
+  font-weight: var(--t-#{$name}-weight);
+}
+
+/// Mobile breakpoint helper. The app uses 768px (tablet/phone switch, hamburger) and 640px (small phone).
+@mixin below($bp) {
+  @media (max-width: $bp) {
+    @content;
+  }
+}

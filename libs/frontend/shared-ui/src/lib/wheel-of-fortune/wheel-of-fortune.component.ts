@@ -24,9 +24,9 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, effect, inp
         height: 0;
         border-left: 10px solid transparent;
         border-right: 10px solid transparent;
-        border-top: 22px solid #f0c040;
+        border-top: 22px solid var(--primary, #e6c364);
         z-index: 2;
-        filter: drop-shadow(0 2px 8px rgba(240, 192, 64, 0.85));
+        filter: drop-shadow(0 2px 8px rgba(230, 195, 100, 0.85));
       }
       canvas {
         display: block;
@@ -250,7 +250,7 @@ export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
         grad.addColorStop(0.4, this.lighten(effectiveColor, 60));
         grad.addColorStop(1, this.lighten(effectiveColor, 20));
         ctx.fillStyle = grad;
-        ctx.shadowColor = '#f0c040';
+        ctx.shadowColor = '#e6c364';
         ctx.shadowBlur = 22;
       } else {
         const grad = ctx.createRadialGradient(cx, cy, hubR, cx, cy, outerR);
@@ -271,7 +271,7 @@ export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
       ctx.rotate(midAngle);
       ctx.textAlign = 'right';
       const fontSize = n > 10 ? 9 : n > 7 ? 11 : 13;
-      ctx.font = `bold ${fontSize}px system-ui, sans-serif`;
+      ctx.font = `bold ${fontSize}px Inter, system-ui, sans-serif`;
       ctx.fillStyle = '#ffffff';
       ctx.shadowColor = 'rgba(0,0,0,0.9)';
       ctx.shadowBlur = 3;
@@ -291,14 +291,14 @@ export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
       ctx.shadowBlur = 14;
     } else {
       const ringGrad = ctx.createLinearGradient(cx - outerR, cy, cx + outerR, cy);
-      ringGrad.addColorStop(0, '#92660a');
-      ringGrad.addColorStop(0.25, '#f0c040');
+      ringGrad.addColorStop(0, '#8a6f30');
+      ringGrad.addColorStop(0.25, '#e6c364');
       ringGrad.addColorStop(0.5, '#c9a84c');
-      ringGrad.addColorStop(0.75, '#f0c040');
-      ringGrad.addColorStop(1, '#92660a');
+      ringGrad.addColorStop(0.75, '#e6c364');
+      ringGrad.addColorStop(1, '#8a6f30');
       ctx.strokeStyle = ringGrad;
       if (this.phase === 'spinning' || this.phase === 'decelerating') {
-        ctx.shadowColor = '#f0c040';
+        ctx.shadowColor = '#e6c364';
         ctx.shadowBlur = 14;
       }
     }
@@ -315,7 +315,7 @@ export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
       ctx.lineTo(cx + (outerR + 3) * Math.cos(angle + 0.055), cy + (outerR + 3) * Math.sin(angle + 0.055));
       ctx.lineTo(cx + (outerR - 5) * Math.cos(angle), cy + (outerR - 5) * Math.sin(angle));
       ctx.closePath();
-      ctx.fillStyle = '#f0c040';
+      ctx.fillStyle = '#e6c364';
       ctx.fill();
       ctx.restore();
     }
@@ -325,8 +325,8 @@ export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
     ctx.beginPath();
     ctx.arc(cx, cy, hubR, 0, 2 * Math.PI);
     const hubGrad = ctx.createRadialGradient(cx - hubR * 0.3, cy - hubR * 0.3, 1, cx, cy, hubR);
-    hubGrad.addColorStop(0, '#1f2937');
-    hubGrad.addColorStop(1, '#0d1117');
+    hubGrad.addColorStop(0, '#1a2235');
+    hubGrad.addColorStop(1, '#0a0e17');
     ctx.fillStyle = hubGrad;
     ctx.fill();
     ctx.restore();
@@ -383,7 +383,7 @@ export class WheelOfFortuneComponent implements AfterViewInit, OnDestroy {
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, cy, hubR, 0, 2 * Math.PI);
-    ctx.strokeStyle = 'rgba(240,192,64,0.8)';
+    ctx.strokeStyle = 'rgba(230, 195, 100,0.8)';
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.restore();

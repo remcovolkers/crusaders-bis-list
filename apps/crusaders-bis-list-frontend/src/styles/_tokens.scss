@@ -1,0 +1,203 @@
+// ============================================================
+// Design tokens ("Vanguard", ported from libs/frontend/stitch-design/design-system)
+//
+// 1. Stitch tokens (canonical names)  -> use these in new code
+// 2. Legacy aliases                   -> keep working, do NOT use in new code
+//
+// Full reference: libs/frontend/stitch-design/FOUNDATION.md
+// ============================================================
+
+@use "sass:list";
+
+// Stitch type scale: name -> (font-size, line-height, letter-spacing, weight)
+$type-scale: (
+  'headline-xl': (32px, 38px, -0.02em, 700),
+  'headline-xl-mobile': (24px, 30px, -0.01em, 700),
+  'headline-lg': (22px, 28px, -0.015em, 600),
+  'headline-md': (18px, 24px, -0.01em, 600),
+  'title-sm': (15px, 20px, -0.005em, 600),
+  'body-default': (13px, 18px, 0, 400),
+  'body-medium': (13px, 18px, 0, 500),
+  'body-code': (12px, 16px, 0.02em, 500),
+  'stat-mono': (13px, 16px, -0.01em, 600),
+  'label-caps': (10px, 12px, 0.08em, 700),
+);
+
+:root {
+  color-scheme: dark;
+
+  // ---------- Surfaces (4-tier elevation, no borders needed) ----------
+  --surface-base: #0a0e17; // canvas / page background, table body, inset wells
+  --surface-tier-1: #12182b; // cards, panels, sidebar, modal, drawer
+  --surface-tier-2: #1a2235; // nested surfaces, headers strips, inputs, popovers
+  --surface-hover: #222d44; // hover / selected row / pressed neutral
+  --surface-bright: #353943; // rare: highest neutral
+
+  // ---------- Brand gold ----------
+  // --primary            text, icons, active nav, focus ring, PRIMARY BUTTON FILL
+  // --primary-container  brand tile, logo, decorative fills, darker gold
+  --primary: #e6c364;
+  --primary-container: #c9a84c;
+  --on-primary: #3d2e00; // text/icon ON a --primary fill
+  --on-primary-container: #503d00; // text/icon ON a --primary-container fill
+  --gold-hover: #dbb95d; // primary button :hover
+  --gold-pressed: #b3923d; // primary button :active
+  --gold-dim: rgba(201, 168, 76, 0.15); // 15% tint for pills / selected states
+  --gold-dim-strong: rgba(201, 168, 76, 0.28);
+
+  // ---------- Text ----------
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #5a6a82;
+  --on-surface: #dfe2ef; // Stitch "on-surface" (almost identical to text-primary)
+
+  // ---------- Borders / outlines ----------
+  --border-subtle: #2a3650; // hairlines, dividers, rare borders
+  --border-strong: #3d4f6e; // hover/active border, scrollbar thumb
+  --outline-variant: #4d4637;
+  --outline: #99907e;
+
+  // ---------- Status tones ----------
+  // base = dots / fills / bars, text = readable on dark, dim = 15% tint, line = 30% tint
+  --success: #10b981;
+  --success-text: #34d399;
+  --success-dim: rgba(16, 185, 129, 0.15);
+  --success-line: rgba(16, 185, 129, 0.3);
+  --success-tint: #064e3b;
+
+  --warning: #f59e0b;
+  --warning-text: #fbbf24;
+  --warning-dim: rgba(245, 158, 11, 0.15);
+  --warning-line: rgba(245, 158, 11, 0.3);
+  --warning-tint: #78350f;
+
+  --danger: #ef4444;
+  --danger-text: #f87171;
+  --danger-dim: rgba(239, 68, 68, 0.15);
+  --danger-line: rgba(239, 68, 68, 0.3);
+  --danger-tint: #7f1d1d;
+
+  --info: #38bdf8;
+  --info-text: #38bdf8;
+  --info-dim: rgba(56, 189, 248, 0.15);
+  --info-line: rgba(56, 189, 248, 0.3);
+  --info-tint: #0c4a6e;
+
+  // Stitch material-style error roles (used for destructive buttons)
+  --error: #ffb4ab;
+  --error-container: #93000a;
+  --on-error: #690005;
+  --on-error-container: #ffdad6;
+
+  // ---------- Teams ----------
+  --team-crusaders: #f59e0b;
+  --team-templars: #06b6d4;
+
+  // ---------- Item tiers ----------
+  --tier-champion: #60a5fa;
+  --tier-hero: #c084fc;
+  --tier-myth: #fb923c;
+  --tier-super-rare: #f59e0b;
+
+  // ---------- WoW class colours ----------
+  --class-warrior: #c69b6d;
+  --class-paladin: #f48cba;
+  --class-hunter: #aad372;
+  --class-rogue: #fff468;
+  --class-priest: #ffffff;
+  --class-death-knight: #c41e3a;
+  --class-shaman: #0070dd;
+  --class-mage: #3fc7eb;
+  --class-warlock: #8788ee;
+  --class-monk: #00ff98;
+  --class-druid: #ff7c0a;
+  --class-demon-hunter: #a330c9;
+  --class-evoker: #33937f;
+
+  // ---------- Raid accents (app specific, no Stitch equivalent) ----------
+  --raid-voidspire: #8b5cf6;
+  --raid-dreamrift: #10b981;
+  --raid-queldanas: #f59e0b;
+
+  // ---------- Spacing (4px base) ----------
+  --space-xs: 4px; // micro gap, icon gap
+  --space-sm: 6px; // row padding, tight gap
+  --space-md: 12px; // card padding, default gap
+  --space-lg: 20px; // panel gap
+  --space-xl: 32px; // section gap
+  --space-2xl: 48px; // hero padding
+  --gutter: 12px; // grid gap mobile
+  --gutter-desktop: 16px; // grid gap desktop
+  --margin: 16px; // page padding mobile/tablet
+  --margin-desktop: 24px; // page padding desktop
+
+  // ---------- Radius ----------
+  --radius-xs: 2px; // Stitch DEFAULT: buttons, inputs, badges, chips
+  --radius-sm: 4px; // Stitch "lg":     cards, panels, modals
+  --radius-md: 8px; // Stitch "xl":     large containers (legacy name kept)
+  --radius-lg: 12px; // Stitch "full":   rare big rounding
+  --radius-pill: 999px; // avatars, switches, dots
+
+  // ---------- Elevation ----------
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.55); // modals, drawers
+  --shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-topbar: 0 1px 8px rgba(0, 0, 0, 0.4);
+
+  // ---------- Layout ----------
+  --topbar-h: 56px;
+  --sidebar-w: 240px;
+  --content-max: 1520px;
+  --drawer-w: 440px;
+  --touch-target: 44px;
+
+  // ---------- z-index scale ----------
+  --z-sticky: 50;
+  --z-sidebar: 150;
+  --z-topbar: 200;
+  --z-drawer: 500;
+  --z-modal: 1000;
+  --z-toast: 9999;
+
+  // ---------- Motion ----------
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 0.12s;
+  --dur: 0.18s;
+
+  // ---------- Typography ----------
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-icons: 'Material Symbols Outlined';
+
+  // ============================================================
+  // LEGACY ALIASES  (existing feature libs use these; do not remove,
+  // do not use in new code - use the Stitch names above)
+  // ============================================================
+  --bg-base: var(--surface-base);
+  --bg-surface: var(--surface-tier-1);
+  --bg-elevated: var(--surface-tier-2);
+  --bg-hover: var(--surface-hover);
+  --border-color: var(--border-subtle);
+  --border-bright: var(--border-strong);
+
+  // The old --accent-gold (#c9a84c) was used for text AND fills. It now follows --primary (#e6c364),
+  // the Stitch text/button gold. The old #c9a84c lives on as --primary-container.
+  --accent-gold: var(--primary);
+  --accent-gold-dim: #8a6f30; // legacy darker gold (borders); no Stitch equivalent
+  --accent-blue: #3b82f6;
+  --accent-red: var(--danger);
+  --accent-green: var(--success);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+}
+
+// Stitch type scale as CSS variables: --t-<name>-size / -lh / -ls / -weight
+:root {
+  @each $name, $v in $type-scale {
+    --t-#{$name}-size: #{list.nth($v, 1)};
+    --t-#{$name}-lh: #{list.nth($v, 2)};
+    --t-#{$name}-ls: #{list.nth($v, 3)};
+    --t-#{$name}-weight: #{list.nth($v, 4)};
+  }
+}

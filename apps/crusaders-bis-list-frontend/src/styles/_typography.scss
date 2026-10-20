@@ -1,0 +1,152 @@
+@use 'mixins' as *;
+
+// ============================================================
+// Type scale utilities (Stitch). Font is Inter everywhere.
+//   <h1 class="t-headline-lg">  <span class="t-label-caps">  <span class="t-stat-mono">
+// Each class sets size, line-height, letter-spacing and weight from the --t-* tokens.
+// ============================================================
+.t-headline-xl {
+  @include type('headline-xl');
+  @include below(640px) {
+    @include type('headline-xl-mobile');
+  }
+}
+.t-headline-xl-mobile {
+  @include type('headline-xl-mobile');
+}
+.t-headline-lg {
+  @include type('headline-lg');
+}
+.t-headline-md {
+  @include type('headline-md');
+}
+.t-title-sm {
+  @include type('title-sm');
+}
+.t-body-default,
+.t-body {
+  @include type('body-default');
+}
+.t-body-medium {
+  @include type('body-medium');
+}
+.t-body-code {
+  @include type('body-code');
+}
+// numbers: tabular figures so columns / live counters do not wobble
+.t-stat-mono,
+.t-stat {
+  @include type('stat-mono');
+  font-variant-numeric: tabular-nums;
+}
+.t-label-caps {
+  @include type('label-caps');
+  text-transform: uppercase;
+}
+
+// ---------- Text helpers ----------
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+.truncate {
+  @include truncate;
+}
+.nowrap {
+  white-space: nowrap;
+}
+.text-left {
+  text-align: left;
+}
+.text-center {
+  text-align: center;
+}
+.text-right {
+  text-align: right;
+}
+.fw-medium {
+  font-weight: 500;
+}
+.fw-semibold {
+  font-weight: 600;
+}
+.fw-bold {
+  font-weight: 700;
+}
+.uppercase {
+  text-transform: uppercase;
+}
+
+// ---------- Colour helpers (set `color` only) ----------
+// text roles
+.c-text {
+  color: var(--text-primary);
+}
+.c-secondary {
+  color: var(--text-secondary);
+}
+.c-muted {
+  color: var(--text-muted);
+}
+.c-gold {
+  color: var(--primary);
+}
+// status
+.c-success {
+  color: var(--success-text);
+}
+.c-warning {
+  color: var(--warning-text);
+}
+.c-danger {
+  color: var(--danger-text);
+}
+.c-info {
+  color: var(--info-text);
+}
+// teams
+.c-crusaders {
+  color: var(--team-crusaders);
+}
+.c-templars {
+  color: var(--team-templars);
+}
+// item tiers
+.c-champion {
+  color: var(--tier-champion);
+}
+.c-hero {
+  color: var(--tier-hero);
+}
+.c-myth {
+  color: var(--tier-myth);
+}
+.c-super-rare {
+  color: var(--tier-super-rare);
+}
+
+// ---------- WoW class helpers ----------
+// `.class-<slug>` sets `color` AND the `--class-color` custom property, so it can be combined with
+// `.badge-class`, `.chip-class`, `.class-stripe`, `.class-tile`. The slug is the lower-cased class
+// name with spaces replaced by dashes: "Death Knight" -> `class-death-knight`.
+$classes: (
+  'warrior',
+  'paladin',
+  'hunter',
+  'rogue',
+  'priest',
+  'death-knight',
+  'shaman',
+  'mage',
+  'warlock',
+  'monk',
+  'druid',
+  'demon-hunter',
+  'evoker'
+);
+
+@each $c in $classes {
+  .class-#{$c} {
+    --class-color: var(--class-#{$c});
+    color: var(--class-#{$c});
+  }
+}

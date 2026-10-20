@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Foundation styleguide</title>
+<!-- Dev-only: live catalogue of the global primitives. Build the CSS first:
+     node libs/frontend/stitch-design/tools/build-styleguide-css.mjs   (then open this file) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0&display=block" rel="stylesheet" />
+<link href="_build/app.css" rel="stylesheet" />
+<style>
+  /* the app locks html/body; the guide must scroll */
+  html, body { overflow: auto; height: auto; }
+  .sg h2 { margin: 0; }
+  .sg-section { display: flex; flex-direction: column; gap: 12px; }
+  .sg-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+  .sg-sw { display: flex; flex-direction: column; gap: 2px; padding: 8px; border-radius: 2px; background: var(--surface-tier-2); }
+  .sg-sw i { display: block; height: 28px; border-radius: 2px; }
+  .sg-sw code { font-size: 11px; color: var(--text-muted); }
+  .sg-demo { padding: 12px; background: var(--surface-tier-1); border-radius: 4px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .sg-modal-frame { position: relative; height: 340px; overflow: hidden; border-radius: 4px; }
+  .sg-modal-frame .modal-backdrop { position: absolute; }
+  .sg-modal-frame .drawer-backdrop { position: absolute; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__brand"><span class="brand-mark"><span class="material-symbols-outlined">shield_person</span></span>
+    <span class="brand-text"><span class="brand-text__name">RoyalTeam</span><span class="brand-text__sub">BIS List</span></span></div>
+  <nav class="row gap-xs"><a class="nav-link active">Mijn Loot</a><a class="nav-link">Admin</a><a class="nav-link">Raidplan</a></nav>
+  <span class="spacer"></span>
+  <span class="t-label-caps c-muted">Foundation styleguide</span>
+</header>
+
+<main class="page sg">
+
+<section class="sg-section"><h2 class="t-headline-lg">Surfaces &amp; gold</h2>
+  <div class="sg-swatches">
+    <div class="sg-sw"><i style="background:var(--surface-base);box-shadow:inset 0 0 0 1px var(--border-subtle)"></i><b class="t-body-medium">surface-base</b><code>#0a0e17</code></div>
+    <div class="sg-sw"><i style="background:var(--surface-tier-1)"></i><b class="t-body-medium">surface-tier-1</b><code>#12182b</code></div>
+    <div class="sg-sw"><i style="background:var(--surface-tier-2)"></i><b class="t-body-medium">surface-tier-2</b><code>#1a2235</code></div>
+    <div class="sg-sw"><i style="background:var(--surface-hover)"></i><b class="t-body-medium">surface-hover</b><code>#222d44</code></div>
+    <div class="sg-sw"><i style="background:var(--primary)"></i><b class="t-body-medium">primary</b><code>#e6c364</code></div>
+    <div class="sg-sw"><i style="background:var(--primary-container)"></i><b class="t-body-medium">primary-container</b><code>#c9a84c</code></div>
+    <div class="sg-sw"><i style="background:var(--gold-hover)"></i><b class="t-body-medium">gold-hover</b><code>#dbb95d</code></div>
+    <div class="sg-sw"><i style="background:var(--gold-pressed)"></i><b class="t-body-medium">gold-pressed</b><code>#b3923d</code></div>
+    <div class="sg-sw"><i style="background:var(--gold-dim)"></i><b class="t-body-medium">gold-dim</b><code>15% tint</code></div>
+  </div>
+  <div class="sg-swatches">
+    <div class="sg-sw"><i style="background:var(--success)"></i><b class="t-body-medium">success</b><code>#10b981</code></div>
+    <div class="sg-sw"><i style="background:var(--warning)"></i><b class="t-body-medium">warning</b><code>#f59e0b</code></div>
+    <div class="sg-sw"><i style="background:var(--danger)"></i><b class="t-body-medium">danger</b><code>#ef4444</code></div>
+    <div class="sg-sw"><i style="background:var(--info)"></i><b class="t-body-medium">info</b><code>#38bdf8</code></div>
+    <div class="sg-sw"><i style="background:var(--team-crusaders)"></i><b class="t-body-medium">team-crusaders</b><code>#f59e0b</code></div>
+    <div class="sg-sw"><i style="background:var(--team-templars)"></i><b class="t-body-medium">team-templars</b><code>#06b6d4</code></div>
+    <div class="sg-sw"><i style="background:var(--tier-champion)"></i><b class="t-body-medium">tier-champion</b><code>#60a5fa</code></div>
+    <div class="sg-sw"><i style="background:var(--tier-hero)"></i><b class="t-body-medium">tier-hero</b><code>#c084fc</code></div>
+    <div class="sg-sw"><i style="background:var(--tier-myth)"></i><b class="t-body-medium">tier-myth</b><code>#fb923c</code></div>
+  </div>
+</section>
+
+<section class="sg-section"><h2 class="t-headline-lg">Typography</h2>
+  <div class="card stack gap-sm">
+    <div class="t-headline-xl">headline-xl 32/38</div>
+    <div class="t-headline-lg">headline-lg 22/28</div>
+    <div class="t-headline-md">headline-md 18/24</div>
+    <div class="t-title-sm">title-sm 15/20</div>
+    <div class="t-body-default">body-default 13/18 - De loot van vandaag</div>
+    <div class="t-body-medium">body-medium 13/18</div>
+    <div class="t-body-code">body-code 12/16</div>
+    <div class="t-stat-mono">stat-mono 639.4 / 1234.5 (tabular)</div>
+    <div class="t-label-caps c-muted">label-caps 10/12</div>
+  </div>
+</section>
+
+<section class="sg-section"><h2 class="t-headline-lg">Buttons</h2>
+  <div class="sg-demo">
+    <button class="btn-primary"><span class="material-symbols-outlined">send</span>Primair</button>
+    <button class="btn">Secundair</button>
+    <button class="btn-ghost">Ghost</button>
+    <button class="btn-text">Tekst</button>
+    <button class="btn-danger">Verwijderen</button>
+    <button class="btn-success">Opslaan</button>
+    <button class="btn" disabled>Disabled</button>
+    <button class="btn-primary btn-sm">Klein</button>
+    <button class="btn btn-sm">Klein</button>
+    <button class="icon-btn" aria-label="x"><span class="material-symbols-outlined">edit</span></button>
+    <button class="icon-btn icon-btn--gold"><span class="material-symbols-outlined">bookmark</span></button>
+    <button class="icon-btn icon-btn--danger"><span class="material-symbols-outlined">delete</span></button>
+    <button class="icon-btn icon-btn--sm"><span class="material-symbols-outlined">close</span></button>
+  </div>
+</section>
+
+<section class="sg-section"><h2 class="t-headline-lg">Badges, chips, class marks</h2>
+  <div class="sg-demo">
+    <span class="badge badge-neutral">Neutraal</span><span class="badge badge-gold">Admin</span>
+    <span class="badge badge-success badge--dot">Actief</span><span class="badge badge-warning">Let op</span>
+    <span class="badge badge-danger">Fout</span><span class="badge badge-info">Info</span>
+    <span class="badge badge-crusaders">Crusaders</span><span class="badge badge-templars">Templars</span>
+    <span class="badge badge-champion">Champion</span><span class="badge badge-hero">Hero</span><span class="badge badge-myth">Myth</span>
+    <span class="badge badge-super-rare"><span class="material-symbols-outlined icon-fill">star</span>Super rare</span>
+    <span class="badge badge-class class-mage">Mage</span><span class="badge badge-class class-death-knight">Death Knight</span>
+    <span class="badge badge-solid">Solid</span><span class="badge badge-gold badge--sentence badge--pill">Sentence pill</span>
+  </div>
+  <div class="sg-demo">
+    <span class="t-label-caps c-muted">Klasse:</span>
+    <button class="chip chip-class class-paladin is-active">Paladin</button>
+    <button class="chip chip-class class-mage">Mage</button>
+    <button class="chip chip-class class-druid">Druid</button>
+    <button class="chip chip-class class-warrior">Warrior</button>
+    <button class="chip is-active">Alle</button><button class="chip">Tanks</button>
+  </div>
+  <div class="sg-demo">
+    <span class="class-tile class-paladin">V</span><span class="class-tile class-death-knight">S</span><span class="class-tile class-mage class-tile--lg">E</span>
+    <span class="row gap-sm"><span class="class-stripe class-druid"></span><span class="t-body-medium">Starfall</span></span>
+    <span class="t-body-medium class-warlock">Warlock naam</span>
+    <span class="avatar"><span class="material-symbols-outlined">person</span></span><span class="avatar avatar--sm"><span class="material-symbols-outlined">person</span></span>
+    <span class="dot" style="--dot-color: var(--success)"></span><span class="dot dot--pulse" style="--dot-color: var(--tier-champion)"></span>
+  </div>
+</section>
+
+<section class="sg-section"><h2 class="t-headline-lg">Cards, panels, stats, progress</h2>
+  <div class="grid-2">
+    <section class="card">
+      <header class="card-header"><h3 class="card-title"><span class="material-symbols-outlined">equalizer</span>Comp &amp; synergy</h3>
+        <span class="badge badge-success"><span class="material-symbols-outlined">check_circle</span>100%</span></header>
+      <div class="stack gap-sm">
+        <div class="stat-grid">
+          <div class="stat-tile"><span class="stat-tile__label">Raiders</span><span class="stat-tile__value">20/20<span class="stat-tile__sub">+4 reserve</span></span></div>
+          <div class="stat-tile"><span class="stat-tile__label">Gem. ilvl</span><span class="stat-tile__value c-gold">636.8</span></div>
+          <div class="stat-tile"><span class="stat-tile__label">Lockout</span><span class="stat-tile__value c-myth">7 / 8 M</span></div>
+        </div>
+        <div class="ratio-bar"><div class="ratio-bar__seg" style="width:10%;background:var(--team-templars)"></div><div class="ratio-bar__seg" style="width:20%;background:var(--class-monk)"></div><div class="ratio-bar__seg" style="width:35%;background:var(--danger)"></div><div class="ratio-bar__seg" style="width:35%;background:var(--class-mage)"></div></div>
+        <div class="progress"><div class="progress__bar" style="width:60%"></div></div>
+        <div class="progress progress--sm"><div class="progress__bar progress__bar--success" style="width:90%"></div></div>
+      </div>
+    </section>
+    <section class="card stack gap-sm">
+      <div class="card-tier-2 stack gap-sm"><span class="t-label-caps c-muted">card-tier-2 (nested)</span>
+        <input class="form-input" placeholder="Input op tier-2 krijgt base-kleur" /></div>
+      <div class="empty-slot">+ 1 vrije plek</div>
+      <div class="banner banner-success"><span class="material-symbols-outlined">check_circle</span><div>Opgeslagen</div></div>
+      <div class="banner banner-warning"><span class="material-symbols-outlined">warning</span><div>Dubbele reservering</div></div>
+      <div class="banner banner-danger"><span class="material-symbols-outlined">error</span><div>Er ging iets mis</div></div>
+      <div class="banner banner-info"><span class="material-symbols-outlined">info</span><div>Sync voltooid</div></div>
+    </section>
+  </div>
+  <div class="card"><div class="empty-box empty-box--boxed"><span class="material-symbols-outlined">inbox</span><p class="empty-box__title">Niets gevonden</p><p class="empty-box__text">Pas je filters aan om resultaten te zien.</p><button class="btn btn-sm">Reset filters</button></div></div>
+</section>
+
+<section class="sg-section"><h2 class="t-headline-lg">Forms</h2>
+  <div class="card stack">
+    <div class="form-row">
+      <div class="form-field"><label class="form-label">Naam</label><input class="form-input" value="Vaelin" /><span class="form-hint">Zichtbaar voor raiders</span></div>
+      <div class="form-field"><label class="form-label">Team</label><select class="form-select"><option>Crusaders</option><option>Templars</option></select></div>
+    </div>
+    <div class="form-field"><label class="form-label">Ongeldig</label><input class="form-input is-invalid" value="x" /><span class="form-error">Verplicht veld</span></div>
+    <div class="form-field"><label class="form-label">Notitie</label><textarea class="form-textarea" placeholder="Tekst..."></textarea></div>
+    <label class="search-field"><span class="material-symbols-outlined">search</span><input placeholder="Zoek raider, item..." /></label>
+    <div class="grid-2">
+      <label class="check-row"><span>Raider</span><input type="checkbox" checked /></label>
+      <label class="check-row"><span class="c-gold">Officer</span><input type="checkbox" /></label>
+    </div>
+    <div class="row gap-md"><label class="switch"><input type="checkbox" checked /><span class="switch__track"></span></label><span>Discord melding</span>
+      <label class="switch"><input type="checkbox" /><span class="switch__track"></span></label><span>Uit</span></div>
+    <div class="scroll-x scroll-hidden"><div class="segmented">
+      <button class="segmented__item is-active">Alle teams</button>
+      <button class="segmented__item" style="--item-color:var(--team-crusaders)">Crusaders</button>
+      <button class="segmented__item" style="--item-color:var(--team-templars)">Templars</button>
+      <button class="segmented__item" aria-label="tank"><span class="material-symbols-outlined">shield</span></button>
+    </div></div>
+  </div>
+</section>
+
+<section class="sg-section"><h2 class="t-headline-lg">Tabs &amp; table</h2>
+  <div class="tabs"><button class="tab is-active">Overzicht</button><button class="tab">Reserves <span class="badge badge-neutral">3</span></button><button class="tab">Historie</button></div>
+  <div class="card stack">
+    <div class="table-wrap"><table class="table table--clickable">
+      <thead><tr><th>Raider</th><th>Team</th><th class="cell-num">Items</th><th>Status</th><th class="cell-actions"></th></tr></thead>
+      <tbody>
+        <tr class="is-selected"><td><div class="cell-id"><span class="class-tile class-paladin">V</span><div><div class="t-body-medium class-paladin">Vaelin</div><div class="t-label-caps c-muted">Tarren Mill</div></div></div></td><td><span class="badge badge-crusaders">Crusaders</span></td><td class="cell-num">2 / 3</td><td><span class="badge badge-champion badge--dot">Actief</span></td><td class="cell-actions"><button class="icon-btn icon-btn--sm icon-btn--gold"><span class="material-symbols-outlined">edit</span></button></td></tr>
+        <tr><td><div class="cell-id"><span class="class-tile class-death-knight">S</span><div><div class="t-body-medium class-death-knight">Skaarl</div><div class="t-label-caps c-muted">Twisting Nether</div></div></div></td><td><span class="badge badge-crusaders">Crusaders</span></td><td class="cell-num">3 / 3</td><td><span class="badge badge-champion badge--dot">Actief</span></td><td class="cell-actions"><button class="icon-btn icon-btn--sm"><span class="material-symbols-outlined">edit</span></button></td></tr>
+        <tr><td><div class="cell-id"><span class="class-tile class-mage">E</span><div><div class="t-body-medium class-mage">Eladria</div><div class="t-label-caps c-muted">Tarren Mill</div></div></div></td><td><span class="badge badge-templars">Templars</span></td><td class="cell-num">4 / 4</td><td><span class="badge badge-warning badge--dot">Proef</span></td><td class="cell-actions"><button class="icon-btn icon-btn--sm"><span class="material-symbols-outlined">edit</span></button></td></tr>
+      </tbody></table></div>
+    <div class="pagination"><span>Rij 1-3 van 32</span><div class="row gap-xs"><button class="icon-btn icon-btn--sm" disabled><span class="material-symbols-outlined">chevron_left</span></button><span class="pagination__page">1</span><button class="icon-btn icon-btn--sm"><span class="material-symbols-outlined">chevron_right</span></button></div></div>
+  </div>
+  <div class="card card-flush"><table class="table table--stack"><thead><tr><th>Item</th><th>Tier</th></tr></thead>
+    <tbody><tr><td data-label="Item">Heart of the Coiled Altar</td><td data-label="Tier"><span class="badge badge-hero">Hero</span></td></tr></tbody></table></div>
+</section>
+
+<section class="sg-section"><h2 class="t-headline-lg">Page header, nav primitives</h2>
+  <div class="card">
+    <header class="page-head">
+      <div class="page-head__main">
+        <div class="page-head__eyebrow"><span class="badge badge-gold">Admin</span><span class="page-head__meta">Seizoen 1 live</span></div>
+        <h1 class="page-head__title">Gebruikersbeheer</h1>
+        <p class="page-head__subtitle">Bekijk alle geregistreerde gebruikers en beheer reservaties.</p>
+      </div>
+      <div class="page-head__actions"><button class="btn"><span class="material-symbols-outlined">file_download</span>Export</button><button class="btn-primary">Toevoegen</button></div>
+    </header>
+    <nav class="breadcrumb" style="margin-top:12px"><a>Raid Hub</a><span class="breadcrumb__sep">/</span><span>Detail</span></nav>
+  </div>
+  <div class="row gap-md" style="align-items:stretch">
+    <aside class="sidebar" style="border-radius:4px">
+      <div class="sidebar__label">Beheer</div>
+      <nav class="sidebar__nav"><a class="nav-item active"><span class="material-symbols-outlined">shield_person</span>Gebruikers</a>
+        <a class="nav-item"><span class="material-symbols-outlined">balance</span>Audit log<span class="badge badge-neutral nav-item__badge">12</span></a>
+        <a class="nav-item nav-item--accent active"><span class="material-symbols-outlined">dashboard</span>Accent actief</a></nav>
+      <div class="sidebar__footer"><span class="t-label-caps c-muted">Seizoen</span><div class="t-title-sm">The War Within S1</div></div>
+    </aside>
+    <div class="grow stack">
+      <nav class="bottom-nav"><a class="bottom-nav__item active"><span class="material-symbols-outlined">group</span>Gebruikers</a><a class="bottom-nav__item"><span class="material-symbols-outlined">settings</span>Seizoen</a><a class="bottom-nav__item"><span class="material-symbols-outlined">history</span>Log</a></nav>
+      <div class="popover" style="width:220px"><button class="popover__item"><span class="material-symbols-outlined icon-16">edit</span>Bewerken</button><button class="popover__item"><span class="material-symbols-outlined icon-16">delete</span>Verwijderen</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="sg-section"><h2 class="t-headline-lg">Modal &amp; drawer</h2>
+  <div class="grid-2">
+    <div class="sg-modal-frame card-tier-2" style="padding:0">
+      <div class="modal-backdrop"><div class="modal modal--sm" role="dialog">
+        <div class="modal-header"><h3><span class="material-symbols-outlined">report</span>Feedback</h3><button class="icon-btn" aria-label="Sluiten"><span class="material-symbols-outlined">close</span></button></div>
+        <div class="modal-body stack"><div class="form-field"><label class="form-label">Bericht</label><textarea class="form-textarea"></textarea></div></div>
+        <div class="modal-footer"><button class="btn">Annuleren</button><button class="btn-primary">Versturen</button></div>
+      </div></div>
+    </div>
+    <div class="sg-modal-frame card-tier-2" style="padding:0">
+      <div class="drawer-backdrop drawer-backdrop--end"><aside class="drawer">
+        <header class="drawer__header"><div class="row gap-sm"><span class="class-tile class-paladin class-tile--lg">V</span><div><div class="t-headline-md class-paladin">Vaelin</div><span class="t-label-caps c-muted">Crusaders</span></div></div><button class="icon-btn"><span class="material-symbols-outlined">close</span></button></header>
+        <div class="drawer__body"><div class="stat-grid"><div class="stat-tile"><span class="stat-tile__label">Reserves</span><span class="stat-tile__value">2/3</span></div><div class="stat-tile"><span class="stat-tile__label">Loot</span><span class="stat-tile__value c-gold">3</span></div></div></div>
+        <footer class="drawer__footer"><button class="btn-primary btn-block">Opslaan</button><button class="btn-danger btn-block">Verwijderen</button></footer>
+      </aside></div>
+    </div>
+  </div>
+</section>
+
+<section class="sg-section"><h2 class="t-headline-lg">Legacy classes (restyled)</h2>
+  <div class="sg-demo">
+    <span class="cat-badge cat-trinket">Trinket</span><span class="cat-badge cat-weapon">Weapon</span><span class="cat-badge cat-plate">Plate</span><span class="stat-badge">Int</span><span class="weapon-badge">Staff</span>
+    <span class="tier-badge tier-badge--champion_tier">Champion</span><span class="tier-badge tier-badge--hero_tier">Hero</span><span class="tier-badge tier-badge--myth_tier">Myth</span>
+    <span class="loading-spinner" style="padding:0">Laden...</span>
+    <div class="error-banner">error-banner</div><div class="success-banner">success-banner</div>
+  </div>
+</section>
+
+</main>
+</body>
+</html>
