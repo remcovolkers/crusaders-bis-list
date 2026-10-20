@@ -1,13 +1,21 @@
 <div class="login-container">
-  <div class="login-card">
-    <div class="logo">
-      <span class="logo-icon">⚔️</span>
-      <h1>RoyalTeam BIS List</h1>
-      <p class="subtitle">RoyalTeam — Loot Reservations</p>
+  <section class="login-card card card-lg">
+    <span class="login-watermark material-symbols-outlined" aria-hidden="true">military_tech</span>
+
+    <div class="login-brand">
+      <span class="login-mark" aria-hidden="true"><span class="material-symbols-outlined">shield_person</span></span>
+      <span class="t-label-caps c-gold">RoyalTeam</span>
+      <h1 class="t-headline-lg login-title">RoyalTeam BIS List</h1>
+      <p class="t-body-default c-secondary">RoyalTeam — Loot Reservations</p>
     </div>
-    <button class="google-btn" (click)="loginWithGoogle()">
-      <img class="google-icon" src="/assets/google_icon.png" alt="Google" aria-hidden="true" />
-      Inloggen met Google
-    </button>
-  </div>
+
+    <hr class="divider" />
+
+    <div class="stack login-actions">
+      <button type="button" class="google-btn" (click)="loginWithGoogle()">
+        <img class="google-icon" src="/assets/google_icon.png" alt="" aria-hidden="true" />
+        Inloggen met Google
+      </button>
+    </div>
+  </section>
 </div>

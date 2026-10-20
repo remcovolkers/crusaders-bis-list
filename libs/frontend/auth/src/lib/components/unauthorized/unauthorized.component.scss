@@ -1,19 +1,51 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
 .unauth-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  color: white;
-  background: #1a1a2e;
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+  padding: var(--margin);
 }
 
-h2 {
-  color: #f0c040;
+.unauth-card {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
 }
 
-button {
-  padding: 10px 24px;
-  margin-top: 16px;
-  cursor: pointer;
+.unauth-watermark {
+  position: absolute;
+  right: -32px;
+  top: -24px;
+  font-size: 200px;
+  line-height: 1;
+  color: var(--danger);
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.empty-box {
+  position: relative;
+  gap: var(--space-sm);
+
+  .empty-box__title {
+    margin: 0;
+    color: var(--text-primary);
+  }
+
+  .empty-box__text {
+    margin: 0 0 var(--space-md);
+    color: var(--text-secondary);
+  }
+}
+
+.unauth-icon.material-symbols-outlined {
+  font-size: 40px;
+  color: var(--danger-text);
 }
