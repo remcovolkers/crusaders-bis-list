@@ -1,67 +1,131 @@
-<div class="feedback-page">
-  <div class="page-header">
-    <h2>Feedback</h2>
+<div class="page">
+  <header class="page-head">
+    <div class="page-head__main">
+      <div class="page-head__eyebrow">
+        <span class="badge badge-warning">Super user</span>
+        @if (!loading()) {
+          <span class="page-head__meta">{{ openEntries().length }} open</span>
+        }
+      </div>
+      <h1 class="page-head__title">Feedback</h1>
+    </div>
     @if (!loading()) {
-      <span class="count-badge">{{ openEntries().length }} open</span>
+      <div class="page-head__actions">
+        <div class="stat-tile stat-tile--base">
+          <span class="stat-tile__label">Open</span>
+          <span class="stat-tile__value" [class.c-warning]="openEntries().length > 0">{{ openEntries().length }}</span>
+        </div>
+        <div class="stat-tile stat-tile--base">
+          <span class="stat-tile__label">Afgehandeld</span>
+          <span class="stat-tile__value c-success">{{ doneEntries().length }}</span>
+        </div>
+      </div>
     }
-  </div>
+  </header>
 
   @if (loading()) {
     <div class="loading-spinner">Laden...</div>
   }
   @if (error()) {
-    <div class="error-banner">{{ error() }}</div>
+    <div class="banner banner-danger">
+      <span class="material-symbols-outlined" aria-hidden="true">error</span>
+      <div>{{ error() }}</div>
+    </div>
   }
 
   @if (!loading() && openEntries().length === 0 && doneEntries().length === 0) {
-    <div class="empty-state">Nog geen feedback ontvangen.</div>
+    <div class="empty-box empty-box--boxed">
+      <span class="material-symbols-outlined" aria-hidden="true">inbox</span>
+      <p class="empty-box__title">Nog geen feedback ontvangen.</p>
+    </div>
   }
 
   @if (!loading() && openEntries().length === 0 && doneEntries().length > 0) {
-    <div class="empty-state">Alle feedback is afgehandeld 🎉</div>
+    <div class="empty-box empty-box--boxed">
+      <span class="material-symbols-outlined c-success" aria-hidden="true">task_alt</span>
+      <p class="empty-box__title">Alle feedback is afgehandeld 🎉</p>
+    </div>
   }
 
-  @for (entry of openEntries(); track entry.id) {
-    <div class="feedback-card">
-      <button class="check-btn" title="Markeer als afgehandeld" (click)="toggleResolved(entry)">
-        <span class="check-icon">☐</span>
-      </button>
-      <div class="feedback-card-body">
-        <div class="feedback-card-header">
-          <span class="feedback-user">{{ entry.userName }}</span>
-          @if (entry.userEmail !== entry.userName) {
-            <span class="feedback-email">{{ entry.userEmail }}</span>
-          }
-          <span class="feedback-page-ctx">{{ entry.pageContext }}</span>
-          <span class="feedback-date">{{ formatDate(entry.createdAt) }}</span>
-        </div>
-        <p class="feedback-message">{{ entry.message }}</p>
-      </div>
-    </div>
+  @if (openEntries().length > 0) {
+    <section class="card card-flush feedback-section">
+      <header class="card-header">
+        <h3 class="card-title">
+          <span class="material-symbols-outlined c-warning" aria-hidden="true">mark_email_unread</span>
+          Open
+          <span class="badge badge-warning tnum">{{ openEntries().length }}</span>
+        </h3>
+      </header>
+      <ng-container *ngTemplateOutlet="rows; context: { $implicit: openEntries(), done: false }" />
+    </section>
   }
 
   @if (!loading() && doneEntries().length > 0) {
-    <div class="section-divider">
-      <span class="section-label">Afgehandeld ({{ doneEntries().length }})</span>
-    </div>
-
-    @for (entry of doneEntries(); track entry.id) {
-      <div class="feedback-card feedback-card--done">
-        <button class="check-btn check-btn--done" title="Zet terug naar open" (click)="toggleResolved(entry)">
-          <span class="check-icon">☑</span>
-        </button>
-        <div class="feedback-card-body">
-          <div class="feedback-card-header">
-            <span class="feedback-user">{{ entry.userName }}</span>
-            @if (entry.userEmail !== entry.userName) {
-              <span class="feedback-email">{{ entry.userEmail }}</span>
-            }
-            <span class="feedback-page-ctx">{{ entry.pageContext }}</span>
-            <span class="feedback-date">{{ formatDate(entry.createdAt) }}</span>
-          </div>
-          <p class="feedback-message">{{ entry.message }}</p>
-        </div>
-      </div>
-    }
+    <section class="card card-flush feedback-section">
+      <header class="card-header">
+        <h3 class="card-title">
+          <span class="material-symbols-outlined c-success" aria-hidden="true">task_alt</span>
+          Afgehandeld
+          <span class="badge badge-success tnum">{{ doneEntries().length }}</span>
+        </h3>
+      </header>
+      <ng-container *ngTemplateOutlet="rows; context: { $implicit: doneEntries(), done: true }" />
+    </section>
   }
 </div>
+
+<ng-template #rows let-list let-done="done">
+  <div class="table-wrap">
+    <table class="table table--stack feedback-table">
+      <thead>
+        <tr>
+          <th class="col-status">Status</th>
+          <th class="col-user">Gebruiker</th>
+          <th class="col-page">Pagina</th>
+          <th>Bericht</th>
+          <th class="col-date">Datum</th>
+          <th class="cell-actions col-actions"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of list; track entry.id) {
+          <tr [class.feedback-row--done]="done">
+            <td data-label="Status">
+              @if (done) {
+                <span class="badge badge-success badge--dot">Afgehandeld</span>
+              } @else {
+                <span class="badge badge-warning badge--dot">Open</span>
+              }
+            </td>
+            <td data-label="Gebruiker">
+              <div class="feedback-user">
+                <span class="t-body-medium truncate">{{ entry.userName }}</span>
+                @if (entry.userEmail !== entry.userName) {
+                  <span class="t-body-code c-muted truncate">{{ entry.userEmail }}</span>
+                }
+              </div>
+            </td>
+            <td data-label="Pagina">
+              <code class="feedback-page-ctx">{{ entry.pageContext }}</code>
+            </td>
+            <td data-label="Bericht" class="feedback-message">{{ entry.message }}</td>
+            <td data-label="Datum" class="t-body-code c-secondary nowrap">{{ formatDate(entry.createdAt) }}</td>
+            <td class="cell-actions">
+              @if (done) {
+                <button class="btn btn-sm" title="Zet terug naar open" (click)="toggleResolved(entry)">
+                  <span class="material-symbols-outlined icon-16" aria-hidden="true">undo</span>
+                  Heropen
+                </button>
+              } @else {
+                <button class="btn btn-sm btn-success" title="Markeer als afgehandeld" (click)="toggleResolved(entry)">
+                  <span class="material-symbols-outlined icon-16" aria-hidden="true">check</span>
+                  Afgehandeld
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</ng-template>

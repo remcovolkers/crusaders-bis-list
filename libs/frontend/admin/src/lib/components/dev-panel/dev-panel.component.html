@@ -1,71 +1,103 @@
-<div class="dev-panel-page">
-  <div class="page-header">
-    <h2>Dev Panel</h2>
-    <p class="page-subtitle">Interne tools — alleen zichtbaar voor supergebruikers</p>
-  </div>
+<div class="page">
+  <header class="page-head">
+    <div class="page-head__main">
+      <div class="page-head__eyebrow">
+        <span class="badge badge-warning">Super user</span>
+      </div>
+      <h1 class="page-head__title">Dev Panel</h1>
+      <p class="page-head__subtitle">Interne tools — alleen zichtbaar voor supergebruikers</p>
+    </div>
+  </header>
 
-  <!-- Blizzard sync -->
-  <div class="dev-card card">
-    <div class="dev-card-header">
-      <h3>Blizzard synchronisatie</h3>
-      <p>Haal de nieuwste boss- en itemdata op uit de Blizzard API.</p>
-    </div>
-    <div class="dev-card-actions">
-      <button class="btn-dev" [class.busy]="syncing()" [disabled]="syncing() || resetting()" (click)="syncNow()">
-        <span class="dev-icon" aria-hidden="true">&#x21BB;</span>
-        {{ syncing() ? 'Synchroniseren...' : 'Synchroniseren' }}
-      </button>
-      <button
-        class="btn-dev btn-dev--danger"
-        [class.busy]="resetting()"
-        [disabled]="syncing() || resetting()"
-        (click)="resetAndSync()"
-      >
-        <span class="dev-icon" aria-hidden="true">&#x26A0;</span>
-        {{ resetting() ? 'Bezig...' : 'Forceer volledige sync' }}
-      </button>
-    </div>
-  </div>
-
-  <!-- Onderhoud -->
-  <div class="dev-card card">
-    <div class="dev-card-header">
-      <h3>Onderhoud</h3>
-      <p>Verwijder reservaties van raider-profielen die niet meer bestaan (UUID als naam).</p>
-    </div>
-    <div class="dev-card-actions">
-      @if (wipingOrphaned()) {
-        <button class="btn-dev" disabled>Bezig met opruimen...</button>
-      } @else if (confirmWipeAll()) {
-        <span class="confirm-text">Zeker weten? Dit verwijdert alle wees-reservaties.</span>
-        <button class="btn-dev btn-dev--danger" (click)="wipeAllOrphaned()">Ja, alles wissen</button>
-        <button class="btn-dev" (click)="confirmWipeAll.set(false)">Annuleer</button>
-      } @else {
-        <button class="btn-dev btn-dev--danger" (click)="confirmWipeAll.set(true)">
-          <span class="dev-icon" aria-hidden="true">&#x1F9F9;</span>
-          Wis wees-reservaties
+  <div class="grid-2 dev-grid">
+    <!-- Blizzard sync -->
+    <section class="card">
+      <header class="card-header">
+        <h3 class="card-title">
+          <span class="material-symbols-outlined" aria-hidden="true">cloud_sync</span>
+          Blizzard synchronisatie
+        </h3>
+      </header>
+      <p class="dev-desc">Haal de nieuwste boss- en itemdata op uit de Blizzard API.</p>
+      <div class="dev-actions">
+        <button class="btn-primary" [disabled]="syncing() || resetting()" (click)="syncNow()">
+          <span class="material-symbols-outlined icon-16" [class.spin]="syncing()" aria-hidden="true">sync</span>
+          {{ syncing() ? 'Synchroniseren...' : 'Synchroniseren' }}
         </button>
-      }
-    </div>
+      </div>
+    </section>
+
+    <!-- Swagger -->
+    <section class="card">
+      <header class="card-header">
+        <h3 class="card-title">
+          <span class="material-symbols-outlined" aria-hidden="true">api</span>
+          API Documentatie
+        </h3>
+      </header>
+      <p class="dev-desc">Interactieve Swagger UI — alleen beschikbaar buiten productie.</p>
+      <div class="dev-actions">
+        <a class="btn" [href]="swaggerUrl" target="_blank" rel="noopener">
+          <span class="material-symbols-outlined icon-16 c-gold" aria-hidden="true">open_in_new</span>
+          Open Swagger UI
+        </a>
+        <button class="btn" (click)="openTokenModal()">
+          <span class="material-symbols-outlined icon-16 c-gold" aria-hidden="true">key</span>
+          Bearer token ophalen
+        </button>
+      </div>
+    </section>
   </div>
 
-  <!-- Swagger -->
-  <div class="dev-card card">
-    <div class="dev-card-header">
-      <h3>API Documentatie</h3>
-      <p>Interactieve Swagger UI — alleen beschikbaar buiten productie.</p>
+  <!-- Gevaarlijke acties -->
+  <section class="card dev-danger">
+    <header class="card-header">
+      <h3 class="card-title">
+        <span class="material-symbols-outlined c-danger" aria-hidden="true">warning</span>
+        Gevaarlijke acties
+      </h3>
+    </header>
+
+    <div class="dev-row">
+      <div class="dev-row__text">
+        <span class="t-body-medium">Forceer volledige sync</span>
+        <span class="t-body-code c-secondary"
+          >Wist de volledige catalogus en synchroniseert opnieuw. Reserveringen blijven bewaard.</span
+        >
+      </div>
+      <div class="dev-actions">
+        <button class="btn-danger" [disabled]="syncing() || resetting()" (click)="resetAndSync()">
+          <span class="material-symbols-outlined icon-16" [class.spin]="resetting()" aria-hidden="true">restart_alt</span>
+          {{ resetting() ? 'Bezig...' : 'Forceer volledige sync' }}
+        </button>
+      </div>
     </div>
-    <div class="dev-card-actions">
-      <a class="btn-dev" [href]="swaggerUrl" target="_blank" rel="noopener">
-        <span class="dev-icon" aria-hidden="true">&#x1F4D6;</span>
-        Open Swagger UI
-      </a>
-      <button class="btn-dev" (click)="openTokenModal()">
-        <span class="dev-icon" aria-hidden="true">&#x1F511;</span>
-        Bearer token ophalen
-      </button>
+
+    <hr class="divider" />
+
+    <div class="dev-row">
+      <div class="dev-row__text">
+        <span class="t-body-medium">Onderhoud</span>
+        <span class="t-body-code c-secondary"
+          >Verwijder reservaties van raider-profielen die niet meer bestaan (UUID als naam).</span
+        >
+      </div>
+      <div class="dev-actions">
+        @if (wipingOrphaned()) {
+          <button class="btn" disabled>Bezig met opruimen...</button>
+        } @else if (confirmWipeAll()) {
+          <span class="t-body-code c-danger confirm-text">Zeker weten? Dit verwijdert alle wees-reservaties.</span>
+          <button class="btn-danger" (click)="wipeAllOrphaned()">Ja, alles wissen</button>
+          <button class="btn" (click)="confirmWipeAll.set(false)">Annuleer</button>
+        } @else {
+          <button class="btn-danger" (click)="confirmWipeAll.set(true)">
+            <span class="material-symbols-outlined icon-16" aria-hidden="true">cleaning_services</span>
+            Wis wees-reservaties
+          </button>
+        }
+      </div>
     </div>
-  </div>
+  </section>
 </div>
 
 @if (showTokenModal()) {
@@ -78,7 +110,7 @@
     (keydown.escape)="showTokenModal.set(false)"
   >
     <div
-      class="modal"
+      class="modal modal--lg"
       role="dialog"
       aria-modal="true"
       aria-labelledby="token-modal-title"
@@ -86,21 +118,35 @@
       (keydown)="$event.stopPropagation()"
     >
       <div class="modal-header">
-        <h3 id="token-modal-title">Bearer token voor Swagger</h3>
-        <button class="modal-close" (click)="showTokenModal.set(false)">✕</button>
+        <h3 id="token-modal-title">
+          <span class="material-symbols-outlined" aria-hidden="true">key</span>
+          Bearer token voor Swagger
+        </h3>
+        <button class="icon-btn" aria-label="Sluiten" (click)="showTokenModal.set(false)">
+          <span class="material-symbols-outlined" aria-hidden="true">close</span>
+        </button>
       </div>
       <div class="modal-body">
-        <p class="modal-hint">Plak dit token in Swagger UI via <strong>Authorize → Bearer &lt;token&gt;</strong>.</p>
+        <p class="t-body-default c-secondary">
+          Plak dit token in Swagger UI via <strong>Authorize → Bearer &lt;token&gt;</strong>.
+        </p>
         @if (swaggerToken()) {
-          <textarea class="token-field" readonly [value]="swaggerToken()!" rows="6"></textarea>
-          <button class="btn-dev btn-copy" (click)="copyToken()">
-            <span class="dev-icon" aria-hidden="true">&#x1F4CB;</span>
-            Kopieer token
-          </button>
+          <textarea class="form-textarea token-field" readonly [value]="swaggerToken()!" rows="6"></textarea>
         } @else {
-          <p class="modal-hint modal-hint--warn">Geen actieve sessie gevonden. Log eerst in.</p>
+          <div class="banner banner-warning">
+            <span class="material-symbols-outlined" aria-hidden="true">warning</span>
+            <div>Geen actieve sessie gevonden. Log eerst in.</div>
+          </div>
         }
       </div>
+      @if (swaggerToken()) {
+        <div class="modal-footer">
+          <button class="btn-primary" (click)="copyToken()">
+            <span class="material-symbols-outlined icon-16" aria-hidden="true">content_copy</span>
+            Kopieer token
+          </button>
+        </div>
+      }
     </div>
   </div>
 }

@@ -1,9 +1,11 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject, computed } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FeedbackService, FeedbackEntry } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
   selector: 'lib-admin-feedback',
+  imports: [NgTemplateOutlet],
   templateUrl: './admin-feedback.component.html',
   styleUrl: './admin-feedback.component.scss',
 })
