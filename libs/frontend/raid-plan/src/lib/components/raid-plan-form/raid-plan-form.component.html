@@ -112,9 +112,7 @@
               class="segmented__item"
               [class.is-active]="selectedDifficulty() === d"
               [attr.aria-pressed]="selectedDifficulty() === d"
-              [style.--item-color]="
-                'var(--tier-' + (d === 'Mythic' ? 'myth' : d === 'Heroic' ? 'hero' : 'champion') + ')'
-              "
+              [attr.data-tone]="difficultyTone(d)"
               (click)="selectedDifficulty.set(d)"
             >
               {{ d }}

@@ -208,6 +208,40 @@
   }
 }
 
+// Container-relative drawer (e.g. an attendance panel next to a workspace): inline side column above 1024px, below that a
+// slide-over inside the nearest positioned ancestor (not the viewport). Toggle `.is-open`; give the panel its own width.
+//   <div class="drawer-backdrop--contained" [class.is-open]="open" (click)="close()"></div>
+//   <aside class="drawer--contained" [class.is-open]="open">...</aside>
+.drawer-backdrop--contained {
+  display: none;
+}
+@media (max-width: 1024px) {
+  .drawer-backdrop--contained {
+    position: absolute;
+    inset: 0;
+    z-index: 199;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    &.is-open {
+      display: block;
+    }
+  }
+  .drawer--contained {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 200;
+    width: min(300px, 86vw);
+    transform: translateX(100%);
+    transition: transform var(--dur) var(--ease);
+    box-shadow: var(--shadow-xl);
+    &.is-open {
+      transform: translateX(0);
+    }
+  }
+}
+
 // ============================================================
 // Toast (visual spec; the real component is libs/frontend/shared-ui toast)
 // Popover / dropdown surface: `.popover` = tier-2, shadow-lg, 4px radius.

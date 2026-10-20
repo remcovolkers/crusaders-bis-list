@@ -10,16 +10,7 @@
   position: relative;
 }
 
-/* tier colour hook: any element with data-tier exposes --tier-color to its subtree */
-[data-tier='champion_tier'] {
-  --tier-color: var(--tier-champion);
-}
-[data-tier='hero_tier'] {
-  --tier-color: var(--tier-hero);
-}
-[data-tier='myth_tier'] {
-  --tier-color: var(--tier-myth);
-}
+/* tier colour hook (`[data-tier]` -> --tier-color / --item-color) is global, see styles/_badges.scss */
 
 .admin-layout {
   display: flex;
@@ -61,30 +52,18 @@
 }
 
 .tier-card {
-  position: relative;
-  display: flex;
+  --accent-color: var(--tier-color);
   flex-direction: column;
   gap: var(--space-xs);
   align-items: flex-start;
-  padding: var(--space-md) var(--space-md) var(--space-md) calc(var(--space-md) + 3px);
-  background: var(--surface-tier-1);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-sm);
+  min-height: 28px;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-align: left;
-  cursor: pointer;
-  transition: background var(--dur-fast) var(--ease);
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 3px;
-    background: var(--tier-color);
-  }
-
-  &:hover {
-    background: var(--surface-hover);
-  }
+  display: flex;
 
   &__name {
     font-size: var(--t-headline-md-size);
@@ -109,62 +88,22 @@
 
 /* ── Sticky toolbar: tier switch + boss strip ── */
 .toolbar {
-  position: sticky;
-  top: calc(-1 * var(--margin));
-  z-index: var(--z-sticky);
+  --sticky-top: calc(-1 * var(--margin));
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
   margin: 0 calc(-1 * var(--margin-desktop)) var(--space-md);
   padding: var(--space-md) var(--margin-desktop);
-  background: var(--surface-base);
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.toolbar__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-sm);
-}
-
+/* gear tier switch: global `.segmented--lg.segmented--tint`, tier-1 track */
 .diff-btns {
-  display: inline-flex;
-  gap: 2px;
-  padding: 2px;
-  background: var(--surface-tier-1);
-  border-radius: var(--radius-xs);
-}
+  --segmented-bg: var(--surface-tier-1);
 
-.diff-btn {
-  min-height: 28px;
-  padding: 0 var(--space-md);
-  border-radius: var(--radius-xs);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--tier-color);
-  cursor: pointer;
-  transition:
-    background var(--dur-fast) var(--ease),
-    box-shadow var(--dur-fast) var(--ease);
-}
-
-.diff-btns .diff-btn {
-  background: transparent;
-
-  &:hover {
-    background: var(--surface-hover);
+  .diff-btn {
+    min-width: 84px;
   }
-
-  &.active {
-    background: color-mix(in srgb, var(--tier-color) 16%, var(--surface-tier-2));
-    box-shadow: inset 0 -2px 0 var(--tier-color);
-  }
-}
-
-.diff-btns .diff-btn {
-  min-width: 84px;
 }
 
 .boss-chips {
@@ -241,19 +180,7 @@
 }
 
 .item-panel {
-  position: relative;
-  background: var(--surface-tier-1);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-
-  &.is-super-rare::before {
-    content: '';
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 3px;
-    background: var(--tier-super-rare);
-  }
+  --accent-color: var(--tier-super-rare);
 }
 
 .item-panel-header {
@@ -333,25 +260,10 @@
 }
 
 .raider-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  min-height: 28px;
-  padding: 0 var(--space-sm) 0 var(--space-sm);
-  border-radius: var(--radius-xs);
-  border-left: 3px solid var(--class-color, var(--border-strong));
-  background: var(--surface-tier-2);
-  cursor: pointer;
-  transition: background var(--dur-fast) var(--ease);
-
   .chip-name {
     font-size: 12px;
     font-weight: 600;
     color: var(--class-color, var(--text-primary));
-  }
-
-  &:hover {
-    background: var(--surface-hover);
   }
 
   &.has-reservation {
@@ -384,11 +296,14 @@
 .raid-panel {
   display: flex;
   flex-direction: column;
-  width: 232px;
   flex-shrink: 0;
   overflow-y: auto;
   background: var(--surface-tier-1);
-  box-shadow: -1px 0 0 var(--border-subtle);
+
+  @media (min-width: 1025px) {
+    width: 232px;
+    box-shadow: -1px 0 0 var(--border-subtle);
+  }
 }
 
 .raid-panel-header {
@@ -463,21 +378,8 @@
 
 .raid-panel-row {
   display: flex;
-  align-items: center;
-  gap: var(--space-xs);
   width: 100%;
-  min-height: 28px;
-  padding: 0 var(--space-sm);
-  border-radius: var(--radius-xs);
-  border-left: 3px solid var(--class-color, var(--border-strong));
-  background: var(--surface-tier-2);
   text-align: left;
-  cursor: pointer;
-  transition: background var(--dur-fast) var(--ease);
-
-  &:hover {
-    background: var(--surface-hover);
-  }
 
   .raid-panel-name {
     flex: 1;
@@ -508,11 +410,7 @@
   }
 }
 
-.raid-backdrop {
-  display: none;
-}
-
-/* ── Attendance panel becomes a drawer below desktop ── */
+/* attendance panel: inline column on desktop, global `.drawer--contained` slide-over below 1025px */
 @media (max-width: 1024px) {
   .raid-toggle-btn {
     display: inline-flex;
@@ -522,34 +420,6 @@
 
   .raid-drawer-close {
     display: inline-flex;
-  }
-
-  .raid-backdrop {
-    position: absolute;
-    inset: 0;
-    z-index: 199;
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(2px);
-
-    &.visible {
-      display: block;
-    }
-  }
-
-  .raid-panel {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 200;
-    width: min(300px, 86vw);
-    transform: translateX(100%);
-    transition: transform var(--dur) var(--ease);
-    box-shadow: var(--shadow-xl);
-
-    &.drawer-open {
-      transform: translateX(0);
-    }
   }
 }
 
@@ -563,10 +433,6 @@
     top: calc(-1 * var(--space-md));
     margin: 0 calc(-1 * var(--margin)) var(--space-md);
     padding: var(--space-sm) var(--margin);
-  }
-
-  .toolbar__row {
-    gap: var(--space-sm);
   }
 
   .diff-btns {

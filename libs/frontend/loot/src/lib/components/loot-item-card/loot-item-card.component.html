@@ -7,15 +7,15 @@
   <div class="item-top">
     @let secondaryIcon = getMergedSecondaryIconUrl();
     @if (item().iconUrl && secondaryIcon) {
-      <div class="item-icon-sm item-icon-sm--split" [attr.aria-label]="item().name" title="Samengevoegd item (2 items, 1 reservering)">
+      <div class="item-icon-sm item-icon-sm--split item-icon--lg" [attr.aria-label]="item().name" title="Samengevoegd item (2 items, 1 reservering)">
         <img class="split-primary" [src]="item().iconUrl" alt="" loading="lazy" />
         <img class="split-secondary" [src]="secondaryIcon" alt="" loading="lazy" />
         <div class="split-divider"></div>
       </div>
     } @else if (item().iconUrl) {
-      <img class="item-icon-sm" [src]="item().iconUrl" [alt]="item().name" loading="lazy" />
+      <img class="item-icon-sm item-icon--lg" [src]="item().iconUrl" [alt]="item().name" loading="lazy" />
     } @else {
-      <div class="item-icon-sm"></div>
+      <div class="item-icon-sm item-icon--lg"></div>
     }
     <div class="item-info">
       <span class="item-name" [title]="item().name">{{ item().name }}</span>
@@ -137,7 +137,7 @@
       } @else {
         <button
           type="button"
-          class="btn btn-sm btn-edit"
+          class="btn btn-sm btn-tint btn-edit"
           aria-label="Pas reservering aan"
           (click)="editReservationClicked.emit()"
         >

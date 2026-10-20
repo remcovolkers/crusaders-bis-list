@@ -64,6 +64,45 @@
   --card-pad: var(--space-lg);
 }
 
+// Left-edge accent bar (3px by default), colour/width from variables; keeps the card shadow.
+//   <article class="card card-accent" style="--accent-color: var(--tier-hero)">   (--accent-w: 4px for a wider bar)
+// On `.card` the left padding grows by the bar width; on `.panel`/`.card-flush` the content is untouched.
+.card-accent {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--accent-w, 3px);
+    background: var(--accent-color, var(--primary));
+    pointer-events: none;
+  }
+}
+.card.card-accent,
+.card-tier-1.card-accent,
+.card-tier-2.card-accent {
+  padding-left: calc(var(--card-pad) + var(--accent-w, 3px));
+}
+
+// Danger card (destructive tools): red left edge + tinted header strip
+//   <section class="card card-danger"><header class="card-header">...</header>...</section>
+.card-danger {
+  box-shadow: inset 2px 0 0 var(--danger);
+  > .card-header,
+  > .panel__header {
+    background: var(--danger-dim);
+  }
+}
+
+// Sticky bar inside a scroll container (filters / toolbars). Override `top` locally when the scroller has padding.
+//   <div class="sticky-bar">...</div>
+.sticky-bar {
+  position: sticky;
+  top: var(--sticky-top, 0);
+  z-index: var(--z-sticky);
+  background: var(--surface-base);
+}
+
 .card-header,
 .panel__header {
   display: flex;
@@ -307,14 +346,16 @@
     font-size: 32px;
     color: var(--text-muted);
   }
+  // colours can be overridden per context: `--empty-title-color`, `--empty-text-color` (text inherits by default)
   &__title {
     @include type('title-sm');
-    color: var(--text-secondary);
+    color: var(--empty-title-color, var(--text-secondary));
   }
   &__text {
     max-width: 44ch;
     font-size: 13px;
     line-height: 18px;
+    color: var(--empty-text-color, inherit);
   }
   &--boxed {
     background: var(--surface-base);
@@ -335,6 +376,63 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
+}
+
+// Filled counterpart of `.empty-slot`: one reservation / loot entry (tier-2 row). Add `.slot-row--sr` for a
+// super-rare edge and `.slot-row--btn` when the whole row is a button.
+//   <div class="slot-row slot-row--sr">
+//     <div class="slot-row__main"><span class="t-body-medium slot-row__name">Item</span><div class="slot-row__badges">...</div></div>
+//     <div class="slot-row__actions">...</div>
+//   </div>
+.slot-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-2);
+
+  &--sr {
+    box-shadow: inset 2px 0 0 var(--tier-super-rare);
+  }
+  &--btn {
+    min-height: 28px;
+    border: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--dur-fast);
+    &:hover {
+      background: var(--surface-hover);
+    }
+  }
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  &__name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  &__badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+  }
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    flex-shrink: 0;
+  }
 }
 
 // <div class="banner banner-danger"><span class="material-symbols-outlined">error</span><div>Tekst</div></div>
@@ -524,8 +622,13 @@
 .row-wrap {
   flex-wrap: wrap;
 }
+// works with or without `.row`
 .row-between {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: var(--gap, var(--space-sm));
+  min-width: 0;
 }
 .gap-xs {
   --gap: var(--space-xs);
@@ -623,4 +726,36 @@
   &--pulse {
     animation: pulse-dot 1.6s ease-in-out infinite;
   }
+}
+
+// ============================================================
+// Page "stage": dark base with a soft gold spotlight (login, onboarding, roll spectator), optionally with a big
+// faint watermark icon in the corner (the container must be `position: relative; overflow: hidden`).
+//
+//   <div class="page-stage">                       spotlight at the top centre
+//     <span class="watermark material-symbols-outlined" aria-hidden="true">military_tech</span>
+//   </div>
+//
+// Variables: --stage-shape (radial-gradient shape/position), --stage-tint, --stage-fade;
+//            --wm-color, --wm-size, --wm-right, --wm-top.
+// ============================================================
+.page-stage {
+  background:
+    radial-gradient(
+      var(--stage-shape, ellipse at 50% 0%),
+      var(--stage-tint, var(--gold-dim)) 0%,
+      transparent var(--stage-fade, 55%)
+    ),
+    var(--surface-base);
+}
+.watermark {
+  position: absolute;
+  right: var(--wm-right, -48px);
+  top: var(--wm-top, -40px);
+  font-size: var(--wm-size, 220px);
+  line-height: 1;
+  color: var(--wm-color, var(--primary));
+  opacity: 0.05;
+  pointer-events: none;
+  user-select: none;
 }

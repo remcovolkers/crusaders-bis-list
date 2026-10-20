@@ -1,16 +1,16 @@
 ﻿@if (notFound()) {
-  <div class="stage stage--center">
+  <div class="stage page-stage stage--center">
     <div class="empty-box empty-box--boxed stage-message">
       <span class="material-symbols-outlined c-danger" aria-hidden="true">error</span>
       <p class="empty-box__title">Sessie niet gevonden of verlopen.</p>
     </div>
   </div>
 } @else if (!sessionInfo()) {
-  <div class="stage stage--center">
+  <div class="stage page-stage stage--center">
     <div class="loading-spinner" role="status">Verbinden...</div>
   </div>
 } @else {
-  <div class="stage" [class.stage--winner]="winnerRevealed()">
+  <div class="stage page-stage" [class.stage--winner]="winnerRevealed()">
     <header class="stage__head">
       <div class="stage__title">
         <span class="stage-mark" aria-hidden="true"><span class="material-symbols-outlined">casino</span></span>

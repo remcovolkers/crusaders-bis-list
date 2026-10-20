@@ -70,12 +70,6 @@
   flex-direction: column;
   gap: var(--space-xs);
 
-  &__head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-md);
-  }
   &__list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -83,62 +77,28 @@
   }
 }
 
-.slot {
+.loot-slots .slot-row,
+.loot-slots .empty-slot {
+  min-height: 28px;
+}
+.loot-slots .slot-row .badge {
+  flex-shrink: 0;
+}
+// the global `.empty-slot` as a centred flex cell inside the slot grid
+.loot-slots .empty-slot {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  justify-content: center;
   min-width: 0;
-  min-height: 28px;
-  padding: var(--space-xs) var(--space-sm);
-  border: none;
-  border-radius: var(--radius-xs);
-  background: var(--surface-tier-2);
-  color: var(--text-primary);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  text-align: left;
-  cursor: pointer;
-  transition: background var(--dur-fast);
-
-  &:hover {
-    background: var(--surface-hover);
-  }
-  &__name {
-    min-width: 0;
-  }
-  .badge {
-    flex-shrink: 0;
-  }
-
-  &--empty {
-    justify-content: center;
-    border: 1px dashed var(--border-subtle);
-    background: var(--surface-base);
-    color: var(--text-muted);
-    font-size: 10px;
-    line-height: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: default;
-
-    &:hover {
-      background: var(--surface-base);
-    }
-  }
+  padding-inline: var(--space-sm);
 }
 
 /* ── Sticky filter bar ── */
 .loot-filters {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
   display: flex;
   align-items: center;
   gap: var(--space-md);
   padding-block: var(--space-xs);
-  background: var(--surface-base);
 
   &__tabs {
     min-width: 0;
@@ -227,7 +187,8 @@
     display: flex;
     flex-wrap: wrap;
   }
-  .slot {
+  .slot-row,
+  .empty-slot {
     max-width: 100%;
   }
 }

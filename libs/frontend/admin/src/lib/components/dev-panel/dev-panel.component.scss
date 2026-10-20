@@ -24,15 +24,6 @@
   margin-top: auto;
 }
 
-// Destructive tools: red edge + tinted title strip
-.dev-danger {
-  box-shadow: inset 2px 0 0 var(--danger);
-
-  .card-header {
-    background: var(--danger-dim);
-  }
-}
-
 .dev-row {
   display: flex;
   align-items: center;

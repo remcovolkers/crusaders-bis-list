@@ -185,6 +185,27 @@
     color: var(--class-color, var(--primary));
   }
 }
+// Class-edged compact chip (raider pickers, attendance rows): tier-2 pill with a 3px left edge in `--class-color`.
+//   <button class="chip-edged class-mage"><span>Arcanis</span></button>
+.chip-edged {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 28px;
+  padding: 0 var(--space-sm);
+  border-radius: var(--radius-xs);
+  border-left: 3px solid var(--class-color, var(--border-strong));
+  background: var(--surface-tier-2);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+  &:hover {
+    background: var(--surface-hover);
+  }
+  @include below(768px) {
+    min-height: 36px;
+  }
+}
+
 // ============================================================
 // Class marks
 //   .class-stripe  thin vertical class colour bar next to a name (raid matrix rows)
@@ -304,6 +325,47 @@
   &--super_rare,
   &--super-rare {
     --tier-color: var(--tier-super-rare);
+  }
+}
+
+// Interactive tier marker: tinted with `currentColor`, so combine it with a tier colour class
+//   <button class="tier-chip tier-hero_tier" [class.active]="open">Hero <span class="tier-chip__count">+2</span></button>
+.tier-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 22px;
+  padding: 2px 6px;
+  border: none;
+  border-radius: var(--radius-xs);
+  background: color-mix(in srgb, currentColor 15%, transparent);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur-fast);
+
+  &:hover,
+  &.active {
+    background: color-mix(in srgb, currentColor 28%, transparent);
+  }
+  &__count {
+    font-variant-numeric: tabular-nums;
+    opacity: 0.85;
+  }
+}
+
+// Tier colour hooks: an element with `data-tone="champion|hero|myth"` (e.g. from `difficultyTone()`) or
+// `data-tier="champion_tier|hero_tier|myth_tier"` exposes --tone / --tier-color / --item-color to its subtree
+// (so `.segmented__item`, `.card-accent` via `--accent-color: var(--tone)` etc. pick it up).
+@each $name in ('champion', 'hero', 'myth') {
+  [data-tone='#{$name}'],
+  [data-tier='#{$name}_tier'] {
+    --tone: var(--tier-#{$name});
+    --tier-color: var(--tier-#{$name});
+    --item-color: var(--tier-#{$name});
   }
 }
 

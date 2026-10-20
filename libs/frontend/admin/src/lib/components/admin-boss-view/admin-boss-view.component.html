@@ -17,7 +17,7 @@
           <p class="t-title-sm c-secondary landing-title">Selecteer gear tier om toe te wijzen</p>
           <div class="tier-cards">
             @for (d of difficulties; track d.key) {
-              <button class="diff-btn tier-card" [attr.data-tier]="d.key" (click)="selectedDifficulty.set(d.value)">
+              <button class="diff-btn tier-card card card-interactive card-accent" [attr.data-tier]="d.key" (click)="selectedDifficulty.set(d.value)">
                 <span class="tier-card__name">{{ d.label }}</span>
                 <span class="tier-card__hint">Tier kiezen</span>
                 <span class="material-symbols-outlined tier-card__go">arrow_forward</span>
@@ -32,14 +32,14 @@
       }
 
       @if (selectedDifficulty() && !loadingAll()) {
-        <div class="toolbar" [attr.data-tier]="selectedDifficulty()">
-          <div class="toolbar__row">
-            <div class="diff-btns" role="group" aria-label="Gear tier">
+        <div class="toolbar sticky-bar" [attr.data-tier]="selectedDifficulty()">
+          <div class="toolbar__row row-between">
+            <div class="segmented segmented--lg segmented--tint diff-btns" role="group" aria-label="Gear tier">
               @for (d of difficulties; track d.key) {
                 <button
-                  class="diff-btn"
+                  class="segmented__item diff-btn"
                   [attr.data-tier]="d.key"
-                  [class.active]="selectedDifficulty() === d.value"
+                  [class.is-active]="selectedDifficulty() === d.value"
                   [attr.aria-pressed]="selectedDifficulty() === d.value"
                   (click)="selectedDifficulty.set(d.value)"
                 >
@@ -101,7 +101,7 @@
                   </div>
                 }
                 @for (drop of visibleDrops(view.drops); track drop.item.id) {
-                  <article class="item-panel" [class.is-super-rare]="drop.item.isSuperRare">
+                  <article class="item-panel panel" [class.card-accent]="drop.item.isSuperRare">
                     <header class="item-panel-header">
                       <div class="item-panel-info">
                         @if (drop.item.iconUrl && drop.item.secondaryIconUrl) {
@@ -202,15 +202,15 @@
     <!-- Right panel: raid attendance -->
     @if (allRaiders().length > 0) {
       <div
-        class="raid-backdrop"
+        class="raid-backdrop drawer-backdrop--contained"
         role="button"
         tabindex="0"
         aria-label="Sluiten"
-        [class.visible]="raidDrawerOpen()"
+        [class.is-open]="raidDrawerOpen()"
         (click)="raidDrawerOpen.set(false)"
         (keydown.escape)="raidDrawerOpen.set(false)"
       ></div>
-      <aside class="raid-panel" [class.drawer-open]="raidDrawerOpen()">
+      <aside class="raid-panel drawer--contained" [class.is-open]="raidDrawerOpen()">
         <div class="raid-panel-header">
           <div class="raid-panel-title">
             <span class="t-label-caps c-muted">Aanwezig</span>
@@ -248,8 +248,8 @@
               </div>
             }
             <button
-              class="raid-panel-row"
-              [class]="'raid-panel-row ' + classSlug(raider.wowClass)"
+              class="raid-panel-row chip-edged"
+              [class]="'raid-panel-row chip-edged ' + classSlug(raider.wowClass)"
               [class.excluded]="isExcluded(raider.raiderId)"
               [attr.aria-pressed]="!isExcluded(raider.raiderId)"
               [title]="isExcluded(raider.raiderId) ? 'Zet aanwezig' : 'Zet absent'"
@@ -269,8 +269,8 @@
 
 <ng-template #raiderBtn let-raider let-drop="drop" let-boss="boss">
   <button
-    class="raider-chip"
-    [class]="'raider-chip ' + classSlug(raider.wowClass)"
+    class="raider-chip chip-edged"
+    [class]="'raider-chip chip-edged ' + classSlug(raider.wowClass)"
     [class.has-reservation]="raider.hasReservation"
     [class.excluded]="isExcluded(raider.raiderId)"
     [title]="raider.wowClass + ' – ' + raider.spec + (heldTier(raider) ? ' · ' + heldTitle(raider) : '')"

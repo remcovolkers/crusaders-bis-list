@@ -2,7 +2,7 @@
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { RaidDifficulty, CreateRaidPlanParticipantDto } from '@crusaders-bis-list/shared-domain';
+import { RaidDifficulty, CreateRaidPlanParticipantDto, difficultyTone } from '@crusaders-bis-list/shared-domain';
 import { RaidPlanService } from '../../services/raid-plan.service';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
@@ -64,6 +64,7 @@ export class RaidPlanFormComponent {
   readonly notes = signal('');
 
   readonly difficulties = Object.values(RaidDifficulty);
+  readonly difficultyTone = difficultyTone;
 
   readonly timeOptions: string[] = (() => {
     const times: string[] = [];

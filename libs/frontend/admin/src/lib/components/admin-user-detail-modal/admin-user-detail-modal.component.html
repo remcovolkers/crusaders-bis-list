@@ -176,7 +176,7 @@
         </h3>
         <div class="user-drawer__list">
           @for (entry of reserves(); track entry.id) {
-            <div class="slot" [class.slot--sr]="entry.isSuperRare">
+            <div class="slot-row" [class.slot-row--sr]="entry.isSuperRare">
               @if (entry.iconUrl && entry.secondaryIconUrl) {
                 <div class="item-icon-sm item-icon-sm--split">
                   <img class="split-primary" [src]="entry.iconUrl" [alt]="entry.itemName" loading="lazy" />
@@ -186,11 +186,11 @@
               } @else if (entry.iconUrl) {
                 <img class="item-icon-sm" [src]="entry.iconUrl" [alt]="entry.itemName" loading="lazy" />
               }
-              <div class="slot__main">
-                <span class="t-body-medium slot__name" [class.c-super-rare]="entry.isSuperRare">{{
+              <div class="slot-row__main">
+                <span class="t-body-medium slot-row__name" [class.c-super-rare]="entry.isSuperRare">{{
                   entry.itemName
                 }}</span>
-                <div class="slot__badges">
+                <div class="slot-row__badges">
                   <span class="cat-badge" [class]="'cat-' + entry.itemCategory">{{ entry.itemCategory }}</span>
                   @if (entry.isSuperRare) {
                     <span class="badge badge-super-rare">
@@ -213,7 +213,7 @@
                   }
                 </div>
               </div>
-              <div class="slot__actions">
+              <div class="slot-row__actions">
                 @if (confirmingEntry()?.itemId === entry.itemId) {
                   <span class="t-body-code c-secondary">Zeker?</span>
                   <button type="button" class="btn btn-sm btn-danger" (click)="confirmCancel()">Ja</button>
@@ -246,12 +246,12 @@
           <h3 class="t-label-caps c-muted">Ontvangen loot ({{ receivedItems().length }})</h3>
           <div class="user-drawer__list">
             @for (entry of receivedItems(); track entry.itemId) {
-              <div class="slot slot--history">
-                <div class="slot__main">
-                  <span class="t-body-medium slot__name" [class.c-super-rare]="entry.isSuperRare">{{
+              <div class="slot-row">
+                <div class="slot-row__main">
+                  <span class="t-body-medium slot-row__name" [class.c-super-rare]="entry.isSuperRare">{{
                     entry.itemName
                   }}</span>
-                  <div class="slot__badges">
+                  <div class="slot-row__badges">
                     <span class="cat-badge" [class]="'cat-' + entry.itemCategory">{{ entry.itemCategory }}</span>
                     @if (entry.receivedTier) {
                       <span class="badge" [class]="tierClass(entry.receivedTier)">{{
@@ -260,7 +260,7 @@
                     }
                   </div>
                 </div>
-                <div class="slot__actions">
+                <div class="slot-row__actions">
                   @if (confirmingEntry()?.itemId === entry.itemId) {
                     <span class="t-body-code c-secondary">Zeker?</span>
                     <button type="button" class="btn btn-sm btn-danger" (click)="confirmCancel()">Ja</button>

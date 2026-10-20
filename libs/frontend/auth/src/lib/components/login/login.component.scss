@@ -8,9 +8,6 @@
   place-items: center;
   min-height: 100%;
   padding: var(--margin);
-  background:
-    radial-gradient(ellipse at 50% 0%, var(--gold-dim) 0%, transparent 55%),
-    var(--surface-base);
 }
 
 .login-card {
@@ -23,19 +20,6 @@
   gap: var(--space-lg);
   text-align: center;
   box-shadow: var(--shadow-lg);
-}
-
-// Subtle architectural decoration, as in the planner title card
-.login-watermark {
-  position: absolute;
-  right: -48px;
-  top: -40px;
-  font-size: 220px;
-  line-height: 1;
-  color: var(--primary);
-  opacity: 0.05;
-  pointer-events: none;
-  user-select: none;
 }
 
 .login-brand {

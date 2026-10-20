@@ -20,17 +20,9 @@
   box-shadow: var(--shadow-lg);
 }
 
-// Subtle architectural decoration (planner title card)
 .onboarding-watermark {
-  position: absolute;
-  right: -40px;
-  top: -32px;
-  font-size: 220px;
-  line-height: 1;
-  color: var(--primary);
-  opacity: 0.05;
-  pointer-events: none;
-  user-select: none;
+  --wm-right: -40px;
+  --wm-top: -32px;
 }
 
 .onboarding-header {
@@ -61,76 +53,6 @@
 
   .material-symbols-outlined {
     font-size: 26px;
-  }
-}
-
-/* Stepper */
-.stepper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  margin: 0 0 var(--space-lg);
-  padding: var(--space-md);
-  list-style: none;
-  border-radius: var(--radius-sm);
-  background: var(--surface-tier-2);
-
-  &__step {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    color: var(--text-muted);
-    transition: color var(--dur);
-
-    &.is-active {
-      color: var(--primary);
-    }
-    &.is-done {
-      color: var(--success-text);
-    }
-  }
-
-  &__dot {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: var(--radius-xs);
-    background: var(--surface-base);
-    font-size: 12px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    flex-shrink: 0;
-  }
-
-  &__step.is-active &__dot {
-    background: var(--primary);
-    color: var(--on-primary);
-  }
-  &__step.is-done &__dot {
-    background: var(--success-dim);
-    color: var(--success-text);
-  }
-
-  &__label {
-    font-size: 10px;
-    line-height: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  &__line {
-    flex: 1;
-    min-width: 16px;
-    height: 2px;
-    background: var(--border-subtle);
-
-    &.is-done {
-      background: var(--success);
-    }
   }
 }
 

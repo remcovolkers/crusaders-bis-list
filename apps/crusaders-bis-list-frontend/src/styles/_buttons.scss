@@ -244,3 +244,46 @@
     color: var(--text-primary);
   }
 }
+
+// Gold-tinted secondary button: stays visible on a tier-2 surface (where the default `.btn` fill would vanish).
+//   <button class="btn btn-sm btn-tint">Pas aan</button>
+.btn-tint {
+  background: var(--gold-dim);
+  color: var(--primary);
+
+  &:hover:not(:disabled):not(.is-disabled) {
+    background: var(--gold-dim-strong);
+    color: var(--primary);
+  }
+}
+
+// Battle.net link button (brand blue identifies the external account):
+//   <button class="btn-link-bnet"><img class="bnet-icon" src="..." alt="" />Koppel Battle.net</button>
+.btn-link-bnet {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 28px;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-xs);
+  background: rgba(0, 174, 255, 0.12);
+  color: #00aeff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--dur-fast);
+
+  .material-symbols-outlined {
+    font-size: 16px;
+  }
+  .bnet-icon {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+  }
+  &:hover {
+    background: rgba(0, 174, 255, 0.22);
+  }
+}

@@ -54,36 +54,21 @@
 
 // ── Plan card ────────────────────────────────────────────────────────────────
 
+// difficulty colour bar on the left edge: global `.card-accent`, `--tone` comes from the global `[data-tone]` hook
 .plan-card {
-  --tone: var(--tier-champion);
+  --accent-color: var(--tone);
+  --accent-w: 4px;
 
-  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
   min-width: 0;
   overflow: hidden;
-  padding-left: calc(var(--space-md) + 4px);
-
-  &[data-tone="hero"] {
-    --tone: var(--tier-hero);
-  }
-  &[data-tone="myth"] {
-    --tone: var(--tier-myth);
-  }
-}
-
-// difficulty colour bar on the left edge
-.plan-card__edge {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 4px;
-  background: var(--tone);
 }
 
 .plan-card--past {
   .plan-card__name,
-  .plan-card__edge {
+  &::before {
     opacity: 0.7;
   }
 }

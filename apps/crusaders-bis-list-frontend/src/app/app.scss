@@ -121,7 +121,6 @@
   color: var(--danger-text);
 }
 
-.btn-link-bnet,
 .btn-tip {
   display: inline-flex;
   align-items: center;
@@ -138,22 +137,6 @@
 
   .material-symbols-outlined {
     font-size: 16px;
-  }
-}
-
-// Battle.net brand blue (kept: it identifies the external account)
-.btn-link-bnet {
-  background: rgba(0, 174, 255, 0.12);
-  color: #00aeff;
-
-  .bnet-icon {
-    width: 14px;
-    height: 14px;
-    object-fit: contain;
-  }
-
-  &:hover {
-    background: rgba(0, 174, 255, 0.22);
   }
 }
 

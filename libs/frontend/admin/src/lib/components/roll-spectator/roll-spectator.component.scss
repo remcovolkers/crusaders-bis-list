@@ -3,17 +3,16 @@
   min-height: 100%;
 }
 
-// Full-screen stage: dark base with a soft gold spotlight behind the wheel
+// Full-screen stage: global `.page-stage` (gold spotlight behind the wheel)
 .stage {
+  --stage-shape: ellipse 60% 50% at 30% 45%;
+  --stage-fade: 70%;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
   min-height: 100%;
   padding: var(--margin-desktop);
-  background:
-    radial-gradient(ellipse 60% 50% at 30% 45%, var(--gold-dim) 0%, transparent 70%),
-    var(--surface-base);
 
   &--center {
     align-items: center;
@@ -21,9 +20,8 @@
   }
 
   &--winner {
-    background:
-      radial-gradient(ellipse 60% 55% at 30% 45%, var(--gold-dim-strong) 0%, transparent 70%),
-      var(--surface-base);
+    --stage-shape: ellipse 60% 55% at 30% 45%;
+    --stage-tint: var(--gold-dim-strong);
   }
 
   &__head {

@@ -2,7 +2,7 @@ import { Component, inject, computed, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { IRaidPlan, RaidDifficulty, RaidParticipantRole, specRole } from '@crusaders-bis-list/shared-domain';
+import { DifficultyTone, IRaidPlan, RaidParticipantRole, difficultyTone, specRole } from '@crusaders-bis-list/shared-domain';
 import { RaidPlanService } from '../../services/raid-plan.service';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 import { AuthStateService } from '@crusaders-bis-list/frontend-auth';
@@ -85,15 +85,8 @@ export class RaidPlanListComponent {
   }
 
   /** Item-tier tone used for the difficulty badge and card edge (normal -> champion, heroic -> hero, mythic -> myth). */
-  difficultyTone(plan: IRaidPlan): 'champion' | 'hero' | 'myth' {
-    switch (plan.difficulty) {
-      case RaidDifficulty.MYTHIC:
-        return 'myth';
-      case RaidDifficulty.HEROIC:
-        return 'hero';
-      default:
-        return 'champion';
-    }
+  difficultyTone(plan: IRaidPlan): DifficultyTone {
+    return difficultyTone(plan.difficulty);
   }
 
   /** Tank / healer / dps split of the raiders in a plan. */

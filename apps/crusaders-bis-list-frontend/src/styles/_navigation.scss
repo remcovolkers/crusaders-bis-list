@@ -290,3 +290,81 @@
     }
   }
 }
+
+// ============================================================
+// Stepper / wizard progress (onboarding)
+//
+//   <ol class="stepper" aria-label="Voortgang">
+//     <li class="stepper__step is-done"><span class="stepper__dot">1</span><span class="stepper__label">Karakter</span></li>
+//     <li class="stepper__line is-done" aria-hidden="true"></li>
+//     <li class="stepper__step is-active"><span class="stepper__dot">2</span><span class="stepper__label">Class &amp; spec</span></li>
+//   </ol>
+// ============================================================
+.stepper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin: 0 0 var(--space-lg);
+  padding: var(--space-md);
+  list-style: none;
+  border-radius: var(--radius-sm);
+  background: var(--surface-tier-2);
+
+  &__step {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--text-muted);
+    transition: color var(--dur);
+
+    &.is-active {
+      color: var(--primary);
+    }
+    &.is-done {
+      color: var(--success-text);
+    }
+  }
+
+  &__dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-xs);
+    background: var(--surface-base);
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  &__step.is-active &__dot {
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  &__step.is-done &__dot {
+    background: var(--success-dim);
+    color: var(--success-text);
+  }
+
+  &__label {
+    font-size: 10px;
+    line-height: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__line {
+    flex: 1;
+    min-width: 16px;
+    height: 2px;
+    background: var(--border-subtle);
+
+    &.is-done {
+      background: var(--success);
+    }
+  }
+}

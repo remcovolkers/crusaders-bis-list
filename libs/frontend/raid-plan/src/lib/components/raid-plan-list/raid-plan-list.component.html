@@ -65,12 +65,10 @@
 
 <ng-template #planCard let-plan let-past="past">
   <article
-    class="card card-interactive plan-card"
+    class="card card-interactive card-accent plan-card"
     [class.plan-card--past]="past"
     [attr.data-tone]="difficultyTone(plan)"
   >
-    <span class="plan-card__edge" aria-hidden="true"></span>
-
     <div class="plan-card__top">
       <span class="badge badge-{{ difficultyTone(plan) }}">{{ plan.difficulty }}</span>
       @if (!past) {

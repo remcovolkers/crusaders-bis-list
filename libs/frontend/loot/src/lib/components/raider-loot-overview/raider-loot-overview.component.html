@@ -59,34 +59,34 @@
       </div>
 
       <div class="loot-slots">
-        <div class="loot-slots__head">
+        <div class="loot-slots__head row-between gap-md">
           <span class="t-label-caps c-muted">Soft reserves</span>
           <span class="t-label-caps c-gold">{{ myReservations().length }} / {{ totalSlots() }} gebruikt</span>
         </div>
         <div class="loot-slots__list">
           @for (r of myReservations(); track r.item.id) {
-            <button type="button" class="slot" (click)="openEditReserveModal(r.item)" title="Reservering aanpassen">
+            <button type="button" class="slot-row slot-row--btn" (click)="openEditReserveModal(r.item)" title="Reservering aanpassen">
               <span class="badge" [class.badge-super-rare]="r.item.isSuperRare" [class.badge-neutral]="!r.item.isSuperRare">
                 @if (r.item.isSuperRare) {
                   <span class="material-symbols-outlined icon-fill">star</span>
                 }
                 {{ r.item.isSuperRare ? 'SR' : r.group }}
               </span>
-              <span class="slot__name truncate">{{ r.item.name }}</span>
+              <span class="truncate">{{ r.item.name }}</span>
             </button>
           }
           @for (e of emptySlots(); track e.label) {
-            <span class="slot slot--empty">+ {{ e.count }} {{ e.label }} vrij</span>
+            <span class="empty-slot">+ {{ e.count }} {{ e.label }} vrij</span>
           }
           @if (myReservations().length === 0 && emptySlots().length === 0) {
-            <span class="slot slot--empty">Geen reserveringen mogelijk</span>
+            <span class="empty-slot">Geen reserveringen mogelijk</span>
           }
         </div>
       </div>
     </section>
 
     <!-- Category tabs + search -->
-    <div class="loot-filters">
+    <div class="loot-filters sticky-bar">
       <div class="scroll-x scroll-hidden loot-filters__tabs">
         <div class="segmented" role="tablist" aria-label="Categorie">
           @for (tab of state.visibleTabs(); track tab.key) {
