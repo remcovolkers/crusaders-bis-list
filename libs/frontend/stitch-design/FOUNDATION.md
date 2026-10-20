@@ -22,8 +22,8 @@ apps/crusaders-bis-list-frontend/src/styles/
   _badges.scss       .badge family, .chip family, .class-stripe/.class-tile, legacy cat/tier badges
   _forms.scss        inputs, switch, check-row, search field, segmented control
   _table.scss        .table, .table-wrap, .pagination
-  _navigation.scss   .tabs, .topbar/.nav-link/.brand-*, .sidebar/.nav-item, .bottom-nav
-  _overlays.scss     .modal*, .drawer*, .popover
+  _navigation.scss   .tabs, .topbar/.nav-link/.brand-*, .sidebar/.nav-item, .bottom-nav, .stepper
+  _overlays.scss     .modal*, .drawer* (incl. .drawer--contained), .popover
   _items.scss        item icon, confirm-item preview (loot/admin)
   _mixins.scss       SCSS-only helpers (not usable from component SCSS)
 apps/.../src/app/app.html|scss|ts                       app shell (top bar, mobile menu)
@@ -111,13 +111,24 @@ All snippets are minimal. Icons are Material Symbols: `<span class="material-sym
 ### Typography
 `.t-headline-xl` (32/38, 24px on phones) · `.t-headline-lg` (22/28, page titles) · `.t-headline-md` (18/24, card/modal titles) ·
 `.t-title-sm` (15/20) · `.t-body-default` (=`.t-body`) · `.t-body-medium` · `.t-body-code` (12/16, meta text) ·
-`.t-stat-mono` (=`.t-stat`, tabular-nums) · `.t-label-caps` (10px caps, muted labels). Helpers: `.tnum`, `.truncate`, `.nowrap`,
+`.t-stat-mono` (=`.t-stat`, tabular-nums; `.t-stat-mono--sm` = 12px for dense table cells) · `.t-label-caps` (10px caps, muted labels). Helpers: `.tnum`, `.truncate`, `.nowrap`,
 `.uppercase`, `.text-left|center|right`, `.fw-medium|semibold|bold`.
 Colour helpers (color only): `.c-text .c-secondary .c-muted .c-gold .c-success .c-warning .c-danger .c-info .c-crusaders
 .c-templars .c-champion .c-hero .c-myth .c-super-rare`.
 ```html
 <h1 class="t-headline-lg">Gebruikersbeheer</h1>
 <span class="t-label-caps c-muted">Team</span> <span class="t-stat-mono c-myth">639.4</span>
+```
+
+### Role colours (tank / healer / dps)
+`.role-tank|.role-healer|.role-dps` colour text/icons (`color`) and expose the same colour as `--item-color` (so they also tint a
+`.segmented__item`) and `--dot-color` (so they also colour a `.dot`). Default colours are the tokens `--role-tank` (info),
+`--role-healer` (success-text), `--role-dps` (error); a screen can re-map them by redefining the three tokens on its root
+(`admin-user-management` and the user drawer use myth / success / secondary).
+```html
+<span class="material-symbols-outlined icon-16 role-tank">shield</span>
+<span class="dot dot--sm role-healer"></span>
+<button class="segmented__item role-dps" [class.is-active]="f() === 'dps'">DPS</button>
 ```
 
 ### Class colours
@@ -140,6 +151,8 @@ Every variant works standalone (`class="btn-primary"`) or combined (`class="btn 
 <button class="btn btn-sm">Annuleren</button>
 <button class="icon-btn" aria-label="Bewerken"><span class="material-symbols-outlined">edit</span></button>
 ```
+`.btn-tint` = gold-tinted secondary that stays visible on a tier-2 surface (`class="btn btn-sm btn-tint"`, e.g. "Pas aan" on a loot tile).
+`.btn-link-bnet` (+ `.bnet-icon` img) = Battle.net link button in the brand blue.
 `.icon-btn` (32px, 24px `--sm`) + `--gold`, `--danger` (red on hover), `.is-active`. Destructive confirm = `.btn-danger`.
 
 ### Badges (static) and chips (interactive)
@@ -156,6 +169,15 @@ Chips: `.chip` (+`.is-active` or `aria-pressed="true"` = gold tint), `.chip-clas
 ```html
 <button class="chip chip-class class-mage" [class.is-active]="sel()" (click)="toggle()">Mage</button>
 ```
+Class-edged compact chip (`.chip-edged` + `.class-<slug>`; tier-2 pill, 3px left edge in `--class-color`, 28px / 36px below 768px):
+```html
+<button class="chip-edged class-mage"><span>Arcanis</span></button>
+```
+Interactive tier marker `.tier-chip` (+ `.active`, `__count`) tints itself with `currentColor`, so add a tier colour class:
+`<button class="tier-chip tier-hero_tier" [class.active]="open">Hero <span class="tier-chip__count">+2</span></button>`.
+Tier colour hooks: an element with `data-tone="champion|hero|myth"` or `data-tier="champion_tier|hero_tier|myth_tier"` exposes
+`--tone`, `--tier-color` and `--item-color` to its subtree. `difficultyTone(difficulty)` (shared-domain) maps Normal -> champion,
+Heroic -> hero, Mythic -> myth for `[attr.data-tone]` / `.badge-<tone>`.
 Item visuals: `.cat-badge .cat-trinket|weapon|offhand|cloth|leather|mail|plate|jewelry|other`, `.stat-badge`, `.weapon-badge`,
 `.tier-badge.tier-badge--champion_tier|hero_tier|myth_tier` (also `--champion|hero|myth|super-rare`), `.tier-<x>_tier` colour classes - unchanged API, flat look.
 **Item tier mapping:** champion blue, hero purple, myth orange, super rare = amber + star icon + `.badge-super-rare`.
@@ -173,7 +195,21 @@ Item visuals: `.cat-badge .cat-trinket|weapon|offhand|cloth|leather|mail|plate|j
 `.card-tier-2` (nested block inside a tier-1 surface; inputs inside auto-darken) · `.card-flush` (no padding, for tables/lists) ·
 `.card-lg` (20px padding) · `.card-bordered` (hairline; only when touching another tier-1 surface) · `.card-interactive` (hover) ·
 `.card-selected` (gold left bar). `.panel > .panel__header + .panel__body` = same look without negative margins.
+`.card-flush > .card-header` works (the strip no longer bleeds/clips; `.card-flush` sets `--card-pad: 0px`).
+- `.card-accent` - left-edge bar via `::before`, colour `--accent-color` (default gold), width `--accent-w` (3px); on `.card` the left padding grows by the bar;
+  on `.panel` it does not. Keeps the card shadow. Toggle per item: `<article class="panel" [class.card-accent]="superRare" style="--accent-color: var(--tier-super-rare)">`.
+  Difficulty cards: `data-tone` gives `--tone`, then `.plan-card { --accent-color: var(--tone); --accent-w: 4px }`.
+- `.card-danger` - destructive tools: red left edge + `--danger-dim` header strip (`<section class="card card-danger"><header class="card-header">`).
+- `.sticky-bar` - sticky filter/toolbar inside a scroller (`top: var(--sticky-top, 0)`, base background, `--z-sticky`).
 Never put a tier-1 card directly in a tier-1 container without a `.card-tier-2`/`.card-bordered`.
+
+### Page stage (login, onboarding, roll spectator)
+`.page-stage` = base colour with a soft gold spotlight (`--stage-shape`, `--stage-tint`, `--stage-fade`); `.watermark` = big faint corner icon
+(`--wm-color|size|right|top`, container needs `position: relative; overflow: hidden`).
+```html
+<div class="login-container page-stage"><section class="card card-lg" style="position:relative;overflow:hidden">
+  <span class="watermark material-symbols-outlined" aria-hidden="true">military_tech</span> ...
+```
 
 ### Stat tile / KPI, progress, ratio bar
 ```html
@@ -203,7 +239,12 @@ Modifiers: `.stat-tile--base` (on tier-2), `--lg`; `.progress--sm|lg|on-tier-2`,
   <p class="empty-box__title">Niets gevonden</p><p class="empty-box__text">Uitleg.</p><button class="btn btn-sm">Reset</button>
 </div>
 <div class="empty-slot">+ 1 vrije plek</div>              <!-- compact dashed slot -->
+<div class="slot-row slot-row--sr">                        <!-- filled counterpart (tier-2 row; --sr = super-rare edge, --btn = whole row is a button) -->
+  <div class="slot-row__main"><span class="t-body-medium slot-row__name">Item</span><div class="slot-row__badges">...</div></div>
+  <div class="slot-row__actions">...</div>
+</div>
 ```
+`.empty-box__title` / `__text` take their colour from `--empty-title-color` (default text-secondary) / `--empty-text-color` (default: inherit).
 (`.empty-box`, not `.empty-state`: several feature components define their own `.empty-state`.) Loading: `.loading-spinner` (unchanged).
 
 ### Forms
@@ -228,7 +269,11 @@ Touch devices get 40px fields at 16px font (no iOS zoom).
   <button class="segmented__item" style="--item-color: var(--team-crusaders)">Crusaders</button>
 </div></div>
 ```
-Selected = `.is-active` / `[aria-pressed=true]`. `.segmented--block` stretches.
+Selected = `.is-active` / `[aria-pressed=true]`. `.segmented--block` stretches. `.segmented--lg` = 28px sentence-case items (tier/difficulty switch);
+`.segmented--tint` tints the selected item with its `--item-color` (+ 2px colour bar); `--segmented-bg` changes the track colour.
+```html
+<div class="segmented segmented--lg segmented--tint"><button class="segmented__item is-active" data-tone="hero">Hero</button></div>
+```
 
 ### Tables
 ```html
@@ -244,6 +289,7 @@ Selected = `.is-active` / `[aria-pressed=true]`. `.segmented--block` stretches.
 Header = tier-2 caps strip, body = base with hairline rows, hover = surface-hover, selected = gold tint + bar, **no zebra**
 (`.table--zebra` opt-in). `.table--comfortable` taller rows, `.table--fade-actions` dims row actions until hover.
 Don't put `display:flex` on a `<td>`: use `.cell-id` (a flex div inside the cell).
+Long tables: `.table-wrap.table-wrap--scroll` scrolls vertically inside the wrapper (`--table-max-h`, default 480px) with a sticky header.
 **Mobile:** always wrap in `.table-wrap` (horizontal scroll). For <= 5 columns prefer `.table--stack` + `data-label` on each `<td>`: rows become cards below 640px.
 
 ### Tabs
@@ -287,6 +333,9 @@ Layout helpers: `.stack` (column, gap `--space-md`), `.row` (flex centre, gap `-
 with its own height (`--sidebar-w` wide). **Mobile:** drop the sidebar and use `.bottom-nav` (`.bottom-nav__item.active`) as a flex child at the bottom of the shell
 (`--topbar-h` tall, safe-area aware), exactly like the current admin bottom-nav.
 
+### Stepper (wizard progress)
+`ol.stepper > li.stepper__step(.is-active|.is-done) > .stepper__dot + .stepper__label` with `li.stepper__line(.is-done)` between the steps (see onboarding).
+
 ### Overlays
 Modal:
 ```html
@@ -311,6 +360,8 @@ Drawer (slide-over from the right, 440px, 100% on phones):
 </div>
 ```
 `.drawer--inline` removes the overlay behaviour (side column in a grid, Stitch roster layout on wide screens; show the overlay version below ~1280px).
+`.drawer--contained` + `.drawer-backdrop--contained` (toggle `.is-open`): a side panel that is an inline column above 1024px and a slide-over *inside the
+nearest positioned ancestor* below that (not the viewport) - e.g. the attendance panel of the boss view. Give the panel its own desktop width inside `@media (min-width: 1025px)`.
 `.popover` + `.popover__item` = dropdown surface. Toast: use `ToastService` (shared-ui) - do not build your own.
 
 ### Legacy global classes (restyled, API unchanged)
@@ -342,6 +393,9 @@ names locally still wins (scoped), exactly as before.
 - **Motion:** 120-180ms colour/background transitions, no bouncing. `prefers-reduced-motion` is respected globally.
 - **Icons:** Material Symbols Outlined only (loaded in `index.html`; requires network, falls back to an empty 1em box offline). 16px in buttons/rows, 18px nav, 20px card titles.
   Emoji used as icons in old templates should become Material icons when you restyle that screen.
+
+- **Locale:** the app registers the Dutch locale (`registerLocaleData(localeNl)`, `LOCALE_ID = 'nl'` in `main.ts`), so the Angular `date` pipe
+  renders Dutch month/day names (`{{ d | date: 'd MMM y' }}` -> "21 okt 2026").
 
 ## 5. Do's and don'ts
 
@@ -377,7 +431,7 @@ Don't
 
 ## 7. Requests for the foundation / known gaps
 
-- No sticky table header scroll container helper (`th` is `position: sticky; top:0` inside `.table-wrap`, which only helps when the wrapper itself scrolls vertically: give it a `max-height`).
+- Sticky table header: use `.table-wrap--scroll` (see Tables).
 - No tooltip primitive (Stitch has none either; use `title`).
 - `manifest.webmanifest` theme/background colour (#1a3a5c) was not touched (outside the owned files); `index.html` has `theme-color #0a0e17`.
 - Fonts come from Google Fonts (the production build inlines the CSS; the font files themselves are not in the service-worker cache).
