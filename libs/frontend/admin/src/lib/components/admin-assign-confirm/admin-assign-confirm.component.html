@@ -10,15 +10,20 @@
     class="modal confirm-modal"
     role="dialog"
     aria-modal="true"
+    aria-labelledby="assign-confirm-title"
     (click)="$event.stopPropagation()"
     (keydown)="$event.stopPropagation()"
   >
     <div class="modal-header">
-      <h3>Loot toewijzen</h3>
-      <button class="modal-close" (click)="cancelled.emit()">✕</button>
+      <h3 id="assign-confirm-title">
+        <span class="material-symbols-outlined c-gold">assignment_turned_in</span>Loot toewijzen
+      </h3>
+      <button class="icon-btn" (click)="cancelled.emit()" aria-label="Sluiten">
+        <span class="material-symbols-outlined">close</span>
+      </button>
     </div>
     <div class="modal-body">
-      <div class="confirm-item-preview">
+      <div class="confirm-item-preview" [class.is-super-rare]="pending().item.isSuperRare">
         @if (pending().item.iconUrl && pending().item.secondaryIconUrl) {
           <div class="confirm-item-icon confirm-item-icon--split">
             <img class="split-primary" [src]="pending().item.iconUrl" [alt]="pending().item.name" />
@@ -31,8 +36,13 @@
           <div class="confirm-item-icon-placeholder"></div>
         }
         <div class="confirm-item-info">
-          <span class="confirm-item-name">{{ pending().item.name }}</span>
+          <span class="confirm-item-name">{{ pending().item.mergedDisplayName ?? pending().item.name }}</span>
           <div class="confirm-item-meta">
+            @if (pending().item.isSuperRare) {
+              <span class="badge badge-super-rare">
+                <span class="material-symbols-outlined icon-fill icon-14">star</span>Super rare
+              </span>
+            }
             <span class="cat-badge" [ngClass]="'cat-' + pending().item.category">
               {{ categoryLabels[pending().item.category] }}
             </span>
@@ -54,8 +64,10 @@
       </p>
     </div>
     <div class="modal-footer">
-      <button class="btn-ghost" (click)="cancelled.emit()">Annuleer</button>
-      <button class="btn-primary" (click)="confirmed.emit()">Toewijzen</button>
+      <button class="btn" (click)="cancelled.emit()">Annuleer</button>
+      <button class="btn-primary" (click)="confirmed.emit()">
+        <span class="material-symbols-outlined">check</span>Toewijzen
+      </button>
     </div>
   </div>
 </div>

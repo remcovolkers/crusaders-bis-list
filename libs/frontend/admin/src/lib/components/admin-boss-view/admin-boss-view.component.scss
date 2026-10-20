@@ -1,7 +1,5 @@
-﻿/* ═══════════════════════════════════════════════════════
-   admin-boss-view — layout, attendance panel, item panels, raider chips
-   Badges, modals and item-icon-sm come from global styles.scss.
-   ═══════════════════════════════════════════════════════ */
+﻿/* admin-boss-view: workspace layout, tier + boss selection, drop cards, raider chips, attendance panel.
+   Cards, badges, chips, buttons, empty states and modals come from the global primitives. */
 
 :host {
   display: flex;
@@ -12,243 +10,318 @@
   position: relative;
 }
 
-/* ── Layout ── */
+/* tier colour hook: any element with data-tier exposes --tier-color to its subtree */
+[data-tier='champion_tier'] {
+  --tier-color: var(--tier-champion);
+}
+[data-tier='hero_tier'] {
+  --tier-color: var(--tier-hero);
+}
+[data-tier='myth_tier'] {
+  --tier-color: var(--tier-myth);
+}
+
 .admin-layout {
   display: flex;
   height: 100%;
   overflow: hidden;
 }
 
-/* ── Main content area ── */
 .admin-main {
   flex: 1;
-  overflow-y: auto;
-  padding: 0 24px 24px;
   min-width: 0;
+  overflow-y: auto;
+  padding: var(--margin) var(--margin-desktop) var(--margin-desktop);
 }
 
-/* ── Empty / landing / no-reservations states ── */
+.boss-head {
+  margin-bottom: var(--space-md);
+}
+
+/* ── Landing: pick a tier ── */
 .landing-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 300px;
-  gap: 24px;
-  padding-top: 24px;
+  gap: var(--space-lg);
+  padding: var(--space-xl) 0;
 }
 
 .landing-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-secondary);
   margin: 0;
   text-align: center;
 }
 
-.no-reservations-state {
+.tier-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 220px));
+  gap: var(--gutter-desktop);
+  justify-content: center;
+  width: 100%;
+}
+
+.tier-card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 80px 24px;
-  color: var(--text-muted);
+  gap: var(--space-xs);
+  align-items: flex-start;
+  padding: var(--space-md) var(--space-md) var(--space-md) calc(var(--space-md) + 3px);
+  background: var(--surface-tier-1);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
 
-  .no-reservations-icon {
-    font-size: 32px;
-    opacity: 0.5;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--tier-color);
   }
 
-  p {
-    font-size: 14px;
-    margin: 0;
-    text-align: center;
+  &:hover {
+    background: var(--surface-hover);
+  }
 
-    strong {
-      color: var(--text-secondary);
-      font-weight: 600;
-    }
+  &__name {
+    font-size: var(--t-headline-md-size);
+    line-height: var(--t-headline-md-lh);
+    font-weight: 700;
+    color: var(--tier-color);
+  }
+
+  &__hint {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  &__go {
+    position: absolute;
+    right: var(--space-md);
+    top: var(--space-md);
+    font-size: 18px;
+    color: var(--text-muted);
   }
 }
 
-/* ── Difficulty selector ── */
-.difficulty-selector {
-  display: flex;
-  gap: 10px;
-}
-
-.active-difficulty-bar {
+/* ── Sticky toolbar: tier switch + boss strip ── */
+.toolbar {
   position: sticky;
-  top: 0;
-  z-index: 10;
-  background: var(--bg-base);
+  top: calc(-1 * var(--margin));
+  z-index: var(--z-sticky);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin: 0 calc(-1 * var(--margin-desktop)) var(--space-md);
+  padding: var(--space-md) var(--margin-desktop);
+  background: var(--surface-base);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.toolbar__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 16px;
+  gap: var(--space-sm);
 }
 
 .diff-btns {
-  display: flex;
-  gap: 8px;
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--surface-tier-1);
+  border-radius: var(--radius-xs);
 }
 
 .diff-btn {
-  padding: 8px 20px;
-  border-radius: var(--radius-sm);
-  border: 2px solid transparent;
-  font-size: 13px;
+  min-height: 28px;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-xs);
+  font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--tier-color);
   cursor: pointer;
-  transition: all 0.12s;
-  opacity: 0.6;
+  transition:
+    background var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
+}
 
-  &.tier-champion_tier {
-    color: var(--tier-champion);
-    background: rgba(96, 165, 250, 0.08);
-    border-color: rgba(96, 165, 250, 0.25);
-  }
-  &.tier-hero_tier {
-    color: var(--tier-hero);
-    background: rgba(192, 132, 252, 0.08);
-    border-color: rgba(192, 132, 252, 0.25);
-  }
-  &.tier-myth_tier {
-    color: var(--tier-myth);
-    background: rgba(251, 146, 60, 0.08);
-    border-color: rgba(251, 146, 60, 0.25);
-  }
+.diff-btns .diff-btn {
+  background: transparent;
 
-  &:hover,
-  &.active {
-    opacity: 1;
-    filter: brightness(1.15);
-    box-shadow: 0 0 0 1px currentColor;
+  &:hover {
+    background: var(--surface-hover);
   }
 
   &.active {
-    &.tier-champion_tier {
-      background: rgba(96, 165, 250, 0.2);
-      border-color: var(--tier-champion);
-    }
-    &.tier-hero_tier {
-      background: rgba(192, 132, 252, 0.2);
-      border-color: var(--tier-hero);
-    }
-    &.tier-myth_tier {
-      background: rgba(251, 146, 60, 0.2);
-      border-color: var(--tier-myth);
-    }
+    background: color-mix(in srgb, var(--tier-color) 16%, var(--surface-tier-2));
+    box-shadow: inset 0 -2px 0 var(--tier-color);
   }
+}
+
+.diff-btns .diff-btn {
+  min-width: 84px;
+}
+
+.boss-chips {
+  display: flex;
+  gap: var(--space-xs);
+  width: max-content;
+}
+
+.boss-chips .chip {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.chip-count {
+  margin-left: var(--space-xs);
+  padding: 0 5px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-2);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+  line-height: 15px;
+
+  &.is-done {
+    background: var(--success-dim);
+    color: var(--success-text);
+  }
+}
+
+.chip.is-active .chip-count {
+  background: var(--gold-dim-strong);
+  color: var(--primary);
+}
+
+.raid-toggle-btn {
+  display: none;
 }
 
 /* ── Boss sections ── */
 .boss-sections {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: var(--space-xl);
 }
 
 .loot-view-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border-subtle);
 
   h2 {
-    font-size: 18px;
+    margin: 0;
+  }
+
+  .t-label-caps {
+    white-space: nowrap;
   }
 }
 
-/* ── Item panels ── */
+/* ── Drop cards ── */
 .item-panels {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--gutter-desktop);
   align-items: start;
 
-  > .no-reservations-state {
+  > .empty-box {
     grid-column: 1 / -1;
   }
 }
 
 .item-panel {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  position: relative;
+  background: var(--surface-tier-1);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
+
+  &.is-super-rare::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--tier-super-rare);
+  }
 }
 
 .item-panel-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-elevated);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-tier-2);
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--tier-color, transparent) 55%, transparent);
 }
 
 .item-panel-info {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+}
+
+.item-panel-text {
+  min-width: 0;
 }
 
 .item-panel-name {
   display: block;
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 4px;
+  line-height: 18px;
+  margin-bottom: 2px;
+  overflow-wrap: anywhere;
 }
 
 .item-panel-meta {
   display: flex;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
   align-items: center;
 }
 
-.no-eligible {
-  padding: 16px;
-  color: var(--text-muted);
-  font-size: 13px;
-  font-style: italic;
+.item-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md);
 }
 
-/* ── Dice (WoF) button ── */
-.dice-btn {
-  background: var(--bg-elevated, rgba(148, 163, 184, 0.1));
-  border: 1px solid var(--border-bright, rgba(148, 163, 184, 0.35));
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 20px;
-  color: var(--text-primary, #e2e8f0);
-  cursor: pointer;
-  line-height: 1;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  transition:
-    background 0.15s,
-    border-color 0.15s,
-    box-shadow 0.15s,
-    transform 0.1s;
+.no-eligible {
+  padding: var(--space-md);
+  color: var(--text-muted);
+  font-size: 12px;
+}
 
-  &:hover {
-    background: var(--bg-hover, rgba(148, 163, 184, 0.18));
-    border-color: rgba(240, 192, 64, 0.6);
-    box-shadow:
-      0 2px 8px rgba(0, 0, 0, 0.35),
-      0 0 0 1px rgba(240, 192, 64, 0.2);
-    transform: scale(1.15) rotate(-12deg);
+.group-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  &__n {
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
   }
 
-  &:active {
-    transform: scale(0.95) rotate(15deg);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  &:not(:first-child) {
+    margin-top: var(--space-sm);
   }
 }
 
@@ -256,35 +329,41 @@
 .raiders-chips-panel {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 12px 16px;
+  gap: var(--space-xs);
 }
 
 .raider-chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--class-color, var(--border-bright)) 35%, transparent);
-  background: color-mix(in srgb, var(--class-color, transparent) 10%, var(--bg-elevated));
-  font-size: 12px;
-  font-weight: 600;
-  color: color-mix(in srgb, var(--class-color, var(--text-secondary)) 80%, var(--text-secondary));
+  gap: var(--space-xs);
+  min-height: 28px;
+  padding: 0 var(--space-sm) 0 var(--space-sm);
+  border-radius: var(--radius-xs);
+  border-left: 3px solid var(--class-color, var(--border-strong));
+  background: var(--surface-tier-2);
   cursor: pointer;
-  transition: all 0.12s;
+  transition: background var(--dur-fast) var(--ease);
+
+  .chip-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--class-color, var(--text-primary));
+  }
 
   &:hover {
-    background: color-mix(in srgb, var(--class-color, transparent) 18%, var(--bg-elevated));
-    border-color: color-mix(in srgb, var(--class-color, var(--border-bright)) 60%, transparent);
+    background: var(--surface-hover);
   }
 
   &.has-reservation {
-    --class-color: #fbbf24;
+    background: color-mix(in srgb, var(--primary) 9%, var(--surface-tier-2));
+
+    &:hover {
+      background: color-mix(in srgb, var(--primary) 16%, var(--surface-tier-2));
+    }
   }
 
   &.excluded {
-    opacity: 0.3;
+    opacity: 0.35;
     filter: grayscale(1);
     cursor: not-allowed;
     pointer-events: none;
@@ -292,292 +371,250 @@
 }
 
 .chip-star {
-  font-size: 10px;
-  opacity: 0.85;
+  color: var(--primary);
 }
 
-/* ── Raid toggle button (mobile only) ── */
-.raid-toggle-btn {
-  display: none;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
-  background: var(--bg-elevated);
-  color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition:
-    background 0.1s,
-    border-color 0.1s;
-
-  &:hover {
-    background: var(--bg-hover, rgba(148, 163, 184, 0.15));
-    border-color: var(--border-bright);
-    color: var(--text-primary);
-  }
+.chip-held {
+  padding: 0 4px;
+  font-size: 9px;
+  line-height: 14px;
 }
 
-/* ── Drawer close button (mobile only) ── */
-.raid-drawer-close {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-muted);
-  font-size: 14px;
-  padding: 2px 4px;
-  flex-shrink: 0;
-  margin-left: 4px;
-
-  &:hover {
-    color: var(--text-primary);
-  }
-}
-
-/* ── Raid attendance backdrop (mobile) ── */
-.raid-backdrop {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 199;
-
-  &.visible {
-    display: block;
-  }
-}
-
-/* ── Raid attendance panel (right sidebar) ── */
+/* ── Raid attendance panel (right column) ── */
 .raid-panel {
-  width: 220px;
-  flex-shrink: 0;
-  background: var(--bg-surface);
-  border-left: 1px solid var(--border-color);
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  width: 232px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  background: var(--surface-tier-1);
+  box-shadow: -1px 0 0 var(--border-subtle);
 }
 
 .raid-panel-header {
-  display: flex;
-  align-items: center;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
-  background: var(--bg-surface);
   z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-tier-2);
 }
 
-.raid-panel-label {
+.raid-panel-title {
+  display: flex;
+  flex-direction: column;
   flex: 1;
-  text-align: center;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: var(--text-muted);
+  min-width: 0;
 }
 
 .raid-panel-count {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-  padding: 1px 8px;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 700;
 }
 
-.raid-panel-reset {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  background: rgba(239, 68, 68, 0.08);
-  color: #fca5a5;
-  cursor: pointer;
-  white-space: nowrap;
-  transition:
-    background 0.1s,
-    border-color 0.1s,
-    opacity 0.15s;
-
-  &:hover:not(:disabled) {
-    background: rgba(239, 68, 68, 0.18);
-    border-color: rgba(239, 68, 68, 0.6);
-  }
-
-  &:disabled {
-    opacity: 0.3;
-    cursor: default;
-  }
+.raid-drawer-close {
+  display: none;
 }
 
 .raid-panel-list {
-  flex: 1;
-  padding: 8px;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding: var(--space-sm) var(--space-sm) var(--space-md);
 }
 
 .raid-role-divider {
-  font-size: 9px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-xs) var(--space-xs);
+  font-size: 10px;
   font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.7px;
-  padding: 8px 8px 3px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 
   &--tank {
-    color: #60a5fa;
+    color: var(--info-text, var(--info));
   }
   &--healer {
-    color: #4ade80;
+    color: var(--success-text);
   }
   &--dps {
-    color: #f87171;
+    color: var(--danger-text, var(--danger));
   }
 
   &:not(:first-child) {
-    margin-top: 4px;
+    margin-top: var(--space-sm);
+    border-top: 1px solid var(--border-subtle);
   }
 }
 
 .raid-class-divider {
-  font-size: 9px;
+  padding: var(--space-xs) var(--space-xs) 0;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.4px;
-  padding: 4px 8px 2px;
-  color: color-mix(in srgb, var(--class-color, var(--text-muted)) 70%, var(--text-muted));
-  margin-top: 2px;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
 }
 
 .raid-panel-row {
   display: flex;
   align-items: center;
-  width: calc(100% - 12px);
-  margin: 0 6px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid color-mix(in srgb, var(--class-color, var(--border-color)) 65%, transparent);
-  background: color-mix(in srgb, var(--class-color, transparent) 45%, var(--bg-elevated));
-  color: var(--text-primary);
-  font-size: 12px;
-  font-weight: 700;
+  gap: var(--space-xs);
+  width: 100%;
+  min-height: 28px;
+  padding: 0 var(--space-sm);
+  border-radius: var(--radius-xs);
+  border-left: 3px solid var(--class-color, var(--border-strong));
+  background: var(--surface-tier-2);
   text-align: left;
   cursor: pointer;
-  transition:
-    background 0.15s,
-    border-color 0.15s,
-    opacity 0.2s,
-    filter 0.2s,
-    box-shadow 0.15s;
-
-  .raid-panel-name {
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  }
+  transition: background var(--dur-fast) var(--ease);
 
   &:hover {
-    background: color-mix(in srgb, var(--class-color, transparent) 62%, var(--bg-elevated));
-    border-color: color-mix(in srgb, var(--class-color, var(--border-color)) 90%, transparent);
-    box-shadow: 0 0 10px color-mix(in srgb, var(--class-color, transparent) 35%, transparent);
+    background: var(--surface-hover);
+  }
+
+  .raid-panel-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--class-color, var(--text-primary));
+  }
+
+  .raid-panel-state {
+    color: var(--success-text);
   }
 
   &.excluded {
-    opacity: 0.15;
-    filter: grayscale(1) brightness(0.5);
+    opacity: 0.45;
 
-    &:hover {
-      opacity: 0.38;
-      filter: grayscale(0.4) brightness(0.85);
+    .raid-panel-name {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .raid-panel-state {
+      color: var(--text-muted);
     }
   }
 }
 
-.raid-panel-name {
-  font-size: 12px;
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.raid-backdrop {
+  display: none;
 }
 
-/* ── Mobile ── */
-@media (max-width: 768px) {
+/* ── Attendance panel becomes a drawer below desktop ── */
+@media (max-width: 1024px) {
   .raid-toggle-btn {
-    display: flex;
+    display: inline-flex;
+    flex-shrink: 0;
+    min-height: 40px;
   }
 
   .raid-drawer-close {
-    display: block;
+    display: inline-flex;
+  }
+
+  .raid-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 199;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+
+    &.visible {
+      display: block;
+    }
   }
 
   .raid-panel {
     position: absolute;
-    right: 0;
     top: 0;
+    right: 0;
     bottom: 0;
-    width: 280px;
     z-index: 200;
+    width: min(300px, 86vw);
     transform: translateX(100%);
-    transition: transform 0.25s ease;
-    border-left: 1px solid var(--border-color);
-    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.4);
+    transition: transform var(--dur) var(--ease);
+    box-shadow: var(--shadow-xl);
 
     &.drawer-open {
       transform: translateX(0);
     }
   }
+}
 
+/* ── Phone / tablet shell ── */
+@media (max-width: 768px) {
   .admin-main {
-    padding: 0 0 24px;
+    padding: var(--space-md) var(--margin) var(--margin);
   }
 
-  .active-difficulty-bar {
-    padding: 12px 16px;
-    flex-wrap: wrap;
+  .toolbar {
+    top: calc(-1 * var(--space-md));
+    margin: 0 calc(-1 * var(--margin)) var(--space-md);
+    padding: var(--space-sm) var(--margin);
+  }
+
+  .toolbar__row {
+    gap: var(--space-sm);
   }
 
   .diff-btns {
-    flex-wrap: wrap;
-    gap: 6px;
+    flex: 1;
+
+    .diff-btn {
+      flex: 1;
+      min-width: 0;
+      min-height: 36px;
+    }
   }
 
-  .diff-btn {
-    padding: 6px 14px;
-    font-size: 12px;
+  .boss-chips .chip {
+    min-height: 36px;
+  }
+
+  .tier-cards {
+    grid-template-columns: 1fr;
+    max-width: 360px;
   }
 
   .item-panels {
     grid-template-columns: 1fr;
-    padding: 0 12px;
+    gap: var(--gutter);
   }
 
-  .loot-view-header {
-    padding: 0 12px;
-    flex-wrap: wrap;
+  .raider-chip {
+    min-height: 36px;
+    padding: 0 var(--space-md) 0 var(--space-sm);
+  }
 
-    h2 {
-      font-size: 15px;
-    }
+  .raid-panel-row {
+    min-height: 36px;
   }
 
   .boss-sections {
-    gap: 28px;
-    padding: 16px 0;
+    gap: var(--space-lg);
+  }
+
+  .loot-view-header {
+    flex-wrap: wrap;
+
+    h2 {
+      flex: 1 1 100%;
+    }
+
+    .spacer {
+      display: none;
+    }
   }
 }

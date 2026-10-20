@@ -103,6 +103,10 @@ export class AdminDiceModalComponent implements OnInit, OnDestroy {
     });
   }
 
+  classSlug(raider: IEligibleRaider): string {
+    return 'class-' + String(raider.wowClass).toLowerCase().replace(/\s+/g, '-');
+  }
+
   onWheelDone(): void {
     this.wheelDone.set(true);
   }
