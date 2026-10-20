@@ -105,6 +105,7 @@
             <a routerLink="/admin" routerLinkActive="active" (click)="menuOpen.set(false)">Admin</a>
           }
           @if (isSuperUser()) {
+            <a routerLink="/raid-plan" routerLinkActive="active" (click)="menuOpen.set(false)">Raidplan</a>
             <a routerLink="/dev-panel" routerLinkActive="active" (click)="menuOpen.set(false)">Dev Panel</a>
             <a routerLink="/feedback-inbox" routerLinkActive="active" (click)="menuOpen.set(false)">Feedback</a>
           }

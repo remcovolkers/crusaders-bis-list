@@ -314,7 +314,8 @@
   }
 }
 
-@media (max-width: 768px) {
+/* the full nav (up to 5 links for super users) + user block needs ~1100px */
+@media (max-width: 1100px) {
   .header-nav,
   .header-user {
     display: none;
