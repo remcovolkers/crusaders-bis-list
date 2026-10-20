@@ -1,134 +1,194 @@
-<div class="dashboard">
-  <div class="dashboard__header">
-    <div class="dashboard__title">
-      <h1>⚔️ Raidplannen</h1>
-      <p class="dashboard__subtitle">Overzicht van alle geplande raids</p>
+<div class="page">
+  <header class="page-head">
+    <div class="page-head__main">
+      <div class="page-head__eyebrow">
+        <span class="badge badge-gold">Raid planner</span>
+        @if (!loading() && plans().length > 0) {
+          <span class="page-head__meta">{{ plans().length }} {{ plans().length === 1 ? 'plan' : 'plannen' }}</span>
+        }
+      </div>
+      <h1 class="page-head__title">Raidplannen</h1>
+      <p class="page-head__subtitle">Overzicht van alle geplande raids</p>
     </div>
-    <a routerLink="new" class="btn btn--gold">+ Nieuw raidplan</a>
-  </div>
+    <div class="page-head__actions">
+      <a routerLink="new" class="btn-primary">
+        <span class="material-symbols-outlined">add</span>
+        Nieuw raidplan
+      </a>
+    </div>
+  </header>
 
   @if (loading()) {
-    <div class="loading-state">Laden…</div>
+    <div class="empty-box">
+      <div class="loading-spinner"></div>
+      <p class="empty-box__text">Laden…</p>
+    </div>
   } @else if (plans().length === 0) {
-    <div class="empty-state">
-      <div class="empty-state__icon">⚔️</div>
-      <h2>Nog geen raidplannen</h2>
-      <p>Maak het eerste raidplan aan voor je guild.</p>
-      <a routerLink="new" class="btn btn--gold">Maak eerste plan</a>
+    <div class="empty-box empty-box--boxed">
+      <span class="material-symbols-outlined">event_busy</span>
+      <p class="empty-box__title">Nog geen raidplannen</p>
+      <p class="empty-box__text">Maak het eerste raidplan aan voor je guild.</p>
+      <a routerLink="new" class="btn-primary">Maak eerste plan</a>
     </div>
   } @else {
     @if (upcoming().length > 0) {
       <section class="plan-section">
-        <h2 class="plan-section__title">📅 Aankomend</h2>
+        <h2 class="plan-section__title">
+          <span class="material-symbols-outlined icon-18 c-gold">event_upcoming</span>
+          Aankomend
+          <span class="plan-section__count">{{ upcoming().length }}</span>
+        </h2>
         <div class="plan-grid">
           @for (plan of upcoming(); track plan.id) {
-            <a [routerLink]="plan.id" class="plan-card plan-card--upcoming">
-              <!-- Difficulty stripe -->
-              <div class="plan-card__stripe plan-card__stripe--{{ plan.difficulty.toLowerCase() }}"></div>
-
-              <div class="plan-card__body">
-                <!-- Header row -->
-                <div class="plan-card__header">
-                  <span class="difficulty-badge difficulty-badge--{{ plan.difficulty.toLowerCase() }}">{{
-                    plan.difficulty
-                  }}</span>
-                  @if (discordStatus(plan) === 'sent') {
-                    <span class="discord-badge discord-badge--sent" title="Discord verstuurd">💬 Verstuurd</span>
-                  } @else if (discordStatus(plan) === 'scheduled') {
-                    <span class="discord-badge discord-badge--scheduled" title="Discord ingepland">🕐 Gepland</span>
-                  }
-                </div>
-
-                <!-- Raid name -->
-                <h3 class="plan-card__name">{{ plan.raidName }}</h3>
-
-                <!-- Date -->
-                <div class="plan-card__date">
-                  <span class="plan-card__date-text">{{ formatDate(plan.scheduledAt) }}</span>
-                  @if (daysUntil(plan.scheduledAt) === 0) {
-                    <span class="days-chip days-chip--today">Vandaag!</span>
-                  } @else if (daysUntil(plan.scheduledAt) === 1) {
-                    <span class="days-chip days-chip--tomorrow">Morgen</span>
-                  } @else if (daysUntil(plan.scheduledAt) <= 7) {
-                    <span class="days-chip">{{ daysUntil(plan.scheduledAt) }} dagen</span>
-                  }
-                </div>
-
-                <!-- Participant counts -->
-                <div class="plan-card__counts">
-                  <span class="count-chip count-chip--raider">⚔️ {{ raiderCount(plan) }}</span>
-                  @if (benchCount(plan) > 0) {
-                    <span class="count-chip count-chip--bench">🪑 {{ benchCount(plan) }}</span>
-                  }
-                  @if (absentCount(plan) > 0) {
-                    <span class="count-chip count-chip--absent">❌ {{ absentCount(plan) }}</span>
-                  }
-                </div>
-
-                <!-- Actions -->
-                @if (isAdmin()) {
-                  <div class="plan-card__actions">
-                    <a
-                      [routerLink]="[plan.id, 'edit']"
-                      class="btn btn--xs btn--ghost"
-                      (click)="$event.stopPropagation()"
-                      >✏️ Bewerken</a
-                    >
-                    @if (pendingDelete()?.id === plan.id) {
-                      <span class="confirm-text">Verwijderen?</span>
-                      <button class="btn btn--xs btn--danger" (click)="confirmDelete($event)">Ja</button>
-                      <button class="btn btn--xs btn--ghost" (click)="abortDelete($event)">Nee</button>
-                    } @else {
-                      <button class="btn btn--xs btn--danger" (click)="requestDelete(plan, $event)">🗑️</button>
-                    }
-                  </div>
-                }
-              </div>
-            </a>
+            <ng-container *ngTemplateOutlet="planCard; context: { $implicit: plan, past: false }" />
           }
         </div>
       </section>
     }
 
     @if (past().length > 0) {
-      <section class="plan-section plan-section--past">
-        <h2 class="plan-section__title">🗓️ Verleden</h2>
-        <div class="plan-grid plan-grid--past">
+      <section class="plan-section">
+        <h2 class="plan-section__title">
+          <span class="material-symbols-outlined icon-18 c-muted">history</span>
+          Verleden
+          <span class="plan-section__count">{{ past().length }}</span>
+        </h2>
+        <div class="plan-grid">
           @for (plan of past(); track plan.id) {
-            <a [routerLink]="plan.id" class="plan-card plan-card--past">
-              <div class="plan-card__stripe plan-card__stripe--{{ plan.difficulty.toLowerCase() }}"></div>
-              <div class="plan-card__body">
-                <div class="plan-card__header">
-                  <span class="difficulty-badge difficulty-badge--{{ plan.difficulty.toLowerCase() }}">{{
-                    plan.difficulty
-                  }}</span>
-                  @if (discordStatus(plan) === 'sent') {
-                    <span class="discord-badge discord-badge--sent">💬 Verstuurd</span>
-                  }
-                </div>
-                <h3 class="plan-card__name">{{ plan.raidName }}</h3>
-                <div class="plan-card__date">
-                  <span class="plan-card__date-text">{{ formatDate(plan.scheduledAt) }}</span>
-                </div>
-                <div class="plan-card__counts">
-                  <span class="count-chip count-chip--raider">⚔️ {{ raiderCount(plan) }}</span>
-                </div>
-                @if (isAdmin()) {
-                  <div class="plan-card__actions">
-                    @if (pendingDelete()?.id === plan.id) {
-                      <span class="confirm-text">Verwijderen?</span>
-                      <button class="btn btn--xs btn--danger" (click)="confirmDelete($event)">Ja</button>
-                      <button class="btn btn--xs btn--ghost" (click)="abortDelete($event)">Nee</button>
-                    } @else {
-                      <button class="btn btn--xs btn--danger" (click)="requestDelete(plan, $event)">🗑️</button>
-                    }
-                  </div>
-                }
-              </div>
-            </a>
+            <ng-container *ngTemplateOutlet="planCard; context: { $implicit: plan, past: true }" />
           }
         </div>
       </section>
     }
   }
 </div>
+
+<ng-template #planCard let-plan let-past="past">
+  <article
+    class="card card-interactive plan-card"
+    [class.plan-card--past]="past"
+    [attr.data-tone]="difficultyTone(plan)"
+  >
+    <span class="plan-card__edge" aria-hidden="true"></span>
+
+    <div class="plan-card__top">
+      <span class="badge badge-{{ difficultyTone(plan) }}">{{ plan.difficulty }}</span>
+      @if (!past) {
+        @if (daysUntil(plan.scheduledAt) === 0) {
+          <span class="badge badge-warning badge--sentence">Vandaag!</span>
+        } @else if (daysUntil(plan.scheduledAt) === 1) {
+          <span class="badge badge-success badge--sentence">Morgen</span>
+        } @else if (daysUntil(plan.scheduledAt) <= 7) {
+          <span class="badge badge-info badge--sentence">{{ daysUntil(plan.scheduledAt) }} dagen</span>
+        }
+      }
+      @if (discordStatus(plan) === 'sent') {
+        <span class="badge badge-success badge--sentence plan-card__discord" title="Discord verstuurd">
+          <span class="material-symbols-outlined icon-14">forum</span>Verstuurd
+        </span>
+      } @else if (discordStatus(plan) === 'scheduled' && !past) {
+        <span class="badge badge-info badge--sentence plan-card__discord" title="Discord ingepland">
+          <span class="material-symbols-outlined icon-14">schedule</span>Gepland
+        </span>
+      }
+    </div>
+
+    <h3 class="plan-card__name">
+      <a [routerLink]="plan.id" class="plan-card__link">{{ plan.raidName }}</a>
+    </h3>
+
+    <div class="plan-card__date t-body-code c-secondary">
+      <span class="material-symbols-outlined icon-16">calendar_month</span>
+      {{ formatDate(plan.scheduledAt) }}
+    </div>
+
+    <!-- Participants -->
+    <div class="plan-card__roster">
+      <div class="plan-card__counts">
+        <span class="plan-card__count" title="Raiders">
+          <span class="material-symbols-outlined icon-16 c-gold">groups</span>
+          <span class="t-stat-mono">{{ raiderCount(plan) }}</span>
+          <span class="t-body-code c-muted">raiders</span>
+        </span>
+        @if (benchCount(plan) > 0) {
+          <span class="plan-card__count" title="Bank">
+            <span class="material-symbols-outlined icon-16 c-warning">chair</span>
+            <span class="t-stat-mono">{{ benchCount(plan) }}</span>
+            <span class="t-body-code c-muted">bank</span>
+          </span>
+        }
+        @if (absentCount(plan) > 0) {
+          <span class="plan-card__count" title="Afgemeld">
+            <span class="material-symbols-outlined icon-16 c-danger">person_off</span>
+            <span class="t-stat-mono">{{ absentCount(plan) }}</span>
+            <span class="t-body-code c-muted">afgemeld</span>
+          </span>
+        }
+      </div>
+
+      @if (raiderCount(plan) > 0) {
+        @let roles = roleCounts(plan);
+        <div class="plan-card__roles">
+          <div
+            class="ratio-bar"
+            role="img"
+            [attr.aria-label]="roles.tank + ' tanks, ' + roles.healer + ' healers, ' + roles.dps + ' dps'"
+          >
+            <div
+              class="ratio-bar__seg"
+              [style.width.%]="(roles.tank / raiderCount(plan)) * 100"
+              style="background: var(--team-templars)"
+            ></div>
+            <div
+              class="ratio-bar__seg"
+              [style.width.%]="(roles.healer / raiderCount(plan)) * 100"
+              style="background: var(--success)"
+            ></div>
+            <div
+              class="ratio-bar__seg"
+              [style.width.%]="(roles.dps / raiderCount(plan)) * 100"
+              style="background: var(--danger)"
+            ></div>
+          </div>
+          <div class="plan-card__role-legend t-body-code c-secondary tnum">
+            <span class="row"
+              ><span class="dot dot--sm" style="--dot-color: var(--team-templars)"></span>{{ roles.tank }} Tank</span
+            >
+            <span class="row"
+              ><span class="dot dot--sm" style="--dot-color: var(--success)"></span>{{ roles.healer }} Heal</span
+            >
+            <span class="row"
+              ><span class="dot dot--sm" style="--dot-color: var(--danger)"></span>{{ roles.dps }} DPS</span
+            >
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (isAdmin()) {
+      <div class="plan-card__actions">
+        @if (pendingDelete()?.id === plan.id) {
+          <span class="t-body-code c-secondary grow">Verwijderen?</span>
+          <button type="button" class="btn-danger btn-sm" (click)="confirmDelete($event)">Ja</button>
+          <button type="button" class="btn btn-sm" (click)="abortDelete($event)">Nee</button>
+        } @else {
+          @if (!past) {
+            <a [routerLink]="[plan.id, 'edit']" class="btn btn-sm">
+              <span class="material-symbols-outlined">edit</span>
+              Bewerken
+            </a>
+          }
+          <button
+            type="button"
+            class="icon-btn icon-btn--danger plan-card__delete"
+            (click)="requestDelete(plan, $event)"
+            aria-label="Verwijderen"
+            title="Verwijderen"
+          >
+            <span class="material-symbols-outlined">delete</span>
+          </button>
+        }
+      </div>
+    }
+  </article>
+</ng-template>
