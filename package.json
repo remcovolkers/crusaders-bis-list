@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "visual-qa": "node scripts/visual-qa/screenshot.mjs",
     "lint": "nx run-many --target=lint --all",
     "typecheck": "nx run-many --target=typecheck --projects=crusaders-bis-list,frontend",
     "check": "nx run-many --target=lint --all && nx run-many --target=typecheck --projects=crusaders-bis-list,frontend",
