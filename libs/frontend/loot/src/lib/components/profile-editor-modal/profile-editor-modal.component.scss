@@ -1,1 +1,4 @@
-/* All modal chrome is provided by the host component's stylesheet. */
+/* All modal chrome comes from the global modal / form primitives. */
+:host {
+  display: contents;
+}
