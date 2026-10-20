@@ -8,48 +8,60 @@
   (keydown.escape)="cancelled.emit()"
 >
   <div
-    class="modal"
+    class="modal modal--lg"
     role="dialog"
     aria-modal="true"
+    aria-labelledby="profile-modal-title"
     (click)="$event.stopPropagation()"
     (keydown)="$event.stopPropagation()"
   >
     <div class="modal-header">
-      <h3>Jouw character</h3>
-      <button class="modal-close" (click)="cancelled.emit()">✕</button>
+      <h3 id="profile-modal-title"><span class="material-symbols-outlined">badge</span>Jouw character</h3>
+      <button class="icon-btn" aria-label="Sluit venster" (click)="cancelled.emit()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
     </div>
 
-    <div class="modal-body">
-      <label class="form-label" for="profile-name">Naam</label>
-      <input
-        id="profile-name"
-        class="form-input"
-        [ngModel]="editCharName()"
-        (ngModelChange)="editCharName.set($event)"
-        placeholder="Karakternaam"
-      />
+    <div class="modal-body stack">
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label" for="profile-name">Naam</label>
+          <input
+            id="profile-name"
+            class="form-input"
+            [ngModel]="editCharName()"
+            (ngModelChange)="editCharName.set($event)"
+            placeholder="Karakternaam"
+          />
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="profile-realm">Realm</label>
+          <input
+            id="profile-realm"
+            class="form-input"
+            [ngModel]="editRealm()"
+            (ngModelChange)="editRealm.set($event)"
+            placeholder="bijv. Silvermoon"
+          />
+        </div>
+      </div>
 
-      <label class="form-label" for="profile-realm" style="margin-top: 12px">Realm</label>
-      <input
-        id="profile-realm"
-        class="form-input"
-        [ngModel]="editRealm()"
-        (ngModelChange)="editRealm.set($event)"
-        placeholder="bijv. Silvermoon"
-      />
-
-      <label class="form-label" for="class-spec-selector" style="margin-top: 16px">Class &amp; Spec</label>
-      <lib-class-spec-selector
-        id="class-spec-selector"
-        [selectedClass]="editClass()"
-        [selectedSpec]="editSpec()"
-        (selectionChange)="onClassSpecChange($event)"
-      />
+      <div class="form-field">
+        <label class="form-label" for="class-spec-selector">Class &amp; Spec</label>
+        <lib-class-spec-selector
+          id="class-spec-selector"
+          [selectedClass]="editClass()"
+          [selectedSpec]="editSpec()"
+          (selectionChange)="onClassSpecChange($event)"
+        />
+      </div>
     </div>
 
     <div class="modal-footer">
-      <button class="btn-ghost" (click)="cancelled.emit()">Annuleer</button>
-      <button class="btn-primary" [disabled]="!canSave" (click)="save()">Opslaan</button>
+      <button class="btn" (click)="cancelled.emit()">Annuleer</button>
+      <button class="btn-primary" [disabled]="!canSave" (click)="save()">
+        <span class="material-symbols-outlined icon-16">save</span>Opslaan
+      </button>
     </div>
   </div>
 </div>
