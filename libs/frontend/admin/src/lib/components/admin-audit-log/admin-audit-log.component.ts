@@ -1,11 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { DatePipe, JsonPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { AdminService, AuditLogEntry, AuditAction } from '../../services/admin.service';
 import { AdminTeamContextService } from '../../services/admin-team-context.service';
 import { AuthStateService } from '@crusaders-bis-list/frontend-auth';
-import { Team } from '@crusaders-bis-list/shared-domain';
+import { AssignmentStatus, TIER_LABELS, Team, reservedTiersAboveFloor } from '@crusaders-bis-list/shared-domain';
 
 const ACTION_LABELS: Record<AuditAction, string> = {
   reservation_created: 'Reservering aangemaakt',
@@ -38,7 +38,7 @@ const ACTION_ICONS: Record<AuditAction, string> = {
 
 @Component({
   selector: 'lib-admin-audit-log',
-  imports: [DatePipe, JsonPipe, FormsModule],
+  imports: [DatePipe, FormsModule],
   templateUrl: './admin-audit-log.component.html',
   styleUrls: ['./admin-audit-log.component.scss'],
 })
@@ -89,6 +89,27 @@ export class AdminAuditLogComponent {
   readonly actionLabel = (action: AuditAction) => ACTION_LABELS[action] ?? action;
   readonly actionClass = (action: AuditAction) => ACTION_CLASSES[action] ?? 'badge-neutral';
   readonly actionIcon = (action: AuditAction) => ACTION_ICONS[action] ?? 'history';
+
+  /** Human-readable details; falls back to raw JSON for shapes we don't know. */
+  detailsText(entry: AuditLogEntry): string {
+    const d = entry.details;
+    if (!d) return '';
+    const label = (t: unknown) => TIER_LABELS[t as AssignmentStatus] ?? String(t);
+    if (Array.isArray(d['reservedTiers'])) {
+      return d['reservedTiers'].length ? `Voor ${d['reservedTiers'].map(label).join(' + ')}` : '';
+    }
+    if (typeof d['tier'] === 'string') {
+      // Legacy rows: reservation_created stored the "already received" floor as `tier`
+      if (entry.action === 'reservation_created') {
+        const tiers = reservedTiersAboveFloor(d['tier'] as AssignmentStatus);
+        return tiers.length ? `Voor ${tiers.map(label).join(' + ')}` : '';
+      }
+      return label(d['tier']);
+    }
+    if (typeof d['status'] === 'string') return label(d['status']);
+    if (typeof d['reason'] === 'string') return d['reason'];
+    return JSON.stringify(d);
+  }
 
   clearFilters(): void {
     this.filterAction.set('');

@@ -121,10 +121,8 @@
                     }
                   </td>
                   <td class="col-details" data-label="Details">
-                    @if (entry.details) {
-                      <span class="t-body-code c-secondary details-text" [title]="entry.details | json">{{
-                        entry.details | json
-                      }}</span>
+                    @if (detailsText(entry); as text) {
+                      <span class="c-secondary details-text" [title]="text">{{ text }}</span>
                     } @else {
                       <span class="c-muted">—</span>
                     }

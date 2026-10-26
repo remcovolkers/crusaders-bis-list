@@ -105,7 +105,16 @@ export class AdminBossViewComponent {
 
   readonly catalog = computed(() => this.catalogResource.value() ?? null);
   readonly bossLootViews = computed(() => this.bossLootResource.value() ?? []);
-  readonly loadingAll = computed(() => this.catalogResource.isLoading() || this.bossLootResource.isLoading());
+  /**
+   * Stays true until the boss loot (and with it the attendance list) has arrived — also in the frame between the
+   * catalog resolving and the boss-loot request starting — so the toolbar and the drawer never pop in late.
+   */
+  readonly loadingAll = computed(
+    () =>
+      this.catalogResource.isLoading() ||
+      this.bossLootResource.isLoading() ||
+      (this.catalog() !== null && !this.bossLootResource.hasValue() && this.bossLootResource.status() !== 'error'),
+  );
   readonly pendingAssignment = signal<PendingAssignment | null>(null);
   readonly raidDrawerOpen = signal(false);
   readonly activeDiceModal = signal<DiceModalInput | null>(null);
@@ -114,7 +123,7 @@ export class AdminBossViewComponent {
 
   readonly tierLabels = TIER_LABELS;
 
-  readonly selectedDifficulty = signal<AssignmentStatus | null>(null);
+  readonly selectedDifficulty = signal<AssignmentStatus | null>(AssignmentStatus.MYTH_TIER);
   /** Boss filter for the workspace; null = all bosses stacked. */
   readonly selectedBossId = signal<string | null>(null);
   readonly shownViews = computed(() => {
@@ -265,12 +274,6 @@ export class AdminBossViewComponent {
     const label = this.difficultyLabel(tier);
     return raider.assignment?.status === tier ? `Al toegewezen op ${label}` : `Al ontvangen op ${label}`;
   }
-
-  readonly tierShort: Record<AssignmentStatus, string> = {
-    [AssignmentStatus.CHAMPION_TIER]: 'C',
-    [AssignmentStatus.HERO_TIER]: 'H',
-    [AssignmentStatus.MYTH_TIER]: 'M',
-  };
 
   roleIcon(role: RaidRole): string {
     return role === 'tank' ? 'shield' : role === 'healer' ? 'health_and_safety' : 'swords';

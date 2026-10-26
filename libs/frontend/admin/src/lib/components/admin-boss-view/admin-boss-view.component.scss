@@ -29,63 +29,6 @@
   margin-bottom: var(--space-md);
 }
 
-/* ── Landing: pick a tier ── */
-.landing-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-lg);
-  padding: var(--space-xl) 0;
-}
-
-.landing-title {
-  margin: 0;
-  text-align: center;
-}
-
-.tier-cards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 220px));
-  gap: var(--gutter-desktop);
-  justify-content: center;
-  width: 100%;
-}
-
-.tier-card {
-  --accent-color: var(--tier-color);
-  flex-direction: column;
-  gap: var(--space-xs);
-  align-items: flex-start;
-  min-height: 28px;
-  padding: 0 var(--space-md);
-  border-radius: var(--radius-xs);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-align: left;
-  display: flex;
-
-  &__name {
-    font-size: var(--t-headline-md-size);
-    line-height: var(--t-headline-md-lh);
-    font-weight: 700;
-    color: var(--tier-color);
-  }
-
-  &__hint {
-    font-size: 11px;
-    color: var(--text-muted);
-  }
-
-  &__go {
-    position: absolute;
-    right: var(--space-md);
-    top: var(--space-md);
-    font-size: 18px;
-    color: var(--text-muted);
-  }
-}
-
 /* ── Sticky toolbar: tier switch + boss strip ── */
 .toolbar {
   --sticky-top: calc(-1 * var(--margin));
@@ -286,12 +229,6 @@
   color: var(--primary);
 }
 
-.chip-held {
-  padding: 0 4px;
-  font-size: 9px;
-  line-height: 14px;
-}
-
 /* ── Raid attendance panel (right column) ── */
 .raid-panel {
   display: flex;
@@ -447,11 +384,6 @@
 
   .boss-chips .chip {
     min-height: 36px;
-  }
-
-  .tier-cards {
-    grid-template-columns: 1fr;
-    max-width: 360px;
   }
 
   .item-panels {

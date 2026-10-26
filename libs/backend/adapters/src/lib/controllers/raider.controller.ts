@@ -40,7 +40,7 @@ import {
 } from '@crusaders-bis-list/backend-domain';
 import { Inject } from '@nestjs/common';
 import { ReserveItemDto, CreateRaiderProfileDto, UpdateRaiderProfileDto, MarkReceivedDto } from './dto/raider.dto';
-import { WowClass, WowSpec, Team } from '@crusaders-bis-list/shared-domain';
+import { WowClass, WowSpec, Team, reservedTiersAboveFloor } from '@crusaders-bis-list/shared-domain';
 import { blizzardClassToWowClass } from '../mappers/blizzard-class.mapper';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
@@ -180,7 +180,8 @@ export class RaiderController {
       team: user?.team ?? Team.CRUSADERS,
       raiderName: raider.characterName,
       itemName: dto.itemName ?? null,
-      details: dto.receivedTier ? { tier: dto.receivedTier } : null,
+      // receivedTier is the "already have" floor; what gets reserved is every tier above it
+      details: { reservedTiers: reservedTiersAboveFloor(dto.receivedTier) },
     });
     return { message: 'Reserved successfully' };
   }
