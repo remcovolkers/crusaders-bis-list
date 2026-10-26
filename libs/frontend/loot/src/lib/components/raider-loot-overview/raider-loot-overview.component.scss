@@ -119,6 +119,8 @@
 
 .boss-panel {
   scroll-margin-top: 56px;
+  // `.card-flush` clips; the peers popover of the last item row must be able to spill out of the panel
+  overflow: visible;
 
   &__header {
     display: flex;
