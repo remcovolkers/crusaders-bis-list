@@ -26,6 +26,8 @@ export interface IBoss {
 
 /** What a hover on an item shows: the readable parts of the Blizzard item tooltip (no stat values, see the sync). */
 export interface IItemTooltip {
+  /** Set by the app for worn gear: "Item level 334 · Myth". Not stored. */
+  level?: string;
   /** Blizzard quality type: POOR, COMMON, UNCOMMON, RARE, EPIC, LEGENDARY. */
   quality?: string;
   /** e.g. "Trinket" or "Head · Cloth". */
