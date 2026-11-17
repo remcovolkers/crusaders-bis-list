@@ -1,5 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ItemTooltipDirective } from '@crusaders-bis-list/frontend-shared-ui';
 import { RaidDifficulty, TIER_LABELS } from '@crusaders-bis-list/shared-domain';
 import { RaiderLootStateService } from '../../services/raider-loot-state.service';
 import { buildGearingPlan, PLAN_ACTION_ORDER, PlanAction, PlanSource } from '../../ui-types/gearing-plan';
@@ -26,7 +27,7 @@ const ACTION_META: Record<PlanAction, ActionMeta> = {
  */
 @Component({
   selector: 'lib-loot-plan',
-  imports: [RouterLink],
+  imports: [RouterLink, ItemTooltipDirective],
   templateUrl: './loot-plan.component.html',
   styleUrls: ['./loot-plan.component.scss'],
 })
@@ -44,6 +45,8 @@ export class LootPlanComponent {
       return {
         name: t.item.name,
         iconUrl: t.item.iconUrl,
+        tooltip: t.item.tooltip,
+        via: t.item.tierTokenName,
         bossName: t.bossName,
         kind: t.kind,
         isBis: t.isBis,

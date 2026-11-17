@@ -9,6 +9,7 @@ import {
 import { ArmorType, ItemCategory, PrimaryStat, WeaponType, WowClass } from '@crusaders-bis-list/shared-domain';
 import { ACTIVE_SEASON } from '../seasons/active-season';
 import { TierSetPieceSource, TierTokenSource, tierSetItemsFor } from './tier-set-items';
+import { buildItemTooltip } from './item-tooltip';
 import { TierArmorTypePrefix, TierClassGroupPrefix, TierTokenPattern } from '../seasons/season-definition.types';
 
 function detectTierToken(
@@ -364,6 +365,7 @@ export class SyncRaidCatalogFromBlizzardUseCase {
             isPrioritizable,
             isSuperRare,
             allowedClasses,
+            tooltip: buildItemTooltip(blizzardItem),
           });
           totalItems++;
         }
@@ -433,7 +435,8 @@ export class SyncRaidCatalogFromBlizzardUseCase {
           const wowClass = playableClassesOf(item)?.[0];
           if (!wowClass) continue;
           const iconUrl = await this.blizzard.getItemMediaUrl(ref.id);
-          pieces.push({ wowClass, slot: item.inventory_type?.type ?? '', piece: { wowItemId: item.id, name: item.name ?? ref.name, iconUrl } });
+          const tooltip = buildItemTooltip(item, { name: set.name, effects: set.effects ?? [] });
+          pieces.push({ wowClass, slot: item.inventory_type?.type ?? '', piece: { wowItemId: item.id, name: item.name ?? ref.name, iconUrl, tooltip } });
         } catch {
           warnings.push(`Tier set piece ${ref.id} could not be read — skipped`);
         }

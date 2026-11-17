@@ -20,7 +20,13 @@ export interface BlizzardItem {
   level: number;
   media?: { key: { href: string } };
   preview_item?: {
-    stats?: Array<{ type: { type: string }; value: number; is_negated?: boolean }>;
+    stats?: Array<{ type: { type: string; name?: string }; value: number; is_negated?: boolean }>;
+    quality?: { type: string };
+    binding?: { name: string };
+    unique_equipped?: string;
+    spells?: Array<{ description?: string }>;
+    description?: string;
+    is_subclass_hidden?: boolean;
     requirements?: { playable_classes?: { links?: Array<{ id: number; name: string }> } };
   };
 }
@@ -30,6 +36,7 @@ export interface BlizzardItemSet {
   id: number;
   name: string;
   items: Array<{ id: number; name: string }>;
+  effects?: Array<{ display_string: string; required_count: number }>;
 }
 
 /** One worn item of a character, as reported by the Blizzard armory. */

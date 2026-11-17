@@ -1,7 +1,7 @@
 import { Component, computed, inject, output } from '@angular/core';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { AssignmentStatus, CATALYST_SLOTS, ChaseMethod, EquipmentSlot, IEquippedItem, TIER_LABELS } from '@crusaders-bis-list/shared-domain';
-import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
+import { ItemTooltipDirective, ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 import { RaiderLootStateService } from '../../services/raider-loot-state.service';
 import { ItemWithReservation, TrackedItem } from '../../ui-types/loot-ui.types';
 import {
@@ -22,7 +22,7 @@ import {
  */
 @Component({
   selector: 'lib-loot-paperdoll',
-  imports: [NgClass, NgTemplateOutlet],
+  imports: [NgClass, NgTemplateOutlet, ItemTooltipDirective],
   templateUrl: './loot-paperdoll.component.html',
   styleUrls: ['./loot-paperdoll.component.scss'],
 })

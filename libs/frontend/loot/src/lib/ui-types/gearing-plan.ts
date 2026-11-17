@@ -1,4 +1,4 @@
-import { ChaseMethod, RaidDifficulty } from '@crusaders-bis-list/shared-domain';
+import { ChaseMethod, IItemTooltip, RaidDifficulty } from '@crusaders-bis-list/shared-domain';
 
 /**
  * The raider's gearing plan, grouped by boss: what to do where. Built from the items they reserved or chased (and from
@@ -15,6 +15,9 @@ export const PLAN_ACTION_ORDER: readonly PlanAction[] = ['reserved', 'drop', 'dr
 export interface PlanSource {
   name: string;
   iconUrl?: string;
+  /** Hover text and the tier token the item comes from (see the item tooltip). */
+  tooltip?: IItemTooltip;
+  via?: string;
   bossName: string;
   kind: 'reserved' | 'chased';
   /** Best in slot already (nothing left to do, apart from a possible bonus roll upgrade). */
@@ -32,6 +35,8 @@ export interface PlanSource {
 export interface PlanItem {
   name: string;
   iconUrl?: string;
+  tooltip?: IItemTooltip;
+  via?: string;
   action: PlanAction;
   upgradeTo: number | null;
   currently: string | null;
@@ -107,6 +112,8 @@ export function buildGearingPlan(sources: PlanSource[], bossOrder: string[]): Ge
     items.push({
       name: source.name,
       iconUrl: source.iconUrl,
+      tooltip: source.tooltip,
+      via: source.via,
       action,
       upgradeTo: action === 'upgrade' ? source.upgradeTo : null,
       currently: source.currently ?? null,

@@ -118,7 +118,7 @@
                             <div class="split-divider"></div>
                           </div>
                         } @else if (drop.item.iconUrl) {
-                          <img class="item-icon-sm" [src]="drop.item.iconUrl" [alt]="drop.item.name" />
+                          <img class="item-icon-sm" [src]="drop.item.iconUrl" [alt]="drop.item.name" [libItemTooltip]="drop.item.tooltip" [libItemTooltipName]="drop.item.mergedDisplayName ?? drop.item.name" />
                         }
                         <div class="item-panel-text">
                           <span class="item-panel-name" [title]="tierTooltip(drop.item)">{{ drop.item.mergedDisplayName ?? drop.item.name }}</span>

@@ -24,12 +24,32 @@ export interface IBoss {
   order: number;
 }
 
+/** What a hover on an item shows: the readable parts of the Blizzard item tooltip (no stat values, see the sync). */
+export interface IItemTooltip {
+  /** Blizzard quality type: POOR, COMMON, UNCOMMON, RARE, EPIC, LEGENDARY. */
+  quality?: string;
+  /** e.g. "Trinket" or "Head · Cloth". */
+  typeLine?: string;
+  /** e.g. "Binds when picked up". */
+  binding?: string;
+  unique?: string;
+  /** Names of the stats the item gives, e.g. ["Intellect", "Mastery"]. */
+  stats?: string[];
+  /** "Use: ..." and "Equip: ..." effects. */
+  effects?: string[];
+  description?: string;
+  setName?: string;
+  /** "(2) Set: ..." bonuses. */
+  setEffects?: string[];
+}
+
 /** The set (tier) piece a tier token turns into for one class. */
 export interface ITierSetPiece {
   /** Blizzard item id of the set piece. */
   wowItemId: number;
   name: string;
   iconUrl?: string;
+  tooltip?: IItemTooltip;
 }
 
 export interface IItem {
@@ -76,6 +96,8 @@ export interface IItem {
    * gets (and recognise it when it is worn) instead of the token. Absent when it is unknown (e.g. new patch).
    */
   tierSetItems?: Partial<Record<WowClass, ITierSetPiece>>;
+  /** Hover text, from the Blizzard item API (filled by the catalog sync). */
+  tooltip?: IItemTooltip;
   /** UI only (set by the app, not stored): the set piece of the raider's class that is shown instead of this token. */
   tierPiece?: ITierSetPiece;
   /** UI only: the name of the token, when the set piece is shown instead ("via Venomforged Effigy"). */

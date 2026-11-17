@@ -47,3 +47,18 @@ describe('presentTierCatalog', () => {
     expect(shown.bosses[0].items[0].name).toBe("Jade Warlord's Helm");
   });
 });
+
+describe('presentTierItem tooltip', () => {
+  it('shows the tooltip of the set piece, and keeps the one of the token when the piece has none', () => {
+    const withTips = {
+      ...token,
+      tooltip: { effects: ['Use: Create a soulbound set head item.'] },
+      tierSetItems: {
+        [WowClass.WARRIOR]: { wowItemId: 900, name: 'Warrior Helm', tooltip: { setName: 'Jade Warlord', typeLine: 'Head · Plate' } },
+        [WowClass.PALADIN]: { wowItemId: 901, name: 'Paladin Helm' },
+      },
+    } as IItem;
+    expect(presentTierItem(withTips, WowClass.WARRIOR).tooltip?.setName).toBe('Jade Warlord');
+    expect(presentTierItem(withTips, WowClass.PALADIN).tooltip?.effects).toEqual(['Use: Create a soulbound set head item.']);
+  });
+});

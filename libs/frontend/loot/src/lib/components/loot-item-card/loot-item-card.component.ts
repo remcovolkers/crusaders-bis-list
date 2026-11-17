@@ -18,7 +18,7 @@ import {
 import { RaiderLootStateService } from '../../services/raider-loot-state.service';
 import { ItemWithReservation } from '../../ui-types/loot-ui.types';
 import { LootService } from '../../services/loot.service';
-import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
+import { ItemTooltipDirective, ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 const TIER_ORDER: Record<AssignmentStatus, number> = {
   [AssignmentStatus.CHAMPION_TIER]: 0,
@@ -28,7 +28,7 @@ const TIER_ORDER: Record<AssignmentStatus, number> = {
 
 @Component({
   selector: 'lib-loot-item-card',
-  imports: [NgClass, NgTemplateOutlet],
+  imports: [NgClass, NgTemplateOutlet, ItemTooltipDirective],
   templateUrl: './loot-item-card.component.html',
   styleUrls: ['./loot-item-card.component.scss'],
 })

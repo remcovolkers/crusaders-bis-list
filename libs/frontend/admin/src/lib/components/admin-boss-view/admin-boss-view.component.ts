@@ -23,7 +23,7 @@ import {
   IItem,
   Team,
 } from '@crusaders-bis-list/shared-domain';
-import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
+import { ItemTooltipDirective, ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 import { AdminAssignConfirmComponent, PendingAssignment } from '../admin-assign-confirm/admin-assign-confirm.component';
 import { AdminDiceModalComponent } from '../admin-dice-modal/admin-dice-modal.component';
 
@@ -82,7 +82,7 @@ const ROLE_ORDER: Record<RaidRole, number> = { tank: 0, healer: 1, dps: 2 };
 
 @Component({
   selector: 'lib-admin-boss-view',
-  imports: [NgClass, NgTemplateOutlet, AdminAssignConfirmComponent, AdminDiceModalComponent],
+  imports: [NgClass, NgTemplateOutlet, AdminAssignConfirmComponent, AdminDiceModalComponent, ItemTooltipDirective],
   templateUrl: './admin-boss-view.component.html',
   styleUrls: ['./admin-boss-view.component.scss'],
 })

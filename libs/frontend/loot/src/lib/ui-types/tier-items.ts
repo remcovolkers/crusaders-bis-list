@@ -13,6 +13,7 @@ export function presentTierItem(item: IItem, wowClass: WowClass | string | undef
     name: piece.name,
     iconUrl: piece.iconUrl ?? item.iconUrl,
     tierPiece: piece,
+    tooltip: piece.tooltip ?? item.tooltip,
     tierTokenName: item.mergedDisplayName ?? item.name,
     mergedDisplayName: undefined,
   };

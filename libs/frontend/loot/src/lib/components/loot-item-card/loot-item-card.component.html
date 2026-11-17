@@ -8,13 +8,13 @@
   <div class="item-top">
     @let secondaryIcon = getMergedSecondaryIconUrl();
     @if (item().iconUrl && secondaryIcon) {
-      <div class="item-icon-sm item-icon-sm--split item-icon--lg" [attr.aria-label]="item().name" title="Samengevoegd item (2 items, 1 reservering)">
+      <div class="item-icon-sm item-icon-sm--split item-icon--lg" [libItemTooltip]="item().tooltip" [libItemTooltipName]="item().name" [libItemTooltipVia]="item().tierTokenName" [attr.aria-label]="item().name" title="Samengevoegd item (2 items, 1 reservering)">
         <img class="split-primary" [src]="item().iconUrl" alt="" loading="lazy" />
         <img class="split-secondary" [src]="secondaryIcon" alt="" loading="lazy" />
         <div class="split-divider"></div>
       </div>
     } @else if (item().iconUrl) {
-      <img class="item-icon-sm item-icon--lg" [src]="item().iconUrl" [alt]="item().name" loading="lazy" />
+      <img class="item-icon-sm item-icon--lg" [src]="item().iconUrl" [alt]="item().name" [libItemTooltip]="item().tooltip" [libItemTooltipName]="item().name" [libItemTooltipVia]="item().tierTokenName" loading="lazy" />
     } @else {
       <div class="item-icon-sm item-icon--lg"></div>
     }

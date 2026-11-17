@@ -286,3 +286,76 @@
     opacity: 0;
   }
 }
+
+// ── Item tooltip (ItemTooltipDirective): appended to <body>, so it is styled globally ─────────────────────
+.item-tooltip {
+  position: fixed;
+  z-index: 1100;
+  max-width: 320px;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-tier-2);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 17px;
+  pointer-events: none;
+
+  > * + * {
+    margin-top: 3px;
+  }
+  &__name {
+    font-size: 14px;
+    line-height: 19px;
+    font-weight: 700;
+  }
+  &__q-poor {
+    color: #9d9d9d;
+  }
+  &__q-common {
+    color: #ffffff;
+  }
+  &__q-uncommon {
+    color: #1eff00;
+  }
+  &__q-rare {
+    color: #0070dd;
+  }
+  &__q-epic {
+    color: #b45ef0;
+  }
+  &__q-legendary {
+    color: #ff8000;
+  }
+  &__via,
+  &__dim {
+    color: var(--text-muted);
+  }
+  &__stats {
+    color: var(--text-primary);
+  }
+  &__effect {
+    color: var(--success-text);
+  }
+  &__flavor {
+    color: var(--warning-text);
+    font-style: italic;
+  }
+  &__set {
+    margin-top: 8px !important;
+    color: var(--primary);
+    font-weight: 600;
+  }
+  &__set-effect {
+    color: var(--text-muted);
+  }
+  &__note {
+    margin-top: 8px !important;
+    padding-top: 6px;
+    border-top: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 15px;
+  }
+}

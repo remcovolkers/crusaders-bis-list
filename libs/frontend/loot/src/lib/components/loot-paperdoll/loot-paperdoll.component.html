@@ -131,7 +131,7 @@
   >
     <span class="pd-entry__iconwrap">
       @if (entry.item.iconUrl) {
-        <img class="pd-entry__icon" [src]="entry.item.iconUrl" alt="" loading="lazy" />
+        <img class="pd-entry__icon" [src]="entry.item.iconUrl" alt="" [libItemTooltip]="entry.item.tooltip" [libItemTooltipName]="entry.item.name" [libItemTooltipVia]="entry.item.tierTokenName" loading="lazy" />
       } @else {
         <div class="pd-entry__icon pd-entry__icon--empty"></div>
       }

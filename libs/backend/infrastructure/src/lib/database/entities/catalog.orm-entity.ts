@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { ArmorType } from '@crusaders-bis-list/shared-domain';
+import { ArmorType, IItemTooltip } from '@crusaders-bis-list/shared-domain';
 
 @Entity('raid_seasons')
 export class RaidSeasonOrmEntity {
@@ -102,4 +102,8 @@ export class ItemOrmEntity {
   /** Tier tokens: the set piece per class the token turns into (JSON), see IItem.tierSetItems. */
   @Column({ name: 'tier_set_items', type: 'simple-json', nullable: true })
   tierSetItems?: Record<string, { wowItemId: number; name: string; iconUrl?: string }> | null;
+
+  /** Hover text from the Blizzard item API (JSON), see IItem.tooltip. */
+  @Column({ name: 'tooltip', type: 'simple-json', nullable: true })
+  tooltip?: IItemTooltip | null;
 }
