@@ -31,6 +31,14 @@ export const MIDNIGHT_T36_SEASON: SeasonDefinition = {
   slug: 'midnight-s2-t36',
   name: 'Midnight — Season 2 (Tier 36)',
 
+  // Myth 334 and up is certainly Myth; 321 is either Hero 6/6 or Myth 2/6 (the item description decides there).
+  // Champion is not tracked.
+  trackItemLevels: { mythFrom: 322, ambiguousFrom: 321 },
+
+  // Drops top out at 334 (trinkets/weapons can be upgraded to 341). A bonus roll on The Coiled Altar (encounter 2883)
+  // and Ula'tek (2895) gives 344, so an item from those bosses is only best in slot at 344.
+  itemLevelCaps: { maxItemLevel: 334, bonusRollItemLevels: { 2883: 344, 2895: 344 } },
+
   raids: [
     {
       instanceId: 1317,

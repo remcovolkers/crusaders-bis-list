@@ -10,6 +10,9 @@ import {
   UpdateSeasonConfigUseCase,
   UpdateItemSuperRareUseCase,
 } from './use-cases/season-config.use-case';
+import { SetChaseItemUseCase, RemoveChaseItemUseCase } from './use-cases/chase-item.use-case';
+import { SetBisMarkUseCase, RemoveBisMarkUseCase, CatalyseChaseItemUseCase } from './use-cases/bis-mark.use-case';
+import { SyncRaiderEquipmentUseCase, SyncTeamEquipmentUseCase } from './use-cases/equipment-sync.use-case';
 import { GetAllRaiderReservationsUseCase } from './use-cases/raider-reservations.use-case';
 import { ResetAllReservationsUseCase } from './use-cases/reset-all-reservations.use-case';
 import { RollSessionService } from './use-cases/roll-session.service';
@@ -41,6 +44,13 @@ import {
   imports: [BackendInfrastructureModule],
   providers: [
     ReserveItemUseCase,
+    SetChaseItemUseCase,
+    SetBisMarkUseCase,
+    RemoveBisMarkUseCase,
+    CatalyseChaseItemUseCase,
+    RemoveChaseItemUseCase,
+    SyncRaiderEquipmentUseCase,
+    SyncTeamEquipmentUseCase,
     CancelReservationUseCase,
     AssignLootUseCase,
     UpdateAssignmentStatusUseCase,
@@ -77,6 +87,13 @@ import {
   exports: [
     BackendInfrastructureModule,
     ReserveItemUseCase,
+    SetChaseItemUseCase,
+    SetBisMarkUseCase,
+    RemoveBisMarkUseCase,
+    CatalyseChaseItemUseCase,
+    RemoveChaseItemUseCase,
+    SyncRaiderEquipmentUseCase,
+    SyncTeamEquipmentUseCase,
     CancelReservationUseCase,
     AssignLootUseCase,
     UpdateAssignmentStatusUseCase,

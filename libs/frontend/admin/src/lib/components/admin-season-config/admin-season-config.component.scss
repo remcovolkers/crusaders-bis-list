@@ -176,3 +176,49 @@
     opacity: 1;
   }
 }
+
+/* Seizoensregels: gear-tiers en bonusrol */
+.rules-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin: 0;
+  }
+}
+.rules-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: 36px;
+  cursor: pointer;
+}
+
+.boss-levels {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-xs) var(--space-md);
+}
+.boss-level {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+
+  &__name {
+    min-width: 0;
+    font-size: 13px;
+  }
+  &__input {
+    width: 84px;
+    flex-shrink: 0;
+    text-align: center;
+  }
+}

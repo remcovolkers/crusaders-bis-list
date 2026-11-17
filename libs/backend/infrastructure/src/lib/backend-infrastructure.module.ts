@@ -9,6 +9,9 @@ import { RaidSeasonOrmEntity, BossOrmEntity, ItemOrmEntity } from './database/en
 import { ReservationOrmEntity, AssignmentOrmEntity } from './database/entities/loot.orm-entity';
 import { SeasonConfigOrmEntity } from './database/entities/season-config.orm-entity';
 import { RaiderReceivedItemOrmEntity } from './database/entities/raider-received-item.orm-entity';
+import { RaiderChaseItemOrmEntity } from './database/entities/raider-chase-item.orm-entity';
+import { RaiderEquippedItemOrmEntity } from './database/entities/raider-equipped-item.orm-entity';
+import { RaiderBisMarkOrmEntity } from './database/entities/raider-bis-mark.orm-entity';
 import { ItemSuperRareOverrideOrmEntity } from './database/entities/item-super-rare-override.orm-entity';
 import { RaidPlanOrmEntity, RaidPlanParticipantOrmEntity } from './database/entities/raid-plan.orm-entity';
 import {
@@ -23,6 +26,9 @@ import { LootQueryRepository } from './database/repositories/loot-query.reposito
 import { RaidCatalogRepository } from './database/repositories/raid-catalog.repository';
 import { SeasonConfigRepository } from './database/repositories/season-config.repository';
 import { ReceivedItemRepository } from './database/repositories/received-item.repository';
+import { ChaseItemRepository } from './database/repositories/chase-item.repository';
+import { EquippedItemRepository } from './database/repositories/equipped-item.repository';
+import { BisMarkRepository } from './database/repositories/bis-mark.repository';
 import { AuditLogService } from './database/repositories/audit-log.service';
 import { AuditLogOrmEntity } from './database/entities/audit-log.orm-entity';
 import { BlizzardApiService } from './blizzard/blizzard-api.service';
@@ -41,6 +47,9 @@ import {
   SEASON_CONFIG_REPOSITORY,
   BLIZZARD_API_SERVICE,
   RECEIVED_ITEM_REPOSITORY,
+  CHASE_ITEM_REPOSITORY,
+  EQUIPPED_ITEM_REPOSITORY,
+  BIS_MARK_REPOSITORY,
   RAID_PLAN_REPOSITORY,
   RAID_PLAN_BOSS_NOTE_REPOSITORY,
 } from '@crusaders-bis-list/backend-domain';
@@ -55,6 +64,9 @@ const ORM_ENTITIES = [
   AssignmentOrmEntity,
   SeasonConfigOrmEntity,
   RaiderReceivedItemOrmEntity,
+  RaiderChaseItemOrmEntity,
+  RaiderEquippedItemOrmEntity,
+  RaiderBisMarkOrmEntity,
   ItemSuperRareOverrideOrmEntity,
   FeedbackOrmEntity,
   AuditLogOrmEntity,
@@ -75,6 +87,9 @@ const ORM_ENTITIES = [
     { provide: RAID_CATALOG_REPOSITORY, useClass: RaidCatalogRepository },
     { provide: SEASON_CONFIG_REPOSITORY, useClass: SeasonConfigRepository },
     { provide: RECEIVED_ITEM_REPOSITORY, useClass: ReceivedItemRepository },
+    { provide: CHASE_ITEM_REPOSITORY, useClass: ChaseItemRepository },
+    { provide: EQUIPPED_ITEM_REPOSITORY, useClass: EquippedItemRepository },
+    { provide: BIS_MARK_REPOSITORY, useClass: BisMarkRepository },
     { provide: BLIZZARD_API_SERVICE, useClass: BlizzardApiService },
     { provide: RAID_PLAN_REPOSITORY, useClass: RaidPlanRepository },
     { provide: RAID_PLAN_BOSS_NOTE_REPOSITORY, useClass: RaidPlanBossNoteRepository },
@@ -92,6 +107,9 @@ const ORM_ENTITIES = [
     RAID_CATALOG_REPOSITORY,
     SEASON_CONFIG_REPOSITORY,
     RECEIVED_ITEM_REPOSITORY,
+    CHASE_ITEM_REPOSITORY,
+    EQUIPPED_ITEM_REPOSITORY,
+    BIS_MARK_REPOSITORY,
     BLIZZARD_API_SERVICE,
     RAID_PLAN_REPOSITORY,
     RAID_PLAN_BOSS_NOTE_REPOSITORY,

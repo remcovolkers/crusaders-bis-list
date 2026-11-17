@@ -1,0 +1,72 @@
+<section class="card plan" aria-label="Gearing plan">
+  <header class="plan__head">
+    <span class="t-title-sm">Gearing plan</span>
+    <span class="t-label-caps c-muted"
+      >{{ plan().itemCount }} {{ plan().itemCount === 1 ? 'item' : 'items' }} · {{ plan().bosses.length }}
+      {{ plan().bosses.length === 1 ? 'boss' : 'bosses' }}</span
+    >
+  </header>
+
+  @if (summary().length) {
+    <div class="plan__totals">
+      @for (s of summary(); track s.action) {
+        <span class="plan-action" [class]="'plan-action plan-action--' + s.action" [title]="s.hint">
+          <span class="material-symbols-outlined icon-12">{{ s.icon }}</span>{{ s.count }}
+        </span>
+      }
+    </div>
+  }
+
+  @if (plan().itemCount) {
+    <div class="plan__legend" aria-label="Difficulty">
+      <span class="diff diff--heroic">H+</span> Heroic or Mythic
+      <span class="diff diff--mythic">M</span> Mythic only
+    </div>
+  }
+
+  <div class="plan__scroll">
+    @for (boss of plan().bosses; track boss.bossName) {
+      <div class="plan-boss">
+        <div class="plan-boss__name">
+          <span class="truncate">{{ boss.bossName }}</span>
+          <span class="plan-boss__count tnum">{{ boss.count }}</span>
+        </div>
+        @for (group of boss.groups; track group.action) {
+          <div class="plan-row">
+            <span class="plan-action" [class]="'plan-action plan-action--' + group.action" [title]="actionMeta[group.action].hint">
+              <span class="material-symbols-outlined icon-12">{{ actionMeta[group.action].icon }}</span
+              >{{ actionMeta[group.action].label }}
+            </span>
+            <span class="plan-items">
+              @for (item of group.items; track item.name) {
+                <span class="plan-item" [title]="item.name + (item.currently ? ' (now: ' + item.currently + ')' : '')">
+                  @if (item.iconUrl) {
+                    <img class="plan-item__icon" [src]="item.iconUrl" alt="" loading="lazy" />
+                  }
+                  <span class="plan-item__name">{{ item.name }}</span>
+                  @if (item.upgradeTo) {
+                    <span class="plan-item__to tnum">→ {{ item.upgradeTo }}</span>
+                  }
+                  @if (item.difficulty) {
+                    <span
+                      class="diff"
+                      [class.diff--heroic]="item.difficulty === RaidDifficulty.HEROIC"
+                      [class.diff--mythic]="item.difficulty === RaidDifficulty.MYTHIC"
+                      [title]="item.difficultyHint ?? ''"
+                      >{{ item.difficulty === RaidDifficulty.MYTHIC ? 'M' : 'H+' }}</span
+                    >
+                  }
+                </span>
+              }
+            </span>
+          </div>
+        }
+      </div>
+    } @empty {
+      <p class="plan__empty c-muted">
+        Nothing to do yet. Chase or reserve items in the <strong>Itemlijst</strong> and this plan shows which boss to
+        kill, and whether to hope for a drop or a bonus roll.
+      </p>
+    }
+  </div>
+</section>

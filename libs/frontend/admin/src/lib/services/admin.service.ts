@@ -92,6 +92,15 @@ export class AdminService {
     return this.http.get<CatalogResponse>(`${this.base}/admin/catalog${suffix}`);
   }
 
+  /** Re-reads the worn gear of the whole team from the Blizzard armory and ticks off reserved / chased items. */
+  syncTeamEquipment(team?: Team) {
+    const suffix = team ? `?team=${team}` : '';
+    return this.http.post<{ raiders: number; refreshed: number; updates: number }>(
+      `${this.base}/admin/equipment/sync${suffix}`,
+      {},
+    );
+  }
+
   getBossLootView(bossId: string, seasonId: string, team?: Team) {
     const suffix = team ? `?team=${team}` : '';
     return this.http.get<IBossLootView>(`${this.base}/admin/boss/${bossId}/loot/${seasonId}${suffix}`);

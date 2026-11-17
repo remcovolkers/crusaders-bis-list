@@ -22,6 +22,11 @@ export class SeasonConfigRepository implements ISeasonConfigRepository {
       jewelryLimit: e.jewelryLimit,
       armorLimit: e.armorLimit,
       superrareLimit: e.superrareLimit,
+      mythItemLevelFrom: e.mythItemLevelFrom ?? null,
+      ambiguousItemLevelFrom: e.ambiguousItemLevelFrom ?? null,
+      bonusRollEnabled: e.bonusRollEnabled ?? true,
+      maxItemLevel: e.maxItemLevel ?? null,
+      bonusRollItemLevels: e.bonusRollItemLevels ?? null,
     };
   }
 

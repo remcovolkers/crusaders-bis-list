@@ -29,6 +29,7 @@ import {
   ResetCatalogAndSyncUseCase,
   UpdateItemSuperRareUseCase,
   ResetAllReservationsUseCase,
+  SyncTeamEquipmentUseCase,
 } from '@crusaders-bis-list/backend-application';
 import {
   RAIDER_REPOSITORY,
@@ -67,6 +68,7 @@ export class AdminController {
     private readonly resetAndSync: ResetCatalogAndSyncUseCase,
     private readonly updateItemSuperRare: UpdateItemSuperRareUseCase,
     private readonly resetAllReservations: ResetAllReservationsUseCase,
+    private readonly syncTeamEquipment: SyncTeamEquipmentUseCase,
     private readonly auditLog: AuditLogService,
     @Inject(RAIDER_REPOSITORY) private readonly raiderRepo: IRaiderRepository,
     @Inject(USER_REPOSITORY) private readonly userRepo: IUserRepository,
@@ -84,6 +86,14 @@ export class AdminController {
     const requester = await this.userRepo.findById(requesterId);
     if (requester?.email === SUPER_USER_EMAIL && requestedTeam) return requestedTeam;
     return requester?.team ?? Team.CRUSADERS;
+  }
+
+  /** Re-reads the worn gear of every raider of the team from the Blizzard armory and ticks off reserved / chased items. */
+  @Post('equipment/sync')
+  @HttpCode(HttpStatus.OK)
+  async syncGear(@Req() req: Request, @Query('team') teamQuery?: Team) {
+    const team = await this.resolveEffectiveTeam(req, teamQuery);
+    return this.syncTeamEquipment.execute(team, { force: true });
   }
 
   @Get('raiders')

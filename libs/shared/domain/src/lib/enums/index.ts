@@ -10,3 +10,4 @@ export * from './user-role.enum';
 export * from './weapon-type.enum';
 export * from './wow-class.enum';
 export * from './wow-spec.enum';
+export * from './chase-method.enum';

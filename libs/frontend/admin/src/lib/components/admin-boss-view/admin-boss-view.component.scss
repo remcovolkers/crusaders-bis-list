@@ -85,6 +85,26 @@
   display: none;
 }
 
+.gear-sync-btn .spin {
+  animation: gear-sync-spin 1s linear infinite;
+}
+@keyframes gear-sync-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* "Toon ook chase-items" switch in the sticky toolbar */
+.chase-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-left: auto;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 /* ── Boss sections ── */
 .boss-sections {
   display: flex;
@@ -217,6 +237,16 @@
     }
   }
 
+  /* chase = wants the item but has no reservation: blue, dashed — visibly not a reservation */
+  &.is-chase {
+    background: color-mix(in srgb, var(--info) 7%, var(--surface-tier-2));
+    box-shadow: inset 0 0 0 1px var(--info-line);
+
+    &:hover {
+      background: color-mix(in srgb, var(--info) 14%, var(--surface-tier-2));
+    }
+  }
+
   &.excluded {
     opacity: 0.35;
     filter: grayscale(1);
@@ -227,6 +257,14 @@
 
 .chip-star {
   color: var(--primary);
+}
+
+.chip-flag {
+  color: var(--info-text);
+}
+
+.c-info {
+  color: var(--info-text);
 }
 
 /* ── Raid attendance panel (right column) ── */

@@ -1,4 +1,4 @@
-import { IsEnum, IsInt, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsObject, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 import { AssignmentStatus } from '@crusaders-bis-list/shared-domain';
 
 export class AssignLootDto {
@@ -51,4 +51,30 @@ export class UpdateSeasonConfigDto {
   @IsInt()
   @Min(0)
   superrareLimit!: number;
+
+  /** Item level caps for the Hero / Myth track of worn gear (null = use the season definition's default). */
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  mythItemLevelFrom?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  ambiguousItemLevelFrom?: number | null;
+
+  @IsOptional()
+  @IsBoolean()
+  bonusRollEnabled?: boolean;
+
+  /** Highest item level a boss drop gives (null = season default). */
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  maxItemLevel?: number | null;
+
+  /** { [Blizzard encounter id]: item level a bonus roll gives on that boss } */
+  @IsOptional()
+  @IsObject()
+  bonusRollItemLevels?: Record<string, number>;
 }

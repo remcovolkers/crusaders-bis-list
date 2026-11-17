@@ -1,0 +1,187 @@
+// Gearing plan next to the character pane. It takes the height of the pane (never makes it taller) and scrolls inside
+// when the plan is long, so the whole character page keeps fitting a 1080p screen.
+:host {
+  display: block;
+  position: relative;
+  min-width: 0;
+}
+
+.plan {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+  overflow: hidden;
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-sm);
+  }
+  &__totals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+  &__scroll {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--space-sm);
+    min-height: 0;
+    padding-right: var(--space-xs);
+    overflow-y: auto;
+  }
+  &__empty {
+    margin: 0;
+    font-size: 13px;
+  }
+}
+
+.plan-boss {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-2);
+
+  &__name {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    min-width: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  &__count {
+    flex-shrink: 0;
+    padding: 0 6px;
+    border-radius: var(--radius-pill);
+    background: var(--surface-tier-1);
+    color: var(--text-secondary);
+    font-size: 10px;
+    line-height: 16px;
+  }
+}
+
+// action on the left, the items beside it (wrapping), so a boss takes only a few lines
+.plan-row {
+  display: grid;
+  grid-template-columns: 98px minmax(0, 1fr);
+  gap: var(--space-xs);
+  align-items: start;
+}
+
+// action marker: what to do (colours as in the character pane: gold = reserved / upgrade, blue = chase)
+.plan-action {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-width: 0;
+  padding-top: 1px;
+  gap: 3px;
+  font-size: 9px;
+  line-height: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--info-text);
+
+  &--reserved,
+  &--upgrade {
+    color: var(--primary);
+  }
+}
+.plan__totals .plan-action {
+  padding: 1px var(--space-sm);
+  font-size: 11px;
+  letter-spacing: 0;
+  border-radius: var(--radius-xs);
+  background: color-mix(in srgb, currentColor 12%, var(--surface-tier-2));
+}
+
+// difficulty: H+ = Heroic or Mythic works, M = only Mythic (tier colours: hero purple, myth orange)
+.diff {
+  flex-shrink: 0;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 9px;
+  line-height: 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+
+  &--heroic {
+    background: color-mix(in srgb, var(--tier-hero) 22%, transparent);
+    color: var(--tier-hero);
+  }
+  &--mythic {
+    background: color-mix(in srgb, var(--tier-myth) 22%, transparent);
+    color: var(--tier-myth);
+  }
+}
+.plan__legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px var(--space-sm);
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.plan-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+
+.plan-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  min-width: 0;
+  padding: 1px 6px 1px 2px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-1);
+
+  &__icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 2px;
+  }
+  &__name {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--rarity-epic, #c084fc);
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  &__to {
+    flex-shrink: 0;
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 700;
+  }
+}
+
+// stacked below the pane (narrow screens): natural height, with a cap
+@media (max-width: 1250px) {
+  :host {
+    position: static;
+  }
+  .plan {
+    position: static;
+    max-height: 420px;
+  }
+}

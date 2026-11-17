@@ -28,6 +28,24 @@ export class SeasonConfigOrmEntity {
   @Column({ name: 'superrare_limit', type: 'int', default: 0 })
   superrareLimit!: number;
 
+  /** Item level caps for reading the Hero / Myth track of worn gear. Null = defaults of the season definition. */
+  @Column({ name: 'myth_item_level_from', type: 'int', nullable: true })
+  mythItemLevelFrom!: number | null;
+
+  @Column({ name: 'ambiguous_item_level_from', type: 'int', nullable: true })
+  ambiguousItemLevelFrom!: number | null;
+
+  @Column({ name: 'bonus_roll_enabled', default: true })
+  bonusRollEnabled!: boolean;
+
+  /** Highest item level a boss drop gives. Null = default of the season definition. */
+  @Column({ name: 'max_item_level', type: 'int', nullable: true })
+  maxItemLevel!: number | null;
+
+  /** { [encounterId]: item level } for bosses whose bonus roll gives more than a drop. Null = season default. */
+  @Column({ name: 'bonus_roll_item_levels', type: 'simple-json', nullable: true })
+  bonusRollItemLevels!: Record<string, number> | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 

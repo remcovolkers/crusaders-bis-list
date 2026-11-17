@@ -95,6 +95,49 @@ const ROUTES = [
   ['POST', '/raider/reservations', { auth: REQ.ANY }, () => json({ message: 'Reserved successfully' }, 201)],
   ['DELETE', '/raider/reservations/:id', { auth: REQ.ANY }, () => noContent()],
   [
+    'POST',
+    '/raider/equipment/sync',
+    { auth: REQ.ANY },
+    (ctx) =>
+      json({
+        equipment: raiderOf(ctx) ? fx.equipmentOf(raiderOf(ctx)) : [],
+        bisMarks: raiderOf(ctx) ? fx.bisMarksOf(raiderOf(ctx)) : [],
+        refreshed: true,
+        updates: [],
+      }),
+  ],
+  [
+    'POST',
+    '/admin/equipment/sync',
+    { auth: REQ.ADMIN },
+    (ctx) => json({ raiders: fx.RAIDERS.filter((r) => r.team === adminTeam(ctx)).length, refreshed: 12, updates: 3 }),
+  ],
+  // No Blizzard access in the harness: no armory render, so the pane shows its placeholder.
+  ['GET', '/raider/character-media', { auth: REQ.ANY }, () => json({ url: null })],
+  ['GET', '/raider/chase-items', { auth: REQ.ANY }, (ctx) => json(raiderOf(ctx) ? fx.chaseOf(raiderOf(ctx).id) : [])],
+  [
+    'POST',
+    '/raider/chase-items',
+    { auth: REQ.ANY },
+    (ctx) =>
+      json(
+        {
+          id: `chase-new-${ctx.body?.itemId ?? 'x'}`,
+          raiderId: raiderOf(ctx)?.id ?? 'raider-new',
+          itemId: ctx.body?.itemId,
+          raidSeasonId: ctx.body?.raidSeasonId,
+          methods: ctx.body?.methods ?? ['boss_drop'],
+          createdAt: new Date().toISOString(),
+        },
+        201,
+      ),
+  ],
+  ['DELETE', '/raider/chase-items/:id', { auth: REQ.ANY }, () => noContent()],
+  ['POST', '/raider/chase-items/:id/catalyse', { auth: REQ.ANY }, (ctx) => json(raiderOf(ctx) ? fx.bisMarksOf(raiderOf(ctx)) : [])],
+  ['GET', '/raider/bis-marks', { auth: REQ.ANY }, (ctx) => json(raiderOf(ctx) ? fx.bisMarksOf(raiderOf(ctx)) : [])],
+  ['PUT', '/raider/bis-marks/:slot', { auth: REQ.ANY }, (ctx) => json(raiderOf(ctx) ? fx.bisMarksOf(raiderOf(ctx)) : [])],
+  ['DELETE', '/raider/bis-marks/:slot', { auth: REQ.ANY }, (ctx) => json(raiderOf(ctx) ? fx.bisMarksOf(raiderOf(ctx)) : [])],
+  [
     'GET',
     '/raider/received-items',
     { auth: REQ.ANY },

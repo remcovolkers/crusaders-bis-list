@@ -23,6 +23,11 @@ export const SEASON_CONFIGS = {
     jewelryLimit: 1,
     armorLimit: 2,
     superrareLimit: 1,
+    mythItemLevelFrom: 322,
+    ambiguousItemLevelFrom: 321,
+    bonusRollEnabled: true,
+    maxItemLevel: 334,
+    bonusRollItemLevels: { 2883: 344, 2895: 344 },
   },
   [Team.TEMPLARS]: {
     id: 'cfg-templars',
@@ -33,6 +38,11 @@ export const SEASON_CONFIGS = {
     jewelryLimit: 1,
     armorLimit: 1,
     superrareLimit: 0,
+    mythItemLevelFrom: 322,
+    ambiguousItemLevelFrom: 321,
+    bonusRollEnabled: true,
+    maxItemLevel: 334,
+    bonusRollItemLevels: { 2883: 344, 2895: 344 },
   },
 };
 
@@ -46,7 +56,7 @@ const MANUAL = {
   arcanis: [
     ['Heart of the Coiled Altar', {}],
     ["Tidecaller's Pearl", { received: AS.HERO_TIER }],
-    ["Venom Queen's Staff", {}],
+    ["Venom Queen's Staff", { received: AS.MYTH_TIER }],
     ['Venomed Grimoire', { received: AS.MYTH_TIER }],
     ['Eye of the Venom Queen', { assign: AS.CHAMPION_TIER }],
     ['Queenwoven Vestments', {}],
@@ -151,6 +161,114 @@ for (const raider of RAIDERS) {
   }
 }
 
+// ── Chase items: "I want this" without a reservation (armor, or anything over the limit) ─────────────────────
+export const CHASE = []; // IChaseItem
+const CHASE_MANUAL = {
+  // arcanis is at his limit for jewelry and armor, so these two show the chase buttons on a "limit reached" card
+  arcanis: ['Venomsilk Robes', 'Brineheart Choker'],
+};
+// a few chases are planned via bonus roll
+const BONUS_ROLL_NAMES = new Set(['Brineheart Choker']);
+{
+  let n = 0;
+  const reserved = new Set(RESERVATIONS.map((r) => `${r.raiderId}:${r.itemId}`));
+  for (const raider of RAIDERS) {
+    if (raider.status === RaiderStatus.INACTIVE) continue;
+    const rand = rng(hash(raider.key + 'chase'));
+    let picks;
+    if (CHASE_MANUAL[raider.key]) picks = CHASE_MANUAL[raider.key].map(byName);
+    else if (rand() > 0.55) {
+      const pool = itemsForTeam(raider.team).filter(
+        (i) =>
+          i.mergedWithItemId == null &&
+          i.itemLevel > 1 &&
+          i.category === Cat.OTHER &&
+          canClassReserveItem(raider.wowClass, raider.spec, i) &&
+          !reserved.has(`${raider.id}:${i.id}`),
+      );
+      picks = [];
+      for (let k = 0; k < 2 && pool.length; k++) picks.push(pool.splice(Math.floor(rand() * pool.length), 1)[0]);
+    } else picks = [];
+    for (const item of picks) {
+      if (reserved.has(`${raider.id}:${item.id}`)) continue;
+      CHASE.push({
+        id: `chase-${raider.key}-${item.wowItemId}`,
+        raiderId: raider.id,
+        itemId: item.id,
+        raidSeasonId: SEASON_ID,
+        methods: BONUS_ROLL_NAMES.has(item.name) || (!CHASE_MANUAL[raider.key] && rand() > 0.6) ? ['bonus_roll'] : ['boss_drop'],
+        createdAt: iso(-5 + (n++ % 4) * 0.2, 19, 5 + n),
+      });
+    }
+  }
+}
+// ── Worn gear (as synced from the armory) ───────────────────────────────────────────────────────────────────
+// [slot, itemName, itemLevel, description, catalog?]: catalog items use the real catalog id/icon, the rest is made up.
+const WORN = {
+  arcanis: [
+    ['HEAD', 'Weathered Scholar Cowl', 334, 'Heroic', true], // Heroic drop at Myth level: Myth
+    ['NECK', 'Ravenwing Pendant', 321, 'Heroic'], // top of the Hero track
+    ['SHOULDER', 'Dreamwatcher Mantle', 334, 'Heroic'],
+    ['BACK', 'Cloak of Tidal Currents', 300, 'Normal'], // Champion: not tracked
+    ['CHEST', 'Arcane Raiment of the Spire', 334, 'Mythic'],
+    ['WRIST', 'Silvermoon Cuffs', 331, 'Tidal Crafted'],
+    ['HANDS', 'Spellweaver Gloves', 321, 'Heroic'],
+    ['WAIST', 'Sash of Quiet Thoughts', 328, 'Mythic'],
+    ['LEGS', 'Leggings of the Magister', 334, 'Heroic'],
+    ['FEET', "Silvermoon Agent's Sneakers", 331, 'Tidal Crafted'],
+    ['FINGER_1', 'Vile Alchemist Band', 334, 'Mythic'],
+    ['FINGER_2', 'Band of the Swarmcaller', 321, 'Mythic'], // 321 + Mythic: Myth 2/6
+    ['TRINKET_1', "Tidecaller's Pearl", 318, 'Heroic', true],
+    ['TRINKET_2', 'Prismatic Eye of the Abyss', 341, 'Heroic Ascendant Venomforged: Myth'],
+    ['MAIN_HAND', 'Spire Staff of the Magister', 334, 'Mythic'],
+    ['OFF_HAND', 'Venomed Grimoire', 341, 'Mythic', true],
+  ],
+};
+// Same rules as equippedItemTier() in shared-domain (Midnight S2: Myth from 322, 321 ambiguous, Champion ignored)
+function tierOf(itemLevel, description) {
+  if (/crafted/i.test(description)) return null;
+  const myth = /mythic|:s*myth|myth/i.test(description);
+  const hero = /heroic|hero/i.test(description);
+  if (itemLevel >= 322) return AS.MYTH_TIER;
+  if (itemLevel >= 321) return myth ? AS.MYTH_TIER : hero ? AS.HERO_TIER : null;
+  return hero ? AS.HERO_TIER : null;
+}
+export function equipmentOf(raider) {
+  const spec = WORN[raider.key];
+  if (!spec) return [];
+  const fallbackIcon = ITEMS.find((i) => i.iconUrl)?.iconUrl ?? null;
+  return spec.map(([slot, name, itemLevel, description, inCatalog], index) => {
+    const item = inCatalog ? byName(name) : null;
+    return {
+      slot,
+      itemId: item?.wowItemId ?? 900000 + index,
+      name,
+      itemLevel,
+      tier: tierOf(itemLevel, description),
+      tierLabel: description,
+      iconUrl: item?.iconUrl ?? fallbackIcon,
+      syncedAt: iso(-0.01),
+    };
+  });
+}
+
+// The raider's own "BiS" marks on worn pieces: crafted boots and wrists they will keep, a catalysed tier piece
+const BIS_MARKS = {
+  arcanis: [
+    { slot: 'FEET', name: "Silvermoon Agent's Sneakers", reason: 'manual', note: null },
+    { slot: 'WRIST', name: 'Silvermoon Cuffs', reason: 'manual', note: null },
+    { slot: 'SHOULDER', name: 'Dreamwatcher Mantle', reason: 'catalyst', note: 'Gale-Lashed Mantle' },
+  ],
+};
+export function bisMarksOf(raider) {
+  const worn = equipmentOf(raider);
+  return (BIS_MARKS[raider.key] ?? [])
+    .map((m) => ({ slot: m.slot, itemId: worn.find((w) => w.slot === m.slot && w.name === m.name)?.itemId, reason: m.reason, note: m.note, createdAt: iso(-1) }))
+    .filter((m) => m.itemId != null);
+}
+
+export const chaseOf = (raiderId) => CHASE.filter((c) => c.raiderId === raiderId);
+
 export const reservationsOf = (raiderId) =>
   RESERVATIONS.filter((r) => r.raiderId === raiderId).map(({ ...r }) => r);
 export const receivedOf = (raiderId) => RECEIVED.filter((r) => r.raiderId === raiderId);
@@ -253,6 +371,7 @@ export function bossLootView(bossId, team) {
         const res = RESERVATIONS.find((x) => x.raiderId === r.id && x.itemId === item.id);
         const asg = ASSIGNMENTS.find((x) => x.raiderId === r.id && x.itemId === item.id);
         const rcv = RECEIVED.find((x) => x.raiderId === r.id && x.itemId === item.id);
+        const chase = res ? undefined : CHASE.find((x) => x.raiderId === r.id && x.itemId === item.id);
         return {
           raiderId: r.id,
           raiderName: r.characterName,
@@ -260,6 +379,7 @@ export function bossLootView(bossId, team) {
           wowClass: r.wowClass,
           spec: r.spec,
           hasReservation: !!res,
+          ...(chase ? { isChase: true, chaseMethods: chase.methods, chaseCreatedAt: chase.createdAt } : {}),
           ...(res ? { reservationCreatedAt: res.createdAt, reservationId: res.id } : {}),
           assignment: asg ? { id: asg.id, status: asg.status, assignedAt: asg.assignedAt } : null,
           receivedTier: rcv?.tier ?? null,

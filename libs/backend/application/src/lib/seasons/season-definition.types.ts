@@ -1,4 +1,4 @@
-import { ArmorType, WowClass } from '@crusaders-bis-list/shared-domain';
+import { ArmorType, TrackItemLevels, WowClass } from '@crusaders-bis-list/shared-domain';
 
 /**
  * Generic types for describing a WoW raid season.
@@ -69,6 +69,16 @@ export interface MergedItemDefinition {
 }
 
 export interface SeasonDefinition {
+  /**
+   * Item level caps that tell the Hero and Myth tracks apart, used to read the tier of worn gear (see
+   * `equippedItemTier`). Without it only the (less reliable) item description is used.
+   */
+  trackItemLevels?: TrackItemLevels;
+  /**
+   * Best item levels, used as the starting point of the season config: the highest item level a boss drop gives, and
+   * per boss (Blizzard encounter id) the item level a bonus roll gives when that is higher. "Best in slot" follows it.
+   */
+  itemLevelCaps?: { maxItemLevel: number; bonusRollItemLevels?: Record<number, number> };
   /** Stored in the DB — change only if you deliberately want a new season row. */
   slug: string;
   /** Display name shown in the UI and the DB. */

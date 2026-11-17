@@ -32,6 +32,26 @@
                 </button>
               }
             </div>
+            <label
+              class="chase-toggle"
+              title="Toon ook raiders die een item graag willen hebben maar niet hebben gereserveerd (bijvoorbeeld armor)"
+            >
+              <span class="switch">
+                <input type="checkbox" [checked]="showChase()" (change)="setShowChase($any($event.target).checked)" />
+                <span class="switch__track"></span>
+              </span>
+              <span class="t-body-code">Toon ook chase-items</span>
+            </label>
+            <button
+              type="button"
+              class="btn btn-sm gear-sync-btn"
+              title="Leest de gedragen gear van alle raiders opnieuw uit de Blizzard armory en vinkt gereserveerde en gechasede items af die ze al dragen"
+              [disabled]="syncingGear()"
+              (click)="syncGear()"
+            >
+              <span class="material-symbols-outlined icon-16" [class.spin]="syncingGear()">sync</span>
+              {{ syncingGear() ? 'Bezig…' : 'Gear synchroniseren' }}
+            </button>
             @if (allRaiders().length > 0) {
               <button class="btn btn-sm raid-toggle-btn" (click)="raidDrawerOpen.set(true)" aria-label="Raider aanwezigheid tonen">
                 <span class="material-symbols-outlined icon-16">groups</span>
@@ -68,14 +88,16 @@
                   <span class="badge badge-neutral">{{ view.boss.raidName }}</span>
                 }
                 <span class="spacer"></span>
-                <span class="t-label-caps c-muted">{{ openDropCount(view) }} / {{ view.drops.length }} open</span>
+                <span class="t-label-caps c-muted">{{ openDropCount(view) }} / {{ listedDrops(view.drops).length }} open</span>
               </div>
 
               <div class="item-panels">
-                @if (view.drops.length === 0) {
+                @if (listedDrops(view.drops).length === 0) {
                   <div class="empty-box empty-box--boxed">
                     <span class="material-symbols-outlined">inbox</span>
-                    <p class="empty-box__title">Geen lootreservaties voor {{ view.boss.name }}</p>
+                    <p class="empty-box__title">
+                      Geen {{ showChase() ? 'lootreservaties of chase-items' : 'lootreservaties' }} voor {{ view.boss.name }}
+                    </p>
                   </div>
                 } @else if (visibleDrops(view.drops).length === 0) {
                   <div class="empty-box empty-box--boxed">
@@ -149,6 +171,44 @@
                             </div>
                             <div class="raiders-chips-panel">
                               @for (raider of reserved; track raider.raiderId) {
+                                <ng-container
+                                  *ngTemplateOutlet="raiderBtn; context: { $implicit: raider, drop: drop, boss: view.boss }"
+                                />
+                              }
+                            </div>
+                          }
+                        }
+                        @if (chaseRaiders(drop.eligibleRaiders); as chasers) {
+                          @if (chasers.length) {
+                            <div
+                              class="group-label c-info"
+                              title="Deze raiders willen dit item graag hebben, maar hebben het niet gereserveerd"
+                            >
+                              <span class="material-symbols-outlined icon-14">flag</span>
+                              Chase-lijst
+                              <span class="group-label__n">{{ chasers.length }}</span>
+                            </div>
+                            <div class="raiders-chips-panel">
+                              @for (raider of chasers; track raider.raiderId) {
+                                <ng-container
+                                  *ngTemplateOutlet="raiderBtn; context: { $implicit: raider, drop: drop, boss: view.boss }"
+                                />
+                              }
+                            </div>
+                          }
+                        }
+                        @if (bonusRollRaiders(drop.eligibleRaiders); as rollers) {
+                          @if (rollers.length) {
+                            <div
+                              class="group-label c-info"
+                              title="Deze raiders plannen dit item met een bonusrol te krijgen. Het wordt niet door de officers uitgedeeld."
+                            >
+                              <span class="material-symbols-outlined icon-14">casino</span>
+                              Bonusrol
+                              <span class="group-label__n">{{ rollers.length }}</span>
+                            </div>
+                            <div class="raiders-chips-panel">
+                              @for (raider of rollers; track raider.raiderId) {
                                 <ng-container
                                   *ngTemplateOutlet="raiderBtn; context: { $implicit: raider, drop: drop, boss: view.boss }"
                                 />
@@ -259,13 +319,25 @@
     class="raider-chip chip-edged"
     [class]="'raider-chip chip-edged ' + classSlug(raider.wowClass)"
     [class.has-reservation]="raider.hasReservation"
+    [class.is-chase]="raider.isChase"
     [class.excluded]="isExcluded(raider.raiderId)"
-    [title]="raider.wowClass + ' – ' + raider.spec + (heldTier(raider) ? ' · ' + heldTitle(raider) : '')"
-    [disabled]="isExcluded(raider.raiderId)"
+    [title]="
+      raider.wowClass +
+      ' – ' +
+      raider.spec +
+      (isBonusRoll(raider) ? ' · Bonusrol (wordt niet uitgedeeld)' : raider.isChase ? ' · Chase-lijst (geen reservering)' : '') +
+      (heldTier(raider) ? ' · ' + heldTitle(raider) : '')
+    "
+    [disabled]="isExcluded(raider.raiderId) || isBonusRoll(raider)"
     (click)="assign(raider.raiderId, drop.item.id, boss.id, raider.characterName, drop.item)"
   >
     @if (raider.hasReservation) {
       <span class="material-symbols-outlined icon-fill icon-14 chip-star">star</span>
+    } @else if (raider.isChase) {
+      <span class="material-symbols-outlined icon-14 chip-flag">{{ isBonusRoll(raider) ? 'casino' : 'flag' }}</span>
+      @if (hasBonusRoll(raider) && !isBonusRoll(raider)) {
+        <span class="material-symbols-outlined icon-14 chip-flag" title="Plant ook een bonusrol">casino</span>
+      }
     }
     <span class="chip-name">{{ raider.characterName }}</span>
   </button>

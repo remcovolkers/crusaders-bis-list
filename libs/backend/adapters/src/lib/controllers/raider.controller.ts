@@ -13,6 +13,7 @@ import {
   HttpStatus,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtPayload } from '../auth/jwt.strategy';
@@ -23,8 +24,18 @@ import {
   GetRaidCatalogUseCase,
   GetSeasonConfigUseCase,
   CancelReservationUseCase,
+  SetChaseItemUseCase,
+  SetBisMarkUseCase,
+  RemoveBisMarkUseCase,
+  CatalyseChaseItemUseCase,
+  RemoveChaseItemUseCase,
+  SyncRaiderEquipmentUseCase,
 } from '@crusaders-bis-list/backend-application';
 import {
+  BIS_MARK_REPOSITORY,
+  IBisMarkRepository,
+  CHASE_ITEM_REPOSITORY,
+  IChaseItemRepository,
   RAIDER_REPOSITORY,
   IRaiderRepository,
   RESERVATION_REPOSITORY,
@@ -37,10 +48,20 @@ import {
   IAssignmentRepository,
   RAID_CATALOG_REPOSITORY,
   IRaidCatalogRepository,
+  BLIZZARD_API_SERVICE,
+  IBlizzardApiService,
 } from '@crusaders-bis-list/backend-domain';
 import { Inject } from '@nestjs/common';
-import { ReserveItemDto, CreateRaiderProfileDto, UpdateRaiderProfileDto, MarkReceivedDto } from './dto/raider.dto';
-import { WowClass, WowSpec, Team, reservedTiersAboveFloor } from '@crusaders-bis-list/shared-domain';
+import {
+  ReserveItemDto,
+  CreateRaiderProfileDto,
+  UpdateRaiderProfileDto,
+  MarkReceivedDto,
+  AddChaseItemDto,
+  BisMarkDto,
+  CatalyseChaseDto,
+} from './dto/raider.dto';
+import { WowClass, WowSpec, Team, reservedTiersAboveFloor, EQUIPMENT_SLOTS, EquipmentSlot } from '@crusaders-bis-list/shared-domain';
 import { blizzardClassToWowClass } from '../mappers/blizzard-class.mapper';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
@@ -60,19 +81,50 @@ export class RaiderController {
     private readonly getRaidCatalog: GetRaidCatalogUseCase,
     private readonly getSeasonConfig: GetSeasonConfigUseCase,
     private readonly cancelReservation: CancelReservationUseCase,
+    private readonly setChaseItem: SetChaseItemUseCase,
+    private readonly setBisMark: SetBisMarkUseCase,
+    private readonly removeBisMark: RemoveBisMarkUseCase,
+    private readonly catalyseChase: CatalyseChaseItemUseCase,
+    private readonly removeChaseItem: RemoveChaseItemUseCase,
+    private readonly syncEquipment: SyncRaiderEquipmentUseCase,
     private readonly auditLog: AuditLogService,
+    @Inject(CHASE_ITEM_REPOSITORY) private readonly chaseItemRepo: IChaseItemRepository,
+    @Inject(BIS_MARK_REPOSITORY) private readonly bisMarkRepo: IBisMarkRepository,
     @Inject(RAIDER_REPOSITORY) private readonly raiderRepo: IRaiderRepository,
     @Inject(RESERVATION_REPOSITORY) private readonly reservationRepo: IReservationRepository,
     @Inject(RECEIVED_ITEM_REPOSITORY) private readonly receivedItemRepo: IReceivedItemRepository,
     @Inject(USER_REPOSITORY) private readonly userRepo: IUserRepository,
     @Inject(ASSIGNMENT_REPOSITORY) private readonly assignmentRepo: IAssignmentRepository,
     @Inject(RAID_CATALOG_REPOSITORY) private readonly catalogRepo: IRaidCatalogRepository,
+    @Inject(BLIZZARD_API_SERVICE) private readonly blizzard: IBlizzardApiService,
   ) {}
 
   @Get('my-profile')
   async getMyProfile(@Req() req: Request) {
     const userId = (req.user as JwtPayload).sub;
     return this.raiderRepo.findByUserId(userId);
+  }
+
+  /**
+   * Syncs the raider's worn gear from the Blizzard armory (skipped when synced in the last 10 minutes) and ticks
+   * off reserved / chased items that are worn. Returns the gear plus what changed, so the page can refresh.
+   */
+  @Post('equipment/sync')
+  @HttpCode(HttpStatus.OK)
+  async syncMyEquipment(@Req() req: Request) {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider) return { equipment: [], refreshed: false, updates: [] };
+    return this.syncEquipment.execute(raider.id);
+  }
+
+  /** Armory render of the raider's own character, shown in the middle of the character pane. `url: null` = none. */
+  @Get('character-media')
+  async getCharacterMedia(@Req() req: Request): Promise<{ url: string | null }> {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider?.realm) return { url: null };
+    return { url: await this.blizzard.getCharacterRenderUrl(raider.realm, raider.characterName) };
   }
 
   @Get('wow-characters')
@@ -206,6 +258,79 @@ export class RaiderController {
       raiderName: raider.characterName,
       itemName: item?.mergedDisplayName ?? item?.name ?? null,
     });
+  }
+
+  // ── Chase items: "I want this" list, separate from (limited) reservations ──
+
+  @Get('chase-items')
+  async getChaseItems(@Req() req: Request, @Query('seasonId') seasonId: string) {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider || !seasonId) return [];
+    return this.chaseItemRepo.findByRaider(raider.id, seasonId);
+  }
+
+  @Post('chase-items')
+  @HttpCode(HttpStatus.CREATED)
+  async addChase(@Req() req: Request, @Body() dto: AddChaseItemDto) {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider) throw new NotFoundException('Raider profile not found. Please create your profile first.');
+    const user = await this.userRepo.findById(userId);
+    // null = the chase was removed (an empty list of methods)
+    return this.setChaseItem.execute(raider.id, dto.itemId, dto.raidSeasonId, user?.team ?? Team.CRUSADERS, dto.methods);
+  }
+
+  /**
+   * Catalyst: the chased item was catalysed into the tier piece worn in the given slot. Marks that piece as best in
+   * slot, records the chased item as obtained and removes the chase. Returns the raider's best-in-slot marks.
+   */
+  @Post('chase-items/:id/catalyse')
+  @HttpCode(HttpStatus.OK)
+  async catalyse(@Req() req: Request, @Param('id') id: string, @Body() dto: CatalyseChaseDto) {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider) throw new NotFoundException('Raider profile not found.');
+    return this.catalyseChase.execute(raider.id, id, dto.slot);
+  }
+
+  // ── Best in slot marks: the raider's own "this worn item is BiS for me" (crafted, dungeon items, catalysed tier) ──
+
+  @Get('bis-marks')
+  async getBisMarks(@Req() req: Request) {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider) return [];
+    return this.bisMarkRepo.findByRaider(raider.id);
+  }
+
+  @Put('bis-marks/:slot')
+  @HttpCode(HttpStatus.OK)
+  async markBis(@Req() req: Request, @Param('slot') slot: string, @Body() dto: BisMarkDto) {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider) throw new NotFoundException('Raider profile not found.');
+    if (!EQUIPMENT_SLOTS.includes(slot as EquipmentSlot)) throw new BadRequestException('Unknown slot.');
+    return this.setBisMark.execute(raider.id, slot as EquipmentSlot, dto.itemId);
+  }
+
+  @Delete('bis-marks/:slot')
+  @HttpCode(HttpStatus.OK)
+  async unmarkBis(@Req() req: Request, @Param('slot') slot: string) {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider) throw new NotFoundException('Raider profile not found.');
+    if (!EQUIPMENT_SLOTS.includes(slot as EquipmentSlot)) throw new BadRequestException('Unknown slot.');
+    return this.removeBisMark.execute(raider.id, slot as EquipmentSlot);
+  }
+
+  @Delete('chase-items/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeChase(@Req() req: Request, @Param('id') id: string) {
+    const userId = (req.user as JwtPayload).sub;
+    const raider = await this.raiderRepo.findByUserId(userId);
+    if (!raider) throw new NotFoundException('Raider profile not found.');
+    await this.removeChaseItem.execute(raider.id, id);
   }
 
   @Get('received-items')
