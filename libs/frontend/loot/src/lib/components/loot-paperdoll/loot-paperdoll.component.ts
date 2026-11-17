@@ -1,6 +1,6 @@
 import { Component, computed, inject, output } from '@angular/core';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
-import { AssignmentStatus, CATALYST_SLOTS, ChaseMethod, EquipmentSlot, IEquippedItem, TIER_LABELS } from '@crusaders-bis-list/shared-domain';
+import { AssignmentStatus, CATALYST_SLOTS, ChaseMethod, EquipmentSlot, IEquippedItem, IItemTooltip, TIER_LABELS } from '@crusaders-bis-list/shared-domain';
 import { ItemTooltipDirective, ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 import { RaiderLootStateService } from '../../services/raider-loot-state.service';
 import { ItemWithReservation, TrackedItem } from '../../ui-types/loot-ui.types';
@@ -61,6 +61,20 @@ export class LootPaperdollComponent {
   protected equippedMeta(piece: IEquippedItem): string {
     const tier = piece.tier ? TIER_LABELS[piece.tier] : piece.tierLabel;
     return [tier, piece.itemLevel ? String(piece.itemLevel) : null].filter(Boolean).join(' · ');
+  }
+
+  private readonly wornTips = new WeakMap<IEquippedItem, IItemTooltip>();
+
+  /** Hover text of a worn item: what Blizzard says about it (when known), plus the item level and track it is worn at. */
+  protected wornTooltip(piece: IEquippedItem): IItemTooltip {
+    let tip = this.wornTips.get(piece);
+    if (!tip) {
+      const level = piece.itemLevel ? `Item level ${piece.itemLevel}` : null;
+      const tier = piece.tier ? TIER_LABELS[piece.tier] : piece.tierLabel;
+      tip = { ...(piece.tooltip ?? {}), level: [level, tier].filter(Boolean).join(' · ') || undefined };
+      this.wornTips.set(piece, tip);
+    }
+    return tip;
   }
 
   protected hasMethod(entry: TrackedItem, method: ChaseMethod): boolean {

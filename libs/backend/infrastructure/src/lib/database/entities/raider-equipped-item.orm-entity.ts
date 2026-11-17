@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
-import { AssignmentStatus, EquipmentSlot } from '@crusaders-bis-list/shared-domain';
+import { AssignmentStatus, EquipmentSlot, IItemTooltip } from '@crusaders-bis-list/shared-domain';
 
 /** Gear a raider currently wears, synced from the Blizzard armory. One row per raider + slot. */
 @Entity('raider_equipped_items')
@@ -31,6 +31,9 @@ export class RaiderEquippedItemOrmEntity {
 
   @Column({ name: 'icon_url', type: 'varchar', nullable: true })
   iconUrl!: string | null;
+
+  @Column({ name: 'tooltip', type: 'simple-json', nullable: true })
+  tooltip!: IItemTooltip | null;
 
   @Column({ name: 'synced_at', type: 'timestamp' })
   syncedAt!: Date;

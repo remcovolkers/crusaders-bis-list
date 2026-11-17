@@ -332,6 +332,10 @@
   &__dim {
     color: var(--text-muted);
   }
+  &__level {
+    color: var(--primary);
+    font-weight: 600;
+  }
   &__stats {
     color: var(--text-primary);
   }

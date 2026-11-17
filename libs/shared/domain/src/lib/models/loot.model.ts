@@ -3,7 +3,7 @@ import { EquipmentSlot } from '../constants/equipment';
 import { ChaseMethod } from '../enums/chase-method.enum';
 import { WowClass } from '../enums/wow-class.enum';
 import { WowSpec } from '../enums/wow-spec.enum';
-import { IBoss, IItem } from './raid.model';
+import { IBoss, IItem, IItemTooltip } from './raid.model';
 
 export interface IReceivedItem {
   id: string;
@@ -61,6 +61,8 @@ export interface IEquippedItem {
   /** Description Blizzard shows for the item, e.g. "Heroic" or "Mythic". */
   tierLabel: string | null;
   iconUrl: string | null;
+  /** Hover text of the worn item (from the catalog or the Blizzard item API), when known. */
+  tooltip?: IItemTooltip | null;
   syncedAt: Date;
 }
 

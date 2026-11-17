@@ -32,6 +32,7 @@ import {
   IBisMark,
   IEquippedItem,
   IItem,
+  IItemTooltip,
   WowClass,
   ItemLevelCaps,
   RECEIVABLE_TIERS,
@@ -40,6 +41,7 @@ import {
   equippedItemTier,
 } from '@crusaders-bis-list/shared-domain';
 import { itemLevelCapsOf, trackItemLevelsOf } from '../seasons/season-rules';
+import { buildItemTooltip } from './item-tooltip';
 
 /** What a sync changed for the raider (shown to them as a notice, and used to refresh their lists). */
 export interface EquipmentSyncUpdate {
@@ -144,6 +146,15 @@ export class SyncRaiderEquipmentUseCase {
     const levels = config ? trackItemLevelsOf(config) : undefined;
     const caps = config ? itemLevelCapsOf(config) : undefined;
 
+    // Hover text of worn gear: from the catalog (items and the set pieces of tier tokens), else from the Blizzard item API
+    const catalogTooltips = new Map<number, IItemTooltip>();
+    for (const item of catalog) {
+      if (item.wowItemId != null && item.tooltip) catalogTooltips.set(item.wowItemId, item.tooltip);
+      for (const piece of Object.values(item.tierSetItems ?? {})) {
+        if (piece?.tooltip) catalogTooltips.set(piece.wowItemId, piece.tooltip);
+      }
+    }
+
     const rows: EquippedItemRow[] = [];
     for (const item of worn) {
       if (!EQUIPMENT_SLOTS.includes(item.slot as EquipmentSlot)) continue; // shirt, tabard
@@ -156,6 +167,7 @@ export class SyncRaiderEquipmentUseCase {
         tier: equippedItemTier(item.itemLevel, item.description, levels),
         tierLabel: item.description,
         iconUrl: iconUrl ?? null,
+        tooltip: catalogTooltips.get(item.itemId) ?? (await this.tooltipOf(item.itemId)),
       });
     }
     await this.equippedRepo.replaceForRaider(raiderId, rows, new Date(now));
@@ -174,6 +186,21 @@ export class SyncRaiderEquipmentUseCase {
       refreshed: true,
       updates,
     };
+  }
+
+  /** Hover texts of items outside the catalog (dungeon, crafted, older gear) do not change: read each item once. */
+  private readonly tooltipCache = new Map<number, IItemTooltip | null>();
+
+  private async tooltipOf(itemId: number): Promise<IItemTooltip | null> {
+    const cached = this.tooltipCache.get(itemId);
+    if (cached !== undefined) return cached;
+    try {
+      const tooltip = buildItemTooltip(await this.blizzard.getItem(itemId)) ?? null;
+      this.tooltipCache.set(itemId, tooltip);
+      return tooltip;
+    } catch {
+      return null; // not cached: try again at the next sync
+    }
   }
 
   /** Tick off reserved / chased items that are worn: raise the "already have" tier, finish Myth chases. */

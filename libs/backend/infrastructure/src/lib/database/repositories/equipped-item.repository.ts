@@ -21,6 +21,7 @@ export class EquippedItemRepository implements IEquippedItemRepository {
       tier: e.tier,
       tierLabel: e.tierLabel,
       iconUrl: e.iconUrl,
+      tooltip: e.tooltip && Object.keys(e.tooltip).length ? e.tooltip : null,
       syncedAt: e.syncedAt,
     };
   }
@@ -45,6 +46,7 @@ export class EquippedItemRepository implements IEquippedItemRepository {
           tier: i.tier,
           tierLabel: i.tierLabel,
           iconUrl: i.iconUrl,
+          tooltip: i.tooltip ?? null,
           syncedAt,
         })),
       );

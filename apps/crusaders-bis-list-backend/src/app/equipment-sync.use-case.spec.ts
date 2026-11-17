@@ -29,6 +29,13 @@ function build(setup: Setup) {
   const blizzard = {
     getCharacterEquipment: jest.fn().mockResolvedValue(setup.worn === undefined ? [] : setup.worn),
     getItemMediaUrl: jest.fn().mockResolvedValue('media-icon'),
+    getItem: jest.fn().mockResolvedValue({
+      id: 1,
+      name: 'Crafted',
+      inventory_type: { type: 'FEET', name: 'Feet' },
+      item_subclass: { id: 1, name: 'Cloth' },
+      preview_item: { quality: { type: 'EPIC' }, stats: [] },
+    }),
   };
   const equippedRepo = {
     findByRaider: jest.fn().mockResolvedValue(stored),
@@ -94,6 +101,19 @@ const piece = (slot: string, itemId: number, description: string | null, itemLev
 });
 
 describe('SyncRaiderEquipmentUseCase', () => {
+  it('stores the hover text of worn gear: from the catalog when it is there, else from the Blizzard item API', async () => {
+    const tip = { effects: ['Use: catalog tooltip'] };
+    const { useCase, blizzard, equippedRepo } = build({
+      catalog: [item('boots', 100, { tooltip: tip })],
+      worn: [piece('FEET', 100, 'Heroic', 315), piece('HEAD', 200, null, 300)],
+    });
+    await useCase.execute('r1');
+    const rows = equippedRepo.replaceForRaider.mock.calls[0][1] as { itemId: number; tooltip: unknown }[];
+    expect(rows.find((r) => r.itemId === 100)?.tooltip).toEqual(tip);
+    expect((rows.find((r) => r.itemId === 200)?.tooltip as { typeLine?: string })?.typeLine).toBe('Feet · Cloth');
+    expect(blizzard.getItem).toHaveBeenCalledTimes(1); // only the item that is not in the catalog
+  });
+
   it('counts a worn set piece for the reserved tier token it comes from for the class of the raider', async () => {
     const token = item('token', 500, {
       tierSetItems: {

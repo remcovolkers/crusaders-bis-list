@@ -59,6 +59,7 @@ export class ItemTooltipDirective implements OnDestroy {
     line(el, this.name(), 'name', QUALITY_CLASS[data.quality ?? ''] ?? 'q-common');
     const via = this.via();
     if (via) line(el, `via ${via}`, 'via');
+    if (data.level) line(el, data.level, 'level');
     if (data.binding) line(el, data.binding, 'dim');
     if (data.unique) line(el, data.unique, 'dim');
     if (data.typeLine) line(el, data.typeLine, 'dim');

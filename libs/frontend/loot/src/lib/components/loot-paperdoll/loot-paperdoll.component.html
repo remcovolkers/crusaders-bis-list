@@ -87,7 +87,7 @@
   @let bis = bisInfo(piece);
   <div class="pd-entry is-worn" [class.is-bis]="bis.isBis">
     @if (piece.iconUrl) {
-      <img class="pd-entry__icon" [src]="piece.iconUrl" alt="" loading="lazy" />
+      <img class="pd-entry__icon" [src]="piece.iconUrl" alt="" [libItemTooltip]="wornTooltip(piece)" [libItemTooltipName]="piece.name" loading="lazy" />
     } @else {
       <div class="pd-entry__icon pd-entry__icon--empty"></div>
     }
