@@ -1,6 +1,17 @@
 <section class="card plan" aria-label="Gearing plan">
   <header class="plan__head">
-    <span class="t-title-sm">Gearing plan</span>
+    <span class="t-title-sm row gap-xs"
+      >Gearing plan
+      <a
+        class="icon-btn icon-btn--sm"
+        routerLink="/help"
+        fragment="gearing-plan-wat-moet-je-waar-doen"
+        aria-label="Uitleg over het Gearing plan"
+        title="Uitleg over het Gearing plan"
+      >
+        <span class="material-symbols-outlined icon-14">help</span>
+      </a></span
+    >
     <span class="t-label-caps c-muted"
       >{{ plan().itemCount }} {{ plan().itemCount === 1 ? 'item' : 'items' }} · {{ plan().bosses.length }}
       {{ plan().bosses.length === 1 ? 'boss' : 'bosses' }}</span

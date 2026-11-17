@@ -11,6 +11,12 @@
       "outputs": [
         "{options.outputPath}"
       ],
+      "inputs": [
+        "production",
+        "^production",
+        "{workspaceRoot}/HOW-TO-USE-THIS-APP-GUIDE.md",
+        "{workspaceRoot}/docs/how-to/*.png"
+      ],
       "options": {
         "outputPath": "dist/apps/crusaders-bis-list-frontend",
         "browser": "apps/crusaders-bis-list-frontend/src/main.ts",
@@ -23,6 +29,16 @@
           {
             "glob": "**/*",
             "input": "apps/crusaders-bis-list-frontend/public"
+          },
+          {
+            "glob": "HOW-TO-USE-THIS-APP-GUIDE.md",
+            "input": ".",
+            "output": "assets/help"
+          },
+          {
+            "glob": "*.png",
+            "input": "docs/how-to",
+            "output": "assets/help/images"
           }
         ],
         "styles": [

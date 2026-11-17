@@ -22,6 +22,7 @@
 
       <nav class="header-nav">
         <a class="nav-link" routerLink="/loot" routerLinkActive="active">Mijn Loot</a>
+        <a class="nav-link" routerLink="/help" routerLinkActive="active">Handleiding</a>
         @if (isAdmin()) {
           <a class="nav-link" routerLink="/admin" routerLinkActive="active">Admin</a>
         }
@@ -101,6 +102,7 @@
         }
         <nav class="mobile-nav-links">
           <a routerLink="/loot" routerLinkActive="active" (click)="menuOpen.set(false)">Mijn Loot</a>
+          <a routerLink="/help" routerLinkActive="active" (click)="menuOpen.set(false)">Handleiding</a>
           @if (isAdmin()) {
             <a routerLink="/admin" routerLinkActive="active" (click)="menuOpen.set(false)">Admin</a>
           }

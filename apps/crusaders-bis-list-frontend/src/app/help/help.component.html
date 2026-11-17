@@ -1,0 +1,57 @@
+<div class="page help">
+  <aside class="help__toc" aria-label="Inhoud">
+    <button type="button" class="help__toc-toggle" (click)="menuOpen.set(!menuOpen())" [attr.aria-expanded]="menuOpen()">
+      <span class="material-symbols-outlined icon-18">menu_book</span>
+      Inhoud
+      <span class="material-symbols-outlined icon-18 help__chev" [class.is-open]="menuOpen()">expand_more</span>
+    </button>
+
+    <nav class="help__toc-list" [class.is-open]="menuOpen()">
+      @for (chapter of toc(); track chapter.heading.id) {
+        <a
+          class="toc-link toc-link--chapter"
+          [class.is-active]="chapter.heading.id === activeId()"
+          [href]="'#' + chapter.heading.id"
+          (click)="goTo(chapter.heading.id, $event)"
+          >{{ chapter.heading.text }}</a
+        >
+        @if (chapter.heading.id === activeChapterId()) {
+          @for (section of chapter.sections; track section.id) {
+            <a
+              class="toc-link toc-link--section"
+              [class.is-active]="section.id === activeId()"
+              [href]="'#' + section.id"
+              (click)="goTo(section.id, $event)"
+              >{{ section.text }}</a
+            >
+          }
+        }
+      }
+    </nav>
+  </aside>
+
+  <article class="help__body">
+    <header class="help__head">
+      <span class="t-label-caps c-muted">Hulp</span>
+      <h1 class="t-headline-xl">{{ title() }}</h1>
+    </header>
+
+    @if (loading()) {
+      <div class="loading-spinner">Handleiding laden...</div>
+    } @else if (failed()) {
+      <div class="help__error card">
+        <span class="material-symbols-outlined">error</span>
+        <p>De handleiding kon niet worden geladen. Probeer de pagina te verversen.</p>
+      </div>
+    } @else {
+      <div class="guide" [innerHTML]="html()"></div>
+    }
+  </article>
+</div>
+
+@if (zoomSrc(); as zoom) {
+  <button type="button" class="help__zoom" aria-label="Screenshot sluiten" (click)="closeZoom()">
+    <img [src]="zoom.src" [alt]="zoom.alt" />
+    <span class="icon-btn help__zoom-close"><span class="material-symbols-outlined">close</span></span>
+  </button>
+}
