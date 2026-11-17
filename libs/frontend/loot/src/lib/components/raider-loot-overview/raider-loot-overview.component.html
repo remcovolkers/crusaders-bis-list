@@ -109,6 +109,15 @@
           <span class="material-symbols-outlined icon-16">accessibility_new</span>Character
         </button>
       </div>
+      <a
+        class="icon-btn icon-btn--sm"
+        routerLink="/help"
+        [fragment]="state.view() === 'character' ? 'twee-weergaven-itemlijst-en-character' : '3-het-loot-scherm-wat-zie-je'"
+        aria-label="Uitleg in de handleiding"
+        title="Uitleg in de handleiding"
+      >
+        <span class="material-symbols-outlined icon-16">help</span>
+      </a>
       @if (state.view() === 'list') {
       <div class="scroll-x scroll-hidden loot-filters__tabs">
         <div class="segmented" role="tablist" aria-label="Categorie">

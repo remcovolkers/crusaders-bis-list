@@ -2,7 +2,7 @@
 
 Met de BIS List geef je door welke items je graag wilt hebben (je **soft reserves**). Je lootmeester gebruikt die lijst om loot eerlijk te verdelen. Deze handleiding legt stap voor stap uit hoe je de lijst gebruikt, en helpt je als er iets niet werkt.
 
-Je vindt de app op **https://lootlijst.royal-team.nl**. Je kunt hem ook op je telefoon gebruiken.
+Je vindt de app op **https://lootlijst.royal-team.nl**. Je kunt hem ook op je telefoon gebruiken. Deze handleiding staat ook **in de app zelf**: klik bovenin op **Handleiding**. Op sommige schermen (Mijn Loot, het Gearing plan) staat een **?**-knop die direct naar het juiste stuk springt.
 
 > Oude link gebruikt (`crusaders.royal-team.nl` of `crusaders-bis-list.onrender.com`)? Dan zie je het scherm "Wij zijn verhuisd!". Ga naar de nieuwe link en sla die op als bladwijzer.
 
@@ -188,7 +188,7 @@ De app leest je equipped gear uit de Blizzard armory (via de naam en realm van j
 Daarbij gebeurt dit met items die je hebt gereserveerd of gechased:
 
 - Draag je zo'n item op **Hero** of **Myth**, dan telt dat als "al in bezit" voor die tier. Je reservering gaat dan automatisch alleen nog over de **hogere** tiers. Je teamgenoten en officers zien dit ook meteen: je telt niet meer mee voor tiers die je al hebt.
-- Draag je een gereserveerd item op **Myth** en kan er niets beters meer van komen? Dan zie je **BiS in bezit! Gefeliciteerd!**. Kan een bonusrol het item nog verbeteren (zie [BiS is niet altijd klaar](#bis-is-niet-altijd-klaar-upgraden-met-een-bonusrol)), dan zie je **Myth in bezit · tot 344 mogelijk**.
+- Draag je een gereserveerd item op **Myth** en kan er niets beters meer van komen? Dan zie je **BiS in bezit! Gefeliciteerd!**. Kan een bonusrol het item nog verbeteren (zie [BiS is niet altijd klaar](#bis-en-upgraden-met-een-bonusrol)), dan zie je **Myth in bezit · tot 344 mogelijk**.
 - **Champion** telt niet mee: die items worden toch snel geüpgraded.
 - Een **gechased** item is klaar zodra je het hebt op het beste item level van een van de manieren waarop je het chaset (het maakt niet uit hoe het item komt). Bij **Chase voor bossdrop** is dat het maximale item level van een drop (nu 334), bij **Chase met bonusrol** het item level van een bonusrol op die boss (op Coiled Altar en Ula'tek 344). Dan verdwijnt het van je chase-lijst.
 - De app maakt nooit zelf nieuwe reserveringen of chases aan, en zet een tier die je zelf hebt aangegeven nooit lager.

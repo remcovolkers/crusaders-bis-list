@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { AdminService } from '../../services/admin.service';
 import { AdminTeamContextService } from '../../services/admin-team-context.service';
@@ -11,7 +12,7 @@ import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 @Component({
   selector: 'lib-admin-season-config',
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, RouterLink],
   templateUrl: './admin-season-config.component.html',
   styleUrl: './admin-season-config.component.scss',
 })

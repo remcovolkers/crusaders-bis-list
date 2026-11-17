@@ -1,0 +1,280 @@
+// In-app user guide: sticky table of contents + readable article. The article HTML is generated from Markdown, so its
+// elements are styled with ::ng-deep under .guide.
+
+:host {
+  display: block;
+}
+
+.help {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: var(--space-lg);
+  align-items: start;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+// ── Table of contents ──────────────────────────────────────────────
+.help__toc {
+  position: sticky;
+  top: var(--space-md);
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--surface-tier-1);
+}
+
+.help__toc-toggle {
+  display: none;
+}
+
+.help__toc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.toc-link {
+  display: block;
+  padding: 6px var(--space-sm);
+  border-left: 2px solid transparent;
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+  text-decoration: none;
+
+  &:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+  }
+  &.is-active {
+    border-left-color: var(--primary);
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
+  }
+  &--chapter {
+    font-weight: 600;
+  }
+  &--section {
+    padding-left: var(--space-lg);
+    font-size: 12px;
+  }
+}
+
+// ── Article ─────────────────────────────────────────────────────────
+.help__body {
+  min-width: 0;
+  max-width: 820px;
+}
+
+.help__head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: var(--space-lg);
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.help__error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  color: var(--text-secondary);
+
+  p {
+    margin: 0;
+  }
+}
+
+.guide {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.7;
+
+  ::ng-deep {
+    h2,
+    h3 {
+      color: var(--text-primary);
+      scroll-margin-top: var(--space-md);
+    }
+    h2 {
+      margin: var(--space-xl) 0 var(--space-sm);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border-subtle);
+      font-size: 22px;
+      line-height: 28px;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+    }
+    h2:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
+    }
+    h3 {
+      margin: var(--space-lg) 0 var(--space-xs);
+      font-size: 17px;
+      line-height: 24px;
+      font-weight: 600;
+    }
+    p,
+    ul,
+    ol {
+      margin: 0 0 var(--space-sm);
+    }
+    ul,
+    ol {
+      padding-left: var(--space-lg);
+    }
+    li {
+      margin-bottom: 4px;
+    }
+    strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    a {
+      color: var(--primary);
+      text-decoration: underline;
+      text-decoration-color: color-mix(in srgb, var(--primary) 40%, transparent);
+      text-underline-offset: 2px;
+
+      &:hover {
+        text-decoration-color: var(--primary);
+      }
+    }
+    code {
+      padding: 1px 5px;
+      border-radius: var(--radius-xs);
+      background: var(--surface-tier-2);
+      color: var(--text-primary);
+      font-size: 12px;
+    }
+    hr {
+      display: none; // the chapter headings already separate the sections
+    }
+    blockquote {
+      margin: 0 0 var(--space-md);
+      padding: var(--space-sm) var(--space-md);
+      border-left: 3px solid var(--info);
+      border-radius: var(--radius-xs);
+      background: var(--info-dim);
+      color: var(--text-primary);
+
+      p:last-child {
+        margin-bottom: 0;
+      }
+    }
+    .table-wrap {
+      margin: var(--space-xs) 0 var(--space-md);
+    }
+    .table td,
+    .table th {
+      vertical-align: top;
+    }
+    .table td {
+      white-space: normal;
+      line-height: 1.5;
+    }
+
+    .guide-shot {
+      margin: var(--space-sm) 0 var(--space-md);
+
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-sm);
+        cursor: zoom-in;
+        transition: border-color var(--dur-fast);
+
+        &:hover {
+          border-color: var(--border-strong);
+        }
+      }
+      figcaption {
+        margin-top: 6px;
+        color: var(--text-muted);
+        font-size: 12px;
+        line-height: 16px;
+      }
+    }
+  }
+}
+
+// ── Screenshot zoom ─────────────────────────────────────────────────
+.help__zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  border: 0;
+  background: rgba(5, 8, 14, 0.88);
+  cursor: zoom-out;
+
+  img {
+    max-width: 96vw;
+    max-height: 92vh;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+  }
+}
+.help__zoom-close {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+}
+
+// ── Narrow screens: the table of contents folds up above the article ──
+@media (max-width: 900px) {
+  .help {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-md);
+  }
+  .help__toc {
+    position: static;
+    max-height: none;
+    padding: 0;
+    overflow: hidden;
+  }
+  .help__toc-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border: 0;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .help__chev {
+    margin-left: auto;
+    transition: transform var(--dur-fast);
+
+    &.is-open {
+      transform: rotate(180deg);
+    }
+  }
+  .help__toc-list {
+    display: none;
+    padding: 0 var(--space-xs) var(--space-sm);
+
+    &.is-open {
+      display: flex;
+    }
+  }
+}

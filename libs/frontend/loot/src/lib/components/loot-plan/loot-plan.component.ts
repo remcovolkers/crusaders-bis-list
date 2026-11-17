@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { RaidDifficulty, TIER_LABELS } from '@crusaders-bis-list/shared-domain';
 import { RaiderLootStateService } from '../../services/raider-loot-state.service';
 import { buildGearingPlan, PLAN_ACTION_ORDER, PlanAction, PlanSource } from '../../ui-types/gearing-plan';
@@ -25,6 +26,7 @@ const ACTION_META: Record<PlanAction, ActionMeta> = {
  */
 @Component({
   selector: 'lib-loot-plan',
+  imports: [RouterLink],
   templateUrl: './loot-plan.component.html',
   styleUrls: ['./loot-plan.component.scss'],
 })

@@ -51,6 +51,11 @@ export const appRoutes: Route[] = [
     canActivate: [superUserGuard],
     component: DevPanelComponent,
   },
+  {
+    // the user guide, linkable per part: /help#<heading id>
+    path: 'help',
+    loadComponent: () => import('./help/help.component').then((m) => m.HelpComponent),
+  },
   { path: '', redirectTo: 'loot', pathMatch: 'full' },
   { path: '**', redirectTo: 'loot' },
 ];

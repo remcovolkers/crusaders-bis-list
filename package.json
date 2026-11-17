@@ -47,6 +47,7 @@
     "express-session": "^1.19.0",
     "helmet": "^8.1.0",
     "jwt-decode": "^4.0.0",
+    "marked": "^18.2.1",
     "nodemailer": "^8.0.5",
     "passport": "^0.7.0",
     "passport-bnet": "^2.0.0",
