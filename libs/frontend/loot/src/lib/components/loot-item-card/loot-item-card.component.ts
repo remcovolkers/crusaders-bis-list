@@ -53,10 +53,9 @@ export class LootItemCardComponent {
   readonly AssignmentStatus = AssignmentStatus;
   readonly ChaseMethod = ChaseMethod;
 
-  readonly infoModal = signal<'res' | 'lim' | null>(null);
   readonly chaseBusy = signal(false);
 
-  /** Reservable, but the raider has used up the limit of its category: the limit info sits in the card's corner. */
+  /** Reservable, but the raider has used up the limit of its category: the card is shown dimmed (chasing still works). */
   readonly showLimitInfo = computed(() => {
     const item = this.item();
     return (
@@ -67,6 +66,17 @@ export class LootItemCardComponent {
       this.state.bonusRollUpgradeTo(item.id) === null
     );
   });
+
+  /** Chasing for the boss drop takes the place of the reserve button: only when the item cannot be reserved (any more). */
+  canChaseBossDrop(): boolean {
+    const item = this.item();
+    return !item.isReserved && (!this.state.isItemReservable(item) || this.state.isAtLimit(item));
+  }
+
+  /** Best in slot: the card gets a gold ribbon and tint, like a BiS piece in the character pane. */
+  isBisItem(): boolean {
+    return this.item().isPrioritizable && this.state.isBis(this.item().id);
+  }
 
   /** The item is on the raider's chase list (also next to a reservation: an upgrade plan). */
   hasChase(): boolean {

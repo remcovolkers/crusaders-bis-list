@@ -1,6 +1,6 @@
 import { ConflictException } from '@nestjs/common';
 import { SetChaseItemUseCase } from '@crusaders-bis-list/backend-application';
-import { AssignmentStatus, ChaseMethod, Team } from '@crusaders-bis-list/shared-domain';
+import { ChaseMethod, Team } from '@crusaders-bis-list/shared-domain';
 
 const { BOSS_DROP, BONUS_ROLL } = ChaseMethod;
 
@@ -9,7 +9,6 @@ function build(
     bonusRollEnabled?: boolean;
     existing?: { id: string; methods: ChaseMethod[] } | null;
     reserved?: boolean;
-    receivedTier?: AssignmentStatus | null;
   } = {},
 ) {
   const saved: unknown[] = [];
@@ -26,7 +25,6 @@ function build(
     { findItemById: jest.fn().mockResolvedValue({ id: 'i1', isPrioritizable: true, itemLevel: 300 }) } as never,
     { findExisting: jest.fn().mockResolvedValue(options.reserved ? { id: 'res' } : null) } as never,
     { findOrCreateDefault: jest.fn().mockResolvedValue({ bonusRollEnabled: options.bonusRollEnabled ?? true }) } as never,
-    { findByRaiderAndItem: jest.fn().mockResolvedValue(options.receivedTier ? { tier: options.receivedTier } : null) } as never,
   );
   const run = (methods: ChaseMethod[]) => useCase.execute('r1', 'i1', 's1', Team.CRUSADERS, methods);
   return { run, saved, changed, deleted };
@@ -84,22 +82,16 @@ describe('SetChaseItemUseCase', () => {
     expect(deleted).toEqual([]);
   });
 
-  it('allows a bonus-roll upgrade chase on a reserved item that is already on Myth tier', async () => {
-    const { run, saved } = build({ reserved: true, receivedTier: AssignmentStatus.MYTH_TIER });
+  it('allows a bonus roll chase next to a reservation, whatever tier the raider has', async () => {
+    const { run, saved } = build({ reserved: true });
     await run([BONUS_ROLL]);
     expect(saved).toEqual([{ raiderId: 'r1', itemId: 'i1', raidSeasonId: 's1', methods: [BONUS_ROLL] }]);
   });
 
-  it('still refuses a chase on a reserved item that is not on Myth tier yet, or that includes a boss drop', async () => {
-    const hero = build({ reserved: true, receivedTier: AssignmentStatus.HERO_TIER });
-    await expect(hero.run([BONUS_ROLL])).rejects.toBeInstanceOf(ConflictException);
-    const myth = build({ reserved: true, receivedTier: AssignmentStatus.MYTH_TIER });
-    await expect(myth.run([BOSS_DROP])).rejects.toBeInstanceOf(ConflictException);
-    await expect(myth.run([BOSS_DROP, BONUS_ROLL])).rejects.toBeInstanceOf(ConflictException);
-  });
-
-  it('does not chase an item that is already reserved', async () => {
+  it('refuses a boss drop chase on a reserved item (the reservation is that), also combined with a bonus roll', async () => {
     const { run } = build({ reserved: true });
     await expect(run([BOSS_DROP])).rejects.toBeInstanceOf(ConflictException);
+    await expect(run([BOSS_DROP, BONUS_ROLL])).rejects.toBeInstanceOf(ConflictException);
   });
+
 });

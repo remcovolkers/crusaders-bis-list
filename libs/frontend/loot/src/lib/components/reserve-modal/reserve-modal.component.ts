@@ -25,6 +25,8 @@ export class ReserveModalComponent {
   readonly confirmed = output<AssignmentStatus | null>();
   readonly receivedAtMythTier = output<void>();
   readonly cancelled = output<void>();
+  /** The raider would rather not reserve, and only wants to chase the item for the boss drop. */
+  readonly chaseInstead = output<void>();
 
   readonly receivableTiers = RECEIVABLE_TIERS;
   readonly tierLabels = TIER_LABELS;

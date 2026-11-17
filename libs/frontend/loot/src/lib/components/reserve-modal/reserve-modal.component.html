@@ -84,6 +84,21 @@
           <span class="material-symbols-outlined icon-16">check_circle</span>Al ontvangen op Myth tier
         </button>
       </div>
+
+      @if (!isEditing()) {
+        <!-- Not sure, or the reservation is better spent elsewhere: chase it instead (free, no limit) -->
+        <div class="reserve-alt">
+          <div class="reserve-alt__text">
+            <span class="t-title-sm">Liever niet reserveren?</span>
+            <span class="t-body-code c-secondary"
+              >Zet het item op je chase-lijst. Dat kost geen reservering, je officers zien dat je het graag van de boss wilt.</span
+            >
+          </div>
+          <button type="button" class="reserve-alt__btn" (click)="chaseInstead.emit()">
+            <span class="material-symbols-outlined icon-16">flag</span>Chase voor bossdrop
+          </button>
+        </div>
+      }
     </div>
 
     <div class="modal-footer">

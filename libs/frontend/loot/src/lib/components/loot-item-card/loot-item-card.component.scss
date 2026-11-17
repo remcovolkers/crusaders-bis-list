@@ -4,13 +4,16 @@
   display: contents;
 }
 
+// Fixed rows, so every element has the same place on every card (and cards in a row line up), whatever the state:
+// identity, status (via / equipped / chase), main action, upgrade note, chase switches.
 .item-card {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
+  display: grid;
+  grid-template-rows: 40px 20px 28px 16px 28px; // identity, status, reserved tiers, note, actions
+  row-gap: var(--space-xs);
   min-width: 0;
-  padding: var(--space-md);
+  // a little extra room on top: the BiS ribbon sits there
+  padding: calc(var(--space-md) + 10px) var(--space-md) var(--space-md);
   border-radius: var(--radius-xs);
   background: var(--surface-tier-2);
   transition: background var(--dur-fast);
@@ -31,6 +34,46 @@
   &.is-locked .item-top {
     opacity: 0.6;
   }
+  // best in slot: gold tint, the same as a BiS piece in the character pane
+  &.is-bis {
+    background: color-mix(in srgb, var(--primary) 30%, var(--surface-tier-2));
+
+    // muted grey text is hard to read on the gold tint
+    .item-via {
+      color: var(--text-primary);
+    }
+
+    &:hover {
+      background: color-mix(in srgb, var(--primary) 36%, var(--surface-tier-2));
+    }
+  }
+}
+
+// "BiS in bezit" ribbon along the top edge of the card (takes no room in the layout)
+.bis-ribbon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 16px;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  background: var(--primary);
+  color: var(--surface-base);
+  font-size: 10px;
+  line-height: 16px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  .material-symbols-outlined {
+    font-size: 12px;
+    line-height: 1;
+  }
 }
 
 /* ── Item row ── */
@@ -48,41 +91,82 @@
   gap: var(--space-xs);
 }
 
-// long names (set pieces like "Cosmic Penitent's Celestial Grips") wrap to two lines instead of being cut off
+// one line, the full name is in the title and the item tooltip
 .item-name {
-  display: -webkit-box;
+  display: block;
   overflow: hidden;
   font-size: 13px;
   line-height: 18px;
   font-weight: 600;
   color: var(--text-primary);
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .item-meta {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-xs);
+  height: 18px;
+  overflow: hidden;
 }
 
-/* ── Footer: tier markers + action ── */
-.item-foot {
-  position: relative;
+/* ── Fixed slots under the identity row ── */
+.slot-status,
+.slot-main,
+.slot-note {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+.slot-status {
+  justify-content: space-between;
+  overflow: hidden;
+}
+.slot-status__badges {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-left: auto;
+}
+.slot-main {
+  position: relative; // the peers popover opens below this row
   gap: var(--space-sm);
-  min-height: 28px;
+}
+.slot-note {
+  overflow: hidden;
+}
+// bottom row: two equal cells, the same place on every card
+.slot-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xs);
+  min-width: 0;
+
+  > * {
+    min-width: 0;
+  }
+  .btn-edit {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+.item-via {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .tier-chips {
   display: flex;
   flex: 1 1 auto;
-  flex-wrap: wrap;
+  min-width: 0;
   gap: var(--space-xs);
 }
 
@@ -92,16 +176,12 @@
 
 // Chase switches: off = quiet dashed outline (a calm list of items), on = solid blue with a check. Blue = chase, gold =
 // reserve, so a chase can never be mistaken for a reservation, and "I set this" is clear at a glance.
-.chase-toggles {
-  display: flex;
-  flex: 1 1 100%;
-  flex-wrap: wrap;
-  gap: var(--space-xs);
-}
-
 .chase-toggle {
   display: inline-flex;
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   align-items: center;
   justify-content: center;
   gap: 4px;
@@ -166,46 +246,17 @@
   color: var(--text-secondary);
 }
 
-// "Limiet bereikt" + info: top right corner of the card (the item name makes room for it)
-.limit-corner {
-  position: absolute;
-  top: var(--space-sm);
-  right: var(--space-sm);
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-.item-card.is-locked .item-name {
-  padding-right: 122px;
-}
-
-.limit-state {
-  display: inline-flex;
-  flex: 1;
-  align-items: center;
-  gap: var(--space-xs);
-  font-size: 10px;
-  line-height: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.upgrade-row {
-  display: flex;
-  flex: 1 1 100%;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-xs);
-}
 .upgrade-note {
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
+  min-width: 0;
+  overflow: hidden;
   font-size: 11px;
   font-weight: 600;
   color: var(--primary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .upgrade-state {
@@ -214,48 +265,6 @@
   min-height: 28px;
   white-space: normal;
   text-align: center;
-}
-
-.bis-state {
-  flex: 1 1 auto;
-  justify-content: center;
-  min-height: 28px;
-  white-space: normal;
-  text-align: center;
-}
-
-/* ── Limit info popover ── */
-.info-tap-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-sticky);
-  cursor: default;
-}
-
-.info-popover {
-  position: absolute;
-  right: var(--space-sm);
-  top: calc(var(--space-sm) + 30px);
-  left: var(--space-sm);
-  z-index: calc(var(--z-sticky) + 1);
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-xs);
-  background: var(--surface-hover);
-  box-shadow: var(--shadow-lg);
-
-  p {
-    flex: 1;
-    margin: 0;
-    font-size: 12px;
-    line-height: 17px;
-    color: var(--text-secondary);
-  }
-  > .material-symbols-outlined {
-    margin-top: 2px;
-  }
 }
 
 /* ── Peers popover ── */

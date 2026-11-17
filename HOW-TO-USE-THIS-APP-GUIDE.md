@@ -105,7 +105,7 @@ Na het inloggen kom je op **Mijn Loot**. Het scherm heeft drie delen.
 
 ### Daaronder: de bosses
 
-Alle bosses van de huidige raid staan onder elkaar, met per boss de items die jouw class en spec kunnen gebruiken. Elk item heeft een kaartje met:
+Alle bosses van de huidige raid staan onder elkaar, met per boss de items die jouw class en spec kunnen gebruiken. Elk item heeft een kaartje met vaste plekken: elk onderdeel staat op elk kaartje op dezelfde plek, ook als het er (nog) niet is. Zo vind je alles snel terug en staan de kaartjes netjes onder elkaar. Van boven naar beneden: het item met zijn badges, een regel met status (*via* een tier-token, wat je draagt, chase), de hoofdactie (reserveren, aanpassen of BiS), een regel voor een mogelijke upgrade en onderaan twee knoppen: links **Chase met bonusrol**, rechts **Reserveer**, **Pas aan** of **Chase voor bossdrop**. Een kaartje bevat:
 
 | Onderdeel | Betekenis |
 | --- | --- |
@@ -114,16 +114,17 @@ Alle bosses van de huidige raid staan onder elkaar, met per boss de items die jo
 | **Tier · Head** (enz.) en **via …** | Een tier-token (iets wat droppet en in je set-item verandert). Je ziet **het set-item van jouw class**, met eronder de token waarvan het komt, bijvoorbeeld *Cosmic Penitent's Echoing Screams, via Venomcast Effigy*. Je reserveert of chaset gewoon dit item: de lootmeester wijst de token toe, en zodra je het set-item draagt vinkt de app het vanzelf af. Kent de app het set-item van je class (nog) niet, dan zie je gewoon de token. |
 | Stat en wapentype | Bijvoorbeeld Agility of Two-Hand, voor trinkets, wapens en jewelry. |
 | ⭐ **Super rare** | Een bijzonder item met een eigen limiet. Zie [FAQ](#wat-is-super-rare). |
-| **Reserveer** | Het item nog niet gereserveerd. Klik om te reserveren. |
+| **Reserveer** | Het item nog niet gereserveerd. Klik om te reserveren. De knop staat rechtsonder op het kaartje, op dezelfde plek als **Pas aan** en **Chase voor bossdrop**: een van die drie staat daar, afhankelijk van of je kunt reserveren, al hebt gereserveerd, of je limiet bereikt is. Links daarvan staat altijd **Chase met bonusrol**. |
 | **Pas aan** | Je hebt dit item al gereserveerd. Klik om je keuze aan te passen. |
-| 🔒 **Limiet bereikt** (rechtsboven op het kaartje, met een i-knop voor uitleg) | Je hebt je maximum in deze categorie al gebruikt. Je kunt het item nog wel chasen. |
-| **Chase met bonusrol** / **Chase voor bossdrop** (blauw) | Je kunt dit item niet reserveren, maar je kunt wel laten weten hoe je het wilt krijgen: met een bonusrol of als drop van de boss. Zie [hoofdstuk 6](#6-items-op-je-chase-lijst-zetten). |
+| Gedimd kaartje zonder **Reserveer**-knop | Je hebt je maximum in deze categorie al gebruikt (zie de limiet-tegels bovenaan). Je kunt het item nog wel chasen. |
+| **Chase met bonusrol** (blauw) | Onderaan elk kaartje (als het seizoen bonusrollen heeft). Je kunt een bonusrol ook **naast een reservering** chasen, bijvoorbeeld om het item sneller te krijgen. Zie [hoofdstuk 6](#6-items-op-je-chase-lijst-zetten). |
+| **Chase voor bossdrop** (blauw) | Alleen als je het item **niet kunt reserveren** (je limiet is bereikt, of je team laat die categorie niet reserveren). Kun je wel reserveren, dan vind je deze optie onderin het reserveer-venster. |
 | Gestippelde knop | Die manier staat **uit**. Bewust rustig gehouden, zodat een lange lijst items overzichtelijk blijft. |
 | **Effen blauwe knop met vinkje** | Die manier staat **aan**. Je kunt **beide** manieren aanzetten (het maakt niet uit hoe je het item krijgt). Klik opnieuw op de knop om hem uit te zetten. |
-| Blauw **CHASE**-label (met vlaggetje en/of dobbelsteen) | Bovenaan het kaartje, naast de andere badges: dit item staat op je chase-lijst. Ook zichtbaar bij een item dat je gereserveerd hebt en daarnaast met een bonusrol wilt upgraden. |
+| Blauw **CHASE**-label (met vlaggetje en/of dobbelsteen) | Rechts op de tweede regel van het kaartje: dit item staat op je chase-lijst. Ook zichtbaar bij een item dat je gereserveerd hebt en daarnaast met een bonusrol wilt upgraden. |
 | **Equipped**-label (bijvoorbeeld *Hero · 321*) | Je draagt dit item nu, op dat tier en item level. |
-| **BiS in bezit! Gefeliciteerd!** | Je hebt dit item op het **beste item level van een drop** (nu 334). Je bent klaar met dit item. |
-| **BiS in bezit!** met **Met een bonusrol tot 344 mogelijk** | Je hebt het item op het beste item level van een drop (334, of 341 na een upgrade). Op sommige bosses kan een bonusrol het item nog verbeteren tot 344. Je kunt dat dan nog chasen met een bonusrol. Zie [hoofdstuk 6](#6-items-op-je-chase-lijst-zetten). |
+| Gouden kaartje met een **BiS in bezit! Gefeliciteerd!**-balk bovenaan | Je hebt dit item op het **beste item level van een drop** (nu 334). Je bent klaar met dit item. |
+| Gouden kaartje met **Met een bonusrol tot 344 mogelijk** | Je hebt het item op het beste item level van een drop (334, of 341 na een upgrade). Op sommige bosses kan een bonusrol het item nog verbeteren tot 344. Je kunt dat dan nog chasen met een bonusrol. Zie [hoofdstuk 6](#6-items-op-je-chase-lijst-zetten). |
 
 ### Twee weergaven: Itemlijst en Character
 
@@ -221,7 +222,8 @@ Als er iets wordt bijgewerkt, zie je bovenin een melding, bijvoorbeeld *"Gear bi
    - **Champion**, **Hero** of **Myth**.
    - Je kunt maar één tier aanklikken. Die tier is je **ondergrens**. **Hogere tiers worden automatisch meegenomen** (gemarkeerd met "auto").
    - Voorbeeld: kies je **Hero**, dan reserveer je voor **Hero + Myth**. Kies je **Champion**, dan reserveer je voor **alle drie** de tiers.
-4. Klik op de knop onderaan, bijvoorbeeld **Reserveer voor Hero + Myth**. De knop zegt **Kies een tier** zolang je nog niets hebt gekozen.
+4. Liever niet reserveren? Onderin het venster staat **Liever niet reserveren? Chase voor bossdrop**. Dat zet het item op je chase-lijst zonder dat het een reservering kost.
+5. Klik op de knop onderaan, bijvoorbeeld **Reserveer voor Hero + Myth**. De knop zegt **Kies een tier** zolang je nog niets hebt gekozen.
 
    ![Hero gekozen: Myth wordt automatisch meegenomen en de knop zegt Reserveer voor Hero + Myth](docs/how-to/06-reserveer-tier-gekozen.png)
 
@@ -287,12 +289,12 @@ Een chase is dus **geen reservering**. Je maakt er geen aanspraak mee op een ite
 ### Een item chasen
 
 1. Zoek het item. Bij items die je niet kunt reserveren staan in plaats van **Reserveer** twee blauwe knoppen.
-2. Klik op **Chase met bonusrol** of **Chase voor bossdrop**. De knop wordt **effen blauw met een vinkje** en bovenaan het kaartje verschijnt een blauw **CHASE**-label.
+2. Klik op **Chase met bonusrol** of **Chase voor bossdrop**. De knop wordt **effen blauw met een vinkje** en rechts op de tweede regel van het kaartje verschijnt een blauw **CHASE**-label.
 3. Wil je het item eraf halen? Klik nog een keer op de knop met het vinkje.
 
-Zit je al op je limiet in een categorie? Dan staat **Limiet bereikt** rechtsboven op het kaartje, en kun je het item toch chasen met de twee knoppen.
+Zit je al op je limiet in een categorie? Dan is het kaartje gedimd en staat er geen **Reserveer**-knop, maar kun je het item toch chasen met de twee knoppen.
 
-Reserveer je later alsnog een item dat je chaset? Dan verdwijnt het automatisch van je chase-lijst en staat het bij je **Soft reserves**.
+Reserveer je later alsnog een item dat je chaset voor de bossdrop? Dan verdwijnt die chase automatisch en staat het bij je **Soft reserves**. Een **bonusrol-chase** blijft staan: die kun je naast je reservering houden. Je kunt een gereserveerd item dus wel met een bonusrol chasen, maar niet voor de bossdrop (dat is de reservering zelf).
 
 ### BiS en upgraden met een bonusrol
 
@@ -465,7 +467,7 @@ Dat kan meerdere oorzaken hebben:
 **Ik zie "Geen items gevonden".**
 Staat er *"Er zijn geen items die bij je filter passen"*, klik dan op **Filters wissen**. Staat er *"Maak eerst een character aan"*, dan heb je nog geen profiel. Staat er *"Geen reserveerbare items voor jouw class en spec"*, controleer dan je class en spec.
 
-**Er staat "Limiet bereikt" bij het item.**
+**Een item is gedimd en heeft geen Reserveer-knop.**
 Je hebt in die categorie al het maximum aantal reserveringen. Wil je dit item liever? Vraag je lootmeister om een andere reservering in die categorie te annuleren (zie [Annuleren](#annuleren-via-je-lootmeister)). Wil je alleen laten weten dat je het item graag wilt hebben? Chase het dan, zie [hoofdstuk 6](#6-items-op-je-chase-lijst-zetten).
 
 **Mijn equipped gear staat er niet, of is verouderd.**

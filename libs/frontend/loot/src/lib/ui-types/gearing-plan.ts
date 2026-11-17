@@ -6,10 +6,10 @@ import { ChaseMethod, IItemTooltip, RaidDifficulty } from '@crusaders-bis-list/s
  */
 
 /** What the raider has to do for an item. */
-export type PlanAction = 'reserved' | 'drop' | 'bonus_roll' | 'drop_bonus' | 'upgrade';
+export type PlanAction = 'reserved' | 'reserved_bonus' | 'drop' | 'bonus_roll' | 'drop_bonus' | 'upgrade';
 
 /** Order in which the actions are listed within a boss. */
-export const PLAN_ACTION_ORDER: readonly PlanAction[] = ['reserved', 'drop', 'drop_bonus', 'bonus_roll', 'upgrade'];
+export const PLAN_ACTION_ORDER: readonly PlanAction[] = ['reserved', 'reserved_bonus', 'drop', 'drop_bonus', 'bonus_roll', 'upgrade'];
 
 /** What the plan needs to know about a reserved or chased item. */
 export interface PlanSource {
@@ -77,7 +77,7 @@ export function planDifficultyOf(
 ): { difficulty: RaidDifficulty | null; hint: string | null } {
   if (!needs) return { difficulty: null, hint: null };
   const way = action === 'bonus_roll' || action === 'upgrade' ? needs.bonusRoll : needs.drop;
-  if (action !== 'drop_bonus') return { difficulty: way, hint: way ? needText(way) : null };
+  if (action !== 'drop_bonus' && action !== 'reserved_bonus') return { difficulty: way, hint: way ? needText(way) : null };
   const both = [needs.drop, needs.bonusRoll].filter((d): d is RaidDifficulty => d !== null);
   const difficulty = both.includes(RaidDifficulty.HEROIC) ? RaidDifficulty.HEROIC : (both[0] ?? null);
   return { difficulty, hint: `Drop: ${needText(needs.drop)} · Bonus roll: ${needText(needs.bonusRoll)}` };
@@ -89,7 +89,8 @@ export function planActionOf(source: PlanSource): PlanAction | null {
   const wantsDrop = source.methods.includes(ChaseMethod.BOSS_DROP) || source.methods.length === 0;
   // Best in slot: only a bonus roll upgrade can be left to do
   if (source.isBis) return wantsBonusRoll && source.upgradeTo ? 'upgrade' : null;
-  if (source.kind === 'reserved') return 'reserved';
+  // reserved: the item has to drop; a bonus roll chase next to it is a second way to get it
+  if (source.kind === 'reserved') return wantsBonusRoll ? 'reserved_bonus' : 'reserved';
   if (wantsDrop && wantsBonusRoll) return 'drop_bonus';
   return wantsBonusRoll ? 'bonus_roll' : 'drop';
 }
@@ -99,7 +100,7 @@ export function planActionOf(source: PlanSource): PlanAction | null {
  * Items without anything left to do are left out.
  */
 export function buildGearingPlan(sources: PlanSource[], bossOrder: string[]): GearingPlan {
-  const totals: Record<PlanAction, number> = { reserved: 0, drop: 0, bonus_roll: 0, drop_bonus: 0, upgrade: 0 };
+  const totals: Record<PlanAction, number> = { reserved: 0, reserved_bonus: 0, drop: 0, bonus_roll: 0, drop_bonus: 0, upgrade: 0 };
   const byBoss = new Map<string, Map<PlanAction, PlanItem[]>>();
 
   for (const source of sources) {

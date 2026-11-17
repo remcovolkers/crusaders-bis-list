@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ARMOR_ITEM_CATEGORIES, AssignmentStatus, ItemCategory } from '@crusaders-bis-list/shared-domain';
+import { ARMOR_ITEM_CATEGORIES, AssignmentStatus, ChaseMethod, ItemCategory } from '@crusaders-bis-list/shared-domain';
 import { LootItemCardComponent } from '../loot-item-card/loot-item-card.component';
 import { AuthStateService, AuthService } from '@crusaders-bis-list/frontend-auth';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
@@ -189,6 +189,21 @@ export class RaiderLootOverviewComponent {
       await doReserve(tier);
     } else {
       await doReserve();
+    }
+  }
+
+  /** From the reserve window: chase the item for the boss drop instead of reserving it. */
+  async onChaseInstead(): Promise<void> {
+    const item = this.pendingReserveItem();
+    if (!item) return;
+    this.onReserveCancelled();
+    const methods = item.chaseMethods ?? [];
+    try {
+      if (!methods.includes(ChaseMethod.BOSS_DROP)) await this.state.setChase(item.id, [...methods, ChaseMethod.BOSS_DROP]);
+      this.toast.show(`${item.mergedDisplayName ?? item.name} staat op je chase-lijst (bossdrop).`);
+    } catch (e) {
+      const msg = (e as { error?: { message?: string } }).error?.message ?? 'Chase-lijst bijwerken mislukt';
+      this.toast.show(msg, 'error');
     }
   }
 

@@ -14,6 +14,7 @@ interface ActionMeta {
 /** English, like the character pane it sits next to. */
 const ACTION_META: Record<PlanAction, ActionMeta> = {
   reserved: { label: 'Reserved', icon: 'bookmark', hint: 'Reserved: it has to drop and your loot master assigns it' },
+  reserved_bonus: { label: 'Reserved + bonus roll', icon: 'bookmark', hint: 'Reserved, and you also plan a bonus roll on this boss to get it sooner' },
   drop: { label: 'Drop', icon: 'flag', hint: 'Chased: hoping for a drop from this boss' },
   drop_bonus: { label: 'Drop + bonus roll', icon: 'casino', hint: 'Chased: a drop or a bonus roll, whichever comes first' },
   bonus_roll: { label: 'Bonus roll', icon: 'casino', hint: 'Chased: planned via a bonus roll on this boss' },
