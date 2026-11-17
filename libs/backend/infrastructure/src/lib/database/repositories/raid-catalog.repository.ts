@@ -53,6 +53,7 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
       mergedWithItemId: i.mergedWithItemId,
       mergedDisplayName: i.mergedDisplayName,
       allowedClasses: i.allowedClasses?.length ? (i.allowedClasses as WowClass[]) : undefined,
+      tierSetItems: i.tierSetItems && Object.keys(i.tierSetItems).length ? i.tierSetItems : undefined,
     };
   }
 
@@ -215,6 +216,10 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
       { wowItemId },
       { mergedWithItemId: mergedWithItemId ?? undefined, mergedDisplayName: mergedDisplayName ?? undefined },
     );
+  }
+
+  async updateItemTierSet(wowItemId: number, tierSetItems: IItem['tierSetItems'] | null): Promise<void> {
+    await this.itemRepo.update({ wowItemId }, { tierSetItems: tierSetItems ?? null });
   }
 
   async clearCatalog(): Promise<void> {

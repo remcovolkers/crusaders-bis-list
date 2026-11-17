@@ -285,6 +285,7 @@ export class LootQueryRepository implements ILootQueryRepository {
             isPrioritizable: item.isPrioritizable,
             isSuperRare: superRareByItemId.get(item.id) ?? false,
             mergedDisplayName: item.mergedDisplayName,
+            tierSetItems: item.tierSetItems && Object.keys(item.tierSetItems).length ? item.tierSetItems : undefined,
             secondaryIconUrl,
           },
           eligibleRaiders,

@@ -98,4 +98,8 @@ export class ItemOrmEntity {
 
   @Column({ name: 'allowed_classes', type: 'simple-array', nullable: true })
   allowedClasses?: string[];
+
+  /** Tier tokens: the set piece per class the token turns into (JSON), see IItem.tierSetItems. */
+  @Column({ name: 'tier_set_items', type: 'simple-json', nullable: true })
+  tierSetItems?: Record<string, { wowItemId: number; name: string; iconUrl?: string }> | null;
 }

@@ -5,6 +5,7 @@ import {
   IEligibleRaider,
   IItem,
   ITEM_CATEGORY_LABELS,
+  itemTypeLabel,
   TIER_LABELS,
   ItemCategory,
   WOW_CLASS_REGISTRY,
@@ -40,6 +41,8 @@ export class AdminDiceModalComponent implements OnInit, OnDestroy {
 
   readonly tierLabels = TIER_LABELS;
   readonly categoryLabels = ITEM_CATEGORY_LABELS;
+  /** "Head", "Wrists", "Tier · Chest" for armor (stored as category "other"), else the category. */
+  readonly typeLabel = itemTypeLabel;
   readonly ItemCategory = ItemCategory;
 
   readonly diceRaidersMapped = computed(() =>

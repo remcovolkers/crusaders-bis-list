@@ -34,7 +34,7 @@
         <div class="confirm-item-info">
           <p class="confirm-item-name">{{ item().name }}</p>
           <div class="confirm-item-meta">
-            <span class="cat-badge" [ngClass]="'cat-' + item().category">{{ categoryLabels[item().category] }}</span>
+            <span class="cat-badge" [ngClass]="'cat-' + item().category">{{ typeLabel(item()) }}</span>
             @if (item().isSuperRare) {
               <span class="badge badge-super-rare"
                 ><span class="material-symbols-outlined icon-fill">star</span>Super rare</span

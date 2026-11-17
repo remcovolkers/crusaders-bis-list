@@ -20,10 +20,16 @@
     }
     <div class="item-info">
       <span class="item-name" [title]="item().name">{{ item().name }}</span>
+      @if (item().tierTokenName) {
+        <span class="item-via" title="Een tier-token dat in dit item verandert voor jouw class">via {{ item().tierTokenName }}</span>
+      }
       <div class="item-meta">
         <span class="cat-badge" [ngClass]="'cat-' + item().category">
-          {{ categoryLabels[item().category] }}
+          {{ typeLabel(item()) }}
         </span>
+        @if (item().category === ItemCategory.OTHER && !item().tierPiece && armorTypeLabels[item().armorType]) {
+          <span class="stat-badge">{{ armorTypeLabels[item().armorType] }}</span>
+        }
         @if (
           item().primaryStats.length &&
           (item().category === ItemCategory.TRINKET ||

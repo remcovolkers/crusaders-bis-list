@@ -110,7 +110,8 @@ Alle bosses van de huidige raid staan onder elkaar, met per boss de items die jo
 | Onderdeel | Betekenis |
 | --- | --- |
 | Icoon en naam | Het item. Hebben twee items één samengevoegd icoon, dan tellen ze als **één** reservering. |
-| Categoriebadge | Trinket, Weapon, Jewelry, Cloth, Leather, Mail, Plate, enzovoort. |
+| Categoriebadge | Het soort item: Trinket, Weapon, Jewelry of Off-Hand. Bij armor staat hier de **plek** (Head, Shoulders, Chest, Wrists, Waist, Legs, Feet, Hands), met daarnaast het armortype (Cloth, Leather, Mail of Plate). |
+| **Tier · Head** (enz.) en **via …** | Een tier-token (iets wat droppet en in je set-item verandert). Je ziet **het set-item van jouw class**, met eronder de token waarvan het komt, bijvoorbeeld *Cosmic Penitent's Echoing Screams, via Venomcast Effigy*. Je reserveert of chaset gewoon dit item: de lootmeester wijst de token toe, en zodra je het set-item draagt vinkt de app het vanzelf af. Kent de app het set-item van je class (nog) niet, dan zie je gewoon de token. |
 | Stat en wapentype | Bijvoorbeeld Agility of Two-Hand, voor trinkets, wapens en jewelry. |
 | ⭐ **Super rare** | Een bijzonder item met een eigen limiet. Zie [FAQ](#wat-is-super-rare). |
 | **Reserveer** | Het item nog niet gereserveerd. Klik om te reserveren. |

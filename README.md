@@ -151,6 +151,8 @@ export const MIDNIGHT_T36_SEASON: SeasonDefinition = {
 **Where do I find the instance and encounter IDs?**
 Use the [Blizzard developer portal](https://develop.battle.net/documentation/world-of-warcraft/game-data-apis) or browse `https://eu.api.blizzard.com/data/wow/journal-instance/{id}?namespace=static-eu&locale=en_US`.
 
+**Where do I find the tier set ids?** (`tierSetIds`, optional) The Blizzard item-set index (`/data/wow/item-set/index`, static namespace) lists every set; a class tier set is one set per class with 5 pieces (head, shoulders, chest, hands, legs), so a season has about 13 consecutive ids (Midnight S2: 2055-2067). During the catalog sync each tier token is linked to the set piece it gives per class (`items.tier_set_items`, JSON): the token's own `playable_classes` say which classes may use it and the slot of the token ("Tier: Head") picks the piece. The raider screens then show the set piece of their class (name + icon, "via <token>") while the reservation stays on the token, and the gear sync counts a worn set piece for a reserved token. Without `tierSetIds` (or when a class has no piece yet) the tokens are shown as they are.
+
 **Where do I find the token names?**
 Log into the PTR/beta, open the journal, or search Wowhead for the tier set tokens for the new raid.
 

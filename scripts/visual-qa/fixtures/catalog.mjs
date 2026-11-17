@@ -204,6 +204,21 @@ const CATEGORY = {
 const ILVL = { trinket: 282, weapon: 282, offhand: 282, jewelry: 279, armor: 276 };
 
 /** All catalog items (without per-team super-rare flag). `_superRare` is internal metadata. */
+// What a tier token turns into, per class (the Blizzard item sets of the season): a made-up piece name per class
+const SETS = {
+  Plate: { 'Death Knight': "Baleful Grave-Knight's", Paladin: 'Radiance of the Consecrated', Warrior: "Jade Warlord's" },
+  Leather: { 'Demon Hunter': "Abyssal Doomhound's", Druid: 'Enigmatic Dreamwatcher', Monk: 'Monkey King', Rogue: "Chosen Bloodslayer's" },
+  Mail: { Evoker: "Calamity's", Hunter: "Skulking Viper's", Shaman: "Ophidian Oracle's" },
+  Cloth: { Mage: "Primal Leywarden's", Priest: "Cosmic Penitent's", Warlock: "Damned Necrolyte's" },
+};
+const SET_WORD = { Head: 'Crown', Shoulders: 'Mantle', Chest: 'Vestments', Hands: 'Grips', Legs: 'Leggings' };
+let nextSetPieceId = 960000;
+const tierSetItemsOf = (row) => {
+  const sets = SETS[row.armorType[0].toUpperCase() + row.armorType.slice(1)];
+  const word = SET_WORD[row.slot.replace('Tier: ', '')];
+  return Object.fromEntries(Object.entries(sets).map(([wowClass, set]) => { const name = set + ' ' + word; return [wowClass, { wowItemId: nextSetPieceId++, name, iconUrl: icon(name, 'T') }]; }));
+};
+
 export const ITEMS = [];
 const primaryByPair = {};
 for (const boss of BOSSES) {
@@ -227,6 +242,7 @@ for (const boss of BOSSES) {
       _superRare: !!row.superRare,
     };
     if (row.weaponType) item.weaponType = row.weaponType;
+    if (row.token) item.tierSetItems = tierSetItemsOf(row);
     if (row.merged === 'primary') {
       item.mergedDisplayName = row.mergedDisplayName;
       primaryByPair[row.pair] = item;

@@ -15,6 +15,8 @@ export interface IRaidCatalogRepository {
   upsertItem(data: UpsertItemData): Promise<IItem>;
   findItemByWowId(wowItemId: number): Promise<IItem | null>;
   updateItemMerge(wowItemId: number, mergedWithItemId: number | null, mergedDisplayName: string | null): Promise<void>;
+  /** Tier tokens: store (or clear, with null) the set piece per class the token turns into. */
+  updateItemTierSet(wowItemId: number, tierSetItems: IItem['tierSetItems'] | null): Promise<void>;
   /** Per-team super-rare override: itemId -> isSuperRare, for every item that has one for this team. */
   getSuperRareOverrides(team: Team): Promise<Record<string, boolean>>;
   updateItemSuperRare(itemId: string, team: Team, isSuperRare: boolean): Promise<IItem>;

@@ -8,6 +8,7 @@ import {
 } from '@crusaders-bis-list/backend-domain';
 import { ArmorType, ItemCategory, PrimaryStat, WeaponType, WowClass } from '@crusaders-bis-list/shared-domain';
 import { ACTIVE_SEASON } from '../seasons/active-season';
+import { TierSetPieceSource, TierTokenSource, tierSetItemsFor } from './tier-set-items';
 import { TierArmorTypePrefix, TierClassGroupPrefix, TierTokenPattern } from '../seasons/season-definition.types';
 
 function detectTierToken(
@@ -212,6 +213,13 @@ function mapItemCategory(
   };
 }
 
+/** The classes a Blizzard item is restricted to (e.g. a tier token), or null when it has no class restriction. */
+function playableClassesOf(item: BlizzardItem): WowClass[] | null {
+  const names = (item.preview_item?.requirements?.playable_classes?.links ?? []).map((l) => l.name);
+  const classes = Object.values(WowClass).filter((c) => names.includes(c));
+  return classes.length ? classes : null;
+}
+
 @Injectable()
 export class SyncRaidCatalogFromBlizzardUseCase {
   private readonly logger = new Logger(SyncRaidCatalogFromBlizzardUseCase.name);
@@ -239,6 +247,7 @@ export class SyncRaidCatalogFromBlizzardUseCase {
 
     let totalItems = 0;
     let globalBossOrder = 0;
+    const tierTokens: TierTokenSource[] = [];
     const warnings: string[] = [];
     const errors: string[] = [];
 
@@ -337,6 +346,10 @@ export class SyncRaidCatalogFromBlizzardUseCase {
 
           const iconUrl = await this.blizzard.getItemMediaUrl(itemId);
 
+          if (slot.startsWith('Tier:')) {
+            tierTokens.push({ wowItemId: blizzardItem.id, slot, classes: playableClassesOf(blizzardItem) });
+          }
+
           await this.catalogRepo.upsertItem({
             wowItemId: blizzardItem.id,
             name: blizzardItem.name ?? itemRef.item.name,
@@ -358,6 +371,8 @@ export class SyncRaidCatalogFromBlizzardUseCase {
     }
 
     this.logger.log(`Blizzard sync complete — ${totalItems} items synced.`);
+
+    await this.syncTierSets(tierTokens, warnings);
 
     // Apply merged-item definitions from the season config.
     // Primary (first ID) gets mergedDisplayName; all others get mergedWithItemId + are hidden.
@@ -391,5 +406,46 @@ export class SyncRaidCatalogFromBlizzardUseCase {
     if (!warnings.length && !errors.length) {
       this.logger.log('Sync completed without any warnings or errors.');
     }
+  }
+
+  /**
+   * Link every tier token to the set piece it gives per class, from the season's tier sets (`tierSetIds`): the app
+   * then shows that piece instead of the token, and recognises it when it is worn. Failures only cost this nicety.
+   */
+  private async syncTierSets(tokens: TierTokenSource[], warnings: string[]): Promise<void> {
+    const setIds = ACTIVE_SEASON.tierSetIds ?? [];
+    if (!tokens.length || !setIds.length) return;
+
+    const pieces: TierSetPieceSource[] = [];
+    for (const setId of setIds) {
+      let set;
+      try {
+        set = await this.blizzard.getItemSet(setId);
+      } catch (err) {
+        const msg = `Tier set ${setId} unavailable — tokens of that class are shown as they are (${(err as Error).message})`;
+        warnings.push(msg);
+        this.logger.warn(msg);
+        continue;
+      }
+      for (const ref of set.items ?? []) {
+        try {
+          const item = await this.blizzard.getItem(ref.id);
+          const wowClass = playableClassesOf(item)?.[0];
+          if (!wowClass) continue;
+          const iconUrl = await this.blizzard.getItemMediaUrl(ref.id);
+          pieces.push({ wowClass, slot: item.inventory_type?.type ?? '', piece: { wowItemId: item.id, name: item.name ?? ref.name, iconUrl } });
+        } catch {
+          warnings.push(`Tier set piece ${ref.id} could not be read — skipped`);
+        }
+      }
+    }
+
+    let linked = 0;
+    for (const token of tokens) {
+      const items = tierSetItemsFor(token, pieces);
+      await this.catalogRepo.updateItemTierSet(token.wowItemId, items);
+      if (items) linked++;
+    }
+    this.logger.log(`Tier tokens linked to their set pieces: ${linked}/${tokens.length}.`);
   }
 }

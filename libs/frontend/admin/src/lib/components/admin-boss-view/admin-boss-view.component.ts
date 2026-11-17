@@ -13,7 +13,9 @@ import {
   WowClass,
   WowSpec,
   WOW_CLASS_REGISTRY,
+  ARMOR_TYPE_LABELS,
   ITEM_CATEGORY_LABELS,
+  itemTypeLabel,
   WEAPON_TYPE_LABELS,
   PRIMARY_STAT_LABELS,
   TIER_LABELS,
@@ -190,6 +192,15 @@ export class AdminBossViewComponent {
   ];
 
   readonly categoryLabels = ITEM_CATEGORY_LABELS;
+  /** "Head", "Wrists", "Tier · Chest" for armor (stored as category "other"), else the category. */
+  readonly typeLabel = itemTypeLabel;
+  readonly armorTypeLabels = ARMOR_TYPE_LABELS;
+
+  /** Tooltip of a tier token: the set piece it gives per class (empty for other items). */
+  tierTooltip(item: IItem): string {
+    const sets = Object.entries(item.tierSetItems ?? {});
+    return sets.length ? 'Wordt: ' + sets.map(([wowClass, piece]) => `${wowClass}: ${piece?.name}`).join(' · ') : '';
+  }
   readonly weaponTypeLabels = WEAPON_TYPE_LABELS;
   readonly primaryStatLabels = PRIMARY_STAT_LABELS;
   readonly ItemCategory = ItemCategory;

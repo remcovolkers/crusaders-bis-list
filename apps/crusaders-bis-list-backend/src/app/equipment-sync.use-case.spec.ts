@@ -1,7 +1,7 @@
 import { SyncRaiderEquipmentUseCase } from '@crusaders-bis-list/backend-application';
 import { AssignmentStatus, ChaseMethod, IItem } from '@crusaders-bis-list/shared-domain';
 
-const RAIDER = { id: 'r1', userId: 'u1', characterName: 'Volky', realm: 'Silvermoon' };
+const RAIDER = { id: 'r1', userId: 'u1', characterName: 'Volky', realm: 'Silvermoon', wowClass: 'Priest' };
 const SEASON = { id: 's1' };
 
 const item = (id: string, wowItemId: number, extra: Partial<IItem> = {}): IItem =>
@@ -94,6 +94,33 @@ const piece = (slot: string, itemId: number, description: string | null, itemLev
 });
 
 describe('SyncRaiderEquipmentUseCase', () => {
+  it('counts a worn set piece for the reserved tier token it comes from for the class of the raider', async () => {
+    const token = item('token', 500, {
+      tierSetItems: {
+        Priest: { wowItemId: 900, name: 'Priest Helm' },
+        Mage: { wowItemId: 901, name: 'Mage Helm' },
+      },
+    });
+    const { useCase, saved } = build({
+      catalog: [token],
+      reservedItemIds: ['token'],
+      worn: [piece('HEAD', 900, 'Mythic', 334)],
+    });
+    await useCase.execute('r1');
+    expect(saved).toEqual([{ raiderId: 'r1', itemId: 'token', tier: AssignmentStatus.MYTH_TIER }]);
+  });
+
+  it('does not count the set piece of another class for a tier token', async () => {
+    const token = item('token', 500, { tierSetItems: { Mage: { wowItemId: 901, name: 'Mage Helm' } } });
+    const { useCase, saved } = build({
+      catalog: [token],
+      reservedItemIds: ['token'],
+      worn: [piece('HEAD', 901, 'Mythic', 334)],
+    });
+    await useCase.execute('r1');
+    expect(saved).toEqual([]);
+  });
+
   it('records the worn tier as "already have" for a reserved item', async () => {
     const { useCase, saved } = build({
       catalog: [item('boots', 100)],

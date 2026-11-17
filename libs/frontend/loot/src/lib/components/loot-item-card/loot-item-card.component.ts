@@ -6,7 +6,9 @@ import {
   ChaseMethod,
   IEquippedItem,
   IItem,
+  ARMOR_TYPE_LABELS,
   ITEM_CATEGORY_LABELS,
+  itemTypeLabel,
   ItemCategory,
   PRIMARY_STAT_LABELS,
   RaidDifficulty,
@@ -41,6 +43,9 @@ export class LootItemCardComponent {
   readonly editReservationClicked = output<void>();
 
   readonly categoryLabels = ITEM_CATEGORY_LABELS;
+  readonly armorTypeLabels = ARMOR_TYPE_LABELS;
+  /** "Head", "Wrists", "Tier · Chest" for armor (stored as category "other"), else the category. */
+  readonly typeLabel = itemTypeLabel;
   readonly weaponTypeLabels = WEAPON_TYPE_LABELS;
   readonly primaryStatLabels = PRIMARY_STAT_LABELS;
   readonly tierLabels = TIER_LABELS;

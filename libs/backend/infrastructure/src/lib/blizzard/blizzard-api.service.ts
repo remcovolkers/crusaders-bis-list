@@ -6,6 +6,7 @@ import {
   BlizzardJournalInstance,
   BlizzardJournalEncounter,
   BlizzardItem,
+  BlizzardItemSet,
   BlizzardEquippedItem,
 } from '@crusaders-bis-list/backend-domain';
 
@@ -119,6 +120,10 @@ export class BlizzardApiService implements IBlizzardApiService {
 
   async getItem(id: number): Promise<BlizzardItem> {
     return this.get<BlizzardItem>(`/data/wow/item/${id}`);
+  }
+
+  async getItemSet(id: number): Promise<BlizzardItemSet> {
+    return this.get<BlizzardItemSet>(`/data/wow/item-set/${id}`);
   }
 
   /** Character renders change rarely; cache them so every loot page view does not hit the Blizzard API. */

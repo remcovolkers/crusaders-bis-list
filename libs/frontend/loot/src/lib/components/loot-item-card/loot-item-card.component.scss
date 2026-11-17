@@ -48,15 +48,18 @@
   gap: var(--space-xs);
 }
 
+// long names (set pieces like "Cosmic Penitent's Celestial Grips") wrap to two lines instead of being cut off
 .item-name {
-  display: block;
+  display: -webkit-box;
   overflow: hidden;
   font-size: 13px;
   line-height: 18px;
   font-weight: 600;
   color: var(--text-primary);
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow-wrap: anywhere;
 }
 
 .item-meta {
@@ -326,4 +329,13 @@
     white-space: normal;
     overflow-wrap: anywhere;
   }
+}
+
+// tier token shown as the set piece of the raider's class: the token it comes from
+.item-via {
+  display: block;
+  margin-top: -2px;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 14px;
 }

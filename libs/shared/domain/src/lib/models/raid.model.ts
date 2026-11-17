@@ -24,6 +24,14 @@ export interface IBoss {
   order: number;
 }
 
+/** The set (tier) piece a tier token turns into for one class. */
+export interface ITierSetPiece {
+  /** Blizzard item id of the set piece. */
+  wowItemId: number;
+  name: string;
+  iconUrl?: string;
+}
+
 export interface IItem {
   id: string;
   name: string;
@@ -63,4 +71,13 @@ export interface IItem {
    * When absent, the normal armor-type / primary-stat eligibility applies.
    */
   allowedClasses?: WowClass[];
+  /**
+   * Tier tokens only: the set piece this token turns into, per class. Lets the app show the item a raider really
+   * gets (and recognise it when it is worn) instead of the token. Absent when it is unknown (e.g. new patch).
+   */
+  tierSetItems?: Partial<Record<WowClass, ITierSetPiece>>;
+  /** UI only (set by the app, not stored): the set piece of the raider's class that is shown instead of this token. */
+  tierPiece?: ITierSetPiece;
+  /** UI only: the name of the token, when the set piece is shown instead ("via Venomforged Effigy"). */
+  tierTokenName?: string;
 }
