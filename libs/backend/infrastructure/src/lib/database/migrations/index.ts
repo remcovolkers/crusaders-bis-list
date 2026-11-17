@@ -23,6 +23,8 @@ import { AddRaiderEquippedItems1779062400000 } from './1779062400000-AddRaiderEq
 import { AddChaseMethodAndSeasonRules1779148800000 } from './1779148800000-AddChaseMethodAndSeasonRules';
 import { AddItemLevelCaps1779235200000 } from './1779235200000-AddItemLevelCaps';
 import { ChaseMethodsAndBisMarks1779321600000 } from './1779321600000-ChaseMethodsAndBisMarks';
+import { AddItemTierSetItems1779408000000 } from './1779408000000-AddItemTierSetItems';
+import { AddItemTooltip1779494400000 } from './1779494400000-AddItemTooltip';
 
 export const MIGRATIONS: (new () => MigrationInterface)[] = [
   BeastMasterySpecFix1744761600000,
@@ -49,4 +51,6 @@ export const MIGRATIONS: (new () => MigrationInterface)[] = [
   AddChaseMethodAndSeasonRules1779148800000,
   AddItemLevelCaps1779235200000,
   ChaseMethodsAndBisMarks1779321600000,
+  AddItemTierSetItems1779408000000,
+  AddItemTooltip1779494400000,
 ];

@@ -8,10 +8,8 @@ import {
   IReservationRepository,
   SEASON_CONFIG_REPOSITORY,
   ISeasonConfigRepository,
-  RECEIVED_ITEM_REPOSITORY,
-  IReceivedItemRepository,
 } from '@crusaders-bis-list/backend-domain';
-import { AssignmentStatus, ChaseMethod, IChaseItem, Team } from '@crusaders-bis-list/shared-domain';
+import { ChaseMethod, IChaseItem, Team } from '@crusaders-bis-list/shared-domain';
 
 /**
  * Chase items are a personal "I want this" list: no limits, no tiers, no effect on loot assignment.
@@ -26,7 +24,6 @@ export class SetChaseItemUseCase {
     @Inject(RAID_CATALOG_REPOSITORY) private readonly catalogRepo: IRaidCatalogRepository,
     @Inject(RESERVATION_REPOSITORY) private readonly reservationRepo: IReservationRepository,
     @Inject(SEASON_CONFIG_REPOSITORY) private readonly configRepo: ISeasonConfigRepository,
-    @Inject(RECEIVED_ITEM_REPOSITORY) private readonly receivedRepo: IReceivedItemRepository,
   ) {}
 
   /**
@@ -55,12 +52,10 @@ export class SetChaseItemUseCase {
 
     const reservation = await this.reservationRepo.findExisting(raiderId, itemId, raidSeasonId);
     if (reservation) {
-      // A reserved item normally needs no chase. The exception is an upgrade plan: the raider already has the item on
-      // Myth tier (so the reservation is done) but a bonus roll can still give a better version of it.
-      const received = await this.receivedRepo.findByRaiderAndItem(raiderId, itemId);
-      const upgradePlan =
-        wanted.length === 1 && wanted[0] === ChaseMethod.BONUS_ROLL && received?.tier === AssignmentStatus.MYTH_TIER;
-      if (!upgradePlan) throw new ConflictException('You already reserved this item — no need to chase it.');
+      // A reserved item needs no boss-drop chase (the reservation is that). A bonus roll is a separate way to get the
+      // item, so that can be chased next to the reservation: to get it sooner, or as an upgrade once it is on Myth.
+      const onlyBonusRoll = wanted.length === 1 && wanted[0] === ChaseMethod.BONUS_ROLL;
+      if (!onlyBonusRoll) throw new ConflictException('You already reserved this item — only a bonus roll can be chased next to it.');
     }
 
     if (wanted.includes(ChaseMethod.BONUS_ROLL)) {

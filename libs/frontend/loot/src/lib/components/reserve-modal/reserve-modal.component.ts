@@ -1,6 +1,6 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
-import { AssignmentStatus, ITEM_CATEGORY_LABELS, RECEIVABLE_TIERS, TIER_LABELS } from '@crusaders-bis-list/shared-domain';
+import { AssignmentStatus, ITEM_CATEGORY_LABELS, itemTypeLabel, RECEIVABLE_TIERS, TIER_LABELS } from '@crusaders-bis-list/shared-domain';
 import { ItemWithReservation } from '../../ui-types/loot-ui.types';
 
 @Component({
@@ -25,10 +25,14 @@ export class ReserveModalComponent {
   readonly confirmed = output<AssignmentStatus | null>();
   readonly receivedAtMythTier = output<void>();
   readonly cancelled = output<void>();
+  /** The raider would rather not reserve, and only wants to chase the item for the boss drop. */
+  readonly chaseInstead = output<void>();
 
   readonly receivableTiers = RECEIVABLE_TIERS;
   readonly tierLabels = TIER_LABELS;
   readonly categoryLabels = ITEM_CATEGORY_LABELS;
+  /** "Head", "Wrists", "Tier · Chest" for armor (stored as category "other"), else the category. */
+  readonly typeLabel = itemTypeLabel;
 
   /** The lowest tier the user wants to reserve for. Higher tiers are auto-included. */
   readonly selectedFloor = signal<AssignmentStatus | null>(null);

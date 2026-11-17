@@ -1,4 +1,4 @@
-import { ArmorType, ItemCategory, PrimaryStat, WeaponType, WowClass } from '@crusaders-bis-list/shared-domain';
+import { ArmorType, IItemTooltip, ItemCategory, PrimaryStat, WeaponType, WowClass } from '@crusaders-bis-list/shared-domain';
 
 export interface UpsertSeasonData {
   name: string;
@@ -32,4 +32,5 @@ export interface UpsertItemData {
   mergedWithItemId?: number;
   mergedDisplayName?: string;
   allowedClasses?: WowClass[];
+  tooltip?: IItemTooltip;
 }

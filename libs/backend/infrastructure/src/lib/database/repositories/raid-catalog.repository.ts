@@ -53,6 +53,8 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
       mergedWithItemId: i.mergedWithItemId,
       mergedDisplayName: i.mergedDisplayName,
       allowedClasses: i.allowedClasses?.length ? (i.allowedClasses as WowClass[]) : undefined,
+      tierSetItems: i.tierSetItems && Object.keys(i.tierSetItems).length ? i.tierSetItems : undefined,
+      tooltip: i.tooltip && Object.keys(i.tooltip).length ? i.tooltip : undefined,
     };
   }
 
@@ -174,6 +176,8 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
         // Preserve admin-set isSuperRare — only update if not already true in DB
         isSuperRare: item.isSuperRare || (data.isSuperRare ?? false),
         allowedClasses: data.allowedClasses,
+        // keep the stored tooltip when the API did not give one this time
+        ...(data.tooltip ? { tooltip: data.tooltip } : {}),
       });
       return this.toIItem(await this.itemRepo.findOneOrFail({ where: { id: item.id } }), bossName);
     }
@@ -215,6 +219,10 @@ export class RaidCatalogRepository implements IRaidCatalogRepository {
       { wowItemId },
       { mergedWithItemId: mergedWithItemId ?? undefined, mergedDisplayName: mergedDisplayName ?? undefined },
     );
+  }
+
+  async updateItemTierSet(wowItemId: number, tierSetItems: IItem['tierSetItems'] | null): Promise<void> {
+    await this.itemRepo.update({ wowItemId }, { tierSetItems: tierSetItems ?? null });
   }
 
   async clearCatalog(): Promise<void> {

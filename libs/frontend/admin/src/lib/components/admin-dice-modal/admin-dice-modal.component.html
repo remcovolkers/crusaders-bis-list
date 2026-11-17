@@ -52,7 +52,7 @@
                 </span>
               }
               <span class="cat-badge" [ngClass]="'cat-' + item().category">
-                {{ categoryLabels[item().category] }}
+                {{ typeLabel(item()) }}
               </span>
               <span class="tier-badge tier-badge--{{ selectedDifficulty() }}">{{
                 tierLabels[selectedDifficulty()]

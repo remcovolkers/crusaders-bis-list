@@ -118,10 +118,10 @@
                             <div class="split-divider"></div>
                           </div>
                         } @else if (drop.item.iconUrl) {
-                          <img class="item-icon-sm" [src]="drop.item.iconUrl" [alt]="drop.item.name" />
+                          <img class="item-icon-sm" [src]="drop.item.iconUrl" [alt]="drop.item.name" [libItemTooltip]="drop.item.tooltip" [libItemTooltipName]="drop.item.mergedDisplayName ?? drop.item.name" />
                         }
                         <div class="item-panel-text">
-                          <span class="item-panel-name">{{ drop.item.mergedDisplayName ?? drop.item.name }}</span>
+                          <span class="item-panel-name" [title]="tierTooltip(drop.item)">{{ drop.item.mergedDisplayName ?? drop.item.name }}</span>
                           <div class="item-panel-meta">
                             @if (drop.item.isSuperRare) {
                               <span class="badge badge-super-rare">
@@ -129,8 +129,11 @@
                               </span>
                             }
                             <span class="cat-badge" [ngClass]="'cat-' + drop.item.category">
-                              {{ categoryLabels[drop.item.category] }}
+                              {{ typeLabel(drop.item) }}
                             </span>
+                            @if (drop.item.category === ItemCategory.OTHER && armorTypeLabels[drop.item.armorType]) {
+                              <span class="stat-badge">{{ armorTypeLabels[drop.item.armorType] }}</span>
+                            }
                             @if (drop.item.primaryStats.length) {
                               <span class="stat-badge">{{
                                 drop.item.primaryStats.map(s => primaryStatLabels[s]).join('/')

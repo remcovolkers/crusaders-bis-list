@@ -13,7 +13,7 @@ import {
   IChaseItemRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { RAID_CATALOG_REPOSITORY, IRaidCatalogRepository } from '@crusaders-bis-list/backend-domain';
-import { Team } from '@crusaders-bis-list/shared-domain';
+import { ChaseMethod, Team } from '@crusaders-bis-list/shared-domain';
 
 @Injectable()
 export class ReserveItemUseCase {
@@ -71,8 +71,16 @@ export class ReserveItemUseCase {
       isSuperRare: isSuperRareForTeam,
     });
 
-    // A reservation supersedes a chase entry for the same item — keep the two lists disjoint.
-    await this.chaseRepo.deleteByRaiderAndItem(raiderId, itemId);
+    // A reservation supersedes a boss-drop chase for the same item. A bonus roll chase is a separate way to get the
+    // item and stays next to the reservation.
+    const chase = await this.chaseRepo.findExisting(raiderId, itemId, raidSeasonId);
+    if (chase) {
+      if (chase.methods.includes(ChaseMethod.BONUS_ROLL)) {
+        if (chase.methods.length > 1) await this.chaseRepo.updateMethods(chase.id, [ChaseMethod.BONUS_ROLL]);
+      } else {
+        await this.chaseRepo.delete(chase.id);
+      }
+    }
   }
 }
 

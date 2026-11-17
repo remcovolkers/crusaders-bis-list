@@ -60,12 +60,56 @@
   text-transform: uppercase;
 }
 
+// the alternative to reserving: quiet, blue (= chase), under the reservation options
+.reserve-alt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-xs);
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  &__btn {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 4px;
+    min-height: 32px;
+    padding: 0 var(--space-md);
+    border: 1px solid var(--info-line);
+    border-radius: var(--radius-xs);
+    background: var(--info-dim);
+    color: var(--info-text);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--info);
+      color: var(--surface-base);
+    }
+  }
+}
+
 .btn-already-myth {
   align-self: flex-start;
   color: var(--text-secondary);
 }
 
 @media (max-width: 480px) {
+  .reserve-alt {
+    flex-direction: column;
+    align-items: stretch;
+  }
   .tier-options {
     grid-template-columns: 1fr;
   }

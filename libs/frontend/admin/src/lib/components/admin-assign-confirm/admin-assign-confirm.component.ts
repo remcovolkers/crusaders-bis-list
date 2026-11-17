@@ -3,6 +3,7 @@ import { NgClass } from '@angular/common';
 import {
   AssignmentStatus,
   ITEM_CATEGORY_LABELS,
+  itemTypeLabel,
   WEAPON_TYPE_LABELS,
   PRIMARY_STAT_LABELS,
   TIER_LABELS,
@@ -33,6 +34,8 @@ export class AdminAssignConfirmComponent {
 
   readonly tierLabels = TIER_LABELS;
   readonly categoryLabels = ITEM_CATEGORY_LABELS;
+  /** "Head", "Wrists", "Tier · Chest" for armor (stored as category "other"), else the category. */
+  readonly typeLabel = itemTypeLabel;
   readonly weaponTypeLabels = WEAPON_TYPE_LABELS;
   readonly primaryStatLabels = PRIMARY_STAT_LABELS;
   readonly ItemCategory = ItemCategory;

@@ -19,7 +19,24 @@ export interface BlizzardItem {
   inventory_type: { type: string; name: string };
   level: number;
   media?: { key: { href: string } };
-  preview_item?: { stats?: Array<{ type: { type: string }; value: number; is_negated?: boolean }> };
+  preview_item?: {
+    stats?: Array<{ type: { type: string; name?: string }; value: number; is_negated?: boolean }>;
+    quality?: { type: string };
+    binding?: { name: string };
+    unique_equipped?: string;
+    spells?: Array<{ description?: string }>;
+    description?: string;
+    is_subclass_hidden?: boolean;
+    requirements?: { playable_classes?: { links?: Array<{ id: number; name: string }> } };
+  };
+}
+
+/** An item set (e.g. the tier set of one class). */
+export interface BlizzardItemSet {
+  id: number;
+  name: string;
+  items: Array<{ id: number; name: string }>;
+  effects?: Array<{ display_string: string; required_count: number }>;
 }
 
 /** One worn item of a character, as reported by the Blizzard armory. */
@@ -39,6 +56,7 @@ export interface IBlizzardApiService {
   getJournalInstance(id: number): Promise<BlizzardJournalInstance>;
   getJournalEncounter(id: number): Promise<BlizzardJournalEncounter>;
   getItem(id: number): Promise<BlizzardItem>;
+  getItemSet(id: number): Promise<BlizzardItemSet>;
   getItemMediaUrl(id: number): Promise<string | undefined>;
   /**
    * URL of the character's armory render (transparent full-body image), or null when Blizzard has no public

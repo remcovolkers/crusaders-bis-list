@@ -79,6 +79,12 @@ export interface SeasonDefinition {
    * per boss (Blizzard encounter id) the item level a bonus roll gives when that is higher. "Best in slot" follows it.
    */
   itemLevelCaps?: { maxItemLevel: number; bonusRollItemLevels?: Record<number, number> };
+  /**
+   * Blizzard item-set ids of the season's tier sets (one per class). Used to show the set piece a tier token turns
+   * into for a raider's class, instead of the token. Find them via the item-set index of the Blizzard Game Data API
+   * (`/data/wow/item-set/index`). Optional: without it the tokens are shown as they are.
+   */
+  tierSetIds?: number[];
   /** Stored in the DB — change only if you deliberately want a new season row. */
   slug: string;
   /** Display name shown in the UI and the DB. */

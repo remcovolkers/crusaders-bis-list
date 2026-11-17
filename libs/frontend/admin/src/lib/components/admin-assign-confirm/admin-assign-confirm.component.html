@@ -44,7 +44,7 @@
               </span>
             }
             <span class="cat-badge" [ngClass]="'cat-' + pending().item.category">
-              {{ categoryLabels[pending().item.category] }}
+              {{ typeLabel(pending().item) }}
             </span>
             @if (pending().item.primaryStats.length) {
               <span class="stat-badge">{{ pending().item.primaryStats.map(s => primaryStatLabels[s]).join('/') }}</span>

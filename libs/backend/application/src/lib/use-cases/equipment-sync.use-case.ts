@@ -32,6 +32,7 @@ import {
   IBisMark,
   IEquippedItem,
   IItem,
+  WowClass,
   ItemLevelCaps,
   RECEIVABLE_TIERS,
   bestObtainableItemLevel,
@@ -187,6 +188,11 @@ export class SyncRaiderEquipmentUseCase {
     // A worn "secondary" form of a merged item counts for its primary item (the one that gets reserved)
     const byWowId = new Map<number, IItem>();
     for (const item of catalog) if (item.wowItemId != null) byWowId.set(item.wowItemId, item);
+    // A tier token turns into a set piece of the raider's class: wearing that piece counts for the (reserved) token
+    for (const item of catalog) {
+      const setPiece = item.tierSetItems?.[raider.wowClass as WowClass];
+      if (setPiece && !byWowId.has(setPiece.wowItemId)) byWowId.set(setPiece.wowItemId, item);
+    }
     const primaryOf = (item: IItem): IItem =>
       item.mergedWithItemId != null ? (byWowId.get(item.mergedWithItemId) ?? item) : item;
 

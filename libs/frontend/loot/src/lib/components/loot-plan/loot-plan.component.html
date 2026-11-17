@@ -52,7 +52,7 @@
               @for (item of group.items; track item.name) {
                 <span class="plan-item" [title]="item.name + (item.currently ? ' (now: ' + item.currently + ')' : '')">
                   @if (item.iconUrl) {
-                    <img class="plan-item__icon" [src]="item.iconUrl" alt="" loading="lazy" />
+                    <img class="plan-item__icon" [src]="item.iconUrl" alt="" [libItemTooltip]="item.tooltip" [libItemTooltipName]="item.name" [libItemTooltipVia]="item.via" loading="lazy" />
                   }
                   <span class="plan-item__name">{{ item.name }}</span>
                   @if (item.upgradeTo) {

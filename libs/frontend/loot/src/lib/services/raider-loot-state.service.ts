@@ -39,6 +39,7 @@ import {
   TrackedItem,
 } from '../ui-types/loot-ui.types';
 import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
+import { presentTierCatalog } from '../ui-types/tier-items';
 
 /**
  * Application-layer facade for the raider loot overview page.
@@ -74,7 +75,11 @@ export class RaiderLootStateService {
   });
 
   // ── Public state ──────────────────────────────────────────────────────────
-  readonly catalog = computed(() => this.catalogResource.value() ?? null);
+  /** The catalog as this raider sees it: tier tokens are shown as the set piece of the raider's class. */
+  readonly catalog = computed(() => {
+    const catalog = this.catalogResource.value() ?? null;
+    return catalog ? presentTierCatalog(catalog, this.profile()?.wowClass) : null;
+  });
   readonly profile = computed(() => this.profileResource.value() ?? null);
   readonly config = computed(() => this.configResource.value() ?? null);
   readonly loading = computed(() => this.catalogResource.isLoading());
@@ -194,7 +199,11 @@ export class RaiderLootStateService {
     const worn = this._equippedByWowId();
     for (const boss of this.catalog()?.bosses ?? []) {
       for (const i of boss.items) {
-        const formIds = [i.wowItemId, ...boss.items.filter((o) => o.mergedWithItemId === i.wowItemId).map((o) => o.wowItemId)];
+        const formIds = [
+          i.wowItemId,
+          i.tierPiece?.wowItemId,
+          ...boss.items.filter((o) => o.mergedWithItemId === i.wowItemId).map((o) => o.wowItemId),
+        ];
         const piece = formIds.map((id) => (id == null ? undefined : worn.get(id))).find((w): w is IEquippedItem => !!w);
         // A catalysed item is worn as a different item (the tier piece of that slot). It counts as what the raider has of
         // this item, so a bonus roll chase on it is judged against that piece (e.g. 334: only a Mythic bonus roll helps).
@@ -236,7 +245,11 @@ export class RaiderLootStateService {
           chaseMethods: chases.get(i.id)?.methods,
         };
         // The worn item may be this item or (for a merged item) its secondary form
-        const formIds = [i.wowItemId, ...boss.items.filter((o) => o.mergedWithItemId === i.wowItemId).map((o) => o.wowItemId)];
+        const formIds = [
+          i.wowItemId,
+          i.tierPiece?.wowItemId,
+          ...boss.items.filter((o) => o.mergedWithItemId === i.wowItemId).map((o) => o.wowItemId),
+        ];
         const equippedItem =
           formIds.map((id) => (id == null ? undefined : worn.get(id))).find((w): w is IEquippedItem => !!w) ?? null;
         tracked.push({
@@ -430,7 +443,12 @@ export class RaiderLootStateService {
 
   private readonly _catalogByWowId = computed(() => {
     const map = new Map<number, IItem>();
-    for (const boss of this.catalog()?.bosses ?? []) for (const i of boss.items) if (i.wowItemId != null) map.set(i.wowItemId, i);
+    for (const boss of this.catalog()?.bosses ?? []) {
+      for (const i of boss.items) {
+        if (i.wowItemId != null) map.set(i.wowItemId, i);
+        if (i.tierPiece) map.set(i.tierPiece.wowItemId, i);
+      }
+    }
     return map;
   });
 
@@ -577,7 +595,7 @@ export class RaiderLootStateService {
         if (!this.isItemListable(i)) return false;
         if (activeTab !== 'all' && !itemMatchesTab(i, activeTab)) return false;
         const displayName = i.mergedDisplayName ?? i.name;
-        if (query && !displayName.toLowerCase().includes(query)) return false;
+        if (query && !displayName.toLowerCase().includes(query) && !i.tierTokenName?.toLowerCase().includes(query)) return false;
         return true;
       })
       .map((i) => ({

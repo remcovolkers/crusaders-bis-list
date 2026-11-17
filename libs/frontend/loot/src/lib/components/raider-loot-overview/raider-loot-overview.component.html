@@ -221,6 +221,7 @@
     [currentReceivedTier]="pendingReservedTier()"
     (confirmed)="onReserveConfirmed($event)"
     (cancelled)="onReserveCancelled()"
+    (chaseInstead)="onChaseInstead()"
     (receivedAtMythTier)="onReceivedAtMythTier()"
   />
 }

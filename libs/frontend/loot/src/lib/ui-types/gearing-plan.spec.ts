@@ -28,6 +28,10 @@ describe('planActionOf', () => {
     expect(planActionOf(source({ kind: 'reserved', methods: [] }))).toBe('reserved');
   });
 
+  it('lists a reserved item with a bonus roll chase next to it as reserved + bonus roll', () => {
+    expect(planActionOf(source({ kind: 'reserved', methods: [BONUS_ROLL] }))).toBe('reserved_bonus');
+  });
+
   it('has nothing to do for a best-in-slot item, except a bonus roll upgrade the raider plans', () => {
     expect(planActionOf(source({ isBis: true }))).toBeNull();
     expect(planActionOf(source({ kind: 'reserved', isBis: true, methods: [] }))).toBeNull();
@@ -69,7 +73,7 @@ describe('buildGearingPlan', () => {
       ],
       order,
     );
-    expect(plan.totals).toEqual({ reserved: 0, drop: 0, bonus_roll: 1, drop_bonus: 1, upgrade: 1 });
+    expect(plan.totals).toEqual({ reserved: 0, reserved_bonus: 0, drop: 0, bonus_roll: 1, drop_bonus: 1, upgrade: 1 });
     expect(plan.itemCount).toBe(3);
     const upgrade = plan.bosses[0].groups.find((g) => g.action === 'upgrade');
     expect(upgrade?.items[0].upgradeTo).toBe(344);
@@ -80,7 +84,7 @@ describe('buildGearingPlan', () => {
     expect(plan.bosses.map((b) => b.bossName)).toEqual(['Boss B', 'Unknown']);
     expect(buildGearingPlan([], order)).toEqual({
       bosses: [],
-      totals: { reserved: 0, drop: 0, bonus_roll: 0, drop_bonus: 0, upgrade: 0 },
+      totals: { reserved: 0, reserved_bonus: 0, drop: 0, bonus_roll: 0, drop_bonus: 0, upgrade: 0 },
       itemCount: 0,
     });
   });
@@ -102,6 +106,7 @@ describe('planDifficultyOf', () => {
     expect(result.difficulty).toBe(HEROIC);
     expect(result.hint).toBe('Drop: Mythic only · Bonus roll: Heroic or Mythic');
     expect(planDifficultyOf('drop_bonus', { drop: MYTHIC, bonusRoll: null }).difficulty).toBe(MYTHIC);
+    expect(planDifficultyOf('reserved_bonus', { drop: MYTHIC, bonusRoll: HEROIC }).difficulty).toBe(HEROIC);
   });
 
   it('has no difficulty without needs, and passes it on to the plan items', () => {

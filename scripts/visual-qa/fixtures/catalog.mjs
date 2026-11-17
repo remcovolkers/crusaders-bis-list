@@ -204,6 +204,33 @@ const CATEGORY = {
 const ILVL = { trinket: 282, weapon: 282, offhand: 282, jewelry: 279, armor: 276 };
 
 /** All catalog items (without per-team super-rare flag). `_superRare` is internal metadata. */
+// What a tier token turns into, per class (the Blizzard item sets of the season): a made-up piece name per class
+const SETS = {
+  Plate: { 'Death Knight': "Baleful Grave-Knight's", Paladin: 'Radiance of the Consecrated', Warrior: "Jade Warlord's" },
+  Leather: { 'Demon Hunter': "Abyssal Doomhound's", Druid: 'Enigmatic Dreamwatcher', Monk: 'Monkey King', Rogue: "Chosen Bloodslayer's" },
+  Mail: { Evoker: "Calamity's", Hunter: "Skulking Viper's", Shaman: "Ophidian Oracle's" },
+  Cloth: { Mage: "Primal Leywarden's", Priest: "Cosmic Penitent's", Warlock: "Damned Necrolyte's" },
+};
+const SET_WORD = { Head: 'Crown', Shoulders: 'Mantle', Chest: 'Vestments', Hands: 'Grips', Legs: 'Leggings' };
+let nextSetPieceId = 960000;
+const SECONDARY = ['Critical Strike', 'Haste', 'Mastery', 'Versatility'];
+// Hover text as the catalog sync reads it from the Blizzard item API (made-up effects)
+const tooltipOf = (row, extra = {}) => ({
+  quality: 'EPIC',
+  typeLine: row.kind === 'trinket' ? 'Trinket' : row.kind === 'jewelry' ? row.slot : row.kind === 'armor' ? `${row.slot.replace('Tier: ', '')} · ${row.armorType[0].toUpperCase()}${row.armorType.slice(1)}` : row.slot,
+  binding: 'Binds when picked up',
+  ...(row.kind === 'trinket' ? { unique: 'Unique-Equipped' } : {}),
+  stats: [...(row.stats?.length ? ['Intellect'] : []), SECONDARY[row.name.length % 4], SECONDARY[(row.name.length + 1) % 4]],
+  ...(row.kind === 'trinket' ? { effects: ['Use: Channel a torrent of venomous rage over 2 sec, dealing Nature damage to your target and splattering nearby enemies. (2 Min Cooldown)'] } : {}),
+  ...extra,
+});
+const SET_EFFECTS = ['(2) Set: Your signature ability is empowered, dealing 100% more damage.', '(4) Set: Your signature ability has a 100% chance to grant a free cast.'];
+const tierSetItemsOf = (row) => {
+  const sets = SETS[row.armorType[0].toUpperCase() + row.armorType.slice(1)];
+  const word = SET_WORD[row.slot.replace('Tier: ', '')];
+  return Object.fromEntries(Object.entries(sets).map(([wowClass, set]) => { const name = set + ' ' + word; return [wowClass, { wowItemId: nextSetPieceId++, name, iconUrl: icon(name, 'T'), tooltip: tooltipOf(row, { setName: set + ' Regalia', setEffects: SET_EFFECTS }) }]; }));
+};
+
 export const ITEMS = [];
 const primaryByPair = {};
 for (const boss of BOSSES) {
@@ -227,6 +254,8 @@ for (const boss of BOSSES) {
       _superRare: !!row.superRare,
     };
     if (row.weaponType) item.weaponType = row.weaponType;
+    if (row.token) item.tierSetItems = tierSetItemsOf(row);
+    item.tooltip = row.token ? { quality: 'EPIC', binding: 'Binds when picked up', effects: ['Use: Create a soulbound set item appropriate for your class.'] } : tooltipOf(row);
     if (row.merged === 'primary') {
       item.mergedDisplayName = row.mergedDisplayName;
       primaryByPair[row.pair] = item;

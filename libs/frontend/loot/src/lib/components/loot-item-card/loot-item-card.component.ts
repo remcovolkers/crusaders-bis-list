@@ -6,7 +6,9 @@ import {
   ChaseMethod,
   IEquippedItem,
   IItem,
+  ARMOR_TYPE_LABELS,
   ITEM_CATEGORY_LABELS,
+  itemTypeLabel,
   ItemCategory,
   PRIMARY_STAT_LABELS,
   RaidDifficulty,
@@ -16,7 +18,7 @@ import {
 import { RaiderLootStateService } from '../../services/raider-loot-state.service';
 import { ItemWithReservation } from '../../ui-types/loot-ui.types';
 import { LootService } from '../../services/loot.service';
-import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
+import { ItemTooltipDirective, ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 const TIER_ORDER: Record<AssignmentStatus, number> = {
   [AssignmentStatus.CHAMPION_TIER]: 0,
@@ -26,7 +28,7 @@ const TIER_ORDER: Record<AssignmentStatus, number> = {
 
 @Component({
   selector: 'lib-loot-item-card',
-  imports: [NgClass, NgTemplateOutlet],
+  imports: [NgClass, NgTemplateOutlet, ItemTooltipDirective],
   templateUrl: './loot-item-card.component.html',
   styleUrls: ['./loot-item-card.component.scss'],
 })
@@ -41,6 +43,9 @@ export class LootItemCardComponent {
   readonly editReservationClicked = output<void>();
 
   readonly categoryLabels = ITEM_CATEGORY_LABELS;
+  readonly armorTypeLabels = ARMOR_TYPE_LABELS;
+  /** "Head", "Wrists", "Tier · Chest" for armor (stored as category "other"), else the category. */
+  readonly typeLabel = itemTypeLabel;
   readonly weaponTypeLabels = WEAPON_TYPE_LABELS;
   readonly primaryStatLabels = PRIMARY_STAT_LABELS;
   readonly tierLabels = TIER_LABELS;
@@ -48,10 +53,9 @@ export class LootItemCardComponent {
   readonly AssignmentStatus = AssignmentStatus;
   readonly ChaseMethod = ChaseMethod;
 
-  readonly infoModal = signal<'res' | 'lim' | null>(null);
   readonly chaseBusy = signal(false);
 
-  /** Reservable, but the raider has used up the limit of its category: the limit info sits in the card's corner. */
+  /** Reservable, but the raider has used up the limit of its category: the card is shown dimmed (chasing still works). */
   readonly showLimitInfo = computed(() => {
     const item = this.item();
     return (
@@ -62,6 +66,17 @@ export class LootItemCardComponent {
       this.state.bonusRollUpgradeTo(item.id) === null
     );
   });
+
+  /** Chasing for the boss drop takes the place of the reserve button: only when the item cannot be reserved (any more). */
+  canChaseBossDrop(): boolean {
+    const item = this.item();
+    return !item.isReserved && (!this.state.isItemReservable(item) || this.state.isAtLimit(item));
+  }
+
+  /** Best in slot: the card gets a gold ribbon and tint, like a BiS piece in the character pane. */
+  isBisItem(): boolean {
+    return this.item().isPrioritizable && this.state.isBis(this.item().id);
+  }
 
   /** The item is on the raider's chase list (also next to a reservation: an upgrade plan). */
   hasChase(): boolean {

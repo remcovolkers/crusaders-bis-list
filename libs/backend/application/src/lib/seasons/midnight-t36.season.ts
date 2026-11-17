@@ -39,6 +39,9 @@ export const MIDNIGHT_T36_SEASON: SeasonDefinition = {
   // and Ula'tek (2895) gives 344, so an item from those bosses is only best in slot at 344.
   itemLevelCaps: { maxItemLevel: 334, bonusRollItemLevels: { 2883: 344, 2895: 344 } },
 
+  // The 13 class tier sets (item-set ids 2055-2067, one per class): what a Venom<armor> token turns into.
+  tierSetIds: [2055, 2056, 2057, 2058, 2059, 2060, 2061, 2062, 2063, 2064, 2065, 2066, 2067],
+
   raids: [
     {
       instanceId: 1317,
