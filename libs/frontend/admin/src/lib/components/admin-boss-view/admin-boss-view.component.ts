@@ -9,6 +9,7 @@ import {
   IBossLootView,
   IEligibleRaider,
   AssignmentStatus,
+  ChaseMethod,
   WowClass,
   WowSpec,
   WOW_CLASS_REGISTRY,
@@ -123,6 +124,55 @@ export class AdminBossViewComponent {
 
   readonly tierLabels = TIER_LABELS;
 
+  /** Chase items = raiders who want an item without a reservation. Hidden unless the officer asks for them. */
+  private readonly SHOW_CHASE_STORAGE_KEY = 'admin_show_chase';
+  readonly showChase = signal(this.loadShowChase());
+
+  setShowChase(value: boolean): void {
+    this.showChase.set(value);
+    try {
+      localStorage.setItem(this.SHOW_CHASE_STORAGE_KEY, value ? '1' : '0');
+    } catch {
+      /* storage unavailable — the toggle still works for this visit */
+    }
+  }
+
+  private loadShowChase(): boolean {
+    try {
+      return localStorage.getItem(this.SHOW_CHASE_STORAGE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  readonly syncingGear = signal(false);
+
+  /** Re-reads everyone's worn gear from the Blizzard armory; reserved / chased items that are worn get ticked off. */
+  syncGear(): void {
+    if (this.syncingGear()) return;
+    this.syncingGear.set(true);
+    this.adminService.syncTeamEquipment(this.viewedTeam()).subscribe({
+      next: (r) => {
+        this.syncingGear.set(false);
+        this.toast.show(
+          r.updates > 0
+            ? `Gear gesynchroniseerd: ${r.updates} item(s) bijgewerkt bij ${r.refreshed} raider(s).`
+            : `Gear gesynchroniseerd (${r.refreshed} raider(s) ververst): niets nieuws gevonden.`,
+        );
+        this.bossLootResource.reload();
+      },
+      error: () => {
+        this.syncingGear.set(false);
+        this.toast.show('Gear synchroniseren mislukt.', 'error');
+      },
+    });
+  }
+
+  /** Chasers only count while the "toon chase-items" toggle is on. */
+  private chaseVisible(raider: IEligibleRaider): boolean {
+    return !raider.isChase || this.showChase();
+  }
+
   readonly selectedDifficulty = signal<AssignmentStatus | null>(AssignmentStatus.MYTH_TIER);
   /** Boss filter for the workspace; null = all bosses stacked. */
   readonly selectedBossId = signal<string | null>(null);
@@ -150,7 +200,7 @@ export class AdminBossViewComponent {
     for (const view of this.bossLootViews()) {
       for (const drop of view.drops) {
         for (const raider of drop.eligibleRaiders) {
-          if (!seen.has(raider.raiderId) && !this.isUuid(raider.characterName)) {
+          if (!seen.has(raider.raiderId) && !this.isUuid(raider.characterName) && this.chaseVisible(raider)) {
             seen.add(raider.raiderId);
             raiders.push(raider);
           }
@@ -232,16 +282,23 @@ export class AdminBossViewComponent {
   }
 
   visibleRaiders(raiders: IEligibleRaider[]): IEligibleRaider[] {
-    return raiders.filter((r) => !this.raiderHasSelectedDifficulty(r) && !this.isUuid(r.characterName));
+    return raiders.filter(
+      (r) => !this.raiderHasSelectedDifficulty(r) && !this.isUuid(r.characterName) && this.chaseVisible(r),
+    );
   }
 
-  /** Verberg een drop als alle raiders die het gereserveerd hebben het item al hebben op de huidige difficulty. */
+  /** Drops with at least one raider that is currently listed (a chase-only drop needs the chase toggle on). */
+  listedDrops(drops: IBossLootView['drops']): IBossLootView['drops'] {
+    return drops.filter((drop) => drop.eligibleRaiders.some((r) => !this.isUuid(r.characterName) && this.chaseVisible(r)));
+  }
+
+  /** Verberg een drop als alle raiders die het gereserveerd (of gechased) hebben het item al hebben op de huidige difficulty. */
   visibleDrops(drops: IBossLootView['drops']): IBossLootView['drops'] {
     const diff = this.selectedDifficulty();
-    if (!diff) return drops;
-    return drops.filter((drop) => {
-      const eligible = drop.eligibleRaiders.filter((r) => !this.isUuid(r.characterName));
-      if (eligible.length === 0) return false;
+    const listed = this.listedDrops(drops);
+    if (!diff) return listed;
+    return listed.filter((drop) => {
+      const eligible = drop.eligibleRaiders.filter((r) => !this.isUuid(r.characterName) && this.chaseVisible(r));
       return eligible.some((r) => !this.raiderHasAtLeast(r, diff));
     });
   }
@@ -255,8 +312,36 @@ export class AdminBossViewComponent {
     return this.visibleRaiders(raiders).filter((r) => r.hasReservation);
   }
 
+  /** Raiders who hope to get the item from the boss without a reservation. Empty unless the chase toggle is on. */
+  chaseRaiders(raiders: IEligibleRaider[]): IEligibleRaider[] {
+    return this.visibleRaiders(raiders).filter((r) => r.isChase && !this.isBonusRollOnly(r));
+  }
+
+  /** Raiders who plan to get the item with a bonus roll (not handed out by the officers). */
+  bonusRollRaiders(raiders: IEligibleRaider[]): IEligibleRaider[] {
+    return this.visibleRaiders(raiders).filter((r) => r.isChase && this.isBonusRollOnly(r));
+  }
+
+  /**
+   * Only a bonus roll: the raider does not hope to get the item from the boss, so officers do not hand it out. (A
+   * chase for both ways stays in the chase group: the boss drop is a claim like any other.)
+   */
+  isBonusRollOnly(raider: IEligibleRaider): boolean {
+    const methods = raider.chaseMethods ?? [];
+    return raider.isChase === true && methods.length > 0 && !methods.includes(ChaseMethod.BOSS_DROP);
+  }
+
+  isBonusRoll(raider: IEligibleRaider): boolean {
+    return this.isBonusRollOnly(raider);
+  }
+
+  /** The raider also plans a bonus roll for this item. */
+  hasBonusRoll(raider: IEligibleRaider): boolean {
+    return (raider.chaseMethods ?? []).includes(ChaseMethod.BONUS_ROLL);
+  }
+
   otherRaiders(raiders: IEligibleRaider[]): IEligibleRaider[] {
-    return this.visibleRaiders(raiders).filter((r) => !r.hasReservation);
+    return this.visibleRaiders(raiders).filter((r) => !r.hasReservation && !r.isChase);
   }
 
   /** Highest tier this raider already holds for the item (assignment or self-reported). */
@@ -335,7 +420,8 @@ export class AdminBossViewComponent {
 
   spinCandidates(raiders: IEligibleRaider[]): IEligibleRaider[] {
     const excluded = this.excludedRaiders();
-    return this.visibleRaiders(raiders).filter((r) => !excluded.has(r.raiderId));
+    // A chase entry is not a claim on the item, so chasers never take part in the Wheel of Fortune.
+    return this.visibleRaiders(raiders).filter((r) => !excluded.has(r.raiderId) && !r.isChase);
   }
 
   onDiceWinner(winner: IEligibleRaider): void {

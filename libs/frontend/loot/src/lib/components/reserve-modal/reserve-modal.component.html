@@ -44,17 +44,12 @@
         </div>
       </div>
 
-      <div class="banner" [class.banner-info]="isEditing()" [class.banner-warning]="!isEditing()">
-        <span class="material-symbols-outlined">{{ isEditing() ? 'info' : 'warning' }}</span>
-        <div>
-          @if (isEditing()) {
-            Wil je je reservering volledig annuleren? Neem contact op met je lootmeister.
-          } @else {
-            Dit venster is recent aangepast. Je geeft nu aan op welke tiers je wilt <strong>reserveren</strong>, in plaats
-            van op welke je het item al hebt ontvangen.
-          }
+      @if (isEditing()) {
+        <div class="banner banner-info">
+          <span class="material-symbols-outlined">info</span>
+          <div>Wil je je reservering volledig annuleren? Neem contact op met je lootmeister.</div>
         </div>
-      </div>
+      }
 
       <div class="stack reserve-pick">
         <div>

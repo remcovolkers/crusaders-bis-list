@@ -18,6 +18,11 @@ import { AddSeasonConfigTeam1778630400000 } from './1778630400000-AddSeasonConfi
 import { AddItemSuperRareOverrides1778716800000 } from './1778716800000-AddItemSuperRareOverrides';
 import { AddAuditLogTeam1778803200000 } from './1778803200000-AddAuditLogTeam';
 import { EnableRowLevelSecurity1778889600000 } from './1778889600000-EnableRowLevelSecurity';
+import { AddRaiderChaseItems1778976000000 } from './1778976000000-AddRaiderChaseItems';
+import { AddRaiderEquippedItems1779062400000 } from './1779062400000-AddRaiderEquippedItems';
+import { AddChaseMethodAndSeasonRules1779148800000 } from './1779148800000-AddChaseMethodAndSeasonRules';
+import { AddItemLevelCaps1779235200000 } from './1779235200000-AddItemLevelCaps';
+import { ChaseMethodsAndBisMarks1779321600000 } from './1779321600000-ChaseMethodsAndBisMarks';
 
 export const MIGRATIONS: (new () => MigrationInterface)[] = [
   BeastMasterySpecFix1744761600000,
@@ -39,4 +44,9 @@ export const MIGRATIONS: (new () => MigrationInterface)[] = [
   AddItemSuperRareOverrides1778716800000,
   AddAuditLogTeam1778803200000,
   EnableRowLevelSecurity1778889600000,
+  AddRaiderChaseItems1778976000000,
+  AddRaiderEquippedItems1779062400000,
+  AddChaseMethodAndSeasonRules1779148800000,
+  AddItemLevelCaps1779235200000,
+  ChaseMethodsAndBisMarks1779321600000,
 ];

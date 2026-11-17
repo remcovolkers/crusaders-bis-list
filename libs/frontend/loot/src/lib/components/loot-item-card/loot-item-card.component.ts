@@ -1,18 +1,22 @@
-import { Component, inject, input, output, signal } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
 import {
   AssignmentStatus,
+  ChaseMethod,
+  IEquippedItem,
   IItem,
   ITEM_CATEGORY_LABELS,
   ItemCategory,
   PRIMARY_STAT_LABELS,
+  RaidDifficulty,
   TIER_LABELS,
   WEAPON_TYPE_LABELS,
 } from '@crusaders-bis-list/shared-domain';
 import { RaiderLootStateService } from '../../services/raider-loot-state.service';
 import { ItemWithReservation } from '../../ui-types/loot-ui.types';
 import { LootService } from '../../services/loot.service';
+import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 
 const TIER_ORDER: Record<AssignmentStatus, number> = {
   [AssignmentStatus.CHAMPION_TIER]: 0,
@@ -22,13 +26,14 @@ const TIER_ORDER: Record<AssignmentStatus, number> = {
 
 @Component({
   selector: 'lib-loot-item-card',
-  imports: [NgClass],
+  imports: [NgClass, NgTemplateOutlet],
   templateUrl: './loot-item-card.component.html',
   styleUrls: ['./loot-item-card.component.scss'],
 })
 export class LootItemCardComponent {
   protected readonly state = inject(RaiderLootStateService);
   private readonly lootService = inject(LootService);
+  private readonly toast = inject(ToastService);
 
   readonly item = input.required<ItemWithReservation>();
   readonly allBossItems = input.required<IItem[]>();
@@ -41,8 +46,64 @@ export class LootItemCardComponent {
   readonly tierLabels = TIER_LABELS;
   readonly ItemCategory = ItemCategory;
   readonly AssignmentStatus = AssignmentStatus;
+  readonly ChaseMethod = ChaseMethod;
 
   readonly infoModal = signal<'res' | 'lim' | null>(null);
+  readonly chaseBusy = signal(false);
+
+  /** Reservable, but the raider has used up the limit of its category: the limit info sits in the card's corner. */
+  readonly showLimitInfo = computed(() => {
+    const item = this.item();
+    return (
+      !item.isReserved &&
+      this.state.isItemReservable(item) &&
+      this.state.isAtLimit(item) &&
+      !this.state.isBis(item.id) &&
+      this.state.bonusRollUpgradeTo(item.id) === null
+    );
+  });
+
+  /** The item is on the raider's chase list (also next to a reservation: an upgrade plan). */
+  hasChase(): boolean {
+    return (this.item().chaseMethods ?? []).length > 0;
+  }
+
+  /** "Hero · 321": what the raider wears of this item. */
+  equipLabel(piece: IEquippedItem): string {
+    const tier = piece.tier ? TIER_LABELS[piece.tier] : piece.tierLabel;
+    return [tier, piece.itemLevel || null].filter(Boolean).join(' · ');
+  }
+
+  /** On which difficulty a bonus roll still upgrades this item, as a suffix for the upgrade note. */
+  bonusRollNeed(): string {
+    const need = this.state.difficultyNeeds(this.item().id).bonusRoll;
+    if (need === RaidDifficulty.MYTHIC) return ' · alleen op Mythic';
+    if (need === RaidDifficulty.HEROIC) return ' · vanaf Heroic';
+    return '';
+  }
+
+  isChasedWith(method: ChaseMethod): boolean {
+    // chaseMethods is only set while the raider has a chase on the item (also next to a reservation: an upgrade plan)
+    return (this.item().chaseMethods ?? []).includes(method);
+  }
+
+  /**
+   * Switches one way of getting the item on or off. Boss drop and bonus roll can both be on (it does not matter how the
+   * item comes); switching the last one off removes the chase.
+   */
+  async toggleChase(method: ChaseMethod): Promise<void> {
+    const item = this.item();
+    if (this.chaseBusy()) return;
+    this.chaseBusy.set(true);
+    try {
+      await this.state.toggleChaseMethod(item.id, method);
+    } catch (e) {
+      const msg = (e as { error?: { message?: string } }).error?.message ?? 'Chase-lijst bijwerken mislukt';
+      this.toast.show(msg, 'error');
+    } finally {
+      this.chaseBusy.set(false);
+    }
+  }
 
   // Peers popover — lazy loaded via rxResource when a tier popover opens
   readonly activePeerTier = signal<AssignmentStatus | null>(null);

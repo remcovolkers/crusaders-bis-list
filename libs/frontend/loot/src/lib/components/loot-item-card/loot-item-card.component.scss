@@ -21,7 +21,11 @@
   &.reserved {
     box-shadow: inset 2px 0 0 var(--primary);
   }
-  &.is-super-rare:not(.reserved) {
+  // chase list = "I want this" without a reservation: blue bar, clearly different from the gold reserved bar
+  &.is-chased:not(.reserved) {
+    box-shadow: inset 2px 0 0 var(--info);
+  }
+  &.is-super-rare:not(.reserved):not(.is-chased) {
     box-shadow: inset 2px 0 0 color-mix(in srgb, var(--tier-super-rare) 60%, transparent);
   }
   &.is-locked .item-top {
@@ -83,6 +87,95 @@
   margin-left: auto;
 }
 
+// Chase switches: off = quiet dashed outline (a calm list of items), on = solid blue with a check. Blue = chase, gold =
+// reserve, so a chase can never be mistaken for a reservation, and "I set this" is clear at a glance.
+.chase-toggles {
+  display: flex;
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.chase-toggle {
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 28px;
+  padding: 0 var(--space-sm);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast),
+    color var(--dur-fast),
+    border-color var(--dur-fast);
+
+  &:hover:not(:disabled) {
+    border-color: var(--info-line);
+    background: var(--info-dim);
+    color: var(--info-text);
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  &.is-on {
+    border: 1px solid var(--info);
+    background: var(--info);
+    color: var(--surface-base);
+    font-weight: 700;
+
+    &:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--info) 85%, white);
+      color: var(--surface-base);
+    }
+  }
+}
+
+// small markers in the badge row
+.chase-pill,
+.equip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px;
+  border-radius: var(--radius-xs);
+  font-size: 10px;
+  line-height: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.chase-pill {
+  background: var(--info);
+  color: var(--surface-base);
+}
+.equip-badge {
+  background: var(--surface-tier-1);
+  color: var(--text-secondary);
+}
+
+// "Limiet bereikt" + info: top right corner of the card (the item name makes room for it)
+.limit-corner {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+.item-card.is-locked .item-name {
+  padding-right: 122px;
+}
+
 .limit-state {
   display: inline-flex;
   flex: 1;
@@ -94,6 +187,30 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
+}
+
+.upgrade-row {
+  display: flex;
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+}
+.upgrade-note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.upgrade-state {
+  flex: 1 1 auto;
+  justify-content: center;
+  min-height: 28px;
+  white-space: normal;
+  text-align: center;
 }
 
 .bis-state {
@@ -115,7 +232,7 @@
 .info-popover {
   position: absolute;
   right: var(--space-sm);
-  bottom: calc(var(--space-sm) + 28px);
+  top: calc(var(--space-sm) + 30px);
   left: var(--space-sm);
   z-index: calc(var(--z-sticky) + 1);
   display: flex;

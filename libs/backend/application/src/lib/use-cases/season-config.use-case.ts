@@ -6,6 +6,7 @@ import {
   IRaidCatalogRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { IItem, ISeasonConfig, Team, UpdateSeasonConfigDto } from '@crusaders-bis-list/shared-domain';
+import { withSeasonDefaults } from '../seasons/season-rules';
 
 @Injectable()
 export class GetSeasonConfigUseCase {
@@ -23,7 +24,7 @@ export class GetSeasonConfigUseCase {
       if (!season) throw new NotFoundException('No active season found.');
       id = season.id;
     }
-    return this.configRepo.findOrCreateDefault(id, team);
+    return withSeasonDefaults(await this.configRepo.findOrCreateDefault(id, team));
   }
 }
 
@@ -36,7 +37,7 @@ export class UpdateSeasonConfigUseCase {
 
   async execute(seasonId: string, dto: UpdateSeasonConfigDto, team: Team): Promise<ISeasonConfig> {
     const config = await this.configRepo.findOrCreateDefault(seasonId, team);
-    return this.configRepo.update(config.id, dto);
+    return withSeasonDefaults(await this.configRepo.update(config.id, dto));
   }
 }
 

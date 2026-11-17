@@ -6,6 +6,7 @@ import { PassportModule } from '@nestjs/passport';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { EquipmentSyncScheduler } from './equipment-sync.scheduler';
 
 import { BackendDomainModule } from '@crusaders-bis-list/backend-domain';
 import { BackendApplicationModule } from '@crusaders-bis-list/backend-application';
@@ -21,6 +22,9 @@ import {
   AssignmentOrmEntity,
   SeasonConfigOrmEntity,
   RaiderReceivedItemOrmEntity,
+  RaiderChaseItemOrmEntity,
+  RaiderEquippedItemOrmEntity,
+  RaiderBisMarkOrmEntity,
   ItemSuperRareOverrideOrmEntity,
   FeedbackOrmEntity,
   AuditLogOrmEntity,
@@ -49,6 +53,9 @@ import {
           AssignmentOrmEntity,
           SeasonConfigOrmEntity,
           RaiderReceivedItemOrmEntity,
+          RaiderChaseItemOrmEntity,
+  RaiderEquippedItemOrmEntity,
+  RaiderBisMarkOrmEntity,
           ItemSuperRareOverrideOrmEntity,
           FeedbackOrmEntity,
           AuditLogOrmEntity,
@@ -79,6 +86,6 @@ import {
     BackendInfrastructureModule,
     BackendAdaptersModule,
   ],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }, EquipmentSyncScheduler],
 })
 export class AppModule {}

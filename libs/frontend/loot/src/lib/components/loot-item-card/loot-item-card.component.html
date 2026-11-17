@@ -1,7 +1,8 @@
 <div
   class="item-card"
   [class.reserved]="item().isReserved"
-  [class.is-locked]="!item().isReserved && state.isAtLimit(item())"
+  [class.is-chased]="item().isChased"
+  [class.is-locked]="showLimitInfo()"
   [class.is-super-rare]="item().isSuperRare"
 >
   <div class="item-top">
@@ -37,9 +38,40 @@
         @if (item().isSuperRare) {
           <span class="badge badge-super-rare"><span class="material-symbols-outlined icon-fill">star</span>Super rare</span>
         }
+        @if (state.equippedPieceOf(item().id); as piece) {
+          <span class="equip-badge" [title]="'Je draagt dit item: ' + equipLabel(piece)"
+            ><span class="material-symbols-outlined icon-12">checkroom</span>{{ equipLabel(piece) }}</span
+          >
+        }
+        @if (hasChase()) {
+          <span class="chase-pill" title="Staat op je chase-lijst"
+            >@if (isChasedWith(ChaseMethod.BOSS_DROP)) {
+              <span class="material-symbols-outlined icon-12">flag</span>
+            }
+            @if (isChasedWith(ChaseMethod.BONUS_ROLL)) {
+              <span class="material-symbols-outlined icon-12">casino</span>
+            }Chase</span
+          >
+        }
       </div>
     </div>
   </div>
+
+  @if (showLimitInfo()) {
+    <!-- Limit reached: the info sits in the top right corner of the card -->
+    <div class="limit-corner">
+      <span class="limit-state"><span class="material-symbols-outlined icon-14">lock</span>Limiet bereikt</span>
+      <button
+        type="button"
+        class="icon-btn icon-btn--sm"
+        aria-label="Info over limiet"
+        [attr.aria-expanded]="infoModal() === 'lim'"
+        (click)="infoModal.set(infoModal() === 'lim' ? null : 'lim')"
+      >
+        <span class="material-symbols-outlined icon-16">info</span>
+      </button>
+    </div>
+  }
 
   @if (item().isPrioritizable) {
     <div class="item-foot">
@@ -108,27 +140,23 @@
         </div>
       }
 
-      @if (
-        state.getReceivedItem(item().id)?.tier === AssignmentStatus.MYTH_TIER ||
-        state.getAssignmentStatus(item().id) === AssignmentStatus.MYTH_TIER
-      ) {
+      @if (state.isBis(item().id)) {
         <span class="badge badge-gold badge--lg bis-state"
           ><span class="material-symbols-outlined icon-fill">star</span>BiS in bezit! Gefeliciteerd!</span
         >
-      } @else if (!item().isReserved) {
-        @if (state.isAtLimit(item())) {
-          <span class="limit-state"><span class="material-symbols-outlined icon-14">lock</span>Limiet bereikt</span>
-          @if (item().isPrioritizable) {
-            <button
-              type="button"
-              class="icon-btn icon-btn--sm"
-              aria-label="Info over limiet"
-              [attr.aria-expanded]="infoModal() === 'lim'"
-              (click)="infoModal.set(infoModal() === 'lim' ? null : 'lim')"
+        @if (state.bonusRollUpgradeTo(item().id); as upgradeTo) {
+          <!-- Best in slot, but a bonus roll on this boss can still give a better version: an upgrade to chase -->
+          <div class="upgrade-row">
+            <span class="upgrade-note"
+              ><span class="material-symbols-outlined icon-14">trending_up</span>Met een bonusrol tot {{ upgradeTo }} mogelijk{{ bonusRollNeed() }}</span
             >
-              <span class="material-symbols-outlined icon-16">info</span>
-            </button>
-          }
+            <ng-container *ngTemplateOutlet="chaseBtns; context: { bossDrop: false }" />
+          </div>
+        }
+      } @else if (!item().isReserved) {
+        @if (!state.isItemReservable(item()) || state.isAtLimit(item())) {
+          <!-- Cannot be reserved (category off, or limit reached): chase it instead, with a bonus roll or from the boss -->
+          <ng-container *ngTemplateOutlet="chaseBtns; context: { bossDrop: true }" />
         } @else {
           <button type="button" class="btn-primary btn-sm btn-block" (click)="reserveClicked.emit()">
             <span class="material-symbols-outlined icon-16">add</span>Reserveer
@@ -146,6 +174,48 @@
       }
     </div>
   }
+
+  <!-- Two independent switches. Off = quiet, dashed outline. On = solid blue with a check, so "I set this" is unmistakable. -->
+  <ng-template #chaseBtns let-bossDrop="bossDrop">
+    <div class="chase-toggles" role="group" aria-label="Chase">
+      @if (state.bonusRollEnabled()) {
+        <button
+          type="button"
+          class="chase-toggle"
+          [class.is-on]="isChasedWith(ChaseMethod.BONUS_ROLL)"
+          [attr.aria-pressed]="isChasedWith(ChaseMethod.BONUS_ROLL)"
+          [disabled]="chaseBusy()"
+          [title]="
+            isChasedWith(ChaseMethod.BONUS_ROLL)
+              ? 'Aan: je hoopt dit item met een bonusrol te krijgen. Klik om uit te zetten.'
+              : 'Geen reservering: je plant dit item te krijgen met een bonusrol.'
+          "
+          (click)="toggleChase(ChaseMethod.BONUS_ROLL)"
+        >
+          <span class="material-symbols-outlined icon-14">{{ isChasedWith(ChaseMethod.BONUS_ROLL) ? 'check_circle' : 'casino' }}</span>
+          Chase met bonusrol
+        </button>
+      }
+      @if (bossDrop) {
+        <button
+          type="button"
+          class="chase-toggle"
+          [class.is-on]="isChasedWith(ChaseMethod.BOSS_DROP)"
+          [attr.aria-pressed]="isChasedWith(ChaseMethod.BOSS_DROP)"
+          [disabled]="chaseBusy()"
+          [title]="
+            isChasedWith(ChaseMethod.BOSS_DROP)
+              ? 'Aan: je hoopt dit item van de boss te krijgen. Klik om uit te zetten.'
+              : 'Geen reservering: je officers zien dat je dit item graag van de boss wilt hebben.'
+          "
+          (click)="toggleChase(ChaseMethod.BOSS_DROP)"
+        >
+          <span class="material-symbols-outlined icon-14">{{ isChasedWith(ChaseMethod.BOSS_DROP) ? 'check_circle' : 'flag' }}</span>
+          Chase voor bossdrop
+        </button>
+      }
+    </div>
+  </ng-template>
 
   @if (infoModal()) {
     <div

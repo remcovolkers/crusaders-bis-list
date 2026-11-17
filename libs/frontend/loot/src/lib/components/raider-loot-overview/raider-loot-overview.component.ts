@@ -8,10 +8,12 @@ import { ToastService } from '@crusaders-bis-list/frontend-shared-ui';
 import { RaiderLootStateService } from '../../services/raider-loot-state.service';
 import { ItemWithReservation } from '../../ui-types/loot-ui.types';
 import { ReserveModalComponent } from '../reserve-modal/reserve-modal.component';
+import { LootPaperdollComponent } from '../loot-paperdoll/loot-paperdoll.component';
+import { LootPlanComponent } from '../loot-plan/loot-plan.component';
 
 @Component({
   selector: 'lib-raider-loot-overview',
-  imports: [FormsModule, RouterLink, ReserveModalComponent, LootItemCardComponent],
+  imports: [FormsModule, RouterLink, ReserveModalComponent, LootItemCardComponent, LootPaperdollComponent, LootPlanComponent],
   providers: [RaiderLootStateService],
   templateUrl: './raider-loot-overview.component.html',
   styleUrls: ['./raider-loot-overview.component.scss'],
@@ -60,7 +62,13 @@ export class RaiderLootOverviewComponent {
         const group = this.categoryGroup(i.category);
         result.push({
           group,
-          item: { ...i, name: i.mergedDisplayName ?? i.name, isReserved: true, reservationId: this.state.getReservationId(i.id) },
+          item: {
+            ...i,
+            name: i.mergedDisplayName ?? i.name,
+            isReserved: true,
+            reservationId: this.state.getReservationId(i.id),
+            isChased: false,
+          },
         });
       }
     }
@@ -88,11 +96,14 @@ export class RaiderLootOverviewComponent {
       .filter((g) => g.items.length > 0);
   });
 
-  readonly isFiltered = computed(() => this.state.activeTab() !== 'all' || this.state.searchQuery().trim() !== '');
+  readonly isFiltered = computed(
+    () => this.state.activeTab() !== 'all' || this.state.searchQuery().trim() !== '' || this.state.onlyReservable(),
+  );
 
   resetFilters(): void {
     this.state.setActiveTab('all');
     this.state.searchQuery.set('');
+    this.state.setOnlyReservable(false);
   }
 
   readonly totalSlots = computed(

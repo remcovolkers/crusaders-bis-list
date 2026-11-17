@@ -103,9 +103,27 @@
   &__tabs {
     min-width: 0;
   }
+  &__view {
+    flex-shrink: 0;
+
+    .segmented__item {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+  }
+  &__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-left: auto;
+    flex-shrink: 0;
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+  }
   &__search {
     width: 240px;
-    margin-left: auto;
     flex-shrink: 0;
   }
 }
@@ -164,9 +182,11 @@
     align-items: stretch;
     gap: var(--space-sm);
 
+    &__toggle {
+      margin-left: 0;
+    }
     &__search {
       width: 100%;
-      margin-left: 0;
     }
   }
   .loot-limits {
@@ -192,5 +212,22 @@
   .slot-row,
   .empty-slot {
     max-width: 100%;
+  }
+}
+
+
+/* ── Character view: pane + gearing plan side by side, using the width of a wide screen ── */
+.loot-page--wide {
+  max-width: 1800px;
+}
+.char-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: var(--space-md);
+  align-items: stretch;
+}
+@media (max-width: 1250px) {
+  .char-layout {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

@@ -3,7 +3,7 @@
 }
 
 @if (state.catalog() && !state.loading()) {
-  <div class="page loot-page">
+  <div class="page loot-page" [class.loot-page--wide]="state.view() === 'character'">
     <!-- Character + reservation limits + soft-reserve slots -->
     <section class="card loot-summary" aria-label="Mijn reserveringen">
       <div class="loot-summary__top">
@@ -58,6 +58,7 @@
         </div>
       </div>
 
+      @if (state.view() === 'list') {
       <div class="loot-slots">
         <div class="loot-slots__head row-between gap-md">
           <span class="t-label-caps c-muted">Soft reserves</span>
@@ -83,10 +84,32 @@
           }
         </div>
       </div>
+      }
     </section>
 
     <!-- Category tabs + search -->
     <div class="loot-filters sticky-bar">
+      <div class="segmented loot-filters__view" role="group" aria-label="Weergave">
+        <button
+          type="button"
+          class="segmented__item"
+          [class.is-active]="state.view() === 'list'"
+          [attr.aria-pressed]="state.view() === 'list'"
+          (click)="state.setView('list')"
+        >
+          <span class="material-symbols-outlined icon-16">list</span>Itemlijst
+        </button>
+        <button
+          type="button"
+          class="segmented__item"
+          [class.is-active]="state.view() === 'character'"
+          [attr.aria-pressed]="state.view() === 'character'"
+          (click)="state.setView('character')"
+        >
+          <span class="material-symbols-outlined icon-16">accessibility_new</span>Character
+        </button>
+      </div>
+      @if (state.view() === 'list') {
       <div class="scroll-x scroll-hidden loot-filters__tabs">
         <div class="segmented" role="tablist" aria-label="Categorie">
           @for (tab of state.visibleTabs(); track tab.key) {
@@ -102,6 +125,17 @@
           }
         </div>
       </div>
+      <label class="loot-filters__toggle" title="Verberg items die je dit seizoen niet kunt reserveren (bijvoorbeeld armor)">
+        <span class="switch">
+          <input
+            type="checkbox"
+            [checked]="state.onlyReservable()"
+            (change)="state.setOnlyReservable($any($event.target).checked)"
+          />
+          <span class="switch__track"></span>
+        </span>
+        <span class="t-body-code">Toon alleen reserveerbare items</span>
+      </label>
       <label class="search-field loot-filters__search">
         <span class="material-symbols-outlined">search</span>
         <input
@@ -112,8 +146,15 @@
           (ngModelChange)="state.searchQuery.set($event)"
         />
       </label>
+      }
     </div>
 
+    @if (state.view() === 'character') {
+      <div class="char-layout">
+        <lib-loot-paperdoll (editReservation)="openEditReserveModal($event)" />
+        <lib-loot-plan />
+      </div>
+    } @else {
     <!-- Boss sections -->
     <div class="boss-sections">
       @for (group of bossGroups(); track group.boss.id) {
@@ -159,6 +200,7 @@
         </div>
       }
     </div>
+    }
   </div>
 }
 

@@ -173,6 +173,10 @@ After deploying, go to the **Dev Panel → Reset & sync catalogus**. This will:
 
 The old season's data is preserved in the database; only `isActive` changes on reset.
 
+### Step 4 — Season rules for gear and bonus rolls
+
+After the sync, open **Admin → Seizoen config** (per team) and fill in **Gear-tiers en bonusrol**: the item level from which gear is certainly Myth, the ambiguous band (Hero 6/6 vs Myth 2/6) and whether the season has bonus rolls. These numbers differ every season. You can also put defaults in the season file (`trackItemLevels`) so they are filled in automatically.
+
 ---
 
 ## Admin panel
@@ -223,10 +227,48 @@ The inbox at `/feedback-inbox` (superuser only) shows open items as a checkbox t
 
 ---
 
+## Chase items
+
+The raider loot screen lists **every gear item the raider's class/spec can use**, not only reservable ones (armor usually has no limit). Items that cannot be reserved (category limit `0`, or the limit is reached) get a **"Zet op chase-lijst"** button instead of "Reserveer". A *chase item* is a non-binding "I want this" marker:
+
+- stored in `raider_chase_items` (`RaiderChaseItemOrmEntity`, migration `AddRaiderChaseItems`), unique per raider + item + season;
+- no limits, no tiers, never counts as a reservation and gives no priority; reserving an item removes its chase entry;
+- each chase has **methods** (`ChaseMethod`: `boss_drop` and/or `bonus_roll`, column `methods`, comma separated): a bonus roll is a personal roll after a kill that can give an item of the boss' loot table on a higher difficulty (Heroic kill, Myth item). The raider screen offers two independent toggle buttons, *Chase met bonusrol* and *Chase voor bossdrop*: both can be on ("it does not matter how I get it"); switching the last one off removes the chase. The character pane shows a dice on bonus-roll items so the raider can plan the gearing. A chase is done (removed by the gear sync) as soon as the item is worn at the best item level of **any** of its methods. Officers see bonus-roll chasers in a separate, non-assignable *Bonusrol* group;
+- API: `GET/POST /raider/chase-items` (POST takes `methods`: the full set, an empty list removes the chase), `DELETE /raider/chase-items/:id`, `POST /raider/chase-items/:id/catalyse` (use cases in `chase-item.use-case.ts` and `bis-mark.use-case.ts`);
+- the admin boss-loot view (`GET /admin/boss/:bossId/loot/:seasonId`) returns chasers as `IEligibleRaider` with `isChase: true`; the "Toon ook chase-items" switch in *Loot toewijzen* filters them client-side. Chasers never take part in the Wheel of Fortune;
+- the raider screen has a "Toon alleen reserveerbare items" switch (off by default).
+
+The new table is created by the `AddRaiderChaseItems` migration, which runs automatically when the backend starts (`migrationsRun: true`).
+
+### Best-in-slot marks and catalyst
+
+`raider_bis_marks` (`RaiderBisMarkOrmEntity`, one row per raider + slot) holds the raider's own "this worn item is BiS" marks: crafted pieces, dungeon items that are not in the loot list (`PUT/DELETE /raider/bis-marks/:slot`, reason `manual`) and catalysed tier pieces (reason `catalyst`, `note` = the chased item). A mark is tied to the worn item id and is dropped by the gear sync when another item is worn in that slot. **Catalyst** (`CatalyseChaseItemUseCase`): the chased item was converted into the tier piece of its slot (head/shoulders/chest/hands/legs, `CATALYST_SLOTS`), which is a different item than the chased one: the tier piece worn in that slot is marked `catalyst` and the chase is removed. The chased item itself is consumed by the catalyst and is deliberately **not** recorded as received: a chased item only counts as owned (BiS, "up to 344") when that exact item is worn at its best item level, or when it is reserved and received on Myth (the state service ignores a received row for an unreserved item). In the pane a loot-list item worn at `max_item_level` or higher is BiS by itself (`bisInfoFor` in the state service).
+
+### Gearing plan
+
+Next to the character pane, `LootPlanComponent` shows what to do where: the raider's open items grouped per boss (in boss order) and per action: *Reserved*, *Drop*, *Bonus roll*, *Drop + bonus roll* and *Upgrade* (a best-in-slot item that a bonus roll can still upgrade, e.g. → 344). The rules (which action an item gets, grouping, ordering, totals) are pure functions in `libs/frontend/loot/src/lib/ui-types/gearing-plan.ts` with tests; items with nothing left to do are left out. Each plan item also carries a **difficulty badge** (`planDifficultyOf`): **H+** = Heroic or Mythic helps, **M** = only Mythic helps (legend above the list). It comes from `RaiderLootStateService.difficultyNeeds`, which uses `minimumDifficulty` in `item-level-caps.ts`: the lowest difficulty whose result (drop: Heroic → `heroMaxItemLevel`, Mythic → `maxItemLevel`; bonus roll: Heroic → `maxItemLevel`, i.e. the Mythic variant, Mythic → the boss's best obtainable level, e.g. 344) beats the worn item level. So with a 341 piece only a Mythic bonus roll helps, with a Normal/Heroic piece a Heroic bonus roll already does. Assumptions: Normal is not modelled, and the Hero max level is the season's `ambiguousItemLevelFrom` (321). A **catalysed** item counts as what the raider has of the chased item: `_itemFacts` falls back to the worn piece of the `catalyst` bis mark whose `note` is the item name, so a bonus roll chase on a catalysed 334 piece is judged against 334 (only a Mythic bonus roll on a 344 boss helps, shown as **M**). Items chased both ways show the lowest difficulty of the two; the tooltip lists both. The panel takes the height of the pane and scrolls inside when the plan is long, so the character page (pane + plan) keeps fitting a 1080p screen at 100% zoom; loot cards keep a quiet idle state (dashed chase switches) and a clear on state (solid blue switch with a check, plus a blue "Chase" pill and an "Equipped" badge in the badge row); the character view widens the page (`.loot-page--wide`) to make room, and below 1250px the plan stacks under the pane.
+
+### Character pane
+
+The loot screen has an **Itemlijst | Character** switch. *Character* draws the raider's reserved and chased items on a World of Warcraft style paperdoll (`LootPaperdollComponent`). The item → slot mapping and the distribution over the slots (two rings, two trinkets, weapons) are pure functions in `libs/frontend/loot/src/lib/ui-types/paperdoll.ts`. The picture in the middle is the character's armory render: `GET /raider/character-media` asks Blizzard's character-media endpoint (`profile-<region>` namespace, client-credentials token, cached in memory for an hour) and returns `{ url: string | null }`. Without a public profile or realm the pane shows a placeholder.
+
+### Equipped gear sync
+
+The worn gear of every raider is read from the Blizzard armory (`GET /profile/wow/character/{realm}/{name}/equipment`, `profile-<region>` namespace, client-credentials token; the character must be public and `realm` filled in) and stored in `raider_equipped_items` (`RaiderEquippedItemOrmEntity`, migration `AddRaiderEquippedItems`).
+
+- `SyncRaiderEquipmentUseCase` (`equipment-sync.use-case.ts`) fetches and stores the gear, then **reconciles** it with the raider's lists: a reserved or chased item that is worn at a tier raises the "already have" tier (`raider_received_items`, never lowers it); a chased item worn at Myth is removed from the chase list. It never creates reservations or chases. Unit tests: `apps/crusaders-bis-list-backend/src/app/equipment-sync.use-case.spec.ts`.
+- The tier is read from the **item level**, because Blizzard's `name_description` ("Heroic", "Mythic") is the difficulty an item dropped on, not the upgrade track it is on now (a Heroic drop upgraded to Myth level still says "Heroic"). `equippedItemTier` in `libs/shared/domain/src/lib/constants/equipment.ts` applies the per-season caps `trackItemLevels` of the `SeasonDefinition` (Midnight S2: `mythFrom: 322`, `ambiguousFrom: 321`): from 322 up = Myth; 321 (Hero 6/6 or Myth 2/6) = Myth only when the description says Mythic, else Hero; below that only "Heroic" items count (Hero). Champion, crafted and other items have no tier and change nothing. **The caps are season rules:** they live in the season config (`season_configs.myth_item_level_from` / `ambiguous_item_level_from`, edited per team on the admin *Seizoen config* page, block *Gear-tiers en bonusrol*). A value that was never set falls back to `trackItemLevels` of the `SeasonDefinition` in code (`seasons/season-rules.ts`), so a new season only needs its numbers entered once they are known. `season_configs.bonus_roll_enabled` switches bonus rolls (and the *Chase met bonusrol* button) per season/team.
+
+**Best in slot is season dependent.** "BiS" is not the Myth tier but *having the item at the best item level of a boss drop*: `max_item_level` (e.g. 334, upgrades included). A bonus roll that gives more on some bosses is an **upgrade** of an item that is already BiS: `bonus_roll_item_levels` (per Blizzard encounter id, e.g. `{ 2883: 344, 2895: 344 }` for The Coiled Altar and Ula'tek) drives the "up to 344" chase. Same pattern as the other season rules: stored per season/team in `season_configs`, edited on the *Seizoen config* page, with `itemLevelCaps` of the `SeasonDefinition` as default (`null` = never set; `{}` = deliberately no boss gives more). The pure rules (`isBestInSlot`, `bonusRollUpgradeTo`, `bestObtainableItemLevel`) are in `libs/shared/domain/src/lib/constants/item-level-caps.ts`; the frontend uses them for the "BiS in bezit" / "Myth in bezit · tot 344 mogelijk" states and the backend for chase completion. A BiS item that a bonus roll can still upgrade can be chased with `bonus_roll` even while reserved (`SetChaseItemUseCase`); without caps the old rule (Myth tier = BiS) applies. Worn item levels come from the armory sync; if unknown, a received Myth drop counts as `max_item_level`. Items are matched on `IItem.wowItemId` (a worn secondary form of a merged item counts for its primary).
+- Triggers: `POST /raider/equipment/sync` (the loot page calls it on load; skipped if synced less than 10 minutes ago), `POST /admin/equipment/sync` (button *Gear synchroniseren* in *Loot toewijzen*: whole team, forced) and `EquipmentSyncScheduler` in the API app (every 30 minutes in production; `EQUIPMENT_SYNC_INTERVAL_MINUTES`, `0` disables, off outside production unless set). Raiders are synced one after the other.
+- Failures (private or unknown character, API down) keep the stored data and are retried after 5 minutes.
+
+The character pane (English texts on purpose, standard in-game layout incl. empty shirt/tabard placeholders) shows what the character wears: a slot can hold the worn item plus reserved / chased candidates side by side (reserved/BiS have a gold background, chase blue), and a reserved / chased item that is the worn item is merged into one entry. The layout is meant to fit a 1080p screen at 100% zoom without scrolling (compact slots, items side by side).
+
 ## Database notes
 
 - **`synchronize: true`** — only active when `NODE_ENV !== 'production'`. Never enable in prod.
-- **No migration framework** — schema changes in production are applied as raw SQL via the Supabase dashboard.
+- **Migrations** — TypeORM migrations (`libs/backend/infrastructure/src/lib/database/migrations`, registered in `index.ts`) run automatically on backend startup (`migrationsRun: true`). Add new ones to `MIGRATIONS`; no manual SQL needed.
 - **Upsert behaviour** — `upsertItem` uses `wowItemId` as the unique key. Re-running a sync never duplicates items.
 - **`isSuperRare`** — admin-only flag; the sync deliberately never overwrites a `true` value back to `false`.
 - **`other_limit` column** — maps to `armorLimit` in TypeScript. The DB column name is a legacy artefact; do not rename it without a migration.

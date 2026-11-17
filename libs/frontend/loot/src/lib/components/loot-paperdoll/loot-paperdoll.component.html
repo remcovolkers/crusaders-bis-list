@@ -1,0 +1,226 @@
+<section class="card paperdoll" aria-label="Character gear">
+  <div class="paperdoll__grid">
+    <div class="pd-col pd-col--left" role="list" aria-label="Left gear slots">
+      @for (def of left; track def.key) {
+        <ng-container *ngTemplateOutlet="slotTpl; context: { $implicit: def }" />
+      }
+    </div>
+
+    <figure class="pd-figure">
+      <div class="pd-legend">
+        <span class="legend-item legend-item--worn"
+          ><span class="material-symbols-outlined icon-14">checkroom</span>{{ equippedCount() }} equipped</span
+        >
+        <span class="legend-item legend-item--reserved"
+          ><span class="material-symbols-outlined icon-fill icon-14">bookmark</span>{{ reservedCount() }} reserved</span
+        >
+        <span class="legend-item legend-item--chased"
+          ><span class="material-symbols-outlined icon-14">flag</span>{{ chasedCount() }} chase</span
+        >
+      </div>
+      @if (state.characterImageUrl(); as url) {
+        <div
+          class="pd-figure__render"
+          role="img"
+          [style.background-image]="'url(' + url + ')'"
+          [attr.aria-label]="'Armory image of ' + (state.profile()?.characterName ?? 'your character')"
+        ></div>
+      } @else {
+        <div class="pd-figure__placeholder" [class]="'pd-figure__placeholder ' + classSlug()" aria-hidden="true">
+          <span class="pd-figure__initial">{{ (state.profile()?.characterName ?? '?').charAt(0).toUpperCase() }}</span>
+        </div>
+      }
+    </figure>
+
+    <div class="pd-col pd-col--right" role="list" aria-label="Right gear slots">
+      @for (def of right; track def.key) {
+        <ng-container *ngTemplateOutlet="slotTpl; context: { $implicit: def }" />
+      }
+    </div>
+
+    <div class="pd-bottom" role="list" aria-label="Weapons">
+      @for (def of bottom; track def.key) {
+        <ng-container *ngTemplateOutlet="slotTpl; context: { $implicit: def }" />
+      }
+    </div>
+  </div>
+
+  @if (layout().unplaced.length) {
+    <div class="pd-unplaced">
+      <span class="t-label-caps c-muted">No fixed slot</span>
+      <div class="pd-unplaced__list">
+        @for (entry of layout().unplaced; track entry.item.id) {
+          <div class="pd-slot">
+            <ng-container *ngTemplateOutlet="entryTpl; context: { $implicit: entry }" />
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!hasAnything()) {
+    <p class="pd-empty c-muted">
+      Nothing reserved or on your chase list yet. Pick items in the <strong>Itemlijst</strong> and they show up here, in
+      the right slot.
+    </p>
+  }
+</section>
+
+<ng-template #slotTpl let-def>
+  @let c = cell(def);
+  @let slotEmpty = !c || (!c.equipped && c.entries.length === 0);
+  <div class="pd-slot" role="listitem" [class.is-empty]="slotEmpty" [class.is-placeholder]="def.placeholder">
+    @if (slotEmpty) {
+      <span class="pd-slot__label t-label-caps">{{ def.label }}</span>
+    }
+    @if (c?.equipped; as worn) {
+      <ng-container *ngTemplateOutlet="wornTpl; context: { $implicit: worn }" />
+    }
+    @for (entry of c?.entries ?? []; track entry.item.id) {
+      <ng-container *ngTemplateOutlet="entryTpl; context: { $implicit: entry }" />
+    }
+  </div>
+</ng-template>
+
+<!-- What the character currently wears (not reserved, not chased) -->
+<ng-template #wornTpl let-piece>
+  @let bis = bisInfo(piece);
+  <div class="pd-entry is-worn" [class.is-bis]="bis.isBis">
+    @if (piece.iconUrl) {
+      <img class="pd-entry__icon" [src]="piece.iconUrl" alt="" loading="lazy" />
+    } @else {
+      <div class="pd-entry__icon pd-entry__icon--empty"></div>
+    }
+    <div class="pd-entry__text">
+      <span class="pd-entry__name" [title]="piece.name">{{ piece.name }}</span>
+      <span class="pd-entry__status">
+        @if (bis.reason === 'catalyst') {
+          <span class="pd-kind pd-kind--bis" [title]="'Catalysed from ' + (bis.note ?? 'a chased item')"
+            ><span class="material-symbols-outlined icon-fill icon-12">auto_fix_high</span>BiS · Catalysed</span
+          >
+        } @else if (bis.isBis) {
+          <span class="pd-kind pd-kind--bis"
+            ><span class="material-symbols-outlined icon-fill icon-12">star</span>BiS{{ bis.reason === 'manual' ? ' · Marked' : '' }}</span
+          >
+        } @else {
+          <span class="pd-kind pd-kind--worn"><span class="material-symbols-outlined icon-12">checkroom</span>Equipped</span>
+        }
+        <span class="pd-entry__boss">{{ equippedMeta(piece) }}</span>
+      </span>
+    </div>
+    <button
+        type="button"
+        class="icon-btn icon-btn--sm pd-bis-toggle"
+        [class.is-on]="state.isBisMarked(piece)"
+        [title]="state.isBisMarked(piece) ? 'Remove my BiS mark' : 'Mark as BiS (e.g. crafted or dungeon gear you will keep)'"
+        [attr.aria-pressed]="state.isBisMarked(piece)"
+        (click)="toggleBis(piece)"
+      >
+        <span class="material-symbols-outlined icon-14" [class.icon-fill]="state.isBisMarked(piece)">star</span>
+    </button>
+  </div>
+</ng-template>
+
+<!-- A reserved or chased item -->
+<ng-template #entryTpl let-entry>
+  <div
+    class="pd-entry"
+    [class.is-reserved]="entry.kind === 'reserved' && !entry.isBis"
+    [class.is-bis]="entry.isBis"
+    [class.is-chased]="entry.kind === 'chased' && !entry.isBis"
+  >
+    <span class="pd-entry__iconwrap">
+      @if (entry.item.iconUrl) {
+        <img class="pd-entry__icon" [src]="entry.item.iconUrl" alt="" loading="lazy" />
+      } @else {
+        <div class="pd-entry__icon pd-entry__icon--empty"></div>
+      }
+      @if (hasMethod(entry, ChaseMethod.BONUS_ROLL)) {
+        <span class="pd-dice material-symbols-outlined icon-fill" title="Planned via bonus roll">casino</span>
+      }
+    </span>
+    <div class="pd-entry__text">
+      <span class="pd-entry__name" [title]="entry.item.name">{{ entry.item.name }}</span>
+      <span class="pd-entry__status">
+        @if (entry.isBis) {
+          <span class="pd-kind pd-kind--bis"
+            ><span class="material-symbols-outlined icon-fill icon-12">star</span>BiS</span
+          >
+        } @else if (entry.kind === 'reserved') {
+          <span class="pd-kind pd-kind--reserved"><span class="material-symbols-outlined icon-fill icon-12">bookmark</span>Reserved</span>
+        }
+        @if (entry.kind === 'chased') {
+          @if (hasMethod(entry, ChaseMethod.BOSS_DROP)) {
+            <span class="pd-kind pd-kind--chase" title="Planned via boss drop"
+              ><span class="material-symbols-outlined icon-12">flag</span>Chase</span
+            >
+          }
+          @if (hasMethod(entry, ChaseMethod.BONUS_ROLL)) {
+            <span class="pd-kind pd-kind--chase" title="Planned via bonus roll"
+              ><span class="material-symbols-outlined icon-12">casino</span>Bonus roll</span
+            >
+          }
+        }
+        <span class="pd-entry__boss" [title]="entry.bossName">{{ entry.bossName }}</span>
+      </span>
+      @if ((entry.kind === 'reserved' && !entry.isBis) || entry.equippedItem || entry.upgradeTo) {
+        <span class="pd-entry__status">
+          @if (entry.kind === 'reserved' && !entry.isBis) {
+            @for (tier of entry.tiers; track tier) {
+              <span class="tier-chip" [ngClass]="'tier-' + tier">{{ tierLabel(tier) }}</span>
+            }
+          }
+          @if (entry.upgradeTo) {
+            <span class="pd-kind pd-kind--bis" [title]="'A bonus roll can still give ' + entry.upgradeTo"
+              ><span class="material-symbols-outlined icon-12">trending_up</span>Up to {{ entry.upgradeTo }}</span
+            >
+          }
+          @if (entry.kind === 'reserved' && hasMethod(entry, ChaseMethod.BONUS_ROLL)) {
+            <span class="pd-kind pd-kind--chase" title="Planned via bonus roll"
+              ><span class="material-symbols-outlined icon-12">casino</span>Bonus roll</span
+            >
+          }
+          @if (entry.equippedItem; as worn) {
+            <span class="pd-kind pd-kind--worn" [title]="'You are wearing this: ' + (worn.tierLabel ?? '')"
+              ><span class="material-symbols-outlined icon-12">checkroom</span>Equipped {{ equippedMeta(worn) }}</span
+            >
+          }
+        </span>
+      }
+    </div>
+    <div class="pd-entry__actions">
+      @if (entry.kind === 'reserved') {
+        <button type="button" class="icon-btn icon-btn--sm" title="Edit reservation" aria-label="Edit reservation" (click)="editReservation.emit(entry.item)">
+          <span class="material-symbols-outlined icon-14">edit</span>
+        </button>
+      } @else {
+        <button type="button" class="icon-btn icon-btn--sm" title="Remove from chase list" aria-label="Remove from chase list" (click)="removeChase(entry)">
+          <span class="material-symbols-outlined icon-14">close</span>
+        </button>
+        @if (catalystSlot(entry); as slot) {
+          <button
+            type="button"
+            class="icon-btn icon-btn--sm"
+            title="I catalysed this into my tier piece: mark the tier piece in this slot as BiS and take this off my chase list"
+            aria-label="Catalysed into my tier piece"
+            (click)="catalyse(entry, slot)"
+          >
+            <span class="material-symbols-outlined icon-14">auto_fix_high</span>
+          </button>
+        }
+      }
+    </div>
+    @if (entry.equippedItem; as worn) {
+      <button
+        type="button"
+        class="icon-btn icon-btn--sm pd-bis-toggle"
+        [class.is-on]="state.isBisMarked(worn)"
+        [title]="state.isBisMarked(worn) ? 'Remove my BiS mark' : 'Mark the piece you wear as BiS'"
+        [attr.aria-pressed]="state.isBisMarked(worn)"
+        (click)="toggleBis(worn)"
+      >
+        <span class="material-symbols-outlined icon-14" [class.icon-fill]="state.isBisMarked(worn)">star</span>
+      </button>
+    }
+  </div>
+</ng-template>

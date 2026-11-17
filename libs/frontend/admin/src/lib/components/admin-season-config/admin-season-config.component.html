@@ -117,6 +117,98 @@
           </div>
         </div>
 
+        <!-- Seizoensregels: gear-tiers (item level) en bonusrol -->
+        <div class="rules-block">
+          <h3 class="t-title-sm rules-block__title">
+            <span class="material-symbols-outlined icon-16" aria-hidden="true">tune</span>Gear-tiers en bonusrol
+          </h3>
+          <p class="t-body-default c-secondary config-intro">
+            Seizoensafhankelijk: pas deze waarden aan zodra een nieuw seizoen begint. De gear van raiders wordt aan het
+            item level herkend als Hero of Myth (Champion telt niet mee).
+          </p>
+          <div class="limit-grid">
+            <div class="limit-tile">
+              <label class="t-label-caps c-muted" for="myth-from">Myth vanaf item level</label>
+              <input
+                id="myth-from"
+                class="form-input limit-input"
+                type="number"
+                min="0"
+                placeholder="bijv. 322"
+                [ngModel]="mythFrom()"
+                (ngModelChange)="mythFrom.set($event === '' ? null : $event)"
+              />
+              <span class="t-body-code c-muted">Hoger of gelijk is zeker Myth.</span>
+            </div>
+            <div class="limit-tile">
+              <label class="t-label-caps c-muted" for="ambiguous-from">Twijfelgebied vanaf</label>
+              <input
+                id="ambiguous-from"
+                class="form-input limit-input"
+                type="number"
+                min="0"
+                placeholder="bijv. 321"
+                [ngModel]="ambiguousFrom()"
+                (ngModelChange)="ambiguousFrom.set($event === '' ? null : $event)"
+              />
+              <span class="t-body-code c-muted">Hero 6/6 of Myth 2/6: Blizzards tekst beslist.</span>
+            </div>
+            <div class="limit-tile">
+              <label class="t-label-caps c-muted" for="bonus-roll">Bonusrol dit seizoen</label>
+              <label class="rules-switch">
+                <span class="switch">
+                  <input id="bonus-roll" type="checkbox" [checked]="bonusRoll()" (change)="bonusRoll.set($any($event.target).checked)" />
+                  <span class="switch__track"></span>
+                </span>
+                <span class="t-body-code">{{ bonusRoll() ? 'Aan' : 'Uit' }}</span>
+              </label>
+              <span class="t-body-code c-muted">Aan: raiders kunnen "Chase met bonusrol" kiezen.</span>
+            </div>
+          </div>
+
+          <h3 class="t-title-sm rules-block__title">
+            <span class="material-symbols-outlined icon-16" aria-hidden="true">military_tech</span>Beste item level
+          </h3>
+          <p class="t-body-default c-secondary config-intro">
+            "BiS in bezit" betekent dat je het item op het beste item level van een drop hebt (bijvoorbeeld 334). Een
+            bonusrol op sommige bosses geeft meer (bijvoorbeeld 344): dat is een upgrade van een BiS-item, die je kunt
+            chasen met een bonusrol.
+          </p>
+          <div class="limit-grid">
+            <div class="limit-tile">
+              <label class="t-label-caps c-muted" for="max-ilvl">Maximaal item level (drop)</label>
+              <input
+                id="max-ilvl"
+                class="form-input limit-input"
+                type="number"
+                min="0"
+                placeholder="bijv. 334"
+                [ngModel]="maxItemLevel()"
+                (ngModelChange)="maxItemLevel.set($event === '' ? null : $event)"
+              />
+              <span class="t-body-code c-muted">Hoogste item level van een drop (upgrades tellen mee).</span>
+            </div>
+          </div>
+          @if (bossesWithEncounter().length) {
+            <div class="t-label-caps c-muted">Item level van een bonusrol per boss (leeg = gelijk aan een drop)</div>
+            <div class="boss-levels">
+              @for (boss of bossesWithEncounter(); track boss.id) {
+                <label class="boss-level">
+                  <span class="boss-level__name truncate">{{ boss.name }}</span>
+                  <input
+                    class="form-input boss-level__input"
+                    type="number"
+                    min="0"
+                    [placeholder]="maxItemLevel() ?? ''"
+                    [ngModel]="bonusRollLevels()[boss.wowEncounterId!]"
+                    (ngModelChange)="setBossLevel(boss.wowEncounterId!, $event)"
+                  />
+                </label>
+              }
+            </div>
+          }
+        </div>
+
         <footer class="config-actions">
           @if (dirty()) {
             <span class="t-body-code c-warning config-dirty">

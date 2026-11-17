@@ -9,12 +9,14 @@ import {
   ArmorType,
   PrimaryStat,
   AssignmentStatus,
+  ChaseMethod,
   Team,
 } from '@crusaders-bis-list/shared-domain';
 import { BossOrmEntity, ItemOrmEntity } from '../entities/catalog.orm-entity';
 import { RaiderProfileOrmEntity } from '../entities/raider-profile.orm-entity';
 import { ReservationOrmEntity, AssignmentOrmEntity } from '../entities/loot.orm-entity';
 import { RaiderReceivedItemOrmEntity } from '../entities/raider-received-item.orm-entity';
+import { RaiderChaseItemOrmEntity } from '../entities/raider-chase-item.orm-entity';
 import { ItemSuperRareOverrideOrmEntity } from '../entities/item-super-rare-override.orm-entity';
 import { RaiderStatus } from '@crusaders-bis-list/shared-domain';
 
@@ -33,6 +35,8 @@ export class LootQueryRepository implements ILootQueryRepository {
     private readonly assignmentRepo: Repository<AssignmentOrmEntity>,
     @InjectRepository(RaiderReceivedItemOrmEntity)
     private readonly receivedItemRepo: Repository<RaiderReceivedItemOrmEntity>,
+    @InjectRepository(RaiderChaseItemOrmEntity)
+    private readonly chaseItemRepo: Repository<RaiderChaseItemOrmEntity>,
     @InjectRepository(ItemSuperRareOverrideOrmEntity)
     private readonly superRareOverrideRepo: Repository<ItemSuperRareOverrideOrmEntity>,
   ) {}
@@ -122,6 +126,23 @@ export class LootQueryRepository implements ILootQueryRepository {
             .getMany()
         : [];
 
+    // Chase items (a raider wants the item but has no reservation for it) — shown to officers as a separate group.
+    const allChaseItems =
+      itemIds.length > 0 && teamRaiderIds.length > 0
+        ? await this.chaseItemRepo
+            .createQueryBuilder('chase')
+            .where('chase.item_id IN (:...itemIds)', { itemIds })
+            .andWhere('chase.raid_season_id = :raidSeasonId', { raidSeasonId })
+            .andWhere('chase.raider_id IN (:...raiderIds)', { raiderIds: teamRaiderIds })
+            .getMany()
+        : [];
+    const chaseByItem = new Map<string, RaiderChaseItemOrmEntity[]>();
+    for (const c of allChaseItems) {
+      const list = chaseByItem.get(c.itemId) ?? [];
+      list.push(c);
+      chaseByItem.set(c.itemId, list);
+    }
+
     // Group by itemId
     const resByItem = new Map<string, ReservationOrmEntity[]>();
     for (const r of allReservations) {
@@ -138,7 +159,7 @@ export class LootQueryRepository implements ILootQueryRepository {
       receivedByRaiderItem.set(`${rec.raiderId}:${rec.itemId}`, rec.tier);
     }
 
-    // Only include items that have at least one reservation.
+    // Only include items that have at least one reservation or chase entry.
     // Merged secondary items (mergedWithItemId set) are folded into their primary:
     // their reservations appear under the primary drop, deduped by raiderId.
     const primaryItems = items.filter((i) => !i.mergedWithItemId);
@@ -153,10 +174,10 @@ export class LootQueryRepository implements ILootQueryRepository {
 
     const drops = primaryItems
       .filter((item) => {
-        // Include if primary or any secondary has reservations
+        // Include if primary or any secondary has reservations or chase entries
         const secondaries = secondaryItemsByPrimaryWowId.get(item.wowItemId ?? -1) ?? [];
         const allIds = [item.id, ...secondaries.map((s) => s.id)];
-        return allIds.some((id) => (resByItem.get(id)?.length ?? 0) > 0);
+        return allIds.some((id) => (resByItem.get(id)?.length ?? 0) > 0 || (chaseByItem.get(id)?.length ?? 0) > 0);
       })
       .map((item) => {
         const secondaries = secondaryItemsByPrimaryWowId.get(item.wowItemId ?? -1) ?? [];
@@ -209,6 +230,41 @@ export class LootQueryRepository implements ILootQueryRepository {
           if (a.assignment && !b.assignment) return 1;
           return (a.reservationCreatedAt?.getTime() ?? 0) - (b.reservationCreatedAt?.getTime() ?? 0);
         });
+
+        // Chasers: raiders who want the item without a reservation. Listed after every reservation holder.
+        const chasers = new Map<string, RaiderChaseItemOrmEntity>();
+        for (const chase of allItemIds.flatMap((id) => chaseByItem.get(id) ?? [])) {
+          // An actual reservation wins over a boss-drop chase. A bonus roll chase is a separate plan (e.g. upgrading a
+          // Myth item with a bonus roll) and stays visible.
+          if (byRaider.has(chase.raiderId) && !chase.methods.includes(ChaseMethod.BONUS_ROLL)) continue;
+          const existing = chasers.get(chase.raiderId);
+          if (!existing || chase.createdAt < existing.createdAt) chasers.set(chase.raiderId, chase);
+        }
+        const chaseRaiders: IEligibleRaider[] = [...chasers.values()]
+          .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+          .map((chase) => {
+            const raider = raiderMap.get(chase.raiderId);
+            const assignment =
+              allItemIds.map((id) => assignByRaiderItem.get(`${chase.raiderId}:${id}`)).find(Boolean) ?? undefined;
+            const receivedTier =
+              allItemIds.map((id) => receivedByRaiderItem.get(`${chase.raiderId}:${id}`)).find(Boolean) ?? null;
+            return {
+              raiderId: chase.raiderId,
+              raiderName: raider?.characterName ?? chase.raiderId,
+              characterName: raider?.characterName ?? chase.raiderId,
+              wowClass: raider?.wowClass ?? ('' as never),
+              spec: raider?.spec ?? ('' as never),
+              hasReservation: false,
+              isChase: true,
+              chaseMethods: chase.methods,
+              chaseCreatedAt: chase.createdAt,
+              assignment: assignment
+                ? { id: assignment.id, status: assignment.status, assignedAt: assignment.assignedAt }
+                : null,
+              receivedTier,
+            };
+          });
+        eligibleRaiders.push(...chaseRaiders);
 
         // Use the first secondary's iconUrl as the split icon (for display in admin)
         const secondaryIconUrl = secondaries[0]?.iconUrl;

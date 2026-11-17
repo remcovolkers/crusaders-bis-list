@@ -44,6 +44,12 @@ export class AdminSeasonConfigComponent {
   readonly jewelryLimit = signal(1);
   readonly armorLimit = signal(1);
   readonly superrareLimit = signal(0);
+  readonly mythFrom = signal<number | null>(null);
+  readonly ambiguousFrom = signal<number | null>(null);
+  readonly bonusRoll = signal(true);
+  readonly maxItemLevel = signal<number | null>(null);
+  /** Bonus roll item level per boss (Blizzard encounter id); empty = a bonus roll gives no more than a drop. */
+  readonly bonusRollLevels = signal<Record<string, number | null>>({});
 
   readonly season = computed(() => this.catalog()?.season ?? null);
   readonly teamName = computed(() => (this.viewedTeam() === Team.TEMPLARS ? 'Templars' : 'Crusaders'));
@@ -58,7 +64,12 @@ export class AdminSeasonConfigComponent {
         c.weaponLimit !== this.weaponLimit() ||
         c.jewelryLimit !== this.jewelryLimit() ||
         c.armorLimit !== this.armorLimit() ||
-        c.superrareLimit !== this.superrareLimit())
+        c.superrareLimit !== this.superrareLimit() ||
+        c.mythItemLevelFrom !== this.mythFrom() ||
+        c.ambiguousItemLevelFrom !== this.ambiguousFrom() ||
+        c.bonusRollEnabled !== this.bonusRoll() ||
+        c.maxItemLevel !== this.maxItemLevel() ||
+        JSON.stringify(this.sortedLevels(c.bonusRollItemLevels ?? {})) !== JSON.stringify(this.filledBonusRollLevels()))
     );
   });
   readonly superRareCount = computed(
@@ -84,11 +95,37 @@ export class AdminSeasonConfigComponent {
       this.jewelryLimit.set(c.jewelryLimit);
       this.armorLimit.set(c.armorLimit);
       this.superrareLimit.set(c.superrareLimit);
+      this.mythFrom.set(c.mythItemLevelFrom);
+      this.ambiguousFrom.set(c.ambiguousItemLevelFrom);
+      this.bonusRoll.set(c.bonusRollEnabled);
+      this.maxItemLevel.set(c.maxItemLevel);
+      this.bonusRollLevels.set({ ...(c.bonusRollItemLevels ?? {}) });
     });
     effect(() => {
       const c = this.catalogResource.value();
       if (c?.bosses.length) this.selectedBossId.set(c.bosses[0].id);
     });
+  }
+
+  /** Bosses of the season that have a Blizzard encounter id (the key of the bonus roll item levels). */
+  readonly bossesWithEncounter = computed(() =>
+    (this.catalog()?.bosses ?? []).filter((b) => b.wowEncounterId != null),
+  );
+
+  private sortedLevels(levels: Record<string, number | null>): [string, number][] {
+    return Object.entries(levels)
+      .filter((e): e is [string, number] => e[1] != null)
+      .sort(([a], [b]) => a.localeCompare(b));
+  }
+
+  /** The filled-in bonus roll item levels, as sent to the API. */
+  private filledBonusRollLevels(): [string, number][] {
+    return this.sortedLevels(this.bonusRollLevels());
+  }
+
+  setBossLevel(encounterId: number, value: number | string | null): void {
+    const level = value === '' || value == null ? null : Number(value);
+    this.bonusRollLevels.update((all) => ({ ...all, [String(encounterId)]: level }));
   }
 
   save(): void {
@@ -104,6 +141,11 @@ export class AdminSeasonConfigComponent {
           jewelryLimit: this.jewelryLimit(),
           armorLimit: this.armorLimit(),
           superrareLimit: this.superrareLimit(),
+          mythItemLevelFrom: this.mythFrom(),
+          ambiguousItemLevelFrom: this.ambiguousFrom(),
+          bonusRollEnabled: this.bonusRoll(),
+          maxItemLevel: this.maxItemLevel(),
+          bonusRollItemLevels: Object.fromEntries(this.filledBonusRollLevels()),
         },
         this.viewedTeam(),
       )

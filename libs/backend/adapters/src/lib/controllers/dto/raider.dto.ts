@@ -1,5 +1,5 @@
-import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
-import { AssignmentStatus, Team, WowClass, WowSpec } from '@crusaders-bis-list/shared-domain';
+import { IsArray, IsEnum, IsInt, IsIn, IsOptional, IsString, IsUUID } from 'class-validator';
+import { AssignmentStatus, CATALYST_SLOTS, ChaseMethod, EquipmentSlot, Team, WowClass, WowSpec } from '@crusaders-bis-list/shared-domain';
 
 export class ReserveItemDto {
   @IsUUID()
@@ -63,4 +63,33 @@ export class MarkReceivedDto {
   @IsOptional()
   @IsString()
   itemName?: string;
+}
+
+export class AddChaseItemDto {
+  @IsUUID()
+  itemId!: string;
+
+  @IsUUID()
+  raidSeasonId!: string;
+
+  /** How the raider hopes to get the item: boss drop, bonus roll or both. An empty list removes the chase. */
+  @IsArray()
+  @IsEnum(ChaseMethod, { each: true })
+  methods!: ChaseMethod[];
+
+  @IsOptional()
+  @IsString()
+  itemName?: string;
+}
+
+export class CatalyseChaseDto {
+  /** The tier slot that now holds the catalysed tier piece. */
+  @IsIn(CATALYST_SLOTS as unknown as string[])
+  slot!: EquipmentSlot;
+}
+
+export class BisMarkDto {
+  /** Blizzard item id of the worn item that is marked as best in slot. */
+  @IsInt()
+  itemId!: number;
 }

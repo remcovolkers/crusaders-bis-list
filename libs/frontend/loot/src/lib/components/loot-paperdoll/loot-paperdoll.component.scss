@@ -1,0 +1,362 @@
+// World of Warcraft style character pane, laid out like the in-game one: head..wrists on the left, hands..trinkets on
+// the right, weapons underneath. Several items in one slot sit side by side.
+// Backgrounds: reserved = gold tint, BiS = stronger gold, chase = blue tint, equipped = plain.
+// Compact on purpose: the whole pane has to fit a 1080p screen at 100% zoom without scrolling.
+:host {
+  display: block;
+}
+
+.paperdoll {
+  --rarity-epic: #c084fc;
+  --slot-min-h: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+
+  &__grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 440px) minmax(220px, 1fr) minmax(280px, 440px);
+    grid-template-areas:
+      'left center right'
+      '. bottom .';
+    width: 100%;
+    max-width: 1320px;
+    margin-inline: auto;
+    gap: var(--space-xs) var(--space-md);
+    align-items: start;
+  }
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &--worn {
+    color: var(--text-secondary);
+  }
+  &--reserved {
+    color: var(--primary);
+  }
+  &--chased {
+    color: var(--info-text);
+  }
+}
+
+.pd-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+
+  &--left {
+    grid-area: left;
+  }
+  &--right {
+    grid-area: right;
+  }
+}
+
+.pd-bottom {
+  grid-area: bottom;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-xs) var(--space-sm);
+  min-width: 0;
+  // the weapons sit under the character, spanning a bit more than the middle column
+  margin-inline: -200px;
+}
+
+/* ── Character in the middle ── */
+.pd-legend {
+  position: absolute;
+  top: var(--space-sm);
+  left: var(--space-sm);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pd-figure {
+  position: relative;
+  grid-area: center;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--radius-xs);
+  background: radial-gradient(ellipse at 50% 45%, var(--surface-tier-2), var(--surface-tier-1) 72%);
+
+  // The armory render is a 1600x1200 canvas with the character small in the middle: crop to the figure so it fills
+  // the space (4:5 window on x 350-1050, y 200-1075 of the render).
+  &__render {
+    height: 100%;
+    min-height: 260px;
+    max-width: 100%;
+    aspect-ratio: 4 / 5;
+    background-repeat: no-repeat;
+    background-size: 228.57% auto;
+    background-position: 38.9% 61.5%;
+  }
+  &__placeholder {
+    display: grid;
+    place-items: center;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--class-color, var(--primary)) 14%, var(--surface-tier-1));
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--class-color, var(--primary)) 45%, transparent);
+  }
+  &__initial {
+    font-size: 72px;
+    line-height: 1;
+    font-weight: 700;
+    color: var(--class-color, var(--primary));
+  }
+}
+
+/* ── Slot: the items in it sit side by side ── */
+.pd-slot {
+  display: flex;
+  flex-wrap: wrap; // three or more items: the third starts a second row
+  align-items: stretch;
+  gap: var(--space-xs);
+  min-width: 0;
+  min-height: var(--slot-min-h);
+  border-radius: var(--radius-xs);
+  background: var(--surface-tier-2);
+
+  &__label {
+    margin: auto;
+    font-size: 9px;
+    line-height: 12px;
+    color: var(--text-muted);
+  }
+  &.is-empty {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--border-subtle);
+    opacity: 0.7;
+  }
+  // shirt / tabard: not gear we track, only there so the columns look like the in-game pane
+  &.is-placeholder {
+    box-shadow: inset 0 0 0 1px var(--border-subtle);
+    opacity: 0.35;
+  }
+}
+
+/* ── Item in a slot ── */
+.pd-entry {
+  display: flex;
+  flex: 1 1 190px;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+  padding: 3px var(--space-xs) 3px var(--space-sm);
+  border-radius: var(--radius-xs);
+  box-shadow: inset 2px 0 0 var(--entry-color, var(--border-strong));
+  background: var(--entry-bg, transparent);
+
+  &.is-worn {
+    --entry-color: var(--text-muted);
+  }
+  &.is-reserved {
+    --entry-color: var(--primary);
+    --entry-bg: color-mix(in srgb, var(--primary) 20%, var(--surface-tier-2));
+  }
+  &.is-bis {
+    --entry-color: var(--primary);
+    --entry-bg: color-mix(in srgb, var(--primary) 36%, var(--surface-tier-2));
+  }
+  &.is-chased {
+    --entry-color: var(--info);
+    --entry-bg: color-mix(in srgb, var(--info) 13%, var(--surface-tier-2));
+  }
+
+  &__iconwrap {
+    position: relative;
+    flex-shrink: 0;
+    display: inline-flex;
+  }
+  &__icon {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-xs);
+    box-shadow: 0 0 0 1px var(--entry-color, var(--border-strong));
+
+    &--empty {
+      background: var(--surface-tier-1);
+    }
+  }
+  &__text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+  }
+  // small text, ellipsis when it does not fit
+  &__name {
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 15px;
+    font-weight: 600;
+    color: var(--rarity-epic);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  &__boss {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 11px;
+    line-height: 14px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  &__status {
+    display: flex;
+    align-items: center;
+    gap: 2px var(--space-xs);
+    min-width: 0;
+    min-height: 14px;
+    overflow: hidden;
+    white-space: nowrap;
+
+    .tier-chip {
+      flex-shrink: 0;
+      padding: 0 4px;
+      font-size: 9px;
+      line-height: 14px;
+    }
+  }
+  // small icon buttons (edit / remove / catalyse / BiS mark), two per row
+  &__actions {
+    display: grid;
+    grid-template-columns: repeat(2, 22px);
+    flex-shrink: 0;
+    align-self: center;
+  }
+}
+
+// kind markers: equipped / reserved / chase / BiS
+.pd-kind {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  font-size: 9px;
+  line-height: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+
+  &--worn {
+    min-width: 0;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-secondary);
+  }
+  &--chase {
+    color: var(--info-text);
+  }
+  &--reserved,
+  &--bis {
+    color: var(--primary);
+  }
+}
+
+.pd-unplaced {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-xs);
+  }
+}
+
+.pd-empty {
+  margin: 0;
+  font-size: 13px;
+}
+
+/* ── Narrower screens ── */
+@media (max-width: 1000px) {
+  .paperdoll__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      'center center'
+      'left right'
+      'bottom bottom';
+  }
+  .pd-bottom {
+    margin-inline: 0;
+  }
+  .pd-figure__render {
+    height: 300px;
+  }
+}
+
+@media (max-width: 640px) {
+  .paperdoll__grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'center'
+      'left'
+      'right'
+      'bottom';
+  }
+  .pd-bottom {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// dice on the item icon: planned via bonus roll
+.pd-dice {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  padding: 1px;
+  border-radius: 4px;
+  background: var(--info);
+  color: var(--surface-base);
+  font-size: 12px;
+  line-height: 1;
+  box-shadow: 0 0 0 1px var(--surface-tier-2);
+}
+
+// "this worn piece is BiS" star: takes no room, appears on hover (always visible once it is on)
+.pd-entry {
+  position: relative;
+}
+.pd-bis-toggle {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  z-index: 1;
+  opacity: 0;
+  background: color-mix(in srgb, var(--surface-tier-2) 85%, transparent);
+
+  .pd-entry:hover &,
+  &:focus-visible,
+  &.is-on {
+    opacity: 1;
+  }
+  &.is-on {
+    color: var(--primary);
+  }
+  @media (hover: none) {
+    opacity: 0.7;
+  }
+}

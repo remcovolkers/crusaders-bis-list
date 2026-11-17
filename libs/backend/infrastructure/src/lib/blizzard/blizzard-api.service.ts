@@ -6,6 +6,7 @@ import {
   BlizzardJournalInstance,
   BlizzardJournalEncounter,
   BlizzardItem,
+  BlizzardEquippedItem,
 } from '@crusaders-bis-list/backend-domain';
 
 interface BlizzardToken {
@@ -120,10 +121,90 @@ export class BlizzardApiService implements IBlizzardApiService {
     return this.get<BlizzardItem>(`/data/wow/item/${id}`);
   }
 
+  /** Character renders change rarely; cache them so every loot page view does not hit the Blizzard API. */
+  private readonly characterRenderCache = new Map<string, { url: string | null; expiresAt: number }>();
+  private static readonly RENDER_TTL_MS = 60 * 60 * 1000;
+  private static readonly RENDER_MISS_TTL_MS = 10 * 60 * 1000;
+
+  /** "Tarren Mill" → "tarren-mill", "Chamber of Aspects" → "chamber-of-aspects", "Kil'jaeden" → "kiljaeden". */
+  static realmSlug(realm: string): string {
+    return realm
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/['’]/g, '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  async getCharacterEquipment(realm: string, characterName: string): Promise<BlizzardEquippedItem[] | null> {
+    if (!this.isConfigured || !realm.trim() || !characterName.trim()) return null;
+    const slug = BlizzardApiService.realmSlug(realm);
+    const name = characterName.trim().toLowerCase();
+    try {
+      const data = await this.get<{
+        equipped_items?: {
+          slot: { type: string };
+          item: { id: number };
+          name: string;
+          level?: { value: number };
+          name_description?: { display_string?: string };
+        }[];
+      }>(`/profile/wow/character/${encodeURIComponent(slug)}/${encodeURIComponent(name)}/equipment`, {
+        namespace: `profile-${this.region}`,
+      });
+      return (data.equipped_items ?? []).map((i) => ({
+        slot: i.slot.type,
+        itemId: i.item.id,
+        name: i.name,
+        itemLevel: i.level?.value ?? 0,
+        description: i.name_description?.display_string ?? null,
+      }));
+    } catch {
+      return null; // 404 (no public profile) and API errors both mean "unknown"; callers keep what they have
+    }
+  }
+
+  async getCharacterRenderUrl(realm: string, characterName: string): Promise<string | null> {
+    if (!this.isConfigured || !realm.trim() || !characterName.trim()) return null;
+    const slug = BlizzardApiService.realmSlug(realm);
+    const name = characterName.trim().toLowerCase();
+    const key = `${slug}/${name}`;
+
+    const cached = this.characterRenderCache.get(key);
+    if (cached && Date.now() < cached.expiresAt) return cached.url;
+
+    let url: string | null = null;
+    try {
+      const media = await this.get<{ assets?: { key: string; value: string }[] }>(
+        `/profile/wow/character/${encodeURIComponent(slug)}/${encodeURIComponent(name)}/character-media`,
+        { namespace: `profile-${this.region}` },
+      );
+      const assets = media.assets ?? [];
+      // main-raw = transparent full-body render; the others have a baked-in background
+      url = (['main-raw', 'main', 'inset'] as const).map((k) => assets.find((a) => a.key === k)?.value).find(Boolean) ?? null;
+    } catch {
+      url = null; // 404 (no public profile) and API errors both just mean "no picture"
+    }
+    this.characterRenderCache.set(key, {
+      url,
+      expiresAt: Date.now() + (url ? BlizzardApiService.RENDER_TTL_MS : BlizzardApiService.RENDER_MISS_TTL_MS),
+    });
+    return url;
+  }
+
+  /** Item icons never change; remembering them keeps gear syncs for a whole team down to a handful of calls. */
+  private readonly itemIconCache = new Map<number, string>();
+
   async getItemMediaUrl(id: number): Promise<string | undefined> {
+    const cached = this.itemIconCache.get(id);
+    if (cached) return cached;
     try {
       const media = await this.get<{ assets: { key: string; value: string }[] }>(`/data/wow/media/item/${id}`);
-      return media.assets.find((a) => a.key === 'icon')?.value;
+      const url = media.assets.find((a) => a.key === 'icon')?.value;
+      if (url) this.itemIconCache.set(id, url);
+      return url;
     } catch {
       return undefined;
     }

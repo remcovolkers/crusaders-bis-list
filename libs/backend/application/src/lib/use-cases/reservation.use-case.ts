@@ -9,6 +9,8 @@ import {
   IReceivedItemRepository,
   ASSIGNMENT_REPOSITORY,
   IAssignmentRepository,
+  CHASE_ITEM_REPOSITORY,
+  IChaseItemRepository,
 } from '@crusaders-bis-list/backend-domain';
 import { RAID_CATALOG_REPOSITORY, IRaidCatalogRepository } from '@crusaders-bis-list/backend-domain';
 import { Team } from '@crusaders-bis-list/shared-domain';
@@ -22,6 +24,8 @@ export class ReserveItemUseCase {
     private readonly catalogRepo: IRaidCatalogRepository,
     @Inject(SEASON_CONFIG_REPOSITORY)
     private readonly configRepo: ISeasonConfigRepository,
+    @Inject(CHASE_ITEM_REPOSITORY)
+    private readonly chaseRepo: IChaseItemRepository,
   ) {}
 
   async execute(raiderId: string, itemId: string, raidSeasonId: string, team: Team): Promise<void> {
@@ -66,6 +70,9 @@ export class ReserveItemUseCase {
       raidSeasonId,
       isSuperRare: isSuperRareForTeam,
     });
+
+    // A reservation supersedes a chase entry for the same item — keep the two lists disjoint.
+    await this.chaseRepo.deleteByRaiderAndItem(raiderId, itemId);
   }
 }
 
